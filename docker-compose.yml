@@ -1,0 +1,18 @@
+services:
+  
+  gidh-database:
+    image: rimvanvliet/gidh-database:${GIDH_DEV_VERSION}
+    container_name: gidh-database
+    environment:
+      - TZ=Europe/Amsterdam
+      - POSTGRES_USER=gidh
+      - POSTGRES_PASSWORD=gidh
+      - POSTGRES_DB=gidh
+    volumes:
+      - gidh-database:/bitnami/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+volumes:
+  gidh-database:
