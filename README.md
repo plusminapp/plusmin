@@ -7,7 +7,7 @@
 
 `PlusMin` is een open-source project gericht op de ondersteuning van administratiemaatjes (zie https://schuldhulpmaatje.nl/) bij het begeleiden van hulpvragers. 
 
-`PlusMin` is Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet theoretisch.
+`PlusMin` is: Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet theoretisch.
 
 Dit gereedschap helpt administratiemaatjes en hulpvragers bij het budgetteren, monitoren van inkomsten en uitgaven, en het voorkomen van onverwachte financiële problemen. Het doel is een laagdrempelige digitale oplossing te bieden die eenvoudig te gebruiken is, zelfs voor hulpvragers met beperkte digitale vaardigheden en minimale apparatuur, zoals een mobiele telefoon.
 
