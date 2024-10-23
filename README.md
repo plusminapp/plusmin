@@ -19,8 +19,8 @@ In eerste instantie ontwikkel ik de app voor mezelf, maar in de toekomst is het 
 
 In de praktijk blijkt dat bestaande tools voor schuldhulpverlening niet voldoen aan de behoeften van administratiemaatjes en hulpvragers. Er is behoefte aan een eenvoudige, toegankelijke oplossing die:
 - Budgettering ondersteunt
-- De voortgang (uitputting) van budgetten bewaakt
 - Eenvoudig inkomsten en uitgaven kan registreren
+- De voortgang (uitputting) van budgetten bewaakt
 - Heldere signalen geeft bij afwijkingen van de uitputting ten opzichte van het budget
 
 Hulpvragers zijn vaak minder digitaal vaardig en hebben niet altijd toegang tot moderne digitale hulpmiddelen. `PlusMin` moet daarom makkelijk bruikbaar zijn op mobiele telefoons, het meest gebruikte apparaat door hulpvragers.
@@ -30,7 +30,7 @@ Hulpvragers zijn vaak minder digitaal vaardig en hebben niet altijd toegang tot 
 Het gereedschap biedt ondersteuning voor de volgende functionaliteiten:
 
 1. **Budgetcategorieën opstellen**  
-   hulpvragers en administratiemaatjes kunnen sadministratiemaatjeen duidelijke categorieën bepalen waarin inkomsten en uitgaven worden onderverdeeld.
+   hulpvragers en administratiemaatjes kunnen samen duidelijke categorieën bepalen waarin inkomsten en uitgaven worden onderverdeeld.
 
 2. **Budgettering per periode**  
    Per categorie kan een budget worden vastgesteld voor een bepaalde periode (week, maand, kwartaal of jaar), met een verwachte uitputtingssnelheid.
