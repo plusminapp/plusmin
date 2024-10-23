@@ -5,11 +5,15 @@
 
 ## Overzicht
 
-`PlusMin` is een open-source project gericht op de ondersteuning van administratiemaatjes (zie https://schuldhulpmaatje.nl/) bij het begeleiden van hulpvragers. 
+`PlusMin` is een open-source project gericht op de ondersteuning van administratiemaatjes (zie bijvoorbeeld https://lsta.nl/,https://www.humanitas.nl/thuisadministratie/ of https://schuldhulpmaatje.nl/) bij het begeleiden van hulpvragers. 
 
 `PlusMin` is: Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet theoretisch.
 
-Dit gereedschap helpt administratiemaatjes en hulpvragers bij het budgetteren, monitoren van inkomsten en uitgaven, en het voorkomen van onverwachte financiële problemen. Het doel is een laagdrempelige digitale oplossing te bieden die eenvoudig te gebruiken is, zelfs voor hulpvragers met beperkte digitale vaardigheden en minimale apparatuur, zoals een mobiele telefoon.
+Dit gereedschap helpt administratiemaatjes en hulpvragers bij het budgetteren, monitoren van inkomsten en uitgaven, en het voorkomen van onverwachte financiële problemen. Het doel is een laagdrempelige digitale oplossing te bieden, in combintaie met een o.a. een 'papieren' versie, die eenvoudig te gebruiken is voor hulpvragers met beperkte digitale vaardigheden en minimale apparatuur, zoals een alleen mobiele telefoon.
+
+Het administratiemaatjes krijgt toegang, ook van huis uit, tot de gegevens die de hulpvrager wil delen, zonder dat er toegang tot een bankrekening wordt gegeven, en zonder dat die gegevens mee naar huis worden genomen.
+
+De app wordt onderdeel van een pakket met onder andere een papieren versie, checklists, opleidingen, etc.
 
 ## Doelgroep
 
@@ -17,11 +21,11 @@ In eerste instantie ontwikkel ik de app voor mezelf, maar in de toekomst is het 
 
 ## Probleemstelling
 
-In de praktijk blijkt dat bestaande tools voor schuldhulpverlening niet voldoen aan de behoeften van administratiemaatjes en hulpvragers. Er is behoefte aan een eenvoudige, toegankelijke oplossing die:
-- Budgettering ondersteunt
+In de praktijk blijkt dat bestaande hulpmiddelen voor schuldhulpverlening niet voldoen aan de behoeften van administratiemaatjes en hulpvragers. Er is behoefte aan een eenvoudige, toegankelijke oplossing die:
 - Eenvoudig inkomsten en uitgaven kan registreren
-- De voortgang (uitputting) van budgetten bewaakt
+- Budgettering ondersteunt en de voortgang (uitputting) van budgetten bewaakt
 - Heldere signalen geeft bij afwijkingen van de uitputting ten opzichte van het budget
+- Naadloos aansluit op het pakket van checklists, opleidingen, etc. 
 
 Hulpvragers zijn vaak minder digitaal vaardig en hebben niet altijd toegang tot moderne digitale hulpmiddelen. `PlusMin` moet daarom makkelijk bruikbaar zijn op mobiele telefoons, het meest gebruikte apparaat door hulpvragers.
 
