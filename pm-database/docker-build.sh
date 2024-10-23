@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-echo gidh-database version: ${VERSION}
+echo pm-database version: ${VERSION}
 
-pushd ${PROJECT_FOLDER}/gidh-database
+pushd ${PROJECT_FOLDER}/pm-database
 
 docker build \
      --build-arg PLATFORM=${PLATFORM}  \
-     -t rimvanvliet/gidh-database:${VERSION} .
+     -t rimvanvliet/pm-database:${VERSION} .
 
 popd

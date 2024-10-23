@@ -1,10 +1,10 @@
 include .env
 export
 
-dev-gidh-database-build: export VERSION=${GIDH_DEV_VERSION}
-dev-gidh-database-build: export PLATFORM=linux/amd64
-dev-gidh-database-build:
-	./gidh-database/docker-build.sh
+dev-pm-database-build: export VERSION=${PM_DEV_VERSION}
+dev-pm-database-build: export PLATFORM=linux/amd64
+dev-pm-database-build:
+	./pm-database/docker-build.sh
 
 up-all:
 	docker compose up -d
