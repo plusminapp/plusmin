@@ -46,7 +46,7 @@ Het gereedschap biedt ondersteuning voor de volgende functionaliteiten:
 
 ## Installatie
 
-Instructies voor installatie en gebruik volgen nog. De eerste versie zal gericht zijn op webapp, mobiel voor de functies voor de hulpvrager en op een 'groot; scherm voor het administratiemaatje.
+Instructies voor installatie en gebruik volgen nog. De eerste versie zal gericht zijn op webapp, mobiel voor de functies voor de hulpvrager en op een 'groot' scherm voor het administratiemaatje.
 
 ## Bijdragen
 
