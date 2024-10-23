@@ -5,7 +5,7 @@
 
 ## Overzicht
 
-`PlusMin` is een open-source project gericht op de ondersteuning van administratiemaatjes (zie bijvoorbeeld https://lsta.nl/,https://www.humanitas.nl/thuisadministratie/ of https://schuldhulpmaatje.nl/) bij het begeleiden van hulpvragers. 
+`PlusMin` is een open-source project gericht op de ondersteuning van administratiemaatjes (zie bijvoorbeeld https://lsta.nl/, https://www.humanitas.nl/thuisadministratie/ of https://schuldhulpmaatje.nl/) bij het begeleiden van hulpvragers. 
 
 `PlusMin` is: Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet theoretisch.
 
