@@ -1,14 +1,16 @@
-create table if not exists transactions
-(
-    id serial not null constraint transactions_pkey primary key,
-    boekingsdatum date,
-    tegenrekening TEXT,
-    naam_tegenrekening TEXT,
-    saldo_vooraf numeric(10,2),
-    bedrag numeric(10,2),
-    betalingskenmerk VARCHAR(16),
-    omschrijving_bank TEXT,
-    omschrijving TEXT,
-    categorie VARCHAR(10),
-    status VARCHAR(10)
+CREATE TABLE IF NOT EXISTS public.transactie (
+	id int8 NOT NULL,
+	referentie varchar NOT NULL,
+	bedrag numeric(38, 2) NULL,
+	betalingskenmerk varchar(255) NULL,
+	boekingsdatum date NULL,
+	categorie varchar(255) NULL,
+	naam_tegenrekening varchar(255) NULL,
+	omschrijving varchar(255) NULL,
+	omschrijving_bank varchar(255) NULL,
+	saldo_vooraf numeric(38, 2) NULL,
+	status varchar(255) NULL,
+	tegenrekening varchar(255) NULL,
+	CONSTRAINT transactie_pkey PRIMARY KEY (id),
+	CONSTRAINT transactie_unique UNIQUE (referentie)
 );

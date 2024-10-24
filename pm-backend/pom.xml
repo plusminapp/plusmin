@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.vliet</groupId>
-	<artifactId>plusmin</artifactId>
+	<artifactId>pm-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>plusmin</name>
 	<description>PlusMin is Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet theoretisch</description>
@@ -153,10 +153,8 @@
         <dependency>
             <groupId>io.vliet</groupId>
             <artifactId>camt053parser</artifactId>
-            <version>0.0.1</version>
+            <version>1.0.0</version>
         </dependency>
-
-
     </dependencies>
 
     <build>

@@ -1,9 +1,10 @@
 package io.vliet.plusmin.service
 
 import io.vliet.camt053parser.Camt053Parser
+import iso.std.iso._20022.tech.xsd.camt_053_001.CreditDebitCode
+
 import io.vliet.plusmin.domain.Transactie
 import io.vliet.plusmin.repository.TransactieRepository
-import iso.std.iso._20022.tech.xsd.camt_053_001.CreditDebitCode
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

@@ -1,5 +1,18 @@
 services:
   
+  pm-backend:
+    image: rimvanvliet/pm-backend:${PM_DEV_VERSION}
+    container_name: pm-backend
+    environment:
+      - TZ=Europe/Amsterdam
+      - SPRING_PROFILES_ACTIVE=dev
+    ports:
+      - "3040:3040"
+      - "8888:8888"
+    depends_on:
+      - pm-database
+    restart: always
+
   pm-database:
     image: rimvanvliet/pm-database:${PM_DEV_VERSION}
     container_name: pm-database
