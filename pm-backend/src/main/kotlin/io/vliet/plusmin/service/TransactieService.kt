@@ -20,7 +20,7 @@ class TransactieService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun loadTransacties(reader: BufferedReader) {
+    fun loadCamt053File(reader: BufferedReader) {
         val camt053Parser = Camt053Parser()
 
         try {

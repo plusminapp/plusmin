@@ -27,6 +27,10 @@ class TransactieController {
     fun getAlleTransacties(): ResponseEntity<Any> {
         return ResponseEntity.ok().body(transactieRepository.findAll())
     }
+    @DeleteMapping("")
+    fun deleteAlleTransacties(): ResponseEntity<Any> {
+        return ResponseEntity.ok().body(transactieRepository.deleteAll())
+    }
 
     @PostMapping("")
     fun creeerNieuweTransactie(@Valid @RequestBody transactieList: List<Transactie>): List<Transactie> =
@@ -38,7 +42,7 @@ class TransactieController {
     ): ResponseEntity<Any> {
         if (file.size > 4000000)
             return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
-        transactieService.loadTransacties(
+        transactieService.loadCamt053File(
             BufferedReader(
                 InputStreamReader(
                     BOMInputStream.builder()

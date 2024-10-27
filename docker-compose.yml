@@ -1,14 +1,16 @@
 services:
-  
+
   pm-backend:
     image: rimvanvliet/pm-backend:${PM_DEV_VERSION}
     container_name: pm-backend
     environment:
       - TZ=Europe/Amsterdam
       - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - npm_default
     ports:
       - "3040:3040"
-      - "8888:8888"
+      - "8889:8888"
     depends_on:
       - pm-database
     restart: always
@@ -23,9 +25,15 @@ services:
       - POSTGRES_DB=pm
     volumes:
       - pm-database:/bitnami/postgresql/data
+    networks:
+      - npm_default
     ports:
-      - "5432:5432"
+      - "5434:5432"
     restart: always
 
 volumes:
   pm-database:
+
+networks:
+   npm_default:
+    external: true
