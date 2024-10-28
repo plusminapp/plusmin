@@ -11,7 +11,6 @@ import javax.validation.constraints.PastOrPresent
 
 @Entity
 @Table(name = "transactie")
-@JsonInclude(JsonInclude.Include.NON_NULL)
 class Transactie(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -22,7 +21,7 @@ class Transactie(
     val id: Long = 0,
     @Column(unique = true)
     @field:NotNull(message = "Referentie mag niet null zijn")
-    @field:NonBlank(message = "Referentie mag niet leeg zijn")
+    @field:NotBlank(message = "Referentie mag niet leeg zijn")
     val referentie: String,
     @field:PastOrPresent(message = "Boekingsdatum mag niet in de toekomst liggen")
     val boekingsdatum: LocalDate,

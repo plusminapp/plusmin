@@ -51,25 +51,25 @@ class TransactieService {
                                 boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
                                     .toLocalDate(),
                                 tegenrekening = if (isDebit)
-                                    (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend")
+                                    (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend")
                                 else
-                                    (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend"),
+                                    (entryDetails.rltdPties?.dbtrAcct?.id?.iban ?: "onbekend"),
                                 naam_tegenrekening = if (isDebit)
-                                    (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend")
+                                    (entryDetails.rltdPties?.cdtr?.nm ?: "onbekend")
                                 else
-                                    (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend"),
+                                    (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend"),
                                 saldo_vooraf = BigDecimal(0),
                                 bedrag = if (isDebit)
-                                    reportEntry2.amt.value
+                                    -reportEntry2.amt.value
                                 else
-                                    -reportEntry2.amt.value,
+                                    reportEntry2.amt.value,
                                 omschrijving_bank = reportEntry2.addtlNtryInf
                             )
                         )
                         count++
                     } catch (_: DataIntegrityViolationException) { }
                 }
-                logger.info("Aantal opgeslagen transacties : " + count)
+                logger.info("Aantal opgeslagen transacties: $count")
             }
         } catch (e: Exception) {
             e.printStackTrace()
