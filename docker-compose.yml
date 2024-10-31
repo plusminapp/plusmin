@@ -1,5 +1,18 @@
 services:
 
+  pm-frontend:
+    image: rimvanvliet/pm-frontend:${PM_DEV_VERSION}
+    container_name: pm-frontend
+    environment:
+      - TZ=Europe/Amsterdam
+    ports:
+      - "3030:3030"
+    networks:
+      - npm_default
+    depends_on:
+      - pm-backend
+    restart: always
+
   pm-backend:
     image: rimvanvliet/pm-backend:${PM_DEV_VERSION}
     container_name: pm-backend

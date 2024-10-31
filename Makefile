@@ -22,6 +22,7 @@ down-all:
 
 # Box
 box-push:
+	docker image push rimvanvliet/pm-frontend:${PM_DEV_VERSION}
 	docker image push rimvanvliet/pm-backend:${PM_DEV_VERSION}
 	docker image push rimvanvliet/pm-database:${PM_DEV_VERSION}
 
