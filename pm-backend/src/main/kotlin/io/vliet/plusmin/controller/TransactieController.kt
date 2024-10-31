@@ -3,6 +3,7 @@ package io.vliet.plusmin.controller
 import io.vliet.plusmin.domain.Transactie
 import io.vliet.plusmin.repository.TransactieRepository
 import io.vliet.plusmin.service.TransactieService
+import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import org.apache.commons.io.input.BOMInputStream
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,6 +24,7 @@ class TransactieController {
     @Autowired
     lateinit var transactieService: TransactieService
 
+    @RolesAllowed("ROLE_ADMIN")
     @GetMapping("")
     fun getAlleTransacties(): ResponseEntity<Any> {
         return ResponseEntity.ok().body(transactieRepository.findAll())

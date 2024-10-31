@@ -1,21 +1,30 @@
 // src/pages/Login.tsx
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useAuthContext } from "@asgardeo/auth-react";
+// import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-
+  const { state, signIn, signOut } = useAuthContext();
+  // const navigate = useNavigate()
   const handleLogin = () => {
-    login();
-    navigate('/dashboard');
+    signIn();
+    // navigate('/dashboard');
+  };
+  const handleLogout = () => {
+    signOut();
+    // navigate('/dashboard');
   };
 
   return (
     <div>
-      <h2>Login Page</h2>
-      <button onClick={handleLogin}>Login</button>
+      <h2>Login/logout Page</h2>
+      {!state.isAuthenticated &&
+        <button onClick={handleLogin}>Login</button>
+      }
+      {state.isAuthenticated &&
+        <button onClick={handleLogout}>Logout</button>
+      }
+      <p>Current state: {JSON.stringify(state)}</p>
     </div>
   );
 };

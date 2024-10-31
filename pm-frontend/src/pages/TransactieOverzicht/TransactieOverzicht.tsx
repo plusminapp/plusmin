@@ -33,7 +33,7 @@ export default function TransactieOverzicht() {
         const data = await fetchTransacties();
         setTransacties(data);
       } catch (error) {
-        setError(error.message);
+        setError(JSON.stringify(error));
       }
     }
     fetchData();
