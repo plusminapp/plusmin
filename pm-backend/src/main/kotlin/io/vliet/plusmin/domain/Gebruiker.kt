@@ -1,30 +1,34 @@
 package io.vliet.plusmin.domain
 
-import java.time.Instant
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "gebruiker")
-data class Gebruiker(
+class Gebruiker(
     @Id
-    val id: String,
-    val email: String = "",
+    @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(
+        name = "hibernate_sequence",
+        sequenceName = "hibernate_sequence",
+        allocationSize = 1)
+    val id: Long = 0,
+    @Column(unique = true)
+    val email: String,
+    val bijnaam: String = "Gebruiker zonder bijnaam :-)",
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
     val roles: List<Role> = emptyList(),
-    val isUserLocked: Boolean = false,
-    val failedAttemps: Int = 0,
-    val lastFailedLogin: Instant? = null
+    @OneToOne
+    val vrijwilliger: Gebruiker? = null
 ) {
-    fun fullCopy(email: String = this.email,
-                 roles: List<Role> = this.roles,
-                 isLocked: Boolean = this.isUserLocked,
-                 failedAttemps: Int = this.failedAttemps,
-                 lastFailedLogin: Instant? = this.lastFailedLogin) =
-        Gebruiker(this.id, email, roles, isLocked, failedAttemps, lastFailedLogin)
+    fun fullCopy(
+        email: String = this.email,
+        bijnaam: String = this.bijnaam,
+        roles: List<Role> = this.roles,
+        vrijwilliger: Gebruiker? = this.vrijwilliger
+    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger)
 }
 
 enum class Role {
-    ROLE_ADMIN
+    ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
 }
-
