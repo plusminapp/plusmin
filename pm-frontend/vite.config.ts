@@ -11,12 +11,12 @@ export default defineConfig({
         target: 'http://localhost:3040',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/api\/v1/, '/api/v1'), // Adjust if needed
+        rewrite: (path) => path.replace(/^\/api\/v1/, '/api/v1'),
       },
     },
   },
   preview: {
+    port: 3030,
     host: true,
-    port: 3030
   }
 });

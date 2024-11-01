@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 
 import { PlusMinLogo } from "../../assets/PlusMinLogo";
 
-const pages = ['Inkomsten/uitgaven', 'Budget', 'Stand'];
+const pages = ['Stand', 'Inkomsten/uitgaven', 'Betaalregelingen', 'Budget'];
 const settings = ['Profiel', 'Logout'];
 
 function ResponsiveAppBar() {
