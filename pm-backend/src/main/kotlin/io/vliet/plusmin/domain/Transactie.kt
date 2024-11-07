@@ -1,5 +1,6 @@
 package io.vliet.plusmin.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
@@ -23,6 +24,10 @@ class Transactie(
     @field:NotNull(message = "Referentie mag niet null zijn")
     @field:NotBlank(message = "Referentie mag niet leeg zijn")
     val referentie: String,
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
+    val gebruiker: Gebruiker,
     @field:PastOrPresent(message = "Boekingsdatum mag niet in de toekomst liggen")
     val boekingsdatum: LocalDate,
     val tegenrekening: String? = null,

@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.camt053parser.Camt053Parser
 import iso.std.iso._20022.tech.xsd.camt_053_001.CreditDebitCode
 
+import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Transactie
 import io.vliet.plusmin.repository.TransactieRepository
 import org.slf4j.Logger
@@ -20,7 +21,7 @@ class TransactieService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun loadCamt053File(reader: BufferedReader) {
+    fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader) {
         val camt053Parser = Camt053Parser()
 
         try {
@@ -63,7 +64,8 @@ class TransactieService {
                                     -reportEntry2.amt.value
                                 else
                                     reportEntry2.amt.value,
-                                omschrijving_bank = reportEntry2.addtlNtryInf
+                                omschrijving_bank = reportEntry2.addtlNtryInf,
+                                gebruiker = gebruiker
                             )
                         )
                         count++

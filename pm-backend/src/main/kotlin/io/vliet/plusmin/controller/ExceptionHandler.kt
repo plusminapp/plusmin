@@ -8,12 +8,23 @@ import org.springframework.web.bind.*
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DataRetrievalFailureException
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
 
     @ExceptionHandler(DataRetrievalFailureException::class)
     fun handleResourceNotFound(ex: DataRetrievalFailureException): ResponseEntity<ErrorResponse> {
+        val error = ErrorResponse(
+            errorCode = "NOT_FOUND",
+            errorMessage = ex.message ?: "Resource not found"
+        )
+        return ResponseEntity(error, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleResourceNotFound(ex: NoResourceFoundException): ResponseEntity<ErrorResponse> {
         val error = ErrorResponse(
             errorCode = "NOT_FOUND",
             errorMessage = ex.message ?: "Resource not found"
@@ -50,11 +61,21 @@ class GlobalExceptionHandler {
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAuthorizationDeniedException(ex: AuthorizationDeniedException): ResponseEntity<ErrorResponse> {
+        val errorMessage = ex.message ?: "Access denied"
+        val error = ErrorResponse(
+            errorCode = "UNAUTHORIZED",
+            errorMessage = errorMessage
+        )
+        return ResponseEntity(error, HttpStatus.UNAUTHORIZED)
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<ErrorResponse> {
         val error = ErrorResponse(
             errorCode = "INTERNAL_SERVER_ERROR",
-            errorMessage = ex.toString() ?: "An unexpected error occurred"
+            errorMessage = ex.stackTraceToString() ?: "An unexpected error occurred"
         )
         return ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR)
     }

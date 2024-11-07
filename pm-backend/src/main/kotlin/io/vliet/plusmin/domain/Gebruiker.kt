@@ -1,6 +1,11 @@
 package io.vliet.plusmin.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.UserDetails
+
 
 @Entity
 @Table(name = "gebruiker")
@@ -17,14 +22,24 @@ class Gebruiker(
     val bijnaam: String = "Gebruiker zonder bijnaam :-)",
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
-    val roles: List<Role> = emptyList(),
+    val roles: MutableSet<Role> = mutableSetOf<Role>(),
     @OneToOne
     val vrijwilliger: Gebruiker? = null
-) {
+) : UserDetails {
+
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
+        return roles.map { SimpleGrantedAuthority(it.name) }.toMutableSet()
+    }
+    @JsonIgnore
+    override fun getPassword(): String = ""
+
+    @JsonIgnore
+    override fun getUsername(): String = email
+
     fun fullCopy(
         email: String = this.email,
         bijnaam: String = this.bijnaam,
-        roles: List<Role> = this.roles,
+        roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger
     ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger)
 }
