@@ -1,10 +1,12 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.repository.BetalingDao
-import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.BetalingRepository
+import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.service.Camt053Service
 import io.vliet.plusmin.service.PagingService
 import jakarta.annotation.security.RolesAllowed
@@ -50,15 +52,15 @@ class BetalingController {
         @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
         @RequestParam("query", defaultValue = "", required = false) query: String,
         @RequestParam("status", required = false) status: String?,
-        @RequestParam("date", defaultValue = "all", required = false) date: BetalingDatumFilter?,
+        @RequestParam("fromDate", defaultValue = "", required = false) fromDate: String,
+        @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
         ): ResponseEntity<PagingService.ContentWrapper> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET BetalingController.getAlleBetalingen voor ${gebruiker.email}")
-        val betalingen = betalingDao.search(gebruiker, sizeAsString, pageAsString, sort, query, status, date)
+        val betalingen = betalingDao.search(gebruiker, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
     }
-
-    @Operation(summary = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)")
+    @Operation(summary = "Get betalingen hulpvrager", description = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)")
     @RolesAllowed("VRIJWILLIGER")
     @GetMapping("/{hulpvragerId}")
     fun getAlleBetalingenVanHulpvrager(
@@ -68,9 +70,11 @@ class BetalingController {
         @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
         @RequestParam("query", defaultValue = "", required = false) query: String,
         @RequestParam("status", required = false) status: String?,
-        @RequestParam("date", defaultValue = "all", required = false) date: BetalingDatumFilter?,
+        @Parameter(description = "Formaat: yyyy-mm-dd")
+        @RequestParam("fromDate", defaultValue = "", required = false) fromDate: String,
+        @Parameter(description = "Formaat: yyyy-mm-dd")
+        @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
         ): ResponseEntity<Any> {
-        // TODO pagineren, min/max datum, status
         val vrijwilliger = gebruikerController.getJwtGebruiker()
         val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
         if (hulpvragerOpt.isEmpty)
@@ -84,7 +88,7 @@ class BetalingController {
             )
         }
         logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email}")
-        val betalingen = betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, date)
+        val betalingen = betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
     }
 
