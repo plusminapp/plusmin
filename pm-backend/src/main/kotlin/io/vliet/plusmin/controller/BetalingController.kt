@@ -1,9 +1,12 @@
 package io.vliet.plusmin.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Betaling
+import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.service.BetalingService
+import io.vliet.plusmin.service.Camt053Service
+import io.vliet.plusmin.service.PagingService
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import org.apache.commons.io.input.BOMInputStream
@@ -29,27 +32,45 @@ class BetalingController {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
+    lateinit var betalingDao: BetalingDao
+
+    @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
 
     @Autowired
-    lateinit var betalingService: BetalingService
+    lateinit var camt053Service: Camt053Service
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    @Operation(summary = "GET alle eigen betalingen (voor alle gebruikers)")
     @GetMapping("")
-    fun getAlleBetalingen(): ResponseEntity<List<Betaling>> {
-        // TODO pagineren, min/max datum
+    fun getAlleBetalingen(
+        @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
+        @RequestParam("page", defaultValue = "0", required = false) pageAsString: String,
+        @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
+        @RequestParam("query", defaultValue = "", required = false) query: String,
+        @RequestParam("status", required = false) status: String?,
+        @RequestParam("date", defaultValue = "all", required = false) date: BetalingDatumFilter?,
+        ): ResponseEntity<PagingService.ContentWrapper> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET BetalingController.getAlleBetalingen voor ${gebruiker.email}")
-        return ResponseEntity.ok().body(betalingRepository.findAllByGebruiker(gebruiker))
+        val betalingen = betalingDao.search(gebruiker, sizeAsString, pageAsString, sort, query, status, date)
+        return ResponseEntity.ok().body(betalingen)
     }
 
+    @Operation(summary = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)")
     @RolesAllowed("VRIJWILLIGER")
     @GetMapping("/{hulpvragerId}")
     fun getAlleBetalingenVanHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-    ): ResponseEntity<Any> {
-        // TODO pagineren, min/max datum
+        @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
+        @RequestParam("page", defaultValue = "0", required = false) pageAsString: String,
+        @RequestParam("sort", defaultValue = "boekingsdatum:asc", required = false) sort: String,
+        @RequestParam("query", defaultValue = "", required = false) query: String,
+        @RequestParam("status", required = false) status: String?,
+        @RequestParam("date", defaultValue = "all", required = false) date: BetalingDatumFilter?,
+        ): ResponseEntity<Any> {
+        // TODO pagineren, min/max datum, status
         val vrijwilliger = gebruikerController.getJwtGebruiker()
         val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
         if (hulpvragerOpt.isEmpty)
@@ -62,10 +83,12 @@ class BetalingController {
                 HttpStatus.UNAUTHORIZED
             )
         }
-        logger.info("GET BetalingController.getAlleBetalingen voor ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingRepository.findAllByGebruiker(hulpvrager))
+        logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email}")
+        val betalingen = betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, date)
+        return ResponseEntity.ok().body(betalingen)
     }
 
+    @Operation(summary = "DELETE alle betalingen (alleen voor ADMINs)")
     @RolesAllowed("ADMIN")
     @DeleteMapping("")
     fun deleteAlleBetalingen(): ResponseEntity<Any> {
@@ -76,29 +99,52 @@ class BetalingController {
     fun creeerNieuweBetaling(@Valid @RequestBody betalingList: List<Betaling>): List<Betaling> =
         betalingRepository.saveAll(betalingList)
 
-    @PostMapping("/camt053/{gebruikersId}", consumes = ["multipart/form-data"])
+    @PutMapping("")
+    fun wijzigBetaling(@Valid @RequestBody betaling: Betaling): Betaling =
+        betalingRepository.save(betaling)
+
+    @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")
+    @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])
     fun verwerkCamt053(
-        @PathVariable("gebruikersId") gebruikersId: Long,
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<Any> {
-        logger.info("camt053 voor gebruiker ${gebruikersId}")
-        if (file.size > 4000000)
+        if (file.size > 4000000) {
+            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker ${hulpvragerId}")
             return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
-        val gebruikerOpt = gebruikerRepository.findById(gebruikersId)
-        if (gebruikerOpt.isPresent) {
-            logger.info("camt053 voor gebruiker ${gebruikersId} is aanwezig")
-            betalingService.loadCamt053File(
-                gebruikerOpt.get(),
-                BufferedReader(
-                    InputStreamReader(
-                        BOMInputStream.builder()
-                            .setInputStream(file.inputStream)
-                            .get()
-                    )
+        }
+        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
+        if (hulpvragerOpt.isEmpty) {
+            logger.error("BetalingController.verwerkCamt053: gebruiker ${hulpvragerId} bestaat niet")
+            return ResponseEntity(
+                "BetalingController.verwerkCamt053: gebruiker ${hulpvragerId} bestaat niet",
+                HttpStatus.NOT_FOUND
+            )
+        }
+        val hulpvrager = hulpvragerOpt.get()
+        val jwtGebruiker = gebruikerController.getJwtGebruiker()
+        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id) {
+            logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")
+            return ResponseEntity(
+                "BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}",
+                HttpStatus.FORBIDDEN
+            )
+        }
+        logger.info("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} upload camt053 bestand voor ${hulpvrager.email}")
+        val result = camt053Service.loadCamt053File(
+            hulpvrager,
+            BufferedReader(
+                InputStreamReader(
+                    BOMInputStream.builder()
+                        .setInputStream(file.inputStream)
+                        .get()
                 )
             )
-            return ResponseEntity(HttpStatus.OK)
-        }
-        return ResponseEntity(HttpStatus.NOT_FOUND)
+        )
+        return ResponseEntity.ok().body(result)
     }
+}
+
+enum class BetalingDatumFilter(val literal: String) {
+    lt("<"), lte("<="), eq("="), gte(">="), gt(">"), nil("?"), all("")
 }

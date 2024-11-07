@@ -38,6 +38,14 @@ class Betaling(
     val omschrijving_bank: String? = null,
     val omschrijving: String? = null,
     val categorie: String? = null,
-    val status: String = "open"
-) {}
+    @Enumerated(EnumType.STRING)
+    val status: Status = Status.OPEN
+) {
+    companion object {
+        val sortableFields = setOf("id", "boekingsdatum", "status")
+    }
+}
 
+enum class Status {
+    OPEN, VOORGESTELD, BEVESTIGD
+}

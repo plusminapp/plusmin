@@ -15,14 +15,16 @@ import java.io.BufferedReader
 import java.math.BigDecimal
 
 @Service
-class BetalingService {
+class Camt053Service {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader) {
+    fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader): String {
         val camt053Parser = Camt053Parser()
+        var aantalBetalingen = 0
+        var aantalOpgeslagenBetalingen = 0
 
         try {
             val camt053Document = camt053Parser.parse(reader)
@@ -33,8 +35,8 @@ class BetalingService {
             val accountStatement2List = camt053Document.bkToCstmrStmt.stmt
 
             for (accountStatement2 in accountStatement2List) {
-                logger.info("Aantal betalingen : " + accountStatement2.ntry.size)
-                var count = 0
+                aantalBetalingen = accountStatement2.ntry.size
+                logger.info("Aantal betalingen : ${aantalBetalingen}")
 
                 for (reportEntry2 in accountStatement2.ntry) {
                     if (reportEntry2.ntryDtls[0].btch != null) {
@@ -68,14 +70,16 @@ class BetalingService {
                                 gebruiker = gebruiker
                             )
                         )
-                        count++
-                    } catch (_: DataIntegrityViolationException) { }
+                        aantalOpgeslagenBetalingen++
+                    } catch (_: DataIntegrityViolationException) {
+                    }
                 }
-                logger.info("Aantal opgeslagen betalingen: $count")
+                logger.info("Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen}")
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
+        return "Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen} van totaal ${aantalBetalingen} betalingen."
     }
 }
 

@@ -11,7 +11,7 @@
     <groupId>io.vliet</groupId>
     <artifactId>pm-backend</artifactId>
     <version>${env.VERSION}</version>
-    <name>plusmin</name>
+    <name>pm-backend</name>
     <description>PlusMin is Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet
         theoretisch
     </description>

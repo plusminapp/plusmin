@@ -1,5 +1,7 @@
 package io.vliet.plusmin.controller
 
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
@@ -13,6 +15,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
+    val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @ExceptionHandler(DataRetrievalFailureException::class)
     fun handleResourceNotFound(ex: DataRetrievalFailureException): ResponseEntity<ErrorResponse> {
@@ -75,8 +79,9 @@ class GlobalExceptionHandler {
     fun handleGeneralException(ex: Exception): ResponseEntity<ErrorResponse> {
         val error = ErrorResponse(
             errorCode = "INTERNAL_SERVER_ERROR",
-            errorMessage = ex.stackTraceToString() ?: "An unexpected error occurred"
+            errorMessage = ex.message ?: "An unexpected error occurred"
         )
+        logger.error(ex.stackTraceToString())
         return ResponseEntity(error, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 

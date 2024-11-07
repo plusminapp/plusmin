@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
   const fetchGebruiker = useCallback(async (idT: string) => {
     console.log("in fetchgebruiker " + idT)
-    const response = await fetch('/api/v1/gebruiker', {
+    const response = await fetch('/api/v1/gebruiker/jwt', {
       headers: {
         "Authorization": `Bearer ${idT}`,
         "Content-Type": "application/json",
