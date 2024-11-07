@@ -4,8 +4,8 @@ import io.vliet.camt053parser.Camt053Parser
 import iso.std.iso._20022.tech.xsd.camt_053_001.CreditDebitCode
 
 import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Transactie
-import io.vliet.plusmin.repository.TransactieRepository
+import io.vliet.plusmin.domain.Betaling
+import io.vliet.plusmin.repository.BetalingRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,9 +15,9 @@ import java.io.BufferedReader
 import java.math.BigDecimal
 
 @Service
-class TransactieService {
+class BetalingService {
     @Autowired
-    lateinit var transactieRepository: TransactieRepository
+    lateinit var betalingRepository: BetalingRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -33,12 +33,12 @@ class TransactieService {
             val accountStatement2List = camt053Document.bkToCstmrStmt.stmt
 
             for (accountStatement2 in accountStatement2List) {
-                logger.info("Aantal transacties : " + accountStatement2.ntry.size)
+                logger.info("Aantal betalingen : " + accountStatement2.ntry.size)
                 var count = 0
 
                 for (reportEntry2 in accountStatement2.ntry) {
                     if (reportEntry2.ntryDtls[0].btch != null) {
-                        logger.warn("Batch transacties worden niet verwerkt; Entry reference: " + reportEntry2.ntryRef)
+                        logger.warn("Batch betalingen worden niet verwerkt; Entry reference: " + reportEntry2.ntryRef)
                         break
                     }
                     val entryDetails = reportEntry2.ntryDtls[0].txDtls[0]
@@ -46,8 +46,8 @@ class TransactieService {
                     val isDebit = (reportEntry2.cdtDbtInd == CreditDebitCode.DBIT)
 
                     try {
-                        transactieRepository.save(
-                            Transactie(
+                        betalingRepository.save(
+                            Betaling(
                                 referentie = reportEntry2.ntryRef,
                                 boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
                                     .toLocalDate(),
@@ -71,7 +71,7 @@ class TransactieService {
                         count++
                     } catch (_: DataIntegrityViolationException) { }
                 }
-                logger.info("Aantal opgeslagen transacties: $count")
+                logger.info("Aantal opgeslagen betalingen: $count")
             }
         } catch (e: Exception) {
             e.printStackTrace()

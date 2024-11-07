@@ -40,10 +40,10 @@ Het gereedschap biedt ondersteuning voor de volgende functionaliteiten:
    Per categorie kan een budget worden vastgesteld voor een bepaalde periode (week, maand, kwartaal of jaar), met een verwachte uitputtingssnelheid.
 
 3. **Inkomsten en uitgaven registreren**  
-   hulpvragers kunnen eenvoudig transacties registreren en categoriseren. Er is een toekomstig plan om een koppeling met bankgegevens te integreren.
+   hulpvragers kunnen eenvoudig betalingen registreren en categoriseren. Er is een toekomstig plan om een koppeling met bankgegevens te integreren.
 
 4. **Visuele feedback**  
-   Eenvoudige visuele signalen (zoals een stoplichtsysteem) geven aan of de registratie up-to-date is, of transacties correct zijn, en of het budget volgens verwachting wordt uitgeput.
+   Eenvoudige visuele signalen (zoals een stoplichtsysteem) geven aan of de registratie up-to-date is, of betalingen correct zijn, en of het budget volgens verwachting wordt uitgeput.
 
 5. **Afwijkingen signaleren**  
    Als het werkelijke uitgavenpatroon te ver afwijkt van het verwachte patroon, kan het systeem waarschuwen en eventueel een melding sturen naar het administratiemaatje, mits de hulpvrager daar toestemming voor geeft.

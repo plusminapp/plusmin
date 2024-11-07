@@ -1,7 +1,6 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -11,8 +10,8 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.PastOrPresent
 
 @Entity
-@Table(name = "transactie")
-class Transactie(
+@Table(name = "betaling")
+class Betaling(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(

@@ -6,7 +6,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Transactie } from '../../model/Transactie';
+import { Betaling } from '../../model/Betaling';
 import { useEffect, useState } from 'react';
 
 // function createDate(date: string): Date {
@@ -14,24 +14,24 @@ import { useEffect, useState } from 'react';
 // }
 
 
-async function fetchTransacties(): Promise<Transactie[]> {
-  const response = await fetch('/api/v1/transacties')
+async function fetchBetalingen(): Promise<Betaling[]> {
+  const response = await fetch('/api/v1/betalingen')
   console.log(response.status)
   const data = await response.json();
   console.log(data);
   return data;
 }
 
-export default function TransactieOverzicht() {
+export default function BetalingOverzicht() {
 
-  const [transacties, setTransacties] = useState<Transactie[]>([])
+  const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const data = await fetchTransacties();
-        setTransacties(data);
+        const data = await fetchBetalingen();
+        setBetalingen(data);
       } catch (error) {
         setError(JSON.stringify(error));
       }
@@ -56,16 +56,16 @@ export default function TransactieOverzicht() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {transacties.map((transactie) => (
+          {betalingen.map((betaling) => (
             <TableRow
-              key={transactie.id}
+              key={betaling.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell align="left">{transactie["boekingsdatum"]}</TableCell>
-              <TableCell align="right">&euro;&nbsp;{transactie["bedrag"]}</TableCell>
-              <TableCell align="left">{transactie["omschrijving_bank"]}</TableCell>
-              <TableCell align="left">{transactie["omschrijving"]}</TableCell>
-              <TableCell align="left">{transactie["categorie"]}</TableCell>
+              <TableCell align="left">{betaling["boekingsdatum"]}</TableCell>
+              <TableCell align="right">&euro;&nbsp;{betaling["bedrag"]}</TableCell>
+              <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell>
+              <TableCell align="left">{betaling["omschrijving"]}</TableCell>
+              <TableCell align="left">{betaling["categorie"]}</TableCell>
             </TableRow>
           ))}
         </TableBody>

@@ -1,4 +1,4 @@
-export type Transactie = {
+export type Betaling = {
     id: number;
     referentie: string;
     boekingsdatum: string;
