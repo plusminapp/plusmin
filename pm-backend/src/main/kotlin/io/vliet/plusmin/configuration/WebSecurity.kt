@@ -2,7 +2,6 @@ package io.vliet.plusmin.configuration
 
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.service.GebruikerDetailsService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
