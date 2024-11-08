@@ -6,23 +6,24 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+import { useFetchClient } from '../../api/fetchClient';
 import { Betaling } from '../../model/Betaling';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 // function createDate(date: string): Date {
 //   return new Date(Date.parse(date))
 // }
 
-
-async function fetchBetalingen(): Promise<Betaling[]> {
-  const response = await fetch('/api/v1/betalingen')
-  console.log(response.status)
-  const data = await response.json();
-  console.log(data);
-  return data;
-}
-
 export default function BetalingOverzicht() {
+  const fetcWithAuth = useFetchClient();
+
+  const fetchBetalingen  = useCallback(async () => {
+    const response = await fetcWithAuth('/api/v1/betalingen')
+    console.log(response.status)
+    const data = await response.json();
+    console.log(data);
+    return data;
+  }, [fetcWithAuth])
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -37,11 +38,11 @@ export default function BetalingOverzicht() {
       }
     }
     fetchData();
-  }, []);  
-  
+  });
+
   if (error) {
     return <div>Error: {error}</div>;
-  }  
+  }
 
   return (
     <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
