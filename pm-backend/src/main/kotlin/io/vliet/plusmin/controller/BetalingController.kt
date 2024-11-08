@@ -2,7 +2,6 @@ package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Schema
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
@@ -24,7 +23,6 @@ import java.io.InputStreamReader
 
 @RestController
 @RequestMapping("/betalingen")
-
 class BetalingController {
 
     @Autowired
@@ -78,7 +76,7 @@ class BetalingController {
         val vrijwilliger = gebruikerController.getJwtGebruiker()
         val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
         if (hulpvragerOpt.isEmpty)
-            return ResponseEntity("Hulpvrager met Id ${hulpvragerId} bestaat niet.", HttpStatus.NOT_FOUND)
+            return ResponseEntity("Hulpvrager met Id $hulpvragerId bestaat niet.", HttpStatus.NOT_FOUND)
         val hulpvrager = hulpvragerOpt.get()
         if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
             logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
@@ -114,14 +112,14 @@ class BetalingController {
         @RequestParam("file") file: MultipartFile
     ): ResponseEntity<Any> {
         if (file.size > 4000000) {
-            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker ${hulpvragerId}")
+            logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
             return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
         }
         val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
         if (hulpvragerOpt.isEmpty) {
-            logger.error("BetalingController.verwerkCamt053: gebruiker ${hulpvragerId} bestaat niet")
+            logger.error("BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet")
             return ResponseEntity(
-                "BetalingController.verwerkCamt053: gebruiker ${hulpvragerId} bestaat niet",
+                "BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet",
                 HttpStatus.NOT_FOUND
             )
         }
@@ -147,8 +145,4 @@ class BetalingController {
         )
         return ResponseEntity.ok().body(result)
     }
-}
-
-enum class BetalingDatumFilter(val literal: String) {
-    lt("<"), lte("<="), eq("="), gte(">="), gt(">"), nil("?"), all("")
 }

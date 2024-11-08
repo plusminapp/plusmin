@@ -49,7 +49,7 @@ class PagingService {
     }
 
     data class ContentWrapper(
-        val data: Page<Any>,
+        val data: Page<out Any>,
         val gebruikersId: Long = 0,
         val gebruikersEmail: String = "",
         val gebruikersBijnaam: String = "",

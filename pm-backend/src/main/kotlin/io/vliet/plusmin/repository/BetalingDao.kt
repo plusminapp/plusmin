@@ -35,11 +35,6 @@ class BetalingDao {
         fromDateAsString: String,
         toDateAsString: String
     ): PagingService.ContentWrapper {
-        val pageRequest =
-            pagingService.toPageRequest(pageAsString, sizeAsString, sort, Betaling.sortableFields, "boekingsdatum")
-        val sortSplitted = sort.trim().split(":")
-        val sortField = if (Betaling.sortableFields.contains(sortSplitted[0])) sortSplitted[0] else "boekingsdatum"
-
         val selectClause = "SELECT b FROM Betaling b "
         val countClause = "SELECT COUNT(*) FROM Betaling b "
 
@@ -100,10 +95,15 @@ class BetalingDao {
             queryBodyList.joinToString(prefix = " WHERE (", separator = ") AND (", postfix = ") ")
         else ""
 
+        val sortSplitted = sort.trim().split(":")
+        val sortField = if (Betaling.sortableFields.contains(sortSplitted[0])) sortSplitted[0] else "boekingsdatum"
+
         val querySelect = selectClause + queryBody + " ORDER BY b.$sortField " +
                 if (sortSplitted.size >= 2 && sortSplitted[1] == "desc") "DESC" else ""
         val queryCount = countClause + queryBody
 
+        val pageRequest =
+            pagingService.toPageRequest(pageAsString, sizeAsString, sort, Betaling.sortableFields, "boekingsdatum")
         val qSelect = entityManager
             .createQuery(querySelect, Betaling::class.java)
             .setFirstResult(pageRequest.offset.toInt())
@@ -131,7 +131,7 @@ class BetalingDao {
 
         val page = PageImpl(content, pageRequest, count)
         return PagingService.ContentWrapper(
-            data = page as Page<Any>,
+            data = page as Page<out Any>,
             gebruikersId = gebruiker.id,
             gebruikersEmail = gebruiker.email,
             gebruikersBijnaam = gebruiker.bijnaam
