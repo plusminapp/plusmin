@@ -43,7 +43,11 @@ function ResponsiveAppBar() {
     const handleCloseGebruikerMenu = () => {
         setAnchorElGebruiker(null);
     };
-
+    const handleGotoGebruikerMenu = () => {
+        setAnchorElGebruiker(null);
+        handleNavigation("/profiel")
+    };
+    
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>
@@ -91,11 +95,11 @@ function ResponsiveAppBar() {
                                     open={Boolean(anchorElGebruiker)}
                                     onClose={handleCloseGebruikerMenu}
                                 >
-                                    <MenuItem key={'profile'} onClick={handleCloseGebruikerMenu}>
-                                        <Typography sx={{ textAlign: 'center' }}>Profiel</Typography>
+                                    <MenuItem key={'profile'} onClick={handleGotoGebruikerMenu}>
+                                        <Typography sx={{ textAlign: 'center' }}>{state.username}</Typography>
                                     </MenuItem>
                                     <MenuItem key={'logout'} onClick={() => signOut()}>
-                                        <Typography sx={{ textAlign: 'center' }}>Uit loggen</Typography>
+                                        <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
                                     </MenuItem>
                                 </Menu>
                             </Box>

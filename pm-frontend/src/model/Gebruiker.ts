@@ -3,5 +3,7 @@ export type Gebruiker = {
     email: string;
     bijnaam: string;
     roles: string[];
-    vrijwilliger: Gebruiker | undefined;
+    vrijwilliger: string | undefined;
+    vrijwilligerbijnaam: string | undefined;
+    
 }

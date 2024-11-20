@@ -53,7 +53,8 @@ class Gebruiker(
             this.bijnaam,
             this.pseudoniem,
             this.roles.map { it.toString()},
-            this.vrijwilliger?.email ?: ""
+            this.vrijwilliger?.email ?: "",
+            this.vrijwilliger?.bijnaam ?: ""
         )
     }
 }

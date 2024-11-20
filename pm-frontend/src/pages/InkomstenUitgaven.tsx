@@ -15,7 +15,7 @@ import { Betaling } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Box, IconButton, TableFooter, TablePagination } from '@mui/material';
+import { Box, IconButton, TableFooter, TablePagination, Typography } from '@mui/material';
 
 interface TablePaginationActionsProps {
   count: number;
@@ -97,7 +97,6 @@ export default function InkomstenUitgaven() {
   });
 
   const fetchBetalingen = useCallback(async () => {
-    console.info(`In fetchbetalingen rpp: ${rowsPerPage}, p: ${page}`);
     const token = await getIDToken();
     const response = await fetch(`/api/v1/betalingen?size=${rowsPerPage}&page=${page}`, {
       method: "GET",
@@ -106,7 +105,7 @@ export default function InkomstenUitgaven() {
         "Content-Type": "application/json",
       },
     });
-    
+
     if (response.ok) {
       const result = await response.json();
       setBetalingen(result.data.content);
@@ -115,9 +114,8 @@ export default function InkomstenUitgaven() {
       console.error("Failed to fetch data", response.status);
     }
   }, [rowsPerPage, page]);
-  
+
   useEffect(() => {
-    console.info(`In useEffect rpp: ${rowsPerPage}, p: ${page}`);
     fetchBetalingen();
   }, [fetchBetalingen, page, rowsPerPage]);
 
@@ -136,6 +134,9 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
+  if (betalingen.length === 0) {
+    return <Typography sx={{ mb: '25px' }}>Je hebt nog geen betalingen geregistreerd.</Typography>
+  }
   return (
     <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">

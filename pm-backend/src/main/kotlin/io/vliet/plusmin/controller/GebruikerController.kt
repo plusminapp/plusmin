@@ -69,5 +69,6 @@ data class GebruikerDTO (
     val bijnaam: String = "Gebruiker zonder bijnaam :-)",
     val pseudoniem: String = "Nog in te stellen pseudoniem",
     val roles: List<String> = emptyList(),
-    val vrijwilliger: String = ""
+    val vrijwilliger: String = "",
+    val vrijwilligerbijnaam: String = ""
 ) {}

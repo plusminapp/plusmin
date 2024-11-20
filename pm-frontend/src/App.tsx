@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useAuthContext } from '@asgardeo/auth-react';
 
 import Home from './pages/Home';
-import Tokens from './pages/Tokens';
+import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
 import InkomstenUitgaven from './pages/InkomstenUitgaven';
 import Betaalregelingen from './pages/Betaalregelingen';
@@ -34,7 +34,7 @@ const App: React.FC = () => {
             <Route path="/inkomsten-uitgaven" element={<ProtectedRoute element={<InkomstenUitgaven />} />} />
             <Route path="/betaalregelingen" element={<ProtectedRoute element={<Betaalregelingen />} />} />
             <Route path="/budget" element={<ProtectedRoute element={<Budget />} />} />
-            <Route path="/tokens" element={<ProtectedRoute element={<Tokens />} />} />
+            <Route path="/profiel" element={<ProtectedRoute element={<Profiel />} />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

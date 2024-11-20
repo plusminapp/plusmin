@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
+
 export default function HoBudgetme() {
   return (
-    <h1>Dit is de Budget pagina</h1>
+    <Typography variant='h4'>Dit is de Budget pagina</Typography>
   )
 }
