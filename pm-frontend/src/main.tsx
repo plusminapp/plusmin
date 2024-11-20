@@ -17,8 +17,8 @@ const config = {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider config={config}>
-    <AuthTokenProvider>
-      <App />
+      <AuthTokenProvider>
+        <App />
       </AuthTokenProvider>
     </AuthProvider>
   </StrictMode>,

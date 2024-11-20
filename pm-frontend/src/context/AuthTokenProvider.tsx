@@ -1,4 +1,3 @@
-// src/context/AuthTokenProvider.tsx
 import React from 'react';
 import AuthTokenContext from './AuthTokenContext';
 import { useAuthToken } from '../hooks/useAuthToken';

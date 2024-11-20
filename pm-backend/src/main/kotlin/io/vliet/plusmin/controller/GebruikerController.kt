@@ -30,6 +30,7 @@ class GebruikerController {
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
         return gebruikerRepository.findAll().map {it.toDTO()}
     }
+
     // Iedereen mag de eigen gebruiker opvragen
     @Operation(summary = "GET de gebruiker op basis van de JWT (alle gebruikers)")
     @GetMapping("/jwt")
@@ -37,6 +38,15 @@ class GebruikerController {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getEigenJwtGebruiker() voor gebruiker ${gebruiker.email}.")
         return gebruiker.toDTO()
+    }
+
+    @Operation(summary = "GET de hulpvragers op basis van de JWT van een vrijwilliger")
+    @RolesAllowed("VRIJWILLIGER")
+    @GetMapping("/hulpvrager")
+    fun findHulpvragersVoorVrijwilliger(): List<GebruikerDTO> {
+        val vrijwilliger = getJwtGebruiker()
+        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${vrijwilliger.email}.")
+        return gebruikerRepository.findHulpvragersVoorVrijwilliger(vrijwilliger).map {it.toDTO()}
     }
 
     fun getJwtGebruiker(): Gebruiker {

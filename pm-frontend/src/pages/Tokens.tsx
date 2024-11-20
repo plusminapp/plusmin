@@ -1,15 +1,13 @@
-// src/pages/Login.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { Container, Button, Typography, Stack } from '@mui/material';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-// import { useNavigate } from 'react-router-dom';
 
 import { Gebruiker } from '../model/Gebruiker';
 
-const Login: React.FC = () => {
-  const { state, signIn, signOut, getIDToken } = useAuthContext();
+const Tokens: React.FC = () => {
+  const { state, signOut, getIDToken } = useAuthContext();
 
   const [idT, setIdT] = useState<string | null>(null)
   const [gebruiker, setGebruiker] = useState<Gebruiker>()
@@ -58,10 +56,7 @@ const Login: React.FC = () => {
   return (
     <Container maxWidth="xl">
       {!state.isAuthenticated &&
-        <>
-          <Typography variant='h3' sx={{ mb: '25px' }}>Login pagina</Typography>
-          <Button variant="contained" onClick={() => signIn()}>Login</Button>
-        </>
+          <Typography variant='h4' sx={{ mb: '25px' }}>Je moet eerst inloggen ...</Typography>
       }
       {state.isAuthenticated &&
         <>
@@ -83,4 +78,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default Tokens;

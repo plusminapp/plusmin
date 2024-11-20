@@ -1,19 +1,23 @@
 // src/hooks/useAuthToken.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuthContext } from '@asgardeo/auth-react';
 
 export function useAuthToken() {
   const { getIDToken } = useAuthContext();
   const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const idToken = await getIDToken();
-      setToken(idToken);
-    };
+  const { state } = useAuthContext();
 
-    fetchToken();
-  }, [getIDToken]);
+  const handleIdToken = useCallback(async () => {
+    const idToken = await getIDToken()
+    setToken(idToken)
+  }, [getIDToken])
+
+  useEffect(() => {
+      if (state.isAuthenticated) {
+        handleIdToken()
+    };
+  }, [state.isAuthenticated, handleIdToken]);
 
   return token;
 }
