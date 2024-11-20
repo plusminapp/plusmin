@@ -91,6 +91,11 @@ export default function InkomstenUitgaven() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
+  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+  });
+
   const fetchBetalingen = useCallback(async () => {
     console.info(`In fetchbetalingen rpp: ${rowsPerPage}, p: ${page}`);
     const token = await getIDToken();
@@ -156,9 +161,9 @@ export default function InkomstenUitgaven() {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
-              <TableCell align="right" size='small'>{betaling["bedrag"]}</TableCell>
-              {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
-              <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+              <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell>
+              {/* <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell> */}
               <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
             </TableRow>
           ))}
@@ -187,9 +192,6 @@ export default function InkomstenUitgaven() {
           </TableRow>
         </TableFooter>
       </Table>
-      <hr/>
-      <p>page: {page}</p>
-      <p>rowsPerPage: {rowsPerPage}</p>
     </TableContainer>
   );
 }
