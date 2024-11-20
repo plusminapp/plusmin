@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
+
 export default function Gebruikers() {
   return (
-    <h1>Dit is de Gebruikers pagina</h1>
+    <Typography variant='h4'>Dit is de Gebruikers pagina</Typography>
   )
 }

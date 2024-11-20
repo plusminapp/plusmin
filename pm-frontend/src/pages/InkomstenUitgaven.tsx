@@ -105,7 +105,6 @@ export default function InkomstenUitgaven() {
         "Content-Type": "application/json",
       },
     });
-
     if (response.ok) {
       const result = await response.json();
       setBetalingen(result.data.content);
@@ -113,7 +112,7 @@ export default function InkomstenUitgaven() {
     } else {
       console.error("Failed to fetch data", response.status);
     }
-  }, [rowsPerPage, page]);
+  }, [page, rowsPerPage]);
 
   useEffect(() => {
     fetchBetalingen();

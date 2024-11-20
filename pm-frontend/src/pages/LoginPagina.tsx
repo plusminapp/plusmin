@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
+
 export default function LoginPagina() {
   return (
-    <h1>Je moet inloggen om de app te kunnen gebruiken.</h1>
+    <Typography variant='h4'>Je moet inloggen om de app te kunnen gebruiken.</Typography>
   )
 }

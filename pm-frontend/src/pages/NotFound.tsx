@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
+
 export default function NotFound() {
   return (
-    <h1>De pagina die je hebt gevraagd bestaat niet ...</h1>
+    <Typography variant='h4'>De pagina die je hebt gevraagd bestaat niet ...</Typography>
   )
 }

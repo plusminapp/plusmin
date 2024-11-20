@@ -1,5 +1,7 @@
+import { Typography } from "@mui/material";
+
 export default function Stand() {
   return (
-    <h1>Deze 'Stand van zaken' pagina is alleen voor ingelogde gebruikers</h1>
+    <Typography variant='h4'>Deze 'Stand van zaken' pagina is door jou te zien omdat je bent ingelogd</Typography>
   )
 }
