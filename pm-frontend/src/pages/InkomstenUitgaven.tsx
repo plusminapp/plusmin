@@ -112,18 +112,18 @@ export default function InkomstenUitgaven() {
     } else {
       console.error("Failed to fetch data", response.status);
     }
-  }, [page, rowsPerPage]);
+  }, [getIDToken, page, rowsPerPage]);
 
   useEffect(() => {
     fetchBetalingen();
   }, [fetchBetalingen, page, rowsPerPage]);
 
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
     setPage(newPage);
-    event;
+    
   };
 
   const handleChangeRowsPerPage = (
