@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 echo pm-frontend version: ${VERSION}
+echo platform: ${PLATFORM}
 
 pushd ${PROJECT_FOLDER}/pm-frontend
 
-docker build -t rimvanvliet/pm-frontend:${VERSION} .
+docker build \
+     --platform=$PLATFORM \
+     -t rimvanvliet/pm-frontend:${VERSION} .
 
 popd

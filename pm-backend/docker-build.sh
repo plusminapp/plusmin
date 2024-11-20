@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
 echo pm-backend version: ${VERSION}
+echo pm-backend platform: ${PLATFORM}
 
 pushd ${PROJECT_FOLDER}/pm-backend
 
 if mvn clean package; then
   docker build \
-    --build-arg PLATFORM=${PLATFORM}  \
+    --platform=$PLATFORM \
     --build-arg JAR_FILE=./target/pm-backend-${VERSION}.jar \
     -t rimvanvliet/pm-backend:${VERSION} .
 else

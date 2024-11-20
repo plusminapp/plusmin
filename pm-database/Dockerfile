@@ -1,6 +1,5 @@
-ARG PLATFORM
 ARG POSTGRES_PASSWORD
-FROM --platform=$PLATFORM bitnami/postgresql:16
+FROM bitnami/postgresql:16
 
 ENV POSTGRES_USER=pm
 ENV POSTGRES_DB=pm
