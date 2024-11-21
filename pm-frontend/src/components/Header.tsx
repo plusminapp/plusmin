@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import AppBar from '@mui/material/AppBar';
@@ -16,6 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
+import { useCustomContext } from '../context/CustomContext';
 
 const pages = ['Stand', 'Inkomsten/uitgaven', 'Betaalregelingen', 'Budget'];
 
@@ -24,11 +25,13 @@ function ResponsiveAppBar() {
     const handleNavigation = (page: string) => {
         navigate(page);
     };
-    const { state, signIn, signOut } = useAuthContext();
+    const { state, signIn, signOut, getIDToken } = useAuthContext();
     
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
-    
+
+    const { setGebruiker, hulpvragers, setHulpvragers, setActieveHulpvrager } = useCustomContext();
+
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
     const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -47,7 +50,30 @@ function ResponsiveAppBar() {
         setAnchorElGebruiker(null);
         handleNavigation("/profiel")
     };
-    
+    const handleActieveHulpvrager = (id: number) => {
+        const ahv = hulpvragers.find( hv => hv.id === id)
+        setActieveHulpvrager(ahv);
+        setAnchorElGebruiker(null);
+    };
+
+    const fetchGebruikerMetHulpvragers = useCallback(async () => {
+      const token = await getIDToken();
+      const response = await fetch('/api/v1/gebruiker/zelf', {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      })
+      const data = await response.json();
+      setGebruiker(data.gebruiker);
+      setHulpvragers(data.hulpvragers);
+    }, [state.isAuthenticated])
+  
+    useEffect(() => {
+      fetchGebruikerMetHulpvragers();
+    }, [fetchGebruikerMetHulpvragers]);
+  
+
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>
@@ -98,6 +124,10 @@ function ResponsiveAppBar() {
                                     <MenuItem key={'profile'} onClick={handleGotoGebruikerMenu}>
                                         <Typography sx={{ textAlign: 'center' }}>{state.username}</Typography>
                                     </MenuItem>
+                                    {hulpvragers.map ( hulpvrager =>
+                                    <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
+                                        <Typography sx={{ textAlign: 'center' }}>{hulpvrager.pseudoniem}</Typography>
+                                    </MenuItem>)}
                                     <MenuItem key={'logout'} onClick={() => signOut()}>
                                         <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
                                     </MenuItem>

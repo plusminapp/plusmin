@@ -4,7 +4,8 @@ import './index.css'
 import App from './App.tsx'
 
 import { AuthProvider } from "@asgardeo/auth-react";
- './context/AuthTokenProvider.tsx';
+import { CustomProvider } from './context/CustomContext.tsx';
+'./context/AuthTokenProvider.tsx';
 
 const config = {
   clientID: "wnvfL9kJtnIf0ziF3oK2QUkgaWIa",
@@ -17,7 +18,9 @@ const config = {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider config={config}>
+      <CustomProvider>
         <App />
+      </CustomProvider>
     </AuthProvider>
   </StrictMode>,
 )

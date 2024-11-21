@@ -31,22 +31,14 @@ class GebruikerController {
         return gebruikerRepository.findAll().map {it.toDTO()}
     }
 
-    // Iedereen mag de eigen gebruiker opvragen
-    @Operation(summary = "GET de gebruiker op basis van de JWT (alle gebruikers)")
-    @GetMapping("/jwt")
-    fun getEigenJwtGebruiker(): GebruikerDTO {
+    // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen
+    @Operation(summary = "GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van een gebruiker")
+    @GetMapping("/zelf")
+    fun findGebruikerInclusiefHulpvragers(): GebruikerMetHulpvragersDTO {
         val gebruiker = getJwtGebruiker()
-        logger.info("GET GebruikerController.getEigenJwtGebruiker() voor gebruiker ${gebruiker.email}.")
-        return gebruiker.toDTO()
-    }
-
-    @Operation(summary = "GET de hulpvragers op basis van de JWT van een vrijwilliger")
-    @RolesAllowed("VRIJWILLIGER")
-    @GetMapping("/hulpvrager")
-    fun findHulpvragersVoorVrijwilliger(): List<GebruikerDTO> {
-        val vrijwilliger = getJwtGebruiker()
-        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${vrijwilliger.email}.")
-        return gebruikerRepository.findHulpvragersVoorVrijwilliger(vrijwilliger).map {it.toDTO()}
+        logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
+        val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker).map {it.toDTO()}
+        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers)
     }
 
     fun getJwtGebruiker(): Gebruiker {
@@ -54,7 +46,7 @@ class GebruikerController {
         val email = jwt.claims["username"] as String
         val gebruikerOpt = gebruikerRepository.findByEmail(email)
         return if (gebruikerOpt.isPresent) {
-            logger.debug("getGebruiker met email: ${email} gevonden")
+            logger.debug("getJwtGebruiker met email: ${email} gevonden")
             gebruikerOpt.get()
         } else {
             logger.error("GET /gebruiker met email: ${email} bestaat nog niet")
@@ -72,3 +64,8 @@ data class GebruikerDTO (
     val vrijwilliger: String = "",
     val vrijwilligerbijnaam: String = ""
 ) {}
+
+data class GebruikerMetHulpvragersDTO (
+    val gebruiker: GebruikerDTO,
+    val hulpvragers: List<GebruikerDTO>
+)

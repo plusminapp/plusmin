@@ -16,6 +16,7 @@ import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
 import { Box, IconButton, TableFooter, TablePagination, Typography } from '@mui/material';
+import { useCustomContext } from '../context/CustomContext';
 
 interface TablePaginationActionsProps {
   count: number;
@@ -85,11 +86,12 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
+  const { gebruiker, actieveHulpvrager } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -98,7 +100,8 @@ export default function InkomstenUitgaven() {
 
   const fetchBetalingen = useCallback(async () => {
     const token = await getIDToken();
-    const response = await fetch(`/api/v1/betalingen?size=${rowsPerPage}&page=${page}`, {
+    const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker.id
+    const response = await fetch(`/api/v1/betalingen/${id}?size=${rowsPerPage}&page=${page}`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -137,61 +140,64 @@ export default function InkomstenUitgaven() {
     return <Typography sx={{ mb: '25px' }}>Je hebt nog geen betalingen geregistreerd.</Typography>
   }
   return (
-    <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <colgroup>
-          <col width="15%" />
-          <col width="15%" />
-          <col width="55%" />
-          <col width="15%" />
-        </colgroup>
-        <TableHead>
-          <TableRow>
-            <TableCell>Boekingsdatum</TableCell>
-            <TableCell align="right">Bedrag (&euro;)</TableCell>
-            {/* <TableCell>Omschrijving bank</TableCell> */}
-            <TableCell>Omschrijving</TableCell>
-            <TableCell>Categorie</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {betalingen.map((betaling) => (
-            <TableRow
-              key={betaling.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
-              <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell>
-              {/* <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell> */}
-              <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+    <>
+    <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
+      <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <colgroup>
+            <col width="15%" />
+            <col width="15%" />
+            <col width="55%" />
+            <col width="15%" />
+          </colgroup>
+          <TableHead>
+            <TableRow>
+              <TableCell>Boekingsdatum</TableCell>
+              <TableCell align="right">Bedrag (&euro;)</TableCell>
+              {/* <TableCell>Omschrijving bank</TableCell> */}
+              <TableCell>Omschrijving</TableCell>
+              <TableCell>Categorie</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-        <TableFooter>
-          <TableRow>
-            <TablePagination
-              rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-              labelRowsPerPage={"Rijen per pagina"}
-              colSpan={3}
-              count={count}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              slotProps={{
-                select: {
-                  inputProps: {
-                    'aria-label': 'Rijen per pagina',
+          </TableHead>
+          <TableBody>
+            {betalingen.map((betaling) => (
+              <TableRow
+                key={betaling.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
+                <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+                <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell>
+                {/* <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell> */}
+                <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                labelRowsPerPage={"Rijen per pagina"}
+                colSpan={3}
+                count={count}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                slotProps={{
+                  select: {
+                    inputProps: {
+                      'aria-label': 'Rijen per pagina',
+                    },
+                    native: true,
                   },
-                  native: true,
-                },
-              }}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              ActionsComponent={TablePaginationActions}
-            />
-          </TableRow>
-        </TableFooter>
-      </Table>
-    </TableContainer>
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
+    </>
   );
 }

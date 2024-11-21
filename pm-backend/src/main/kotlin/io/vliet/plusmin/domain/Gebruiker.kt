@@ -52,7 +52,7 @@ class Gebruiker(
             this.email,
             this.bijnaam,
             this.pseudoniem,
-            this.roles.map { it.toString()},
+            this.roles.map { it.toString() },
             this.vrijwilliger?.email ?: "",
             this.vrijwilliger?.bijnaam ?: ""
         )

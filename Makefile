@@ -31,10 +31,14 @@ box-push:
 	docker image push rimvanvliet/pm-backend:${PM_DEV_VERSION}
 	docker image push rimvanvliet/pm-database:${PM_DEV_VERSION}
 
-box-deploy2box:
+box-deploy-all:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy.sh" - ruud'
 
-box-frontend: dev-pm-frontend-build box-push box-deploy2box
+box-deploy-frontend:
+	scp .env box:~/pm
+	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_frontend.sh" - ruud'
 
-box-all: dev-build-all box-push box-deploy2box
+box-frontend: dev-pm-frontend-build box-push box-deploy-frontend
+
+box-all: dev-build-all box-push box-deploy-all
