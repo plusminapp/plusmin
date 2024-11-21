@@ -90,6 +90,7 @@ export default function InkomstenUitgaven() {
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
+  const [isLoading, setIsLoading] = useState(false);
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -97,6 +98,7 @@ export default function InkomstenUitgaven() {
   });
 
   const fetchBetalingen = useCallback(async () => {
+    setIsLoading(true);
     const token = await getIDToken();
     const response = await fetch(`/api/v1/betalingen?size=${rowsPerPage}&page=${page}`, {
       method: "GET",
@@ -105,6 +107,7 @@ export default function InkomstenUitgaven() {
         "Content-Type": "application/json",
       },
     });
+    setIsLoading(false);
     if (response.ok) {
       const result = await response.json();
       setBetalingen(result.data.content);
@@ -133,7 +136,11 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
-  if (betalingen.length === 0) {
+  if (isLoading) {
+    return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
+  }
+
+  if (!isLoading && betalingen.length === 0) {
     return <Typography sx={{ mb: '25px' }}>Je hebt nog geen betalingen geregistreerd.</Typography>
   }
   return (
