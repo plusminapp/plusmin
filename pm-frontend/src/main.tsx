@@ -5,7 +5,6 @@ import App from './App.tsx'
 
 import { AuthProvider } from "@asgardeo/auth-react";
 import { CustomProvider } from './context/CustomContext.tsx';
-'./context/AuthTokenProvider.tsx';
 
 const config = {
   clientID: "wnvfL9kJtnIf0ziF3oK2QUkgaWIa",

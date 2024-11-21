@@ -92,6 +92,7 @@ export default function InkomstenUitgaven() {
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -99,6 +100,7 @@ export default function InkomstenUitgaven() {
   });
 
   const fetchBetalingen = useCallback(async () => {
+    setIsLoading(true);
     const token = await getIDToken();
     const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker.id
     const response = await fetch(`/api/v1/betalingen/${id}?size=${rowsPerPage}&page=${page}`, {
@@ -108,6 +110,7 @@ export default function InkomstenUitgaven() {
         "Content-Type": "application/json",
       },
     });
+    setIsLoading(false);
     if (response.ok) {
       const result = await response.json();
       setBetalingen(result.data.content);
@@ -115,18 +118,18 @@ export default function InkomstenUitgaven() {
     } else {
       console.error("Failed to fetch data", response.status);
     }
-  }, [page, rowsPerPage]);
+  }, [getIDToken, page, rowsPerPage]);
 
   useEffect(() => {
     fetchBetalingen();
   }, [fetchBetalingen, page, rowsPerPage]);
 
   const handleChangePage = (
-    event: React.MouseEvent<HTMLButtonElement> | null,
+    _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
     setPage(newPage);
-    event;
+
   };
 
   const handleChangeRowsPerPage = (
@@ -136,7 +139,11 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
-  if (betalingen.length === 0) {
+  if (isLoading) {
+    return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
+  }
+
+  if (!isLoading && betalingen.length === 0) {
     return <Typography sx={{ mb: '25px' }}>Je hebt nog geen betalingen geregistreerd.</Typography>
   }
   return (
