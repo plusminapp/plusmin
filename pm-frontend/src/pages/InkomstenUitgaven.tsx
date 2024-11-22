@@ -100,25 +100,27 @@ export default function InkomstenUitgaven() {
   });
 
   const fetchBetalingen = useCallback(async () => {
-    setIsLoading(true);
-    const token = await getIDToken();
-    const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker.id
-    const response = await fetch(`/api/v1/betalingen/${id}?size=${rowsPerPage}&page=${page}`, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-    setIsLoading(false);
-    if (response.ok) {
-      const result = await response.json();
-      setBetalingen(result.data.content);
-      setCount(result.data.page.totalElements)
-    } else {
-      console.error("Failed to fetch data", response.status);
+    if (gebruiker) {
+      setIsLoading(true);
+      const token = await getIDToken();
+      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+      const response = await fetch(`/api/v1/betalingen/${id}?size=${rowsPerPage}&page=${page}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      setIsLoading(false);
+      if (response.ok) {
+        const result = await response.json();
+        setBetalingen(result.data.content);
+        setCount(result.data.page.totalElements)
+      } else {
+        console.error("Failed to fetch data", response.status);
+      }
     }
-  }, [getIDToken, page, rowsPerPage]);
+  }, [getIDToken, page, rowsPerPage, actieveHulpvrager, gebruiker]);
 
   useEffect(() => {
     fetchBetalingen();
@@ -148,7 +150,7 @@ export default function InkomstenUitgaven() {
   }
   return (
     <>
-    <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
+      <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
       <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <colgroup>

@@ -30,7 +30,7 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
 
-    const { setGebruiker, hulpvragers, setHulpvragers, setActieveHulpvrager } = useCustomContext();
+    const { setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -47,6 +47,7 @@ function ResponsiveAppBar() {
         setAnchorElGebruiker(null);
     };
     const handleGotoGebruikerMenu = () => {
+        setActieveHulpvrager(undefined);
         setAnchorElGebruiker(null);
         handleNavigation("/profiel")
     };
@@ -67,7 +68,7 @@ function ResponsiveAppBar() {
       const data = await response.json();
       setGebruiker(data.gebruiker);
       setHulpvragers(data.hulpvragers);
-    }, [state.isAuthenticated])
+    }, [getIDToken, setGebruiker, setHulpvragers])
   
     useEffect(() => {
       fetchGebruikerMetHulpvragers();
@@ -122,11 +123,15 @@ function ResponsiveAppBar() {
                                     onClose={handleCloseGebruikerMenu}
                                 >
                                     <MenuItem key={'profile'} onClick={handleGotoGebruikerMenu}>
-                                        <Typography sx={{ textAlign: 'center' }}>{state.username}</Typography>
+                                        <Typography sx={{ textAlign: 'center' }}>
+                                            {actieveHulpvrager === undefined ? '> ' : ''}
+                                            {state.username}</Typography>
                                     </MenuItem>
                                     {hulpvragers.map ( hulpvrager =>
                                     <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
-                                        <Typography sx={{ textAlign: 'center' }}>{hulpvrager.pseudoniem}</Typography>
+                                        <Typography sx={{ textAlign: 'center' }}>
+                                        {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
+                                        {hulpvrager.pseudoniem}</Typography>
                                     </MenuItem>)}
                                     <MenuItem key={'logout'} onClick={() => signOut()}>
                                         <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>

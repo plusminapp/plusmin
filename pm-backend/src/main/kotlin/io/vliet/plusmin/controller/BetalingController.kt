@@ -59,7 +59,7 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingen)
     }
     @Operation(summary = "Get betalingen hulpvrager", description = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)")
-    @RolesAllowed("VRIJWILLIGER")
+    @RolesAllowed("VRIJWILLIGER", "HULPVRAGER")
     @GetMapping("/{hulpvragerId}")
     fun getAlleBetalingenVanHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
