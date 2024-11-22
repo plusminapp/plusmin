@@ -1,4 +1,3 @@
-import { useTheme } from '@mui/material/styles';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -6,83 +5,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import FirstPageIcon from '@mui/icons-material/FirstPage';
-import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import LastPageIcon from '@mui/icons-material/LastPage';
 
 import { Betaling } from '../model/Betaling';
 import { useEffect, useState, useCallback, Fragment } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Box, IconButton, Popover, TableFooter, TablePagination, Typography } from '@mui/material';
+import { Popover, TableFooter, TablePagination, Typography } from '@mui/material';
 import { useCustomContext } from '../context/CustomContext';
-
-interface TablePaginationActionsProps {
-  count: number;
-  page: number;
-  rowsPerPage: number;
-  onPageChange: (
-    event: React.MouseEvent<HTMLButtonElement>,
-    newPage: number,
-  ) => void;
-}
-
-function TablePaginationActions(props: TablePaginationActionsProps) {
-  const theme = useTheme();
-  const { count, page, rowsPerPage, onPageChange } = props;
-
-  const handleFirstPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    onPageChange(event, 0);
-  };
-
-  const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onPageChange(event, page - 1);
-  };
-
-  const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onPageChange(event, page + 1);
-  };
-
-  const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-  };
-
-  return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
-      <IconButton
-        onClick={handleFirstPageButtonClick}
-        disabled={page === 0}
-        aria-label="first page"
-      >
-        {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-      </IconButton>
-      <IconButton
-        onClick={handleBackButtonClick}
-        disabled={page === 0}
-        aria-label="previous page"
-      >
-        {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-      </IconButton>
-      <IconButton
-        onClick={handleNextButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="next page"
-      >
-        {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-      </IconButton>
-      <IconButton
-        onClick={handleLastPageButtonClick}
-        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-        aria-label="last page"
-      >
-        {theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-      </IconButton>
-    </Box>
-  );
-}
+import TablePaginationActions from '../components/TablePaginationActions';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -151,111 +81,114 @@ export default function InkomstenUitgaven() {
     setAnchorEl(null);
     setPopoverId(null);
   };
-  // const open = Boolean(anchorEl);
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
 
-  if (!isLoading && betalingen.length === 0) {
-    return <Typography sx={{ mb: '25px' }}>Je hebt nog geen betalingen geregistreerd.</Typography>
-  }
   return (
     <>
-      <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
-      <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <colgroup>
-            <col width="15%" />
-            <col width="15%" />
-            <col width="55%" />
-            <col width="15%" />
-          </colgroup>
-          <TableHead>
-            <TableRow>
-              <TableCell>Boekingsdatum</TableCell>
-              <TableCell align="right">Bedrag (&euro;)</TableCell>
-              {/* <TableCell>Omschrijving bank</TableCell> */}
-              <TableCell>Omschrijving</TableCell>
-              <TableCell>Categorie</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {betalingen.map((betaling) => (
-              <Fragment key={betaling.id}>
-                <TableRow
-                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                  aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
-                  aria-haspopup="true"
-                  onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
-                  onMouseLeave={handlePopoverClose}
-                >
-                  <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
-                  {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
-                  <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell>
-                  <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+      <Typography variant='h4'>Inkomsten & uitgaven</Typography>
+      {!isLoading && betalingen.length === 0 &&
+        <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
+      }
+      {!isLoading && betalingen.length > 0 &&
+        <>
+          <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
+          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
+            <Table sx={{ width: "100%" }} aria-label="simple table">
+              <colgroup>
+                <col width="15%" />
+                <col width="15%" />
+                <col width="55%" />
+                <col width="15%" />
+              </colgroup>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Datum</TableCell>
+                  <TableCell align="right">(&euro;)</TableCell>
+                  {/* <TableCell>Omschrijving bank</TableCell> */}
+                  <TableCell>Omschrijving</TableCell>
+                  <TableCell>Categorie</TableCell>
                 </TableRow>
-                <Popover
-                  id={`popover-${betaling.id}`}
-                  sx={{
-                    pointerEvents: 'none',
-                    "& .MuiPaper-root": {
-                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", 
-                      width: "75%",
-                      maxWidth: "75%",
-                    },
-                  }}
-                  open={popoverId === betaling.id}
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'center',
-                  }}
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                  }}
-                  onClose={handlePopoverClose}
-                  disableRestoreFocus
-                >
-                  <Typography sx={{ p: 1 }}>
-                    tegenrekening: {betaling.tegenrekening}<br />
-                    naam_tegenrekening:  {betaling.naam_tegenrekening}<br />
-                    saldo_vooraf:  {betaling.saldo_vooraf}<br />
-                    betalingskenmerk:  {betaling.betalingskenmerk}<br />
-                    omschrijving_bank:  {betaling.omschrijving_bank}<br />
-                    status:  {betaling.status}<br />
-                  </Typography>
-                </Popover>
-              </Fragment>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                labelRowsPerPage={"Rijen per pagina"}
-                colSpan={3}
-                count={count}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                slotProps={{
-                  select: {
-                    inputProps: {
-                      'aria-label': 'Rijen per pagina',
-                    },
-                    native: true,
-                  },
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                {betalingen.map((betaling) => (
+                  <Fragment key={betaling.id}>
+                    <TableRow
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                      aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
+                      aria-haspopup="true"
+                      onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
+                      onMouseLeave={handlePopoverClose}
+                    >
+                      <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
+                      <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+                      {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
+                      <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell>
+                      <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+                    </TableRow>
+                    <Popover
+                      id={`popover-${betaling.id}`}
+                      sx={{
+                        pointerEvents: 'none',
+                        "& .MuiPaper-root": {
+                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+                          width: "75%",
+                          maxWidth: "75%",
+                        },
+                      }}
+                      open={popoverId === betaling.id}
+                      anchorEl={anchorEl}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'center',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center',
+                      }}
+                      onClose={handlePopoverClose}
+                      disableRestoreFocus
+                    >
+                      <Typography sx={{ p: 1 }}>
+                        tegenrekening: {betaling.tegenrekening}<br />
+                        naam_tegenrekening:  {betaling.naam_tegenrekening}<br />
+                        saldo_vooraf:  {betaling.saldo_vooraf}<br />
+                        betalingskenmerk:  {betaling.betalingskenmerk}<br />
+                        omschrijving_bank:  {betaling.omschrijving_bank}<br />
+                        status:  {betaling.status}<br />
+                      </Typography>
+                    </Popover>
+                  </Fragment>
+                ))}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                    labelRowsPerPage={"Rijen per pagina"}
+                    colSpan={3}
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    slotProps={{
+                      select: {
+                        inputProps: {
+                          'aria-label': 'Rijen per pagina',
+                        },
+                        native: true,
+                      },
+                    }}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    ActionsComponent={TablePaginationActions}
+                  />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
+        </>}
     </>
   );
 }
