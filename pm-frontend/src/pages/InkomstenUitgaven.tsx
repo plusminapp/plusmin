@@ -12,10 +12,10 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 
 import { Betaling } from '../model/Betaling';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Fragment } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Box, IconButton, TableFooter, TablePagination, Typography } from '@mui/material';
+import { Box, IconButton, Popover, TableFooter, TablePagination, Typography } from '@mui/material';
 import { useCustomContext } from '../context/CustomContext';
 
 interface TablePaginationActionsProps {
@@ -93,6 +93,8 @@ export default function InkomstenUitgaven() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [popoverId, setPopoverId] = useState<number | null>(null);
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -141,6 +143,16 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
+    setAnchorEl(event.currentTarget);
+    setPopoverId(id);
+  };
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+    setPopoverId(null);
+  };
+  // const open = Boolean(anchorEl);
+
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
@@ -170,16 +182,53 @@ export default function InkomstenUitgaven() {
           </TableHead>
           <TableBody>
             {betalingen.map((betaling) => (
-              <TableRow
-                key={betaling.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
-                <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
-                <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell>
-                {/* <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell> */}
-                <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
-              </TableRow>
+              <Fragment key={betaling.id}>
+                <TableRow
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                  aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
+                  aria-haspopup="true"
+                  onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
+                  onMouseLeave={handlePopoverClose}
+                >
+                  <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
+                  <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+                  {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
+                  <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell>
+                  <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+                </TableRow>
+                <Popover
+                  id={`popover-${betaling.id}`}
+                  sx={{
+                    pointerEvents: 'none',
+                    "& .MuiPaper-root": {
+                      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", 
+                      width: "75%",
+                      maxWidth: "75%",
+                    },
+                  }}
+                  open={popoverId === betaling.id}
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'center',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'center',
+                  }}
+                  onClose={handlePopoverClose}
+                  disableRestoreFocus
+                >
+                  <Typography sx={{ p: 1 }}>
+                    tegenrekening: {betaling.tegenrekening}<br />
+                    naam_tegenrekening:  {betaling.naam_tegenrekening}<br />
+                    saldo_vooraf:  {betaling.saldo_vooraf}<br />
+                    betalingskenmerk:  {betaling.betalingskenmerk}<br />
+                    omschrijving_bank:  {betaling.omschrijving_bank}<br />
+                    status:  {betaling.status}<br />
+                  </Typography>
+                </Popover>
+              </Fragment>
             ))}
           </TableBody>
           <TableFooter>
