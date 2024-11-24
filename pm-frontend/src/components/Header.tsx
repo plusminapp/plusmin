@@ -78,7 +78,7 @@ function ResponsiveAppBar() {
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>
-                <IconButton onClick={() => handleNavigation("/stand")}>
+                <IconButton onClick={() => handleNavigation("/")}>
                     <PlusMinLogo />
                 </IconButton>
 

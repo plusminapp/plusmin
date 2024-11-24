@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LayingSIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+const VariabeleLastenIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -21,4 +21,4 @@ const LayingSIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   );
 };
 
-export default LayingSIcon;
+export default VariabeleLastenIcon;
