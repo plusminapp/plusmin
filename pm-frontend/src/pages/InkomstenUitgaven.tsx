@@ -5,6 +5,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 import { Betaling } from '../model/Betaling';
 import { useEffect, useState, useCallback, Fragment } from 'react';
@@ -13,6 +14,8 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { Popover, TableFooter, TablePagination, Typography } from '@mui/material';
 import { useCustomContext } from '../context/CustomContext';
 import TablePaginationActions from '../components/TablePaginationActions';
+// import InkomenIcon from '../icons/Inkomen';
+// import VariabeleLastenIcon from '../icons/VariabeleLasten';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -26,10 +29,13 @@ export default function InkomstenUitgaven() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [popoverId, setPopoverId] = useState<number | null>(null);
 
-  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
+const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
     currency: "EUR",
   });
+  const dateFormatter = (date: string) => {
+    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
+  }
 
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
@@ -98,18 +104,18 @@ export default function InkomstenUitgaven() {
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <colgroup>
-                <col width="15%" />
-                <col width="15%" />
-                <col width="55%" />
-                <col width="15%" />
+                <col width="20%" />
+                <col width="20%" />
+                <col width="50%" />
+                <col width="10%" />
               </colgroup>
               <TableHead>
                 <TableRow>
-                  <TableCell>Datum</TableCell>
-                  <TableCell align="right">(&euro;)</TableCell>
+                  <TableCell>&nbsp;</TableCell>
+                  <TableCell align="right">&euro;</TableCell>
                   {/* <TableCell>Omschrijving bank</TableCell> */}
                   <TableCell>Omschrijving</TableCell>
-                  <TableCell>Categorie</TableCell>
+                  <TableCell>?</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -122,11 +128,11 @@ export default function InkomstenUitgaven() {
                       onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
                       onMouseLeave={handlePopoverClose}
                     >
-                      <TableCell align="left" size='small'>{betaling["boekingsdatum"]}</TableCell>
-                      <TableCell align="right" size='small'>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
                       {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
-                      <TableCell align="left" size='small'>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small'>{betaling["categorie"]}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}><ShoppingCartOutlinedIcon sx={{ color: 'grey' }} /></TableCell>
                     </TableRow>
                     <Popover
                       id={`popover-${betaling.id}`}
@@ -167,7 +173,7 @@ export default function InkomstenUitgaven() {
                 <TableRow>
                   <TablePagination
                     rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                    labelRowsPerPage={"Rijen per pagina"}
+                    labelRowsPerPage={""}
                     colSpan={3}
                     count={count}
                     rowsPerPage={rowsPerPage}
@@ -179,6 +185,11 @@ export default function InkomstenUitgaven() {
                         },
                         native: true,
                       },
+                    }}
+                    sx={{
+                      width: "300px", 
+                      margin: "0 auto",
+                      overflow: "hidden",
                     }}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
