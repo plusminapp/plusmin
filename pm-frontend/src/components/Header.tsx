@@ -23,6 +23,7 @@ const pages = ['Stand', 'Inkomsten/uitgaven', 'Betaalregelingen', 'Budget'];
 function ResponsiveAppBar() {
     const navigate = useNavigate();
     const handleNavigation = (page: string) => {
+        setAnchorElNav(null);
         navigate(page);
     };
     const { state, signIn, signOut, getIDToken } = useAuthContext();
@@ -131,7 +132,7 @@ function ResponsiveAppBar() {
                                     <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
                                         <Typography sx={{ textAlign: 'center' }}>
                                         {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
-                                        {hulpvrager.pseudoniem}</Typography>
+                                        {hulpvrager.bijnaam}</Typography>
                                     </MenuItem>)}
                                     <MenuItem key={'logout'} onClick={() => signOut()}>
                                         <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>

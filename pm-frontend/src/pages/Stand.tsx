@@ -29,7 +29,7 @@ export default function Stand() {
             {gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
               <Typography sx={{ my: '25px' }}>Je begeleidt
                 {hulpvragers.length === 0 ? " (nog) niemand " : hulpvragers.length > 1 ? " de hulpvragers " : " de hulpvrager "}
-                "{hulpvragers.map(x => x.bijnaam + ' (' + x.pseudoniem + ')').join(', ')}".
+                "{hulpvragers.map(x => x.bijnaam ).join(', ')}".
               </Typography>
             }
           </>

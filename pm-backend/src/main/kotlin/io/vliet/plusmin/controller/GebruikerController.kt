@@ -59,7 +59,6 @@ data class GebruikerDTO (
     val id: Long = 0,
     val email: String,
     val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-    val pseudoniem: String = "Nog in te stellen pseudoniem",
     val roles: List<String> = emptyList(),
     val vrijwilliger: String = "",
     val vrijwilligerbijnaam: String = ""

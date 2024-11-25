@@ -96,11 +96,11 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
       {!isLoading && betalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
+        <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
       }
       {!isLoading && betalingen.length > 0 &&
         <>
-          <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.pseudoniem : gebruiker?.bijnaam} worden getoond.</Typography>
+          <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam} worden getoond.</Typography>
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <colgroup>

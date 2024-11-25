@@ -32,9 +32,9 @@ const Profiel: React.FC = () => {
           {gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
             <Typography sx={{ my: '25px' }}>Je begeleidt
             {hulpvragers.length === 0 ? " (nog) niemand " : hulpvragers.length > 1 ? " de hulpvragers " : " de hulpvrager "}
-            "{hulpvragers.map(x => x.bijnaam+' ('+x.pseudoniem+')').join(', ')}".
+            "{hulpvragers.map(x => x.bijnaam).join(', ')}".
             <br/>
-            De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.pseudoniem : "nog niet gekozen"}.
+            De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
           
           </Typography>
       }
