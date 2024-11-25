@@ -3,13 +3,13 @@ import React from "react";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import ReorderIcon from '@mui/icons-material/Reorder';
-import WavesOutlinedIcon from '@mui/icons-material/WavesOutlined';
+// import WavesOutlinedIcon from '@mui/icons-material/WavesOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import TaskOutlinedIcon from '@mui/icons-material/TaskOutlined';
 import { Typography } from "@mui/material";
 
-export const ICONS = [ArrowUpwardIcon, ShoppingCartOutlinedIcon, ReorderIcon, WavesOutlinedIcon, TaskOutlinedIcon, SavingsOutlinedIcon];
-export const Legenda = ["Inkomen", "Boodschappen", "Vaste lasten", "Variabele lasten", "Aflossing", "Sparen"];
+const ICONS = [ArrowUpwardIcon, ShoppingCartOutlinedIcon, ReorderIcon, WavesOutlinedIcon, TaskOutlinedIcon, SavingsOutlinedIcon];
+const Legenda = ["Inkomen", "Boodschappen", "Vaste lasten", "Variabele lasten", "Aflossing", "Sparen"];
 
 const IconList: React.FC = () => {
   return (
