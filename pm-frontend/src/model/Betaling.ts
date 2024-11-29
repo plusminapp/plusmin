@@ -1,14 +1,16 @@
+import { Gebruiker } from "./Gebruiker";
+import { Rekening } from "./Rekening";
+
 export type Betaling = {
     id: number;
-    referentie: string;
+    gebruiker: Gebruiker;
     boekingsdatum: string;
-    tegenrekening: string;
-    naam_tegenrekening: string;
-    saldo_vooraf: number | undefined;
     bedrag: number;
-    betalingskenmerk: string | undefined;
-    omschrijving_bank: string | undefined;
+    saldo_achteraf: number | undefined;
     omschrijving: string | undefined;
     categorie: string | undefined;
+    bron: Rekening | undefined;
+    bestemming: Rekening | undefined;
+    bank_informatie: string | undefined;
     status: string;
 }

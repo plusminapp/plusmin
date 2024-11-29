@@ -5,6 +5,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 import { Betaling } from '../model/Betaling';
@@ -29,7 +30,7 @@ export default function InkomstenUitgaven() {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [popoverId, setPopoverId] = useState<number | null>(null);
 
-const currencyFormatter = new Intl.NumberFormat("nl-NL", {
+  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
     currency: "EUR",
   });
@@ -42,7 +43,7 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/betalingen/${id}?size=${rowsPerPage}&page=${page}`, {
+      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?size=${rowsPerPage}&page=${page}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -104,16 +105,15 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <colgroup>
-                <col width="20%" />
-                <col width="20%" />
-                <col width="50%" />
+                <col width="15%" />
+                <col width="10%" />
+                <col width="65%" />
                 <col width="10%" />
               </colgroup>
               <TableHead>
                 <TableRow>
                   <TableCell>&nbsp;</TableCell>
                   <TableCell align="right">&euro;</TableCell>
-                  {/* <TableCell>Omschrijving bank</TableCell> */}
                   <TableCell>Omschrijving</TableCell>
                   <TableCell>?</TableCell>
                 </TableRow>
@@ -130,9 +130,8 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
-                      {/* <TableCell align="left">{betaling["omschrijving_bank"]}</TableCell> */}
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}><ShoppingCartOutlinedIcon sx={{ color: 'grey' }} /></TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}><ShoppingCartOutlinedIcon fontSize='small' sx={{ color: 'grey' }} /></TableCell>
                     </TableRow>
                     <Popover
                       id={`popover-${betaling.id}`}
@@ -158,11 +157,9 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
                       disableRestoreFocus
                     >
                       <Typography sx={{ p: 1 }}>
-                        tegenrekening: {betaling.tegenrekening}<br />
-                        naam_tegenrekening:  {betaling.naam_tegenrekening}<br />
-                        saldo_vooraf:  {betaling.saldo_vooraf}<br />
-                        betalingskenmerk:  {betaling.betalingskenmerk}<br />
-                        omschrijving_bank:  {betaling.omschrijving_bank}<br />
+                        { betaling.bron && "afgeschreven van: {betaling.bron?.naam}<br />" }
+                        { betaling.bestemming && 'bijgeschreven bij: {betaling.bestemming?.naam}<br />' }
+                        bank_informatie:  {betaling.bank_informatie}<br />
                         status:  {betaling.status}<br />
                       </Typography>
                     </Popover>
@@ -187,7 +184,7 @@ const currencyFormatter = new Intl.NumberFormat("nl-NL", {
                       },
                     }}
                     sx={{
-                      width: "300px", 
+                      width: "300px",
                       margin: "0 auto",
                       overflow: "hidden",
                     }}
