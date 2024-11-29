@@ -47,26 +47,28 @@ class Camt053Service {
 
                     val isDebit = (reportEntry2.cdtDbtInd == CreditDebitCode.DBIT)
 
+                    val tegenrekening = if (isDebit)
+                        (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend")
+                    else
+                        (entryDetails.rltdPties?.dbtrAcct?.id?.iban ?: "onbekend")
+                    val naam_tegenrekening = if (isDebit)
+                        (entryDetails.rltdPties?.cdtr?.nm ?: "onbekend")
+                    else
+                        (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend")
+                    val bank_informatie = "${reportEntry2.addtlNtryInf}\n $tegenrekening, $naam_tegenrekening"
+
+
                     try {
                         betalingRepository.save(
                             Betaling(
                                 referentie = reportEntry2.ntryRef,
                                 boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
                                     .toLocalDate(),
-                                tegenrekening = if (isDebit)
-                                    (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend")
-                                else
-                                    (entryDetails.rltdPties?.dbtrAcct?.id?.iban ?: "onbekend"),
-                                naam_tegenrekening = if (isDebit)
-                                    (entryDetails.rltdPties?.cdtr?.nm ?: "onbekend")
-                                else
-                                    (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend"),
-                                saldo_vooraf = BigDecimal(0),
+                                saldo_achteraf = BigDecimal(0),
                                 bedrag = if (isDebit)
                                     -reportEntry2.amt.value
                                 else
                                     reportEntry2.amt.value,
-                                omschrijving_bank = reportEntry2.addtlNtryInf,
                                 gebruiker = gebruiker
                             )
                         )

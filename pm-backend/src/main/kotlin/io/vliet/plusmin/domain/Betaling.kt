@@ -19,25 +19,26 @@ class Betaling(
         sequenceName = "hibernate_sequence", 
         allocationSize = 1)
     val id: Long = 0,
-    @Column(unique = true)
-    @field:NotNull(message = "Referentie mag niet null zijn")
-    @field:NotBlank(message = "Referentie mag niet leeg zijn")
-    val referentie: String,
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "gebruiker_id", referencedColumnName = "id")
     val gebruiker: Gebruiker,
-    @field:PastOrPresent(message = "Boekingsdatum mag niet in de toekomst liggen")
     val boekingsdatum: LocalDate,
-    val tegenrekening: String? = null,
-    val naam_tegenrekening: String? = null,
-    val saldo_vooraf: BigDecimal? = null,
-    @field:NotEmpty(message = "Bedrag mag niet leeg zijn")
     val bedrag: BigDecimal,
-    val betalingskenmerk: String? = null,
-    val omschrijving_bank: String? = null,
+    val saldo_achteraf: BigDecimal? = null,
     val omschrijving: String? = null,
     val categorie: String? = null,
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "bron_id", referencedColumnName = "id")
+    val bron: Rekening? = null,
+    @ManyToOne
+    @JsonIgnore
+    @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
+    val bestemming: Rekening? = null,
+
+    val referentie: String? = null,
+    val bank_informatie: String? = null,
     @Enumerated(EnumType.STRING)
     val status: Status = Status.OPEN
 ) {

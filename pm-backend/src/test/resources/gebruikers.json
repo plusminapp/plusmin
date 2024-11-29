@@ -1,0 +1,24 @@
+[
+  {
+    "email": "hans@lsta.nl",
+    "bijnaam": "HansK.VW",
+    "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
+  },
+  {
+    "email": "ruud@vliet.io",
+    "bijnaam": "Ruud.VW",
+    "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
+  },
+  {
+    "email": "hkoning.gzn@gmail.com",
+    "bijnaam": "HansK.HV",
+    "vrijwilliger": "hans@lsta.nl",
+    "roles": ["ROLE_HULPVRAGER"]
+  },
+  {
+    "email": "ruud.van.vliet@ett-twello.nl",
+    "bijnaam": "Ruud.HV",
+    "vrijwilliger": "ruud@vliet.io",
+    "roles": ["ROLE_HULPVRAGER"]
+  }
+]

@@ -1,24 +1,27 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.service.GebruikerService
 import jakarta.annotation.security.RolesAllowed
+import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/gebruiker")
-
 class GebruikerController {
     @Autowired
     lateinit var gebruikerRepository: GebruikerRepository
+
+    @Autowired
+    lateinit var gebruikerService: GebruikerService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -40,6 +43,10 @@ class GebruikerController {
         val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker).map {it.toDTO()}
         return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers)
     }
+
+    @PostMapping("")
+    fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<GebruikerDTO> =
+        gebruikerService.saveAll(gebruikerList)
 
     fun getJwtGebruiker(): Gebruiker {
         val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
