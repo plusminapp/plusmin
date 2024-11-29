@@ -12,13 +12,13 @@
   {
     "email": "hkoning.gzn@gmail.com",
     "bijnaam": "HansK.HV",
-    "vrijwilliger": "hans@lsta.nl",
+    "vrijwilligerEmail": "hans@lsta.nl",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "ruud.van.vliet@ett-twello.nl",
     "bijnaam": "Ruud.HV",
-    "vrijwilliger": "ruud@vliet.io",
+    "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   }
 ]

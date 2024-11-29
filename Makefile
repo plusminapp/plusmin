@@ -39,6 +39,11 @@ box-deploy-frontend:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_frontend.sh" - ruud'
 
+box-deploy-backend:
+	scp .env box:~/pm
+	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_backend.sh" - ruud'
+
 box-frontend: dev-pm-frontend-build box-push box-deploy-frontend
+box-backend: dev-pm-backend-build box-push box-deploy-backend
 
 box-all: dev-build-all box-push box-deploy-all

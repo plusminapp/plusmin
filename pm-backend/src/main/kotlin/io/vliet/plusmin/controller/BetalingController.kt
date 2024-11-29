@@ -60,7 +60,7 @@ class BetalingController {
     }
     @Operation(summary = "Get betalingen hulpvrager", description = "GET alle betalingen van een hulpvrager (alleen voor VRIJWILLIGERs)")
     @RolesAllowed("VRIJWILLIGER", "HULPVRAGER")
-    @GetMapping("/{hulpvragerId}")
+    @GetMapping("/hulpvrager/{hulpvragerId}")
     fun getAlleBetalingenVanHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @RequestParam("size", defaultValue = "25", required = false) sizeAsString: String,
@@ -73,11 +73,11 @@ class BetalingController {
         @Parameter(description = "Formaat: yyyy-mm-dd")
         @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
         ): ResponseEntity<Any> {
-        val vrijwilliger = gebruikerController.getJwtGebruiker()
         val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
         if (hulpvragerOpt.isEmpty)
             return ResponseEntity("Hulpvrager met Id $hulpvragerId bestaat niet.", HttpStatus.NOT_FOUND)
         val hulpvrager = hulpvragerOpt.get()
+        val vrijwilliger = gebruikerController.getJwtGebruiker()
         if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
             logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
             return ResponseEntity(

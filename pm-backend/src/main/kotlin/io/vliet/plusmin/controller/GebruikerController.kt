@@ -1,8 +1,8 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.service.GebruikerService
 import jakarta.annotation.security.RolesAllowed
@@ -28,10 +28,10 @@ class GebruikerController {
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
     @RolesAllowed("COORDINATOR")
     @GetMapping("/")
-    fun getAlleGebruikers(): List<GebruikerDTO> {
+    fun getAlleGebruikers(): List<Gebruiker> {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
-        return gebruikerRepository.findAll().map {it.toDTO()}
+        return gebruikerRepository.findAll()
     }
 
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen
@@ -41,11 +41,12 @@ class GebruikerController {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
         val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker).map {it.toDTO()}
-        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers)
+
+        return GebruikerMetHulpvragersDTO(gebruiker, hulpvragers)
     }
 
     @PostMapping("")
-    fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<GebruikerDTO> =
+    fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> =
         gebruikerService.saveAll(gebruikerList)
 
     fun getJwtGebruiker(): Gebruiker {
@@ -53,7 +54,7 @@ class GebruikerController {
         val email = jwt.claims["username"] as String
         val gebruikerOpt = gebruikerRepository.findByEmail(email)
         return if (gebruikerOpt.isPresent) {
-            logger.debug("getJwtGebruiker met email: ${email} gevonden")
+            logger.info("getJwtGebruiker met email: ${email} gevonden ${gebruikerOpt.get().rekeningen.map { it.naam }}")
             gebruikerOpt.get()
         } else {
             logger.error("GET /gebruiker met email: ${email} bestaat nog niet")
@@ -62,16 +63,7 @@ class GebruikerController {
     }
 }
 
-data class GebruikerDTO (
-    val id: Long = 0,
-    val email: String,
-    val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-    val roles: List<String> = emptyList(),
-    val vrijwilliger: String = "",
-    val vrijwilligerbijnaam: String = ""
-) {}
-
 data class GebruikerMetHulpvragersDTO (
-    val gebruiker: GebruikerDTO,
+    val gebruiker: Gebruiker,
     val hulpvragers: List<GebruikerDTO>
 )

@@ -1,7 +1,7 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Role
 import io.vliet.plusmin.repository.GebruikerRepository
 import org.slf4j.Logger
@@ -17,15 +17,15 @@ class GebruikerService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
 
-    fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<GebruikerDTO> {
+    fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<Gebruiker> {
         return gebruikersLijst.map { gebruikerDTO ->
-            val vrijwilligerOpt = if (gebruikerDTO.vrijwilliger.isNotEmpty()) {
-                gebruikerRepository.findByEmail(gebruikerDTO.vrijwilliger)
+            val vrijwilligerOpt = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
+                gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
             } else null
             val vrijwilliger = if (vrijwilligerOpt != null && vrijwilligerOpt.isPresent) {
                 vrijwilligerOpt.get()
             } else null
-            logger.info("gebruiker: ${gebruikerDTO.vrijwilliger}, vrijwilliger: ${vrijwilliger?.email}")
+            logger.info("gebruiker: ${gebruikerDTO.vrijwilligerEmail}, vrijwilliger: ${vrijwilliger?.email}")
             val gebruikerOpt = gebruikerRepository.findByEmail(gebruikerDTO.email)
             val gebruiker = if (gebruikerOpt.isPresent) {
                 gebruikerOpt.get().fullCopy(
@@ -43,7 +43,7 @@ class GebruikerService {
             )
 
             gebruikerRepository.save(gebruiker)
-            gebruiker.toDTO()
+            gebruiker
         }
     }
 }

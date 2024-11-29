@@ -1,7 +1,6 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.vliet.plusmin.controller.GebruikerDTO
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -25,7 +24,9 @@ class Gebruiker(
     @Enumerated(EnumType.STRING)
     val roles: MutableSet<Role> = mutableSetOf<Role>(),
     @OneToOne
-    val vrijwilliger: Gebruiker? = null
+    val vrijwilliger: Gebruiker? = null,
+    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
+    var rekeningen: List<Rekening> = emptyList()
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -37,13 +38,36 @@ class Gebruiker(
     @JsonIgnore
     override fun getUsername(): String = email
 
+    fun with(rekening: Rekening): Gebruiker {
+        this.rekeningen += rekening
+        return this
+    }
+
     fun fullCopy(
         email: String = this.email,
         bijnaam: String = this.bijnaam,
         roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger,
-    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger)
-    
+        rekeningen: List<Rekening> = this.rekeningen
+    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen)
+
+    /**
+     * Een Data Transfer Object voor de Gebruiker
+     *
+     * Deze data class wordt gebruikt om:
+     *  - als invoer: een nieuwe gebruiker aan te maken
+     *  - als uitvoer: de hulpvragers bij een vrijwilliger mee te geven
+     *
+     *  Let op: de DTO bevat NIET de rekeningen
+     */
+    data class GebruikerDTO (
+        val id: Long = 0,
+        val email: String,
+        val bijnaam: String = "Gebruiker zonder bijnaam :-)",
+        val roles: List<String> = emptyList(),
+        val vrijwilligerEmail: String = "",
+    )
+
     fun toDTO(): GebruikerDTO {
         return GebruikerDTO(
             this.id,
@@ -51,7 +75,6 @@ class Gebruiker(
             this.bijnaam,
             this.roles.map { it.toString() },
             this.vrijwilliger?.email ?: "",
-            this.vrijwilliger?.bijnaam ?: ""
         )
     }
 }

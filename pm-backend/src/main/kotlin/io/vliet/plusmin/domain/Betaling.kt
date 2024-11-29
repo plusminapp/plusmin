@@ -29,11 +29,9 @@ class Betaling(
     val omschrijving: String? = null,
     val categorie: String? = null,
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening? = null,
     @ManyToOne
-    @JsonIgnore
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
     val bestemming: Rekening? = null,
 
