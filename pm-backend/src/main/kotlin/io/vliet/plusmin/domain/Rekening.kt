@@ -19,7 +19,7 @@ class Rekening(
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
     @Enumerated(EnumType.STRING)
-    val type: Type,
+    val betaalMethode: BetaalMethode,
     val nummer: String?,
     val naam: String,
     val afkorting: String
@@ -31,11 +31,11 @@ class Rekening(
 
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
-        type: Type = this.type,
+        betaalMethode: BetaalMethode = this.betaalMethode,
         nummer: String? = this.nummer,
         naam: String = this.naam,
         afkorting: String = this.afkorting
-    ) = Rekening(this.id, gebruiker, type, nummer, naam, afkorting)
+    ) = Rekening(this.id, gebruiker, betaalMethode, nummer, naam, afkorting)
 
     data class RekeningDTO(
         val id: Long = 0,
@@ -48,13 +48,13 @@ class Rekening(
     fun toDTO(): RekeningDTO {
         return RekeningDTO(
             this.id,
-            this.type.toString(),
+            this.betaalMethode.toString(),
             this.nummer,
             this.naam,
             this.afkorting
         )
     }
 }
-enum class Type {
+enum class BetaalMethode {
     CONTANT, BETAALBANKREKENING, SPAARREKENING, CREDITCARD
 }
