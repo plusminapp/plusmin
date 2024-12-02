@@ -4,10 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDate
-import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotEmpty
-import javax.validation.constraints.NotNull
-import javax.validation.constraints.PastOrPresent
 
 @Entity
 @Table(name = "betaling")
@@ -15,9 +11,10 @@ class Betaling(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
-        name = "hibernate_sequence", 
-        sequenceName = "hibernate_sequence", 
-        allocationSize = 1)
+        name = "hibernate_sequence",
+        sequenceName = "hibernate_sequence",
+        allocationSize = 1
+    )
     val id: Long = 0,
     @ManyToOne
     @JsonIgnore
@@ -27,7 +24,7 @@ class Betaling(
     val bedrag: BigDecimal,
     val saldo_achteraf: BigDecimal? = null,
     val omschrijving: String? = null,
-    val categorie: String? = null,
+    val betalingsSoort: BetalingsSoort? = null,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
     val bron: Rekening? = null,
@@ -43,6 +40,15 @@ class Betaling(
     companion object {
         val sortableFields = setOf("id", "boekingsdatum", "status")
     }
+}
+
+enum class BetalingsSoort {
+    INKOMSTEN, BOODSCHAPPEN, VASTE_LASTEN, ANDERE_UITGAVE, AFLOSSEN_BETAALREGELING, AFLOSSEN_CREDITCARD,
+    BESTEDING_RESERVERING, OPNAME_SPAARGELD, STORTEN_SPAARGELD, OPNAME_CONTANT_GELD
+}
+
+enum class BetalingsMethode {
+    BETAALBANKREKENING, CREDITCARD, CONTANT
 }
 
 enum class Status {

@@ -3,7 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
-import io.vliet.plusmin.domain.BetaalMethode
+import io.vliet.plusmin.domain.RekeningSoort
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
@@ -27,14 +27,14 @@ class RekeningService {
             val rekening = if (rekeningOpt.isPresent) {
                 logger.info("rekening bestaat al: ${rekeningOpt.get().id}")
                 rekeningOpt.get().fullCopy(
-                    betaalMethode = enumValueOf<BetaalMethode>(rekeningDTO.type),
+                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.type),
                     nummer = rekeningDTO.nummer,
                     afkorting = rekeningDTO.afkorting
                 )
             } else {
                 Rekening(
                     gebruiker = gebruiker,
-                    betaalMethode = enumValueOf<BetaalMethode>(rekeningDTO.type),
+                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.type),
                     nummer = rekeningDTO.nummer,
                     naam = rekeningDTO.naam,
                     afkorting = rekeningDTO.afkorting
