@@ -1,0 +1,68 @@
+[
+  {
+    "rekeningSoort": "BETAALREKENING",
+    "nummer": "betaalrekeningnummer",
+    "naam": "betaalrekening",
+    "afkorting": "btr"
+  },
+  {
+    "rekeningSoort": "CREDITCARD",
+    "nummer": "creditcardnummer",
+    "naam": "creditcard",
+    "afkorting": "cc"
+  },
+  {
+    "rekeningSoort": "BETAALREGELING",
+    "nummer": "",
+    "naam": "betaalregeling1",
+    "afkorting": "br1"
+  },
+  {
+    "rekeningSoort": "BETAALREGELING",
+    "nummer": "",
+    "naam": "betaalregeling2",
+    "afkorting": "br2"
+  },
+  {
+    "rekeningSoort": "RESERVERING",
+    "nummer": "",
+    "naam": "reservering",
+    "afkorting": "res"
+  },
+  {
+    "rekeningSoort": "INKOMSTEN",
+    "nummer": "",
+    "naam": "inkomsten",
+    "afkorting": "ink"
+  },
+  {
+    "rekeningSoort": "VASTE_LASTEN",
+    "nummer": "",
+    "naam": "vaste lasten",
+    "afkorting": "vl"
+  },
+  {
+    "rekeningSoort": "ANDERE_UITGAVE",
+    "nummer": "",
+    "naam": "andere uitgave",
+    "afkorting": "au"
+  },
+  {
+    "rekeningSoort": "SPAARREKENING",
+    "nummer": "spaarrekeningnummer",
+    "naam": "spaarrekening",
+    "afkorting": "spr"
+  },
+  {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "contant",
+    "afkorting": "cnt"
+  },
+  {
+    "rekeningSoort": "BOODSCHAPPEN",
+    "nummer": "",
+    "naam": "boodschappen",
+    "afkorting": "boo"
+  }
+]

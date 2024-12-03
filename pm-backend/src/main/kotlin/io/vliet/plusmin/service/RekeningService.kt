@@ -25,26 +25,23 @@ class RekeningService {
         return rekeningenLijst.map { rekeningDTO ->
             val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, rekeningDTO.naam)
             val rekening = if (rekeningOpt.isPresent) {
-                logger.info("rekening bestaat al: ${rekeningOpt.get().id}")
+                logger.info("Rekening bestaat al: ${rekeningOpt.get().naam} met id ${rekeningOpt.get().id} voor ${gebruiker.bijnaam}")
                 rekeningOpt.get().fullCopy(
-                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.type),
+                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
                     afkorting = rekeningDTO.afkorting
                 )
             } else {
                 Rekening(
                     gebruiker = gebruiker,
-                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.type),
+                    rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
                     naam = rekeningDTO.naam,
                     afkorting = rekeningDTO.afkorting
                 )
             }
-            val savedRekening = rekeningRepository.save(rekening)
-            logger.info("rekeningid: ${savedRekening.id}")
-            val savedGebruiker = gebruikerRepository.save(gebruiker.with(savedRekening))
-            logger.info("rekeningen ${savedGebruiker.rekeningen.map { it.naam }}")
-            rekening.toDTO()
+            logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam}")
+            rekeningRepository.save(rekening).toDTO()
         }
     }
 }

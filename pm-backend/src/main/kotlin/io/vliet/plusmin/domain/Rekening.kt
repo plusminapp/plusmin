@@ -39,7 +39,7 @@ class Rekening(
 
     data class RekeningDTO(
         val id: Long = 0,
-        val type: String,
+        val rekeningSoort: String,
         val nummer: String?,
         val naam: String,
         val afkorting: String
@@ -51,10 +51,11 @@ class Rekening(
             this.rekeningSoort.toString(),
             this.nummer,
             this.naam,
-            this.afkorting
+            this.afkorting,
         )
     }
 }
 enum class RekeningSoort {
-    BETAALBANKREKENING, SPAARREKENING, CREDITCARD, CONTANT,
+    BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, BETAALREGELING, RESERVERING,
+    INKOMSTEN, BOODSCHAPPEN, VASTE_LASTEN, ANDERE_UITGAVE
 }

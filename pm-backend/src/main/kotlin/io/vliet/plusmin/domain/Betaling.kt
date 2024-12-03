@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Entity
 @Table(name = "betaling")
@@ -22,35 +23,54 @@ class Betaling(
     val gebruiker: Gebruiker,
     val boekingsdatum: LocalDate,
     val bedrag: BigDecimal,
-    val saldo_achteraf: BigDecimal? = null,
-    val omschrijving: String? = null,
-    val betalingsSoort: BetalingsSoort? = null,
+    val omschrijving: String,
+    @Enumerated(EnumType.STRING)
+    val betalingsSoort: BetalingsSoort,
     @ManyToOne
     @JoinColumn(name = "bron_id", referencedColumnName = "id")
-    val bron: Rekening? = null,
+    val bron: Rekening,
     @ManyToOne
     @JoinColumn(name = "bestemming_id", referencedColumnName = "id")
-    val bestemming: Rekening? = null,
-
-    val referentie: String? = null,
-    val bank_informatie: String? = null,
-    @Enumerated(EnumType.STRING)
-    val status: Status = Status.OPEN
+    val bestemming: Rekening,
 ) {
     companion object {
         val sortableFields = setOf("id", "boekingsdatum", "status")
+    }
+
+    fun fullCopy(
+        gebruiker: Gebruiker = this.gebruiker,
+        boekingsdatum: LocalDate = this.boekingsdatum,
+        bedrag: BigDecimal = this.bedrag,
+        omschrijving: String = this.omschrijving,
+        betalingsSoort: BetalingsSoort = this.betalingsSoort,
+        bron: Rekening = this.bron,
+        bestemming: Rekening = this.bestemming
+    ) = Betaling(this.id, gebruiker, boekingsdatum, bedrag, omschrijving, betalingsSoort, bron, bestemming)
+
+    data class BetalingDTO(
+        val id: Long = 0,
+        val boekingsdatum: String,
+        val bedrag: String,
+        val omschrijving: String,
+        val betalingsSoort: String,
+        val bron: String,
+        val bestemming: String
+    )
+
+    fun toDTO(): BetalingDTO {
+        return BetalingDTO(
+            this.id,
+            this.boekingsdatum.format(DateTimeFormatter.BASIC_ISO_DATE),
+            this.bedrag.toString(),
+            this.omschrijving,
+            this.betalingsSoort.toString(),
+            this.bron.naam,
+            this.bestemming.naam,
+        )
     }
 }
 
 enum class BetalingsSoort {
     INKOMSTEN, BOODSCHAPPEN, VASTE_LASTEN, ANDERE_UITGAVE, AFLOSSEN_BETAALREGELING, AFLOSSEN_CREDITCARD,
     BESTEDING_RESERVERING, OPNAME_SPAARGELD, STORTEN_SPAARGELD, OPNAME_CONTANT_GELD
-}
-
-enum class BetalingsMethode {
-    BETAALBANKREKENING, CREDITCARD, CONTANT
-}
-
-enum class Status {
-    OPEN, VOORGESTELD, BEVESTIGD
 }

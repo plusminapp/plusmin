@@ -42,6 +42,7 @@ class GlobalExceptionHandler {
             errorCode = "BAD_REQUEST",
             errorMessage = ex.message ?: "Reference already exists"
         )
+        logger.error(ex.stackTraceToString())
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
