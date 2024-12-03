@@ -8,9 +8,7 @@ export type Betaling = {
     bedrag: number;
     saldo_achteraf: number | undefined;
     omschrijving: string | undefined;
-    categorie: string | undefined;
+    betalingsSoort: string | undefined;
     bron: Rekening | undefined;
     bestemming: Rekening | undefined;
-    bank_informatie: string | undefined;
-    status: string;
 }

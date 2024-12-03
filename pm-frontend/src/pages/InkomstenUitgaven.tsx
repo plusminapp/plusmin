@@ -6,7 +6,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+// import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 import { Betaling } from '../model/Betaling';
 import { useEffect, useState, useCallback, Fragment } from 'react';
@@ -107,15 +107,15 @@ export default function InkomstenUitgaven() {
               <colgroup>
                 <col width="15%" />
                 <col width="10%" />
-                <col width="65%" />
-                <col width="10%" />
+                <col width="50%" />
+                <col width="25%" />
               </colgroup>
               <TableHead>
                 <TableRow>
                   <TableCell>&nbsp;</TableCell>
                   <TableCell align="right">&euro;</TableCell>
                   <TableCell>Omschrijving</TableCell>
-                  <TableCell>?</TableCell>
+                  <TableCell>Betalingssoort</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -131,7 +131,7 @@ export default function InkomstenUitgaven() {
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}><ShoppingCartOutlinedIcon fontSize='small' sx={{ color: 'grey' }} /></TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["betalingsSoort"]}</TableCell>
                     </TableRow>
                     <Popover
                       id={`popover-${betaling.id}`}
@@ -159,8 +159,7 @@ export default function InkomstenUitgaven() {
                       <Typography sx={{ p: 1 }}>
                         { betaling.bron && "afgeschreven van: {betaling.bron?.naam}<br />" }
                         { betaling.bestemming && 'bijgeschreven bij: {betaling.bestemming?.naam}<br />' }
-                        bank_informatie:  {betaling.bank_informatie}<br />
-                        status:  {betaling.status}<br />
+                        bank_informatie zou hier komenn<br />
                       </Typography>
                     </Popover>
                   </Fragment>
