@@ -1,9 +1,7 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Betaling
+import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
-import io.vliet.plusmin.domain.BetalingsSoort
-import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -11,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -59,5 +58,29 @@ class BetalingService {
             omschrijving = betalingDTO.omschrijving,
             betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
         )
+    }
+
+    fun creeerMutatieLijst(gebruiker: Gebruiker): List<Mutatie> {
+        val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        val betalingen = betalingRepository.findAllByGebruiker(gebruiker)
+        return rekeningenLijst.map { rekening ->
+            val mutatie =
+                betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
+            logger.info(mutatie.toString())
+            Mutatie(rekening.naam, mutatie)
+        }
+    }
+
+    data class Mutatie(
+        val rekeningNaam: String,
+        val bedrag: BigDecimal
+    )
+
+    fun berekenMutaties(
+        betaling: Betaling,
+        rekening: Rekening
+    ): BigDecimal {
+        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
+                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
     }
 }

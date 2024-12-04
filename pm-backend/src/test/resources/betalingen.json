@@ -7,5 +7,14 @@
     "betalingsSoort": "VASTE_LASTEN",
     "bron": "betaalrekening",
     "bestemming": "vaste lasten"
+  },
+  {
+    "boekingsdatum": "20241203",
+    "bedrag": 10,
+    "saldo_achteraf": null,
+    "omschrijving": "Vitens",
+    "betalingsSoort": "VASTE_LASTEN",
+    "bron": "betaalrekening",
+    "bestemming": "vaste lasten"
   }
 ]

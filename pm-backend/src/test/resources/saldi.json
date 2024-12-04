@@ -1,0 +1,51 @@
+[
+  {
+    "datum": "20241201",
+    "saldi": [
+      {
+        "rekening": "betaalrekening",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "creditcard",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "betaalregeling1",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "betaalregeling2",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "reservering",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "inkomsten",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "vaste lasten",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "andere uitgave",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "spaarrekening",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "contant",
+        "bedrag": "0"
+      },
+      {
+        "rekening": "boodschappen",
+        "bedrag": "0"
+      }
+    ]
+  }
+]

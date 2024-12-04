@@ -1,5 +1,6 @@
 package io.vliet.plusmin.controller
 
+//import io.vliet.plusmin.service.Camt053Service
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.vliet.plusmin.domain.Betaling
@@ -8,20 +9,15 @@ import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.service.BetalingService
-//import io.vliet.plusmin.service.Camt053Service
 import io.vliet.plusmin.service.PagingService
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
-import org.apache.commons.io.input.BOMInputStream
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 @RestController
 @RequestMapping("/betalingen")
@@ -93,6 +89,13 @@ class BetalingController {
         logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email}")
         val betalingen = betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
+    }
+
+    @Operation(summary = "GET mutaties")
+    @GetMapping("/mutaties")
+    fun getMutaties(): ResponseEntity<Any> {
+        val gebruiker = gebruikerController.getJwtGebruiker()
+        return ResponseEntity.ok().body(betalingService.creeerMutatieLijst(gebruiker))
     }
 
     @Operation(summary = "DELETE alle betalingen (alleen voor ADMINs)")

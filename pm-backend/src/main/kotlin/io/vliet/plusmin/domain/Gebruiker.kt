@@ -40,8 +40,8 @@ class Gebruiker(
     @JsonIgnore
     override fun getUsername(): String = email
 
-    fun with(rekening: Rekening): Gebruiker {
-        this.rekeningen += rekening
+    fun with(rekening: List<Rekening>): Gebruiker {
+        this.rekeningen = rekening
         return this
     }
 
