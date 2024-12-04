@@ -26,7 +26,9 @@ class Gebruiker(
     @OneToOne
     val vrijwilliger: Gebruiker? = null,
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
-    var rekeningen: List<Rekening> = emptyList()
+    var rekeningen: List<Rekening> = emptyList(),
+    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
+    var saldi: List<Saldi> = emptyList()
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
