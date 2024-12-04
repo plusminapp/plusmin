@@ -1,0 +1,20 @@
+[
+  {
+    "boekingsdatum": "20241201",
+    "bedrag": 1000,
+    "saldo_achteraf": null,
+    "omschrijving": "Salaris",
+    "betalingsSoort": "INKOMSTEN",
+    "bron": "inkomsten",
+    "bestemming": "ASN betaalrekening"
+  },
+  {
+    "boekingsdatum": "20241201",
+    "bedrag": 100,
+    "saldo_achteraf": null,
+    "omschrijving": "Bonus",
+    "betalingsSoort": "INKOMSTEN",
+    "bron": "inkomsten",
+    "bestemming": "contant"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "boekingsdatum": "20241203",
+    "bedrag": 125,
+    "saldo_achteraf": null,
+    "omschrijving": "Belastingdienst",
+    "betalingsSoort": "AFLOSSEN_BETAALREGELING",
+    "bron": "VISA creditcard",
+    "bestemming": "br belastingdienst"
+  },
+  {
+    "boekingsdatum": "20241203",
+    "bedrag": 150,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossen VISA creditcard",
+    "betalingsSoort": "AFLOSSEN_CREDITCARD",
+    "bron": "ASN betaalrekening",
+    "bestemming": "VISA creditcard"
+  },
+  {
+    "boekingsdatum": "20241203",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Winterjas voor Jan",
+    "betalingsSoort": "BESTEDING_RESERVERING",
+    "bron": "VISA creditcard",
+    "bestemming": "reservering"
+  },
+  {
+    "boekingsdatum": "20241203",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Winterjas voor Jan",
+    "betalingsSoort": "OPNAME_SPAARGELD",
+    "bron": "ASN spaarrekening",
+    "bestemming": "ASN betaalrekening"
+  },
+  {
+    "boekingsdatum": "20241204",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Winterjas met creditcard betaald",
+    "betalingsSoort": "STORTEN_SPAARGELD",
+    "bron": "ASN betaalrekening",
+    "bestemming": "ASN spaarrekening"
+  }
+]

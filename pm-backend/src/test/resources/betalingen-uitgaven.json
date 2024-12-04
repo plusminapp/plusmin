@@ -1,0 +1,38 @@
+[
+  {
+    "boekingsdatum": "20241202",
+    "bedrag": 25,
+    "saldo_achteraf": null,
+    "omschrijving": "Jumbo",
+    "betalingsSoort": "BOODSCHAPPEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "boodschappen"
+  },
+  {
+    "boekingsdatum": "20241202",
+    "bedrag": 15,
+    "saldo_achteraf": null,
+    "omschrijving": "Ramenwasser",
+    "betalingsSoort": "ANDERE_UITGAVE",
+    "bron": "contant",
+    "bestemming": "andere uitgave"
+  },
+  {
+    "boekingsdatum": "20241202",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Greenchoice",
+    "betalingsSoort": "VASTE_LASTEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "vaste lasten"
+  },
+  {
+    "boekingsdatum": "20241202",
+    "bedrag": 10,
+    "saldo_achteraf": null,
+    "omschrijving": "Vitens",
+    "betalingsSoort": "VASTE_LASTEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "vaste lasten"
+  }
+]

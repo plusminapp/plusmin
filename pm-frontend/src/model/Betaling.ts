@@ -1,9 +1,9 @@
-import { Gebruiker } from "./Gebruiker";
+// import { Gebruiker } from "./Gebruiker";
 import { Rekening } from "./Rekening";
 
 export type Betaling = {
     id: number;
-    gebruiker: Gebruiker;
+    // gebruiker: Gebruiker;
     boekingsdatum: string;
     bedrag: number;
     saldo_achteraf: number | undefined;

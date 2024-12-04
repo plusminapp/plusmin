@@ -3,19 +3,19 @@
     "datum": "20241201",
     "saldi": [
       {
-        "rekening": "betaalrekening",
+        "rekening": "ASN betaalrekening",
         "bedrag": "0"
       },
       {
-        "rekening": "creditcard",
+        "rekening": "VISA creditcard",
         "bedrag": "0"
       },
       {
-        "rekening": "betaalregeling1",
+        "rekening": "br belalstingdienst",
         "bedrag": "0"
       },
       {
-        "rekening": "betaalregeling2",
+        "rekening": "br greenchoice",
         "bedrag": "0"
       },
       {
@@ -35,7 +35,7 @@
         "bedrag": "0"
       },
       {
-        "rekening": "spaarrekening",
+        "rekening": "ASN spaarrekening",
         "bedrag": "0"
       },
       {

@@ -12,7 +12,7 @@ import { Betaling } from '../model/Betaling';
 import { useEffect, useState, useCallback, Fragment } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Popover, TableFooter, TablePagination, Typography } from '@mui/material';
+import { TableFooter, TablePagination, Typography } from '@mui/material';
 import { useCustomContext } from '../context/CustomContext';
 import TablePaginationActions from '../components/TablePaginationActions';
 // import InkomenIcon from '../icons/Inkomen';
@@ -27,8 +27,8 @@ export default function InkomstenUitgaven() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isLoading, setIsLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [popoverId, setPopoverId] = useState<number | null>(null);
+  // const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  // const [popoverId, setPopoverId] = useState<number | null>(null);
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -83,14 +83,14 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
-  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
-    setAnchorEl(event.currentTarget);
-    setPopoverId(id);
-  };
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-    setPopoverId(null);
-  };
+  // const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
+  //   setAnchorEl(event.currentTarget);
+  //   setPopoverId(id);
+  // };
+  // const handlePopoverClose = () => {
+  //   setAnchorEl(null);
+  //   setPopoverId(null);
+  // };
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
@@ -108,10 +108,11 @@ export default function InkomstenUitgaven() {
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <colgroup>
-                <col width="15%" />
                 <col width="10%" />
-                <col width="50%" />
-                <col width="25%" />
+                <col width="10%" />
+                <col width="40%" />
+                <col width="20%" />
+                <col width="20%" />
               </colgroup>
               <TableHead>
                 <TableRow>
@@ -119,6 +120,7 @@ export default function InkomstenUitgaven() {
                   <TableCell align="right">&euro;</TableCell>
                   <TableCell>Omschrijving</TableCell>
                   <TableCell>Betalingssoort</TableCell>
+                  <TableCell>Betaald met</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -126,17 +128,20 @@ export default function InkomstenUitgaven() {
                   <Fragment key={betaling.id}>
                     <TableRow
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
+                      // aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
                       aria-haspopup="true"
-                      onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
-                      onMouseLeave={handlePopoverClose}
+                      // onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
+                      // onMouseLeave={handlePopoverClose}
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{
+                      betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam
+                      }</TableCell>
                     </TableRow>
-                    <Popover
+                    {/* <Popover
                       id={`popover-${betaling.id}`}
                       sx={{
                         pointerEvents: 'none',
@@ -164,7 +169,7 @@ export default function InkomstenUitgaven() {
                         { betaling.bestemming && 'bijgeschreven bij: {betaling.bestemming?.naam}<br />' }
                         bank_informatie zou hier komenn<br />
                       </Typography>
-                    </Popover>
+                    </Popover> */}
                   </Fragment>
                 ))}
               </TableBody>

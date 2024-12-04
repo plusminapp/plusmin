@@ -2,13 +2,13 @@
   {
     "rekeningSoort": "BETAALREKENING",
     "nummer": "betaalrekeningnummer",
-    "naam": "betaalrekening",
+    "naam": "ASN betaalrekening",
     "afkorting": "btr"
   },
   {
     "rekeningSoort": "CREDITCARD",
     "nummer": "creditcardnummer",
-    "naam": "creditcard",
+    "naam": "VISA creditcard",
     "afkorting": "cc"
   },
   {
@@ -50,7 +50,7 @@
   {
     "rekeningSoort": "SPAARREKENING",
     "nummer": "spaarrekeningnummer",
-    "naam": "spaarrekening",
+    "naam": "ASN spaarrekening",
     "afkorting": "spr"
   },
   {
