@@ -37,6 +37,9 @@ export default function InkomstenUitgaven() {
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
+  const betalingsSoortFormatter = (betalingsSoort: string): string => {
+    return betalingsSoort.replace('_', ' ').toLowerCase()
+  }
 
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
@@ -131,7 +134,7 @@ export default function InkomstenUitgaven() {
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["betalingsSoort"]}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
                     </TableRow>
                     <Popover
                       id={`popover-${betaling.id}`}

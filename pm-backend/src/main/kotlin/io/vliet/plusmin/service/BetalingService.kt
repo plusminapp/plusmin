@@ -29,13 +29,14 @@ class BetalingService {
 
     fun saveAll(gebruiker: Gebruiker, betalingenLijst: List<Betaling.BetalingDTO>): List<BetalingDTO> {
         return betalingenLijst.map { betalingDTO ->
-            val betalingList = betalingRepository.findBetalingGebruikerEnDto(gebruiker, betalingDTO.omschrijving)
+            val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
             val betaling = if (betalingList.size > 0) {
                 logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
                 betalingList[0]
             } else {
                 val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
                 val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
+                logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
                 Betaling(
                     gebruiker = gebruiker,
                     boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
@@ -46,8 +47,17 @@ class BetalingService {
                     bestemming = bestemming.get()
                 )
             }
-            logger.info("Opslaan betaling ${betaling.omschrijving} voor ${gebruiker.bijnaam}")
             betalingRepository.save(betaling).toDTO()
         }
+    }
+
+    fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {
+        return betalingRepository.findMatchingBetaling(
+            gebruiker = gebruiker,
+            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
+            bedrag = betalingDTO.bedrag.toBigDecimal(),
+            omschrijving = betalingDTO.omschrijving,
+            betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+        )
     }
 }

@@ -1,11 +1,11 @@
 [
   {
-    "boekingsdatum": "2024-12-03",
+    "boekingsdatum": "20241203",
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Greenchoice",
     "betalingsSoort": "VASTE_LASTEN",
-    "bron": "betaalbankrekening",
+    "bron": "betaalrekening",
     "bestemming": "vaste lasten"
   }
 ]
