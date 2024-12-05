@@ -72,7 +72,7 @@ export default function Saldi(props: SaldiProps) {
               <TableHead>
                 <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                   {saldi.map((betaling) => (
-                    <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["rekening"]}</TableCell>))}
+                    <TableCell align="right" size='small' sx={{ p: "6px" }}>{betaling["rekening"]}</TableCell>))}
                 </TableRow>
               </TableHead>
               <TableBody>

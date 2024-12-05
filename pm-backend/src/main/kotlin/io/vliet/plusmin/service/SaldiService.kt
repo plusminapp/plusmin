@@ -31,7 +31,7 @@ class SaldiService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun getSaldiOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
-        val openingsSaldiOpt = saldiRepository.getOpeningsSaldiVoorDatum(gebruiker, datum)
+        val openingsSaldiOpt = saldiRepository.getOpeningsSaldiVoorDatum(gebruiker.id, datum)
         val openingsSaldi = if (openingsSaldiOpt.isEmpty)
             this.creeerNulSaldi(gebruiker, datum)
         else openingsSaldiOpt.get()

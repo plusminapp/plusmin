@@ -45,7 +45,7 @@ class SaldiController {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET SaldiController.findSaldi() voor gebruiker ${gebruiker.email}.")
         val openingsSaldi = saldiRepository.getOpeningsSaldiVoorDatum(
-            gebruiker, LocalDate.now()
+            gebruiker.id, LocalDate.now()
         )
         return if (openingsSaldi.isPresent)
             ResponseEntity.ok(toSaldiResponse(openingsSaldi.get()))
