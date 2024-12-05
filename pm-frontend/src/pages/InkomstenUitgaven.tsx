@@ -99,6 +99,7 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
+      <Typography variant='h6'>Dagboek weergave</Typography>
       {!isLoading && betalingen.length === 0 &&
         <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
       }
@@ -120,7 +121,7 @@ export default function InkomstenUitgaven() {
                   <TableCell align="right">&euro;</TableCell>
                   <TableCell>Omschrijving</TableCell>
                   <TableCell>Betalingssoort</TableCell>
-                  <TableCell>Betaald met</TableCell>
+                  <TableCell>Betaald met/gestort op</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
