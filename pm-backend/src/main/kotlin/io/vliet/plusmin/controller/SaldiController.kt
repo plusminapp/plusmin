@@ -43,20 +43,16 @@ class SaldiController {
     @GetMapping("/opening")
     fun getOpeningsSaldi(): ResponseEntity<Any> {
         val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET SaldiController.findSaldi() voor gebruiker ${gebruiker.email}.")
-        val openingsSaldi = saldiRepository.getOpeningsSaldiVoorDatum(
-            gebruiker.id, LocalDate.now()
-        )
-        return if (openingsSaldi.isPresent)
-            ResponseEntity.ok(toSaldiResponse(openingsSaldi.get()))
-        else ResponseEntity.status(404).body("Nog geen openingssaldi beschikbaar")
+        logger.info("GET SaldiController.getOpeningsSaldi() voor gebruiker ${gebruiker.email}.")
+        val openingsSaldi = saldiService.getOpeningSaldi(gebruiker)
+        return ResponseEntity.ok(toSaldiResponse(openingsSaldi))
     }
 
     @Operation(summary = "GET de eigen saldi op datum op basis van de JWT")
     @GetMapping("/{datum}")
     fun getSaldiOpDatum(@PathVariable("datum") datum: String): SaldiResponse {
         val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET SaldiController.findSaldi() voor gebruiker ${gebruiker.email}.")
+        logger.info("GET SaldiController.getSaldiOpDatum() voor gebruiker ${gebruiker.email}.")
         return toSaldiResponse(
             saldiService.getSaldiOpDatum(
                 gebruiker,

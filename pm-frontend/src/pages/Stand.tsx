@@ -7,7 +7,7 @@ export default function Stand() {
     <Typography variant='h4'>Hoe staan we ervoor?</Typography>
     <Saldi title={'Opening'} datum={'opening'}/>
     <br/><br/><br/>
-    <Saldi title={'Stand per 4 december'}datum={'2024-12-04'}/>
+    <Saldi title={'Stand per'}datum={new Date().toISOString().slice(0, 10)}/>
     </>
   )
 }

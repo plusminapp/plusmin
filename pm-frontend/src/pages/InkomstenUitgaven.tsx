@@ -111,9 +111,10 @@ export default function InkomstenUitgaven() {
               <colgroup>
                 <col width="10%" />
                 <col width="10%" />
-                <col width="40%" />
-                <col width="20%" />
-                <col width="20%" />
+                <col width="35%" />
+                <col width="15%" />
+                <col width="15%" />
+                <col width="15%" />
               </colgroup>
               <TableHead>
                 <TableRow>
@@ -121,7 +122,8 @@ export default function InkomstenUitgaven() {
                   <TableCell align="right">&euro;</TableCell>
                   <TableCell>Omschrijving</TableCell>
                   <TableCell>Betalingssoort</TableCell>
-                  <TableCell>Betaald met/gestort op</TableCell>
+                  <TableCell>Rekening</TableCell>
+                  <TableCell>Betaalmethode</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -138,6 +140,9 @@ export default function InkomstenUitgaven() {
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{
+                      betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam
+                      }</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{
                       betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam
                       }</TableCell>

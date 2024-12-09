@@ -21,7 +21,8 @@ class Saldo(
         allocationSize = 1
     )
     val id: Long = 0,
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,
     val bedrag: BigDecimal
 ) {

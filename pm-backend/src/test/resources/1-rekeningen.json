@@ -14,13 +14,13 @@
   {
     "rekeningSoort": "BETAALREGELING",
     "nummer": "",
-    "naam": "betaalregeling1",
+    "naam": "BR Belastingdienst",
     "afkorting": "br1"
   },
   {
     "rekeningSoort": "BETAALREGELING",
     "nummer": "",
-    "naam": "betaalregeling2",
+    "naam": "BR Greenchoice",
     "afkorting": "br2"
   },
   {
@@ -36,13 +36,13 @@
     "afkorting": "ink"
   },
   {
-    "rekeningSoort": "VASTE_LASTEN",
+    "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "vaste lasten",
     "afkorting": "vl"
   },
   {
-    "rekeningSoort": "ANDERE_UITGAVE",
+    "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "andere uitgave",
     "afkorting": "au"
@@ -60,7 +60,7 @@
     "afkorting": "cnt"
   },
   {
-    "rekeningSoort": "BOODSCHAPPEN",
+    "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "boodschappen",
     "afkorting": "boo"

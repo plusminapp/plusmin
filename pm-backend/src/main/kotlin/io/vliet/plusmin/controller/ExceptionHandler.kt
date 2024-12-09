@@ -46,6 +46,16 @@ class GlobalExceptionHandler {
         return ResponseEntity(error, HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+        val error = ErrorResponse(
+            errorCode = "BAD_REQUEST",
+            errorMessage = ex.message ?: "Illegal argument used"
+        )
+        logger.error(ex.message)
+        return ResponseEntity(error, HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
         val errorMessage = ex.bindingResult.allErrors.joinToString("; ") { it.defaultMessage ?: "Invalid input" }

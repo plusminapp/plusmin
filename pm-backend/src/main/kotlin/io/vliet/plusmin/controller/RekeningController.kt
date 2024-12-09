@@ -34,7 +34,7 @@ class RekeningController {
 
     // Iedereen mag de eigen rekening opvragen
     @Operation(summary = "GET de eigen rekeningen op basis van de JWT")
-    @GetMapping("/")
+    @GetMapping("")
     fun findRekeningen(): List<Rekening> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         logger.info("GET RekeningController.findRekeningen() voor gebruiker ${gebruiker.email}.")

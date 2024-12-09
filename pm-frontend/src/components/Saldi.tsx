@@ -24,11 +24,16 @@ export default function Saldi(props: SaldiProps) {
 
   const [saldi, setSaldi] = useState<Saldo[]>([])
   const [isLoading, setIsLoading] = useState(false);
+  const [datum, setDatum] = useState<string | undefined>(undefined)
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
     currency: "EUR",
   });
+  const dateFormatter = (date: string) => {
+    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
+  }
+
 
   const fetchSaldi = useCallback(async () => {
     if (gebruiker) {
@@ -44,6 +49,7 @@ export default function Saldi(props: SaldiProps) {
       setIsLoading(false);
       if (response.ok) {
         const result = await response.json();
+        setDatum(result.datum)
         setSaldi(result.saldi.sort((a: Saldo, b: Saldo) => a.rekening > b.rekening ));
       } else {
         console.error("Failed to fetch data", response.status);
@@ -64,9 +70,9 @@ export default function Saldi(props: SaldiProps) {
 
   return (
     <>
-      {!isLoading && saldi &&
+      {!isLoading && saldi && datum &&
         <>
-          <Typography>{props.title}</Typography>
+          <Typography>{props.title} {dateFormatter(datum)}</Typography>
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>

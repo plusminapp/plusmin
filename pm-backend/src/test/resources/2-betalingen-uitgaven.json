@@ -4,7 +4,7 @@
     "bedrag": 25,
     "saldo_achteraf": null,
     "omschrijving": "Jumbo",
-    "betalingsSoort": "BOODSCHAPPEN",
+    "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
     "bestemming": "boodschappen"
   },
@@ -13,7 +13,7 @@
     "bedrag": 15,
     "saldo_achteraf": null,
     "omschrijving": "Ramenwasser",
-    "betalingsSoort": "ANDERE_UITGAVE",
+    "betalingsSoort": "UITGAVEN",
     "bron": "contant",
     "bestemming": "andere uitgave"
   },
@@ -22,7 +22,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Greenchoice",
-    "betalingsSoort": "VASTE_LASTEN",
+    "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
     "bestemming": "vaste lasten"
   },
@@ -31,7 +31,7 @@
     "bedrag": 10,
     "saldo_achteraf": null,
     "omschrijving": "Vitens",
-    "betalingsSoort": "VASTE_LASTEN",
+    "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
     "bestemming": "vaste lasten"
   }

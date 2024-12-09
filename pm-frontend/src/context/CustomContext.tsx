@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Gebruiker } from '../model/Gebruiker';
+import { Rekening } from '../model/Rekening';
 
 interface CustomContextType {
     gebruiker: Gebruiker | undefined;
@@ -8,6 +9,8 @@ interface CustomContextType {
     setActieveHulpvrager: (actieveHulpvrager: Gebruiker | undefined) => void;
     hulpvragers: Array<Gebruiker>;
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
+    rekeningen: Array<Rekening>;
+    setRekeningen: (rekeningen: Array<Rekening>) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -28,9 +31,14 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [gebruiker, setGebruiker] = useState<Gebruiker | undefined>(undefined);
     const [actieveHulpvrager, setActieveHulpvrager] = useState<Gebruiker | undefined>(undefined);
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
+    const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
 
     return (
-        <CustomContext.Provider value={{ gebruiker, setGebruiker, actieveHulpvrager, setActieveHulpvrager, hulpvragers, setHulpvragers }}>
+        <CustomContext.Provider value={{
+            gebruiker, setGebruiker,
+            actieveHulpvrager, setActieveHulpvrager,
+            hulpvragers, setHulpvragers,
+            rekeningen, setRekeningen}}>
             {children}
         </CustomContext.Provider>
     );

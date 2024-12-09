@@ -14,12 +14,15 @@ interface SaldiRepository : JpaRepository<Saldi, Long> {
     @Query(value = "SELECT s FROM Saldi s WHERE s.gebruiker = :gebruiker")
     fun findSaldiVoorGebruiker(@Param("gebruiker")gebruiker: Gebruiker): List<Saldi>
 
+    /*
+        Haalt de meest recente Saldi voor een gebruiker op
+     */
     @Query(
         value = "SELECT * FROM saldi s WHERE s.gebruiker_id = :gebruikerId AND s.datum = " +
-                "(SELECT MAX(datum) FROM saldi WHERE gebruiker_id = :gebruikerId AND datum < :datum)",
+                "(SELECT MAX(datum) FROM saldi WHERE gebruiker_id = :gebruikerId)",
         nativeQuery = true
     )
-    fun getOpeningsSaldiVoorDatum(gebruikerId: Long, datum: LocalDate): Optional<Saldi>
+    fun getLaatsteSaldiVoorGebruiker(gebruikerId: Long): Optional<Saldi>
 
     @Query(value = "SELECT s FROM Saldi s WHERE s.gebruiker = :gebruiker and s.datum = :datum")
     fun findSaldiGebruikerEnDatum(gebruiker: Gebruiker, datum: LocalDate): Optional<Saldi>

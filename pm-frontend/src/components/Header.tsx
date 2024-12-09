@@ -31,7 +31,7 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
 
-    const { setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager } = useCustomContext();
+    const { setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager, setRekeningen } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -59,23 +59,39 @@ function ResponsiveAppBar() {
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
-      const token = await getIDToken();
-      const response = await fetch('/api/v1/gebruiker/zelf', {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        }
-      })
-      const data = await response.json();
-      setGebruiker(data.gebruiker);
-      setHulpvragers(data.hulpvragers);
-    }, [getIDToken, setGebruiker, setHulpvragers])
-  
-    useEffect(() => {
-      fetchGebruikerMetHulpvragers();
-    }, [fetchGebruikerMetHulpvragers]);
-  
-
+        const token = await getIDToken();
+        const response = await fetch('/api/v1/gebruiker/zelf', {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        })
+        const data = await response.json();
+        setGebruiker(data.gebruiker);
+        setHulpvragers(data.hulpvragers);
+      }, [getIDToken, setGebruiker, setHulpvragers])
+    
+      useEffect(() => {
+        fetchGebruikerMetHulpvragers();
+      }, [fetchGebruikerMetHulpvragers]);
+    
+      const fetchRekeningen = useCallback(async () => {
+        const token = await getIDToken();
+        const response = await fetch('/api/v1/rekening', {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        })
+        const data = await response.json();
+        setRekeningen(data);
+      }, [getIDToken, setRekeningen])
+    
+      useEffect(() => {
+        fetchRekeningen();
+      }, [fetchRekeningen]);
+    
+    
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>

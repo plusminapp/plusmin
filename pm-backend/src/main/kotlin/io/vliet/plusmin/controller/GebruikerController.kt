@@ -27,7 +27,7 @@ class GebruikerController {
 
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
     @RolesAllowed("COORDINATOR")
-    @GetMapping("/")
+    @GetMapping("")
     fun getAlleGebruikers(): List<Gebruiker> {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
@@ -54,7 +54,7 @@ class GebruikerController {
         val email = jwt.claims["username"] as String
         val gebruikerOpt = gebruikerRepository.findByEmail(email)
         return if (gebruikerOpt.isPresent) {
-            logger.info("getJwtGebruiker met email: ${email} gevonden ${gebruikerOpt.get().rekeningen.map { it.naam }}")
+            logger.info("getJwtGebruiker met email: ${email} gevonden.")
             gebruikerOpt.get()
         } else {
             logger.error("GET /gebruiker met email: ${email} bestaat nog niet")

@@ -9,7 +9,7 @@ import { useCustomContext } from '../context/CustomContext';
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen } = useCustomContext();
 
 
   return (
@@ -37,7 +37,17 @@ const Profiel: React.FC = () => {
               De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
             </Typography>
           }
-          
+          {rekeningen &&
+            <>
+              <Typography sx={{ my: '3px' }}>Je rekeningen zijn:</Typography>
+              {rekeningen
+                .sort((a, b) => a.rekeningSoort > b.rekeningSoort ? -1 : 1)
+                .map(r =>
+                  <Typography sx={{ my: '3px' }}>{r.rekeningSoort + ': ' + r.naam}
+                  </Typography>
+                )}
+            </>}
+
         </>
       }
     </Container>
