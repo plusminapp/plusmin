@@ -1,20 +1,18 @@
 import React from "react";
 
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-// import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import SavingsOutlinedIcon from '@mui/icons-material/SavingsOutlined';
 import TaskOutlinedIcon from '@mui/icons-material/TaskOutlined';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
+import UpdateOutlinedIcon from '@mui/icons-material/UpdateOutlined';
 
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 
-import VariabeleLastenIcon from "./VariabeleLasten";
-import VasteLastenIcon from "./VasteLasten";
 import KasIcon from "./Kas";
 
-const ICONS = [ArrowUpwardIcon, ShoppingCartOutlinedIcon, VasteLastenIcon, VariabeleLastenIcon, TaskOutlinedIcon, CreditCardIcon, SavingsOutlinedIcon, SavingsOutlinedIcon, SavingsOutlinedIcon, KasIcon];
-const Legenda = ["Inkomen", "Boodschappen", "Vaste lasten", "Andere uitgave", "Aflossen betalingsregeling", "Aflossen creditcard", "Besteding reservering", "Opname spaargeld", "Storten spaargeld", "Opname contant geld"];
+const ICONS = [LoginIcon, LogoutIcon, TaskOutlinedIcon, CreditCardIcon, UpdateOutlinedIcon, SavingsOutlinedIcon, SavingsOutlinedIcon, KasIcon];
+const Legenda = ["Inkomen", "Uitgaven", "Aflossen betalingsregeling", "Aflossen creditcard", "Besteding reservering", "Opname spaargeld", "Storten spaargeld", "Opname contant geld"];
 const Voorbeelden = [
   "Salaris, uitkering, AOW, ...",
   "Voedsel, schoonmaakmiddelen, ...",

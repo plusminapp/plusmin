@@ -6,25 +6,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { useEffect, useState, useCallback } from 'react';
-
-import { useAuthContext } from "@asgardeo/auth-react";
 import { Typography } from '@mui/material';
-import { useCustomContext } from '../context/CustomContext';
-import { Saldo } from '../model/Saldo';
+import { RekeningSaldi } from '../model/Saldi';
 
 interface SaldiProps {
   title: string;
-  datum: string;
+  saldi: RekeningSaldi;
 }
 
 export default function Saldi(props: SaldiProps) {
-  const { getIDToken } = useAuthContext();
-  const { gebruiker } = useCustomContext();
-
-  const [saldi, setSaldi] = useState<Saldo[]>([])
-  const [isLoading, setIsLoading] = useState(false);
-  const [datum, setDatum] = useState<string | undefined>(undefined)
 
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
@@ -34,60 +24,25 @@ export default function Saldi(props: SaldiProps) {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
 
-
-  const fetchSaldi = useCallback(async () => {
-    if (gebruiker) {
-      setIsLoading(true);
-      const token = await getIDToken();
-      const response = await fetch(`/api/v1/saldi/${props.datum}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      setIsLoading(false);
-      if (response.ok) {
-        const result = await response.json();
-        setDatum(result.datum)
-        setSaldi(result.saldi.sort((a: Saldo, b: Saldo) => a.rekening > b.rekening ));
-      } else {
-        console.error("Failed to fetch data", response.status);
-      }
-    }
-  }, [getIDToken, props.datum, gebruiker]);
-
-  useEffect(() => {
-    fetchSaldi();
-  }, [fetchSaldi]);
-
-  if (isLoading) {
-    return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
-  }
-
   return (
     <>
-      {!isLoading && saldi && datum &&
-        <>
-          <Typography>{props.title} {dateFormatter(datum)}</Typography>
-          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
-            <Table sx={{ width: "100%" }} aria-label="simple table">
-              <TableHead>
-                <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  {saldi.map((betaling) => (
-                    <TableCell align="right" size='small' sx={{ p: "6px" }}>{betaling["rekening"].naam}</TableCell>))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  {saldi.map((betaling) => (
-                    <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>))}
-                </TableRow>
-              </TableBody>
-            </Table>
-          </TableContainer >
-        </>
-      }
+      <Typography>{props.title} {dateFormatter(props.saldi.datum)}</Typography>
+      <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
+        <Table sx={{ width: "100%" }} aria-label="simple table">
+          <TableHead>
+            <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              {props.saldi.saldi.map((betaling) => (
+                <TableCell align="right" size='small' sx={{ p: "6px" }}>{betaling["rekening"].naam}</TableCell>))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              {props.saldi.saldi.map((betaling) => (
+                <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>))}
+            </TableRow>
+          </TableBody>
+        </Table>
+      </TableContainer >
     </>
   );
 }
