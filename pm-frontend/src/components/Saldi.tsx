@@ -20,7 +20,7 @@ interface SaldiProps {
 
 export default function Saldi(props: SaldiProps) {
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager } = useCustomContext();
+  const { gebruiker } = useCustomContext();
 
   const [saldi, setSaldi] = useState<Saldo[]>([])
   const [isLoading, setIsLoading] = useState(false);
@@ -55,7 +55,7 @@ export default function Saldi(props: SaldiProps) {
         console.error("Failed to fetch data", response.status);
       }
     }
-  }, [getIDToken, actieveHulpvrager, gebruiker]);
+  }, [getIDToken, props.datum, gebruiker]);
 
   useEffect(() => {
     fetchSaldi();
@@ -64,9 +64,8 @@ export default function Saldi(props: SaldiProps) {
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
   }
-
-  // const balans = ["betaalrekening", "spaarrekening", "contant geld", "creditcad", "betaalregeling1", "betaalregeling2", "reserveringen"]
-  // const resultaat = ["inkomsten", "boodschappen", "vaste lasten", "andere uitgaven"]
+  const balansRekeningenSoort = ['']
+  const balansSaldi = saldi.filter(s => balansRekeningenSoort.includes(s.rekening.rekeningSoort ))
 
   return (
     <>
@@ -78,7 +77,7 @@ export default function Saldi(props: SaldiProps) {
               <TableHead>
                 <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                   {saldi.map((betaling) => (
-                    <TableCell align="right" size='small' sx={{ p: "6px" }}>{betaling["rekening"]}</TableCell>))}
+                    <TableCell align="right" size='small' sx={{ p: "6px" }}>{betaling["rekening"].naam}</TableCell>))}
                 </TableRow>
               </TableHead>
               <TableBody>

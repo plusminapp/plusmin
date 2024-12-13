@@ -61,15 +61,19 @@ class SaldiController {
         )
     }
 
-    // Nieuwe eigen saldi
-    @PostMapping("")
-    fun creeerNieuweSaldi(@Valid @RequestBody saldiDtoLijst: List<SaldiDTO>): List<SaldiDTO> {
+    @Operation(summary = "GET de eigen stand op datum op basis van de JWT")
+    @GetMapping("/stand/{datum}")
+    fun getStandOpDatum(@PathVariable("datum") datum: String): SaldiService.StandDTO {
         val gebruiker = gebruikerController.getJwtGebruiker()
-        return saldiService.saveAll(gebruiker, saldiDtoLijst)
+        logger.info("GET SaldiController.getStandOpDatum() voor gebruiker ${gebruiker.email}.")
+        return saldiService.getStandOpDatum(
+                gebruiker,
+                LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+            )
     }
 
     fun toSaldiResponse(saldi: Saldi): SaldiResponse {
-        val saldoResponseLijst = saldi.saldi.map { SaldoResponse(it.rekening.naam, it.bedrag) }
+        val saldoResponseLijst = saldi.saldi.map { SaldoResponse(it.rekening.toDTO(), it.bedrag) }
         return SaldiResponse(saldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE), saldoResponseLijst)
     }
 
@@ -79,7 +83,7 @@ class SaldiController {
     )
 
     data class SaldoResponse(
-        val rekening: String,
+        val rekening: Rekening.RekeningDTO,
         val bedrag: BigDecimal
     )
 }

@@ -4,15 +4,18 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "rekening",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])])
+@Table(
+    name = "rekening",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
+)
 class Rekening(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
-        name = "hibernate_sequence", 
-        sequenceName = "hibernate_sequence", 
-        allocationSize = 1)
+        name = "hibernate_sequence",
+        sequenceName = "hibernate_sequence",
+        allocationSize = 1
+    )
     val id: Long = 0,
     @ManyToOne
     @JsonIgnore
@@ -55,7 +58,22 @@ class Rekening(
         )
     }
 }
+
+val balansRekeningSoort = arrayOf(
+    RekeningSoort.BETAALREKENING,
+    RekeningSoort.SPAARREKENING,
+    RekeningSoort.CONTANT,
+    RekeningSoort.CREDITCARD,
+    RekeningSoort.BETAALREGELING,
+    RekeningSoort.RESERVERING
+)
+
+val resultaatRekeningSoort = arrayOf(
+    RekeningSoort.INKOMSTEN,
+    RekeningSoort.UITGAVEN,
+)
+
 enum class RekeningSoort {
     BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, BETAALREGELING, RESERVERING,
-    INKOMSTEN, BOODSCHAPPEN, VASTE_LASTEN, ANDERE_UITGAVE, UITGAVEN
+    INKOMSTEN, UITGAVEN
 }

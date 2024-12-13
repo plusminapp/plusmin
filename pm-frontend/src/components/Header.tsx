@@ -18,7 +18,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
 
-const pages = ['Stand', 'Inkomsten/uitgaven', 'Betaalregelingen', 'Budget'];
+const pages = ['Stand', 'Inkomsten/uitgaven'];
 
 function ResponsiveAppBar() {
     const navigate = useNavigate();

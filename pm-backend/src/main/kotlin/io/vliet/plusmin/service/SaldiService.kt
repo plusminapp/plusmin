@@ -33,6 +33,32 @@ class SaldiService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    fun getStandOpDatum(gebruiker: Gebruiker, datum: LocalDate): StandDTO {
+        val openingSaldi = getOpeningSaldi(gebruiker)
+        val saldiOpDatum = getSaldiOpDatum(gebruiker, datum)
+
+        val openingsBalansSaldi =
+            openingSaldi.saldi.filter { it.rekening.rekeningSoort in balansRekeningSoort }.map { it.toDTO() }
+        val balansOpDatumSaldi =
+            saldiOpDatum.saldi.filter { it.rekening.rekeningSoort in balansRekeningSoort }.map { it.toDTO() }
+        val resultaatOpDatumSaldi =
+            saldiOpDatum.saldi.filter { it.rekening.rekeningSoort in resultaatRekeningSoort }.map { it.toDTO() }
+        return StandDTO(
+            openingsBalans = SaldiDTO(
+                datum = openingSaldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                saldi = openingsBalansSaldi
+            ),
+            balansOpDatum = SaldiDTO(
+                datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                saldi = balansOpDatumSaldi
+            ),
+            resultaatOpDatum = SaldiDTO(
+                datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                saldi = resultaatOpDatumSaldi
+            )
+        )
+    }
+
     fun getSaldiOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
         val openingsSaldiOpt = saldiRepository.getLaatsteSaldiVoorGebruiker(gebruiker.id)
         val openingsSaldi = if (openingsSaldiOpt.isEmpty) {
@@ -95,7 +121,7 @@ class SaldiService {
     }
 
     fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, saldi: Saldi? = null): Saldo {
-        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekening)
+        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekening.naam)
         if (rekening.isEmpty) {
             logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekening} voor ${gebruiker.bijnaam}.")
             throw throw IllegalArgumentException("Rekening ${saldoDTO.rekening} bestaat niet voor ${gebruiker.bijnaam}")
@@ -111,4 +137,10 @@ class SaldiService {
             saldo[0].fullCopy(bedrag = bedrag)
         }
     }
+
+    data class StandDTO(
+        val openingsBalans: SaldiDTO,
+        val balansOpDatum: SaldiDTO,
+        val resultaatOpDatum: SaldiDTO
+    )
 }

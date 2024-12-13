@@ -28,10 +28,10 @@ class GebruikerController {
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
     @RolesAllowed("COORDINATOR")
     @GetMapping("")
-    fun getAlleGebruikers(): List<Gebruiker> {
+    fun getAlleGebruikers(): List<GebruikerDTO> {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
-        return gebruikerRepository.findAll()
+        return gebruikerRepository.findAll().map { it.toDTO() }
     }
 
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen
@@ -40,9 +40,9 @@ class GebruikerController {
     fun findGebruikerInclusiefHulpvragers(): GebruikerMetHulpvragersDTO {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
-        val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker).map {it.toDTO()}
+        val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
 
-        return GebruikerMetHulpvragersDTO(gebruiker, hulpvragers)
+        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map {it.toDTO()})
     }
 
     @PostMapping("")
@@ -64,6 +64,6 @@ class GebruikerController {
 }
 
 data class GebruikerMetHulpvragersDTO (
-    val gebruiker: Gebruiker,
+    val gebruiker: GebruikerDTO,
     val hulpvragers: List<GebruikerDTO>
 )

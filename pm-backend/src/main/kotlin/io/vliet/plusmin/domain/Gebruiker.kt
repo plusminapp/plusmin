@@ -25,9 +25,11 @@ class Gebruiker(
     val roles: MutableSet<Role> = mutableSetOf<Role>(),
     @OneToOne
     val vrijwilliger: Gebruiker? = null,
-    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
     var rekeningen: List<Rekening> = emptyList(),
-    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
+    @JsonIgnore
+    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
     var saldi: List<Saldi> = emptyList()
 ) : UserDetails {
 
