@@ -15,9 +15,7 @@ const ICONS = [LoginIcon, LogoutIcon, TaskOutlinedIcon, CreditCardIcon, UpdateOu
 const Legenda = ["Inkomen", "Uitgaven", "Aflossen betalingsregeling", "Aflossen creditcard", "Besteding reservering", "Opname spaargeld", "Storten spaargeld", "Opname contant geld"];
 const Voorbeelden = [
   "Salaris, uitkering, AOW, ...",
-  "Voedsel, schoonmaakmiddelen, ...",
-  "Huur, hypotheek, gemeente belastingen, enrgie, water, verzekeringen, ...",
-  "Kleding, Niet vergoede medische kosten,  ...",
+  "Voedsel, huur, gemeente belastingen, enrgie, kleding, ...",
   "Betalingen voor een betaalregeling",
   "Betalingen van de creditcardschuld",
   "Betaling van iets waarvoor je hebt gespaard",

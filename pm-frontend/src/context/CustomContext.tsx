@@ -15,6 +15,7 @@ interface CustomContextType {
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useCustomContext = (): CustomContextType => {
     const context = useContext(CustomContext);
     if (!context) {
