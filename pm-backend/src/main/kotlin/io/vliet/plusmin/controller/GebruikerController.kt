@@ -10,9 +10,15 @@ import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.authorization.AuthorizationResult
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @RestController
 @RequestMapping("/gebruiker")
@@ -45,6 +51,7 @@ class GebruikerController {
         return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map {it.toDTO()})
     }
 
+    // TODO afschermen!!!
     @PostMapping("")
     fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> =
         gebruikerService.saveAll(gebruikerList)
@@ -60,6 +67,21 @@ class GebruikerController {
             logger.error("GET /gebruiker met email: ${email} bestaat nog niet")
             throw IllegalStateException("Gebruiker met email ${email} bestaat nog niet")
         }
+    }
+
+    @Throws(AuthorizationDeniedException::class)
+    fun checkAccess(hulpvragerId: Long): Pair<Gebruiker, Gebruiker> {
+        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
+        if (hulpvragerOpt.isEmpty)
+            throw NoResourceFoundException(HttpMethod.HEAD, "Hulpvrager met Id $hulpvragerId bestaat niet.")
+        val hulpvrager = hulpvragerOpt.get()
+
+        val vrijwilliger = getJwtGebruiker()
+        if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
+            logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
+            throw AuthorizationDeniedException("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}", AuthorizationResult({ false }))
+        }
+        return Pair(hulpvrager, vrijwilliger)
     }
 }
 

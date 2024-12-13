@@ -74,19 +74,8 @@ class BetalingController {
         @Parameter(description = "Formaat: yyyy-mm-dd")
         @RequestParam("toDate", defaultValue = "", required = false) toDate: String,
         ): ResponseEntity<Any> {
-        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
-        if (hulpvragerOpt.isEmpty)
-            return ResponseEntity("Hulpvrager met Id $hulpvragerId bestaat niet.", HttpStatus.NOT_FOUND)
-        val hulpvrager = hulpvragerOpt.get()
-        val vrijwilliger = gebruikerController.getJwtGebruiker()
-        if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
-            logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
-            return ResponseEntity(
-                "${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}",
-                HttpStatus.UNAUTHORIZED
-            )
-        }
-        logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email}")
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betalingen = betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
     }
@@ -109,6 +98,17 @@ class BetalingController {
     fun creeerNieuweBetaling(@Valid @RequestBody betalingList: List<BetalingDTO>): List<BetalingDTO> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         return betalingService.saveAll(gebruiker, betalingList)
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}")
+    fun creeerNieuweBetalingVoorHulpvrager(
+        @Valid @RequestBody betalingList: List<BetalingDTO>,
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val betalingen =  betalingService.saveAll(hulpvrager, betalingList)
+        return ResponseEntity.ok().body(betalingen)
     }
 
     @PutMapping("")

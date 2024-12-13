@@ -72,6 +72,20 @@ class SaldiController {
             )
     }
 
+    @Operation(summary = "GET de eigen stand op datum op basis van de JWT")
+    @GetMapping("/hulpvrager/{hulpvragerId}/stand/{datum}")
+    fun getStandOpDatumVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @PathVariable("datum") datum: String,
+    ): SaldiService.StandDTO {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return saldiService.getStandOpDatum(
+                hulpvrager,
+                LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+            )
+    }
+
     fun toSaldiResponse(saldi: Saldi): SaldiResponse {
         val saldoResponseLijst = saldi.saldi.map { SaldoResponse(it.rekening.toDTO(), it.bedrag) }
         return SaldiResponse(saldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE), saldoResponseLijst)

@@ -64,8 +64,6 @@ export default function Saldi(props: SaldiProps) {
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
   }
-  const balansRekeningenSoort = ['']
-  const balansSaldi = saldi.filter(s => balansRekeningenSoort.includes(s.rekening.rekeningSoort ))
 
   return (
     <>

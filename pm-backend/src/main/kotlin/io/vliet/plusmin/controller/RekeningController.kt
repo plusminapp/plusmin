@@ -46,19 +46,7 @@ class RekeningController {
     fun getAlleRekeningenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
-        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
-        if (hulpvragerOpt.isEmpty)
-            return ResponseEntity("Hulpvrager met Id $hulpvragerId bestaat niet.", HttpStatus.NOT_FOUND)
-        val hulpvrager = hulpvragerOpt.get()
-
-        val vrijwilliger = gebruikerController.getJwtGebruiker()
-        if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
-            logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
-            return ResponseEntity(
-                "${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}",
-                HttpStatus.UNAUTHORIZED
-            )
-        }
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET BetalingController.getAlleRekeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(rekeningRepository.findRekeningenVoorGebruiker(hulpvrager))
     }
@@ -68,6 +56,16 @@ class RekeningController {
     fun creeerNieuweRekening(@Valid @RequestBody rekeningList: List<RekeningDTO>): List<RekeningDTO> {
         val gebruiker = gebruikerController.getJwtGebruiker()
         return rekeningService.saveAll(gebruiker, rekeningList)
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}")
+    fun creeerNieuweRekeningVoorHulpvrager(
+        @Valid @RequestBody rekeningList: List<RekeningDTO>,
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any>  {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST BetalingController.creeerNieuweRekeningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(rekeningService.saveAll(hulpvrager, rekeningList))
     }
 }
 

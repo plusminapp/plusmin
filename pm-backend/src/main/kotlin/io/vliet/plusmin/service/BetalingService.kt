@@ -66,7 +66,6 @@ class BetalingService {
         return rekeningenLijst.map { rekening ->
             val mutatie =
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
-            logger.info(mutatie.toString())
             Mutatie(rekening.naam, mutatie)
         }
     }
