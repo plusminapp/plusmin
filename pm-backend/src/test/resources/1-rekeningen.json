@@ -3,66 +3,77 @@
     "rekeningSoort": "BETAALREKENING",
     "nummer": "betaalrekeningnummer",
     "naam": "ASN betaalrekening",
-    "afkorting": "btr"
+    "afkorting": "btr",
+    "sortOrder": 1
   },
   {
     "rekeningSoort": "CREDITCARD",
     "nummer": "creditcardnummer",
     "naam": "VISA creditcard",
-    "afkorting": "cc"
+    "afkorting": "cc",
+    "sortOrder": 4
   },
   {
     "rekeningSoort": "LENING",
     "nummer": "",
     "naam": "BR Belastingdienst",
-    "afkorting": "br1"
+    "afkorting": "br1",
+    "sortOrder": 6
   },
   {
     "rekeningSoort": "LENING",
     "nummer": "",
     "naam": "BR Greenchoice",
-    "afkorting": "br2"
+    "afkorting": "br2",
+    "sortOrder": 7
   },
   {
     "rekeningSoort": "RESERVERING",
     "nummer": "",
     "naam": "reservering",
-    "afkorting": "res"
+    "afkorting": "res",
+    "sortOrder": 5
   },
   {
     "rekeningSoort": "INKOMSTEN",
     "nummer": "",
     "naam": "inkomsten",
-    "afkorting": "ink"
+    "afkorting": "ink",
+    "sortOrder": 10
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "vaste lasten",
-    "afkorting": "vl"
+    "afkorting": "vl",
+    "sortOrder": 12
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "andere uitgave",
-    "afkorting": "au"
+    "afkorting": "au",
+    "sortOrder": 13
   },
   {
     "rekeningSoort": "SPAARREKENING",
     "nummer": "spaarrekeningnummer",
     "naam": "ASN spaarrekening",
-    "afkorting": "spr"
+    "afkorting": "spr",
+    "sortOrder": 2
   },
   {
     "rekeningSoort": "CONTANT",
     "nummer": "",
     "naam": "contant",
-    "afkorting": "cnt"
+    "afkorting": "cnt",
+    "sortOrder": 3
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "boodschappen",
-    "afkorting": "boo"
+    "afkorting": "boo",
+    "sortOrder": 11
   }
 ]

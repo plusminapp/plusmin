@@ -9,6 +9,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 export default function Stand() {
 
   const [openingsBalans, setOpeningsBalans] = useState<RekeningSaldi | undefined>(undefined)
+  const [mutatiesOpDatum, setMutatiesOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [balansOpDatum, setBalansOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [resultaatOpDatum, setResultaatOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
@@ -35,6 +36,7 @@ export default function Stand() {
         if (response.ok) {
           const result = await response.json();
           setOpeningsBalans(result.openingsBalans)
+          setMutatiesOpDatum(result.mutatiesOpDatum)
           setBalansOpDatum(result.balansOpDatum)
           setResultaatOpDatum(result.resultaatOpDatum)
         } else {
@@ -57,6 +59,7 @@ export default function Stand() {
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
           <Saldi title={'Opening'} saldi={openingsBalans!} />
+          <Saldi title={'Mutaties per'} saldi={mutatiesOpDatum!} />
           <Saldi title={'Stand per'} saldi={balansOpDatum!} />
           <Saldi title={'Resultaat per'} saldi={resultaatOpDatum!} />
         </>

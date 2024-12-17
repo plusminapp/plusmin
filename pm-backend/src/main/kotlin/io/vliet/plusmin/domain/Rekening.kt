@@ -25,8 +25,8 @@ class Rekening(
     val rekeningSoort: RekeningSoort,
     val nummer: String?,
     val naam: String,
-    val afkorting: String
-
+    val afkorting: String,
+    val sortOrder: Int
 ) {
     companion object {
         val sortableFields = setOf("id", "naam", "afkorting")
@@ -37,15 +37,17 @@ class Rekening(
         rekeningSoort: RekeningSoort = this.rekeningSoort,
         nummer: String? = this.nummer,
         naam: String = this.naam,
-        afkorting: String = this.afkorting
-    ) = Rekening(this.id, gebruiker, rekeningSoort, nummer, naam, afkorting)
+        afkorting: String = this.afkorting,
+        sortOrder: Int = this.sortOrder
+    ) = Rekening(this.id, gebruiker, rekeningSoort, nummer, naam, afkorting, sortOrder)
 
     data class RekeningDTO(
         val id: Long = 0,
         val rekeningSoort: String,
         val nummer: String?,
         val naam: String,
-        val afkorting: String
+        val afkorting: String,
+        val sortOrder: Int
     )
 
     fun toDTO(): RekeningDTO {
@@ -55,6 +57,7 @@ class Rekening(
             this.nummer,
             this.naam,
             this.afkorting,
+            this.sortOrder
         )
     }
 }

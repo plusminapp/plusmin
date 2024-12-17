@@ -37,7 +37,8 @@ class RekeningService {
                     rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
                     naam = rekeningDTO.naam,
-                    afkorting = rekeningDTO.afkorting
+                    afkorting = rekeningDTO.afkorting,
+                    sortOrder = rekeningDTO.sortOrder
                 )
             }
             logger.info("Opslaan rekening ${rekening.naam} voor ${gebruiker.bijnaam}")

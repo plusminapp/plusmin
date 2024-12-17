@@ -59,27 +59,4 @@ class BetalingService {
             betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
         )
     }
-
-    fun creeerMutatieLijst(gebruiker: Gebruiker): List<Mutatie> {
-        val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        val betalingen = betalingRepository.findAllByGebruiker(gebruiker)
-        return rekeningenLijst.map { rekening ->
-            val mutatie =
-                betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
-            Mutatie(rekening.naam, mutatie)
-        }
-    }
-
-    data class Mutatie(
-        val rekeningNaam: String,
-        val bedrag: BigDecimal
-    )
-
-    fun berekenMutaties(
-        betaling: Betaling,
-        rekening: Rekening
-    ): BigDecimal {
-        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
-                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
-    }
 }

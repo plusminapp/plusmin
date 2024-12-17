@@ -6,7 +6,7 @@ import Home from './pages/Home';
 import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
 import InkomstenUitgaven from './pages/InkomstenUitgaven';
-import Betaalregelingen from './pages/Betaalregelingen';
+import Lening from './pages/Lening';
 import Header from './components/Header';
 import Budget from './pages/Budget';
 import LoginPagina from './pages/LoginPagina';
@@ -32,7 +32,7 @@ const App: React.FC = () => {
             {/* Beschermde routes */}
             <Route path="/stand" element={<ProtectedRoute element={<Stand />} />} />
             <Route path="/inkomsten-uitgaven" element={<ProtectedRoute element={<InkomstenUitgaven />} />} />
-            <Route path="/betaalregelingen" element={<ProtectedRoute element={<Betaalregelingen />} />} />
+            <Route path="/lening" element={<ProtectedRoute element={<Lening />} />} />
             <Route path="/budget" element={<ProtectedRoute element={<Budget />} />} />
             <Route path="/profiel" element={<ProtectedRoute element={<Profiel />} />} />
 

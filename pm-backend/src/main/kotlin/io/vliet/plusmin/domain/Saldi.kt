@@ -32,9 +32,9 @@ class Saldi(
     val datum: LocalDate,
     @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
     @JoinColumn(name = "saldi_id", referencedColumnName = "id")
-    var saldi: Set<Saldo>
+    var saldi: List<Saldo>
 ) {
-    fun with(saldi: Set<Saldo>): Saldi {
+    fun with(saldi: List<Saldo>): Saldi {
         this.saldi = saldi
         return this
     }
@@ -42,7 +42,7 @@ class Saldi(
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         datum: LocalDate = this.datum,
-        saldi: Set<Saldo> = this.saldi
+        saldi: List<Saldo> = this.saldi
     ) = Saldi(this.id, gebruiker, datum, saldi)
 
     data class SaldiDTO(

@@ -35,45 +35,47 @@ class SaldiService {
 
     fun getStandOpDatum(gebruiker: Gebruiker, datum: LocalDate): StandDTO {
         val openingSaldi = getOpeningSaldi(gebruiker)
-        val saldiOpDatum = getSaldiOpDatum(gebruiker, datum)
+        val mutatieLijst = getMutatieLijstOpDatum(gebruiker, datum)
+        val saldiOpDatum = getSaldiOpDatum(openingSaldi, mutatieLijst)
 
-        val openingsBalansSaldi =
-            openingSaldi.saldi.filter { it.rekening.rekeningSoort in balansRekeningSoort }.map { it.toDTO() }
-        val balansOpDatumSaldi =
-            saldiOpDatum.saldi.filter { it.rekening.rekeningSoort in balansRekeningSoort }.map { it.toDTO() }
-        val resultaatOpDatumSaldi =
-            saldiOpDatum.saldi.filter { it.rekening.rekeningSoort in resultaatRekeningSoort }.map { it.toDTO() }
+        val openingsBalans =
+            openingSaldi.saldi
+                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .map { it.toDTO() }
+                .sortedBy { it.rekening.sortOrder }
+        val mutatiesOpDatum =
+            mutatieLijst.saldi
+                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .map { it.toDTO() }
+                .sortedBy { it.rekening.sortOrder }
+        val balansOpDatum =
+            saldiOpDatum.saldi
+                .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .map { it.toDTO() }
+                .sortedBy { it.rekening.sortOrder }
+        val resultaatOpDatum =
+            saldiOpDatum.saldi
+                .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
+                .map { it.toDTO() }
+                .sortedBy { it.rekening.sortOrder }
         return StandDTO(
             openingsBalans = SaldiDTO(
                 datum = openingSaldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = openingsBalansSaldi
+                saldi = openingsBalans
+            ),
+            mutatiesOpDatum = SaldiDTO(
+                datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+                saldi = mutatiesOpDatum
             ),
             balansOpDatum = SaldiDTO(
                 datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = balansOpDatumSaldi
+                saldi = balansOpDatum
             ),
             resultaatOpDatum = SaldiDTO(
                 datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = resultaatOpDatumSaldi
+                saldi = resultaatOpDatum
             )
         )
-    }
-
-    fun getSaldiOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
-        val openingsSaldiOpt = saldiRepository.getLaatsteSaldiVoorGebruiker(gebruiker.id)
-        val openingsSaldi = if (openingsSaldiOpt.isEmpty) {
-            logger.warn("Nog geen openingssaldo voor ${gebruiker}")
-            throw IllegalStateException("Nog geen openingssaldo voor ${gebruiker}")
-        } else openingsSaldiOpt.get()
-
-        val mutatieLijst = betalingService.creeerMutatieLijst(gebruiker)
-        val saldi = openingsSaldi.saldi.map { saldo: Saldo ->
-            val mutatie: BigDecimal? = mutatieLijst.find { it.rekeningNaam == saldo.rekening.naam }?.bedrag
-            saldo.fullCopy(
-                bedrag = saldo.bedrag + (mutatie ?: BigDecimal(0))
-            )
-        }.toSet()
-        return openingsSaldi.fullCopy(datum = datum, saldi = saldi)
     }
 
     fun getOpeningSaldi(gebruiker: Gebruiker): Saldi {
@@ -83,13 +85,42 @@ class SaldiService {
         else openingsSaldiOpt.get()
     }
 
+    fun getMutatieLijstOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
+        val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        val betalingen = betalingRepository.findAllByGebruikerOpDatum(gebruiker, datum)
+        val saldoLijst = rekeningenLijst.map { rekening ->
+            val mutatie =
+                betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
+            Saldo(0, rekening, mutatie)
+        }
+        return Saldi(0, gebruiker, datum, saldoLijst)
+    }
+
+    fun berekenMutaties(
+        betaling: Betaling,
+        rekening: Rekening
+    ): BigDecimal {
+        return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
+                if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
+    }
+
+    fun getSaldiOpDatum(openingsSaldi: Saldi, mutatieLijst: Saldi): Saldi {
+        val saldi = openingsSaldi.saldi.map { saldo: Saldo ->
+            val mutatie: BigDecimal? = mutatieLijst.saldi.find { it.rekening.naam == saldo.rekening.naam }?.bedrag
+            saldo.fullCopy(
+                bedrag = saldo.bedrag + (mutatie ?: BigDecimal(0))
+            )
+        }
+        return mutatieLijst.fullCopy(saldi = saldi)
+    }
+
     fun creeerNulSaldi(gebruiker: Gebruiker): Saldi {
         val eersteBetalingsDatum = betalingRepository
             .findAllByGebruiker(gebruiker)
             .sortedBy { it.boekingsdatum }
             .getOrNull(0)?.boekingsdatum ?: LocalDate.now()
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        val saldoLijst = rekeningen.map { Saldo(0, it, BigDecimal(0)) }.toSet()
+        val saldoLijst = rekeningen.map { Saldo(0, it, BigDecimal(0)) }
         logger.info("NulSaldi gecreeerd voor ${gebruiker} op ${eersteBetalingsDatum}: ${saldoLijst.map { it.rekening.naam }}")
         return saldiRepository.save(Saldi(0, gebruiker, eersteBetalingsDatum, saldoLijst))
     }
@@ -103,7 +134,7 @@ class SaldiService {
                 saldiOpt.get().saldi.forEach { saldoRepository.delete(it) }
                 saldiRepository.save(
                     saldiOpt.get().fullCopy(
-                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it, saldiOpt.get()) }.toSet(),
+                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it, saldiOpt.get()) },
                     )
                 )
             } else {
@@ -111,7 +142,7 @@ class SaldiService {
                     Saldi(
                         gebruiker = gebruiker,
                         datum = datum,
-                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it) }.toSet(),
+                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it) },
                     )
                 )
             }
@@ -140,6 +171,7 @@ class SaldiService {
 
     data class StandDTO(
         val openingsBalans: SaldiDTO,
+        val mutatiesOpDatum: SaldiDTO,
         val balansOpDatum: SaldiDTO,
         val resultaatOpDatum: SaldiDTO
     )

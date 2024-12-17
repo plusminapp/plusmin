@@ -16,8 +16,8 @@ export type Betaling = {
 export enum BetalingsSoort {
     inkomsten = 'INKOMSTEN',
     uitgaven = 'UITGAVEN',
-    aflossen_betaalregeling = 'AFLOSSING_LENING',
-    aflossen_creditcard = 'AFLOSSING_CREDICARD',
+    aflossing_lening = 'AFLOSSING_LENING',
+    aflossing_creditcard = 'AFLOSSING_CREDICARD',
     besteding_reservering = 'BESTEDING_RESERVERING',
     opname_spaargeld = 'OPNAME_SPAARGELD',
     storten_spaargeld = 'STORTING_SPAARGELD',

@@ -80,13 +80,6 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingen)
     }
 
-    @Operation(summary = "GET mutaties")
-    @GetMapping("/mutaties")
-    fun getMutaties(): ResponseEntity<Any> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        return ResponseEntity.ok().body(betalingService.creeerMutatieLijst(gebruiker))
-    }
-
     @Operation(summary = "DELETE alle betalingen (alleen voor ADMINs)")
     @RolesAllowed("ADMIN")
     @DeleteMapping("")

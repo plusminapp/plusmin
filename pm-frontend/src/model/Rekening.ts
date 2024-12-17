@@ -5,6 +5,7 @@ export type Rekening = {
     nummer: string | undefined;
     naam: string;
     afkorting: string;
+    sortOrder: number;
 }
 
 export enum RekeningSoort {
@@ -14,8 +15,8 @@ export enum RekeningSoort {
     spaarrekening = 'SPAARREKENING',
     contant_geld = 'CONTANT_GELD',
     creditcard = 'CREDITCARD',
-    betaalregelingen = 'LENINGEN',
-    reserveringen = 'RESERVERINGEN'
+    lening = 'LENING',
+    reservering = 'RESERVERING'
     }
 
 export const balansRekningSoorten: RekeningSoort[] = [
@@ -23,8 +24,8 @@ export const balansRekningSoorten: RekeningSoort[] = [
     RekeningSoort.spaarrekening, 
     RekeningSoort.contant_geld, 
     RekeningSoort.creditcard, 
-    RekeningSoort.betaalregelingen, 
-    RekeningSoort.reserveringen];
+    RekeningSoort.lening,
+    RekeningSoort.reservering];
 export const resultaatRekningSoorten = [
     RekeningSoort.inkomsten, 
     RekeningSoort.uitgaven];
