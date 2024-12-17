@@ -16,10 +16,10 @@ export type Betaling = {
 export enum BetalingsSoort {
     inkomsten = 'INKOMSTEN',
     uitgaven = 'UITGAVEN',
-    aflossen_betaalregeling = 'AFLOSSEN_BETAALREGELING',
-    aflossen_creditcard = 'AFLOSSEN_CREDITCARD',
+    aflossen_betaalregeling = 'AFLOSSING_LENING',
+    aflossen_creditcard = 'AFLOSSING_CREDICARD',
     besteding_reservering = 'BESTEDING_RESERVERING',
     opname_spaargeld = 'OPNAME_SPAARGELD',
-    storten_spaargeld = 'STORTEN_SPAARGELD',
+    storten_spaargeld = 'STORTING_SPAARGELD',
     opname_contant_geld = 'OPNAME_CONTANT_GELD',
   }

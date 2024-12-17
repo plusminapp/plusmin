@@ -14,7 +14,7 @@ export enum RekeningSoort {
     spaarrekening = 'SPAARREKENING',
     contant_geld = 'CONTANT_GELD',
     creditcard = 'CREDITCARD',
-    betaalregelingen = 'BETAALREGELINGEN',
+    betaalregelingen = 'LENINGEN',
     reserveringen = 'RESERVERINGEN'
     }
 

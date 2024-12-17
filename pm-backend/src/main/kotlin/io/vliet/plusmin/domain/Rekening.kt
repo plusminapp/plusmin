@@ -64,7 +64,7 @@ val balansRekeningSoort = arrayOf(
     RekeningSoort.SPAARREKENING,
     RekeningSoort.CONTANT,
     RekeningSoort.CREDITCARD,
-    RekeningSoort.BETAALREGELING,
+    RekeningSoort.LENING,
     RekeningSoort.RESERVERING
 )
 
@@ -74,6 +74,6 @@ val resultaatRekeningSoort = arrayOf(
 )
 
 enum class RekeningSoort {
-    BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, BETAALREGELING, RESERVERING,
+    BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, LENING, RESERVERING,
     INKOMSTEN, UITGAVEN
 }
