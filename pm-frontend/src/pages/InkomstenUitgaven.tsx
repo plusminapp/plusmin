@@ -15,21 +15,29 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { TableFooter, TablePagination, Typography } from '@mui/material';
 import { useCustomContext } from '../context/CustomContext';
 import TablePaginationActions from '../components/TablePaginationActions';
-// import InkomenIcon from '../icons/Inkomen';
-// import VariabeleLastenIcon from '../icons/VariabeleLasten';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
+  const [filter, setFilter] = useState<string>('all')
+  const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
+
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [isLoading, setIsLoading] = useState(false);
-  // const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  // const [popoverId, setPopoverId] = useState<number | null>(null);
 
+  const bedragFormatter = (betaling: Betaling): string => {
+    const bedrag = currencyFormatter.format(betaling.bedrag)
+    if (betaling.bron?.naam === filter) {
+      return '-' + bedrag
+    } else {
+      return bedrag
+    }
+  }
+  
   const currencyFormatter = new Intl.NumberFormat("nl-NL", {
     style: "currency",
     currency: "EUR",
@@ -68,6 +76,16 @@ export default function InkomstenUitgaven() {
     fetchBetalingen();
   }, [fetchBetalingen, page, rowsPerPage]);
 
+  useEffect(() => {
+    setFilter('VISA creditcard')
+  }, [setFilter]);
+
+  useEffect(() => {
+    const filterBronBestemmingVanBetalingen = betalingen.filter((betaling) => betaling.bron?.naam === filter || betaling.bestemming?.naam == filter)
+    setFilteredBetalingen(filterBronBestemmingVanBetalingen)
+    setCount(filterBronBestemmingVanBetalingen.length)
+  }, [filter, betalingen, setFilteredBetalingen]);
+
   const handleChangePage = (
     _event: React.MouseEvent<HTMLButtonElement> | null,
     newPage: number,
@@ -83,15 +101,6 @@ export default function InkomstenUitgaven() {
     setPage(0);
   };
 
-  // const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>, id: number) => {
-  //   setAnchorEl(event.currentTarget);
-  //   setPopoverId(id);
-  // };
-  // const handlePopoverClose = () => {
-  //   setAnchorEl(null);
-  //   setPopoverId(null);
-  // };
-
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
@@ -99,11 +108,11 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <Typography variant='h6'>Dagboek weergave</Typography>
-      {!isLoading && betalingen.length === 0 &&
+      <Typography variant='h6'>{filter} weergave</Typography>
+      {!isLoading && filteredBetalingen.length === 0 &&
         <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
       }
-      {!isLoading && betalingen.length > 0 &&
+      {!isLoading && filteredBetalingen.length > 0 &&
         <>
           <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam} worden getoond.</Typography>
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
@@ -127,17 +136,14 @@ export default function InkomstenUitgaven() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {betalingen.map((betaling) => (
+                {filteredBetalingen.map((betaling) => (
                   <Fragment key={betaling.id}>
                     <TableRow
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      // aria-owns={popoverId === betaling.id ? `popover-${betaling.id}` : undefined}
                       aria-haspopup="true"
-                      // onMouseEnter={(event) => handlePopoverOpen(event, betaling.id)}
-                      // onMouseLeave={handlePopoverClose}
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(betaling["bedrag"])}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{bedragFormatter(betaling)}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{
@@ -147,35 +153,6 @@ export default function InkomstenUitgaven() {
                       betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam
                       }</TableCell>
                     </TableRow>
-                    {/* <Popover
-                      id={`popover-${betaling.id}`}
-                      sx={{
-                        pointerEvents: 'none',
-                        "& .MuiPaper-root": {
-                          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-                          width: "75%",
-                          maxWidth: "75%",
-                        },
-                      }}
-                      open={popoverId === betaling.id}
-                      anchorEl={anchorEl}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                      }}
-                      onClose={handlePopoverClose}
-                      disableRestoreFocus
-                    >
-                      <Typography sx={{ p: 1 }}>
-                        { betaling.bron && "afgeschreven van: {betaling.bron?.naam}<br />" }
-                        { betaling.bestemming && 'bijgeschreven bij: {betaling.bestemming?.naam}<br />' }
-                        bank_informatie zou hier komenn<br />
-                      </Typography>
-                    </Popover> */}
                   </Fragment>
                 ))}
               </TableBody>

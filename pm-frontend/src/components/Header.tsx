@@ -31,7 +31,7 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
 
-    const { setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager, setRekeningen } = useCustomContext();
+    const { gebruiker, setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager, setRekeningen } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -69,7 +69,10 @@ function ResponsiveAppBar() {
         const data = await response.json();
         setGebruiker(data.gebruiker);
         setHulpvragers(data.hulpvragers);
-      }, [getIDToken, setGebruiker, setHulpvragers])
+        if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
+            setActieveHulpvrager(data.hulpvragers[0])
+        }
+      }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager])
     
       useEffect(() => {
         fetchGebruikerMetHulpvragers();
@@ -142,7 +145,7 @@ function ResponsiveAppBar() {
                                     <MenuItem key={'profile'} onClick={handleGotoGebruikerMenu}>
                                         <Typography sx={{ textAlign: 'center' }}>
                                             {actieveHulpvrager === undefined ? '> ' : ''}
-                                            {state.username}</Typography>
+                                            {gebruiker?.bijnaam}</Typography>
                                     </MenuItem>
                                     {hulpvragers.map ( hulpvrager =>
                                     <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
