@@ -1,60 +1,29 @@
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-
-// import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-
 import { Betaling } from '../model/Betaling';
-import { useEffect, useState, useCallback, Fragment } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { TableFooter, TablePagination, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
-import TablePaginationActions from '../components/TablePaginationActions';
+import InkomstenUitgavenTabel from '../components/InkomstenUitgavenTabel';
+import { Rekening, resultaatRekeningSoorten } from '../model/Rekening';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, rekeningen } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
-  const [filter, setFilter] = useState<string>('all')
-  const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
 
-  const [count, setCount] = useState(0);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [isLoading, setIsLoading] = useState(false);
 
-  const bedragFormatter = (betaling: Betaling): string => {
-    const bedrag = currencyFormatter.format(betaling.bedrag)
-    if (betaling.bron?.naam === filter) {
-      return '-' + bedrag
-    } else {
-      return bedrag
-    }
-  }
-  
-  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  });
-  const dateFormatter = (date: string) => {
-    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
-  }
-  const betalingsSoortFormatter = (betalingsSoort: string): string => {
-    return betalingsSoort.replace('_', ' ').toLowerCase()
-  }
+  const resultaatRekeningen: Rekening[] = rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort))
 
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?size=${rowsPerPage}&page=${page}`, {
+      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?size=-1`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -65,41 +34,15 @@ export default function InkomstenUitgaven() {
       if (response.ok) {
         const result = await response.json();
         setBetalingen(result.data.content);
-        setCount(result.data.page.totalElements)
       } else {
         console.error("Failed to fetch data", response.status);
       }
     }
-  }, [getIDToken, page, rowsPerPage, actieveHulpvrager, gebruiker]);
+  }, [getIDToken, actieveHulpvrager, gebruiker]);
 
   useEffect(() => {
     fetchBetalingen();
-  }, [fetchBetalingen, page, rowsPerPage]);
-
-  useEffect(() => {
-    setFilter('VISA creditcard')
-  }, [setFilter]);
-
-  useEffect(() => {
-    const filterBronBestemmingVanBetalingen = betalingen.filter((betaling) => betaling.bron?.naam === filter || betaling.bestemming?.naam == filter)
-    setFilteredBetalingen(filterBronBestemmingVanBetalingen)
-    setCount(filterBronBestemmingVanBetalingen.length)
-  }, [filter, betalingen, setFilteredBetalingen]);
-
-  const handleChangePage = (
-    _event: React.MouseEvent<HTMLButtonElement> | null,
-    newPage: number,
-  ) => {
-    setPage(newPage);
-
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  }, [fetchBetalingen]);
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
@@ -108,85 +51,37 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <Typography variant='h6'>{filter} weergave</Typography>
-      {!isLoading && filteredBetalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
-      }
-      {!isLoading && filteredBetalingen.length > 0 &&
-        <>
-          <Typography sx={{ mb: '25px' }}>De betalingen voor {actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam} worden getoond.</Typography>
-          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
-            <Table sx={{ width: "100%" }} aria-label="simple table">
-              <colgroup>
-                <col width="10%" />
-                <col width="10%" />
-                <col width="35%" />
-                <col width="15%" />
-                <col width="15%" />
-                <col width="15%" />
-              </colgroup>
-              <TableHead>
-                <TableRow>
-                  <TableCell>&nbsp;</TableCell>
-                  <TableCell align="right">&euro;</TableCell>
-                  <TableCell>Omschrijving</TableCell>
-                  <TableCell>Betalingssoort</TableCell>
-                  <TableCell>Rekening</TableCell>
-                  <TableCell>Betaalmethode</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredBetalingen.map((betaling) => (
-                  <Fragment key={betaling.id}>
-                    <TableRow
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      aria-haspopup="true"
-                    >
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{bedragFormatter(betaling)}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{
-                      betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam
-                      }</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{
-                      betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam
-                      }</TableCell>
-                    </TableRow>
-                  </Fragment>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                    labelRowsPerPage={""}
-                    colSpan={3}
-                    count={count}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    slotProps={{
-                      select: {
-                        inputProps: {
-                          'aria-label': 'Rijen per pagina',
-                        },
-                        native: true,
-                      },
-                    }}
-                    sx={{
-                      width: "300px",
-                      margin: "0 auto",
-                      overflow: "hidden",
-                    }}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                    ActionsComponent={TablePaginationActions}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </>}
+      {resultaatRekeningen.map(rekening =>
+        <Accordion defaultExpanded>
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls={rekening.naam}
+            id={rekening.naam}>
+          
+            <Typography component="span">{rekening.naam}</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <InkomstenUitgavenTabel
+              filter={rekening.naam}
+              betalingen={betalingen} />
+          </AccordionDetails>
+        </Accordion>
+      )}
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls='extra'
+            id='extra'>
+          
+            <Typography component="span">Iets anders</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <InkomstenUitgavenTabel
+              filter='all'
+              isFilterSelectable={true}
+              betalingen={betalingen} />
+          </AccordionDetails>
+        </Accordion>
     </>
   );
 }

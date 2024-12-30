@@ -11,6 +11,9 @@ interface CustomContextType {
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
     rekeningen: Array<Rekening>;
     setRekeningen: (rekeningen: Array<Rekening>) => void;
+    isMobile: boolean;
+    setIsMobile: (isMobile: boolean) => void;
+
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -33,13 +36,15 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [actieveHulpvrager, setActieveHulpvrager] = useState<Gebruiker | undefined>(undefined);
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
+    const [isMobile, setIsMobile] = useState<boolean>(false);
 
     return (
         <CustomContext.Provider value={{
             gebruiker, setGebruiker,
             actieveHulpvrager, setActieveHulpvrager,
             hulpvragers, setHulpvragers,
-            rekeningen, setRekeningen}}>
+            rekeningen, setRekeningen,
+            isMobile, setIsMobile}}>
             {children}
         </CustomContext.Provider>
     );

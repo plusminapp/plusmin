@@ -34,14 +34,14 @@ class Saldo(
     data class SaldoDTO(
         val id: Long = 0,
         val rekening: Rekening.RekeningDTO,
-        val bedrag: String,
+        val bedrag: BigDecimal,
     )
 
     fun toDTO(): SaldoDTO {
         return SaldoDTO(
             this.id,
             this.rekening.toDTO(),
-            this.bedrag.toString(),
+            this.bedrag,
         )
     }
 }

@@ -17,6 +17,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
+import { Rekening } from '../model/Rekening';
 
 const pages = ['Stand', 'Inkomsten/uitgaven'];
 
@@ -27,11 +28,15 @@ function ResponsiveAppBar() {
         navigate(page);
     };
     const { state, signIn, signOut, getIDToken } = useAuthContext();
-    
+
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
 
-    const { gebruiker, setGebruiker, hulpvragers, setHulpvragers, actieveHulpvrager, setActieveHulpvrager, setRekeningen } = useCustomContext();
+    const { gebruiker, setGebruiker, 
+        hulpvragers, setHulpvragers, 
+        actieveHulpvrager, setActieveHulpvrager, 
+        setRekeningen,
+        setIsMobile} = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -53,7 +58,7 @@ function ResponsiveAppBar() {
         handleNavigation("/profiel")
     };
     const handleActieveHulpvrager = (id: number) => {
-        const ahv = hulpvragers.find( hv => hv.id === id)
+        const ahv = hulpvragers.find(hv => hv.id === id)
         setActieveHulpvrager(ahv);
         setAnchorElGebruiker(null);
     };
@@ -61,10 +66,10 @@ function ResponsiveAppBar() {
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
         const token = await getIDToken();
         const response = await fetch('/api/v1/gebruiker/zelf', {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          }
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            }
         })
         const data = await response.json();
         setGebruiker(data.gebruiker);
@@ -72,29 +77,44 @@ function ResponsiveAppBar() {
         if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
             setActieveHulpvrager(data.hulpvragers[0])
         }
-      }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager])
-    
-      useEffect(() => {
+    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager])
+
+    useEffect(() => {
         fetchGebruikerMetHulpvragers();
-      }, [fetchGebruikerMetHulpvragers]);
-    
-      const fetchRekeningen = useCallback(async () => {
-        const token = await getIDToken();
-        const response = await fetch('/api/v1/rekening', {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          }
-        })
-        const data = await response.json();
-        setRekeningen(data);
-      }, [getIDToken, setRekeningen])
-    
-      useEffect(() => {
+    }, [fetchGebruikerMetHulpvragers]);
+
+    const fetchRekeningen = useCallback(async () => {
+        if (gebruiker != undefined) {
+            const token = await getIDToken();
+            const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+            const response = await fetch(`/api/v1/rekening/hulpvrager/${id}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                }
+            })
+            const data = await response.json();
+            setRekeningen(data.sort((a: Rekening,b: Rekening) => a.sortOrder - b.sortOrder));
+        }
+    }, [getIDToken, setRekeningen, actieveHulpvrager, gebruiker])
+
+    useEffect(() => {
         fetchRekeningen();
-      }, [fetchRekeningen]);
-    
-    
+    }, [fetchRekeningen]);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 768px)');
+        setIsMobile(mediaQuery.matches);
+        const handleMediaChange = (event: { matches: boolean; }) => {
+            setIsMobile(event.matches);
+        };
+        mediaQuery.addEventListener('change', handleMediaChange);
+        return () => {
+            mediaQuery.removeEventListener('change', handleMediaChange);
+        };
+    }, []);
+
+
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>
@@ -147,12 +167,12 @@ function ResponsiveAppBar() {
                                             {actieveHulpvrager === undefined ? '> ' : ''}
                                             {gebruiker?.bijnaam}</Typography>
                                     </MenuItem>
-                                    {hulpvragers.map ( hulpvrager =>
-                                    <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
-                                        <Typography sx={{ textAlign: 'center' }}>
-                                        {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
-                                        {hulpvrager.bijnaam}</Typography>
-                                    </MenuItem>)}
+                                    {hulpvragers.map(hulpvrager =>
+                                        <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
+                                            <Typography sx={{ textAlign: 'center' }}>
+                                                {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
+                                                {hulpvrager.bijnaam}</Typography>
+                                        </MenuItem>)}
                                     <MenuItem key={'logout'} onClick={() => signOut()}>
                                         <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
                                     </MenuItem>

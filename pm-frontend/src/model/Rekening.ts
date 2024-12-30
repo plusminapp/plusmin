@@ -19,13 +19,13 @@ export enum RekeningSoort {
     reservering = 'RESERVERING'
     }
 
-export const balansRekningSoorten: RekeningSoort[] = [
+export const balansRekeningSoorten: RekeningSoort[] = [
     RekeningSoort.betaalrekening, 
     RekeningSoort.spaarrekening, 
     RekeningSoort.contant_geld, 
     RekeningSoort.creditcard, 
     RekeningSoort.lening,
     RekeningSoort.reservering];
-export const resultaatRekningSoorten = [
+export const resultaatRekeningSoorten = [
     RekeningSoort.inkomsten, 
     RekeningSoort.uitgaven];

@@ -27,7 +27,7 @@ class PagingService {
             logger.warn("Invalid page paramater $pageAsString; using 0"); 0
         }
         val size: Int = try {
-            sizeAsString.toInt()
+            if (sizeAsString.toInt() < 0) Integer.MAX_VALUE else sizeAsString.toInt()
         } catch (e: Exception) {
             logger.warn("Invalid size paramater $sizeAsString; using 25"); 25
         }

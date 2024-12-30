@@ -15,7 +15,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Service
-class SaldiService {
+class BalansService {
     @Autowired
     lateinit var saldiRepository: SaldiRepository
 
@@ -174,5 +174,17 @@ class SaldiService {
         val mutatiesOpDatum: SaldiDTO,
         val balansOpDatum: SaldiDTO,
         val resultaatOpDatum: SaldiDTO
+    )
+
+    data class BalansRegelDTO(
+    val rekening: Rekening.RekeningDTO,
+    val openingsBedrag: BigDecimal,
+    val mutatiesEindBedrag: BigDecimal,
+    )
+
+    data class BalansDTO(
+    val openingDatum: String,
+    val mutatiesEindDatum: String,
+    val balansRegels: List<BalansRegelDTO>
     )
 }
