@@ -60,23 +60,23 @@ class Rekening(
             this.sortOrder
         )
     }
+
+    enum class RekeningSoort {
+        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, LENING, RESERVERING,
+        INKOMSTEN, UITGAVEN
+    }
 }
 
-val balansRekeningSoort = arrayOf(
-    RekeningSoort.BETAALREKENING,
-    RekeningSoort.SPAARREKENING,
-    RekeningSoort.CONTANT,
-    RekeningSoort.CREDITCARD,
-    RekeningSoort.LENING,
-    RekeningSoort.RESERVERING
-)
+    val balansRekeningSoort = arrayOf(
+        Rekening.RekeningSoort.BETAALREKENING,
+        Rekening.RekeningSoort.SPAARREKENING,
+        Rekening.RekeningSoort.CONTANT,
+        Rekening.RekeningSoort.CREDITCARD,
+        Rekening.RekeningSoort.LENING,
+        Rekening.RekeningSoort.RESERVERING
+    )
 
-val resultaatRekeningSoort = arrayOf(
-    RekeningSoort.INKOMSTEN,
-    RekeningSoort.UITGAVEN,
-)
-
-enum class RekeningSoort {
-    BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, LENING, RESERVERING,
-    INKOMSTEN, UITGAVEN
-}
+    val resultaatRekeningSoort = arrayOf(
+        Rekening.RekeningSoort.INKOMSTEN,
+        Rekening.RekeningSoort.UITGAVEN,
+    )

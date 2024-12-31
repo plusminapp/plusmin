@@ -41,7 +41,7 @@ class BetalingService {
                     boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
                     bedrag = betalingDTO.bedrag.toBigDecimal(),
                     omschrijving = betalingDTO.omschrijving,
-                    betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+                    betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                     bron = bron.get(),
                     bestemming = bestemming.get()
                 )
@@ -56,7 +56,7 @@ class BetalingService {
             boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
             bedrag = betalingDTO.bedrag.toBigDecimal(),
             omschrijving = betalingDTO.omschrijving,
-            betalingsSoort = BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
+            betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
         )
     }
 }

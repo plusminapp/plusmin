@@ -5,7 +5,7 @@ import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-
+import io.vliet.plusmin.domain.Betaling.BetalingsSoort
 
 @Entity
 @Table(name = "gebruiker")
@@ -15,19 +15,24 @@ class Gebruiker(
     @SequenceGenerator(
         name = "hibernate_sequence",
         sequenceName = "hibernate_sequence",
-        allocationSize = 1)
+        allocationSize = 1
+    )
     val id: Long = 0,
     @Column(unique = true)
     val email: String,
     val bijnaam: String = "Gebruiker zonder bijnaam :-)",
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
-    val roles: MutableSet<Role> = mutableSetOf<Role>(),
-    @OneToOne
-    val vrijwilliger: Gebruiker? = null,
+    val roles: MutableSet<Role> = mutableSetOf(),
+    @ManyToOne
     @JsonIgnore
-    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
+    @JoinColumn(name = "vrijwilliger_id", referencedColumnName = "id")
+    val vrijwilliger: Gebruiker? = null,
+    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
     var rekeningen: List<Rekening> = emptyList(),
+    @ElementCollection(targetClass = BetalingsSoort::class, fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
+    val betalingsSoorten: MutableSet<BetalingsSoort> = mutableSetOf(),
     @JsonIgnore
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
     var saldi: List<Saldi> = emptyList()
@@ -36,6 +41,7 @@ class Gebruiker(
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return roles.map { SimpleGrantedAuthority(it.name) }.toMutableSet()
     }
+
     @JsonIgnore
     override fun getPassword(): String = ""
 
@@ -52,8 +58,9 @@ class Gebruiker(
         bijnaam: String = this.bijnaam,
         roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger,
-        rekeningen: List<Rekening> = this.rekeningen
-    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen)
+        rekeningen: List<Rekening> = this.rekeningen,
+        betalingsSoorten: MutableSet<BetalingsSoort> = this.betalingsSoorten
+    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen, betalingsSoorten)
 
     /**
      * Een Data Transfer Object voor de Gebruiker
@@ -64,12 +71,14 @@ class Gebruiker(
      *
      *  Let op: de DTO bevat NIET de rekeningen
      */
-    data class GebruikerDTO (
+    data class GebruikerDTO(
         val id: Long = 0,
         val email: String,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
         val roles: List<String> = emptyList(),
-        val vrijwilligerEmail: String = "",
+        val vrijwilligerBijnaam: String = "",
+        val rekeningen: List<Rekening> = emptyList(),
+        val betalingsSoorten: List<String> = emptyList(),
     )
 
     fun toDTO(): GebruikerDTO {
@@ -78,11 +87,13 @@ class Gebruiker(
             this.email,
             this.bijnaam,
             this.roles.map { it.toString() },
-            this.vrijwilliger?.email ?: "",
+            this.vrijwilliger?.bijnaam ?: "",
+            this.rekeningen.map { it },
+            this.betalingsSoorten.map { it.toString() }
         )
     }
-}
 
-enum class Role {
-    ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
+    enum class Role {
+        ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
+    }
 }

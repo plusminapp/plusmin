@@ -3,7 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
-import io.vliet.plusmin.domain.RekeningSoort
+import io.vliet.plusmin.domain.Rekening.RekeningSoort
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger

@@ -9,12 +9,13 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { FormControl, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Skeleton, Stack, TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { BetalingsSoort, betalingsSoortFormatter } from '../../model/Betaling';
+import { betalingsSoortFormatter } from '../../model/Betaling';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs, { Dayjs } from 'dayjs';
 import 'dayjs/locale/nl';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { useCustomContext } from '../../context/CustomContext';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -27,12 +28,12 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 export default function CustomizedDialogs() {
   const [open, setOpen] = React.useState(false);
-
   const [datum, setDatum] = React.useState<Dayjs | null>(dayjs());
   const [betalingsSoort, setbetalingsSoort] = React.useState<string | undefined>(undefined);
   // const [betaalMethode, setBetaalMethode] = React.useState<string>("");
   const [omschrijving, setOmschrijving] = React.useState<string>("");
 
+  const { betalingsSoorten } = useCustomContext();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -107,7 +108,7 @@ export default function CustomizedDialogs() {
                 value={betalingsSoort}
                 onChange={handleBetalingsSoortChange}
                 label="Soort betaling kiezen">
-                {Object.keys(BetalingsSoort).map((bs) => (
+                {betalingsSoorten.map((bs) => (
                   <MenuItem value={bs}>{betalingsSoortFormatter(bs)}</MenuItem>
                 ))}
               </Select>

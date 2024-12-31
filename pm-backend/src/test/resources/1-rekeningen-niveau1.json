@@ -1,0 +1,44 @@
+[
+  {
+    "rekeningSoort": "BETAALREKENING",
+    "nummer": "betaalrekeningnummer",
+    "naam": "ASN betaalrekening",
+    "afkorting": "btr",
+    "sortOrder": 1
+  },
+  {
+    "rekeningSoort": "INKOMSTEN",
+    "nummer": "",
+    "naam": "inkomsten",
+    "afkorting": "ink",
+    "sortOrder": 10
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "vaste lasten",
+    "afkorting": "vl",
+    "sortOrder": 12
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "andere uitgave",
+    "afkorting": "au",
+    "sortOrder": 13
+  },
+  {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "boodschappen",
+    "afkorting": "boo",
+    "sortOrder": 11
+  }
+]

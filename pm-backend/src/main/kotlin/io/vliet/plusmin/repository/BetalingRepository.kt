@@ -1,7 +1,7 @@
 package io.vliet.plusmin.repository
 
 import io.vliet.plusmin.domain.Betaling
-import io.vliet.plusmin.domain.BetalingsSoort
+import io.vliet.plusmin.domain.Betaling.BetalingsSoort
 import io.vliet.plusmin.domain.Gebruiker
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query

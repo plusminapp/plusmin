@@ -16,15 +16,15 @@ export default function Stand() {
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager } = useCustomContext();
+  const { actieveHulpvrager } = useCustomContext();
 
 
   useEffect(() => {
     const fetchSaldi = async () => {
-      if (gebruiker) {
+      if (actieveHulpvrager) {
         setIsLoading(true);
         const datum = new Date().toISOString().slice(0, 10);
-        const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+        const id = actieveHulpvrager.id 
         const token = await getIDToken();
         const response = await fetch(`/api/v1/saldi/hulpvrager/${id}/stand/${datum}`, {
           method: "GET",
@@ -47,7 +47,7 @@ export default function Stand() {
     };
     fetchSaldi();
 
-  }, [actieveHulpvrager, gebruiker, getIDToken]);
+  }, [actieveHulpvrager, getIDToken]);
 
 
   if (isLoading) {

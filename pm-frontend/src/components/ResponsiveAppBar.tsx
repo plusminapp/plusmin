@@ -17,7 +17,6 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
-import { Rekening } from '../model/Rekening';
 
 const pages = ['Stand', 'Inkomsten/uitgaven'];
 
@@ -35,8 +34,7 @@ function ResponsiveAppBar() {
     const { gebruiker, setGebruiker, 
         hulpvragers, setHulpvragers, 
         actieveHulpvrager, setActieveHulpvrager, 
-        setRekeningen,
-        setIsMobile} = useCustomContext();
+        setRekeningen, setBetalingsSoorten} = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -52,15 +50,15 @@ function ResponsiveAppBar() {
     const handleCloseGebruikerMenu = () => {
         setAnchorElGebruiker(null);
     };
-    const handleGotoGebruikerMenu = () => {
-        setActieveHulpvrager(undefined);
+    
+    const handleActieveHulpvrager = (id: number) => {
+        var ahv = hulpvragers.find(hv => hv.id === id)
+        ahv = ahv ? ahv : gebruiker
+        setActieveHulpvrager(ahv);
+        setRekeningen(ahv!.rekeningen)
+        setBetalingsSoorten(ahv!.betalingsSoorten)
         setAnchorElGebruiker(null);
         handleNavigation("/profiel")
-    };
-    const handleActieveHulpvrager = (id: number) => {
-        const ahv = hulpvragers.find(hv => hv.id === id)
-        setActieveHulpvrager(ahv);
-        setAnchorElGebruiker(null);
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
@@ -76,44 +74,18 @@ function ResponsiveAppBar() {
         setHulpvragers(data.hulpvragers);
         if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
             setActieveHulpvrager(data.hulpvragers[0])
+            setRekeningen(data.hulpvragers[0].rekeningen)
+            setBetalingsSoorten(data.hulpvragers[0].betalingsSoorten)
+        } else {
+            setActieveHulpvrager(data.gebruiker)
+            setRekeningen(data.gebruiker.rekeningen)
+            setBetalingsSoorten(data.gebruiker.betalingsSoorten)
         }
     }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager])
 
     useEffect(() => {
         fetchGebruikerMetHulpvragers();
     }, [fetchGebruikerMetHulpvragers]);
-
-    const fetchRekeningen = useCallback(async () => {
-        if (gebruiker != undefined) {
-            const token = await getIDToken();
-            const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-            const response = await fetch(`/api/v1/rekening/hulpvrager/${id}`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                }
-            })
-            const data = await response.json();
-            setRekeningen(data.sort((a: Rekening,b: Rekening) => a.sortOrder - b.sortOrder));
-        }
-    }, [getIDToken, setRekeningen, actieveHulpvrager, gebruiker])
-
-    useEffect(() => {
-        fetchRekeningen();
-    }, [fetchRekeningen]);
-
-    useEffect(() => {
-        const mediaQuery = window.matchMedia('(max-width: 768px)');
-        setIsMobile(mediaQuery.matches);
-        const handleMediaChange = (event: { matches: boolean; }) => {
-            setIsMobile(event.matches);
-        };
-        mediaQuery.addEventListener('change', handleMediaChange);
-        return () => {
-            mediaQuery.removeEventListener('change', handleMediaChange);
-        };
-    }, []);
-
 
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
@@ -162,9 +134,9 @@ function ResponsiveAppBar() {
                                     open={Boolean(anchorElGebruiker)}
                                     onClose={handleCloseGebruikerMenu}
                                 >
-                                    <MenuItem key={'profile'} onClick={handleGotoGebruikerMenu}>
+                                    <MenuItem key={'profile'} onClick={() => handleActieveHulpvrager(gebruiker!.id)}>
                                         <Typography sx={{ textAlign: 'center' }}>
-                                            {actieveHulpvrager === undefined ? '> ' : ''}
+                                            {actieveHulpvrager?.id === gebruiker?.id ? '> ' : ''}
                                             {gebruiker?.bijnaam}</Typography>
                                     </MenuItem>
                                     {hulpvragers.map(hulpvrager =>

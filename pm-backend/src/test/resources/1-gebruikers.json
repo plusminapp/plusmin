@@ -16,9 +16,25 @@
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
-    "email": "ruud.van.vliet@ett-twello.nl",
-    "bijnaam": "Ruud.HV",
+    "email": "hulpvrager-basis@vliet.io",
+    "bijnaam": "Hulpvrager Basis",
     "vrijwilligerEmail": "ruud@vliet.io",
-    "roles": ["ROLE_HULPVRAGER"]
+    "roles": ["ROLE_HULPVRAGER"],
+    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN"]
+  },
+  {
+    "email": "hulpvrager-niveau-1@vliet.io",
+    "bijnaam": "Hulpvrager Niveau 1",
+    "vrijwilligerEmail": "ruud@vliet.io",
+    "roles": ["ROLE_HULPVRAGER"],
+    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN"]
+  },
+  {
+    "email": "hulpvrager-niveau-2@vliet.io",
+    "bijnaam": "Hulpvrager Niveau 2",
+    "vrijwilligerEmail": "ruud@vliet.io",
+    "roles": ["ROLE_HULPVRAGER"],
+    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN", "AFLOSSING_LENING", "AFLOSSING_CREDICARD",
+      "BESTEDING_RESERVERING", "OPNAME_SPAARGELD", "STORTING_SPAARGELD", "OPNAME_CONTANT_GELD"]
   }
 ]

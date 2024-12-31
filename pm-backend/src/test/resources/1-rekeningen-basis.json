@@ -1,0 +1,23 @@
+[
+  {
+    "rekeningSoort": "INKOMSTEN",
+    "nummer": "",
+    "naam": "Inkomsten",
+    "afkorting": "ink",
+    "sortOrder": 10
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Uitgaven",
+    "afkorting": "vl",
+    "sortOrder": 12
+  },
+  {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  }
+]

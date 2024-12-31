@@ -21,7 +21,7 @@ interface InUitTabelProps {
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   
-  const { gebruiker, actieveHulpvrager, rekeningen } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen } = useCustomContext();
   const betalingen = props.betalingen
   const [filter, setFilter] = useState<string>(props.filter)
   const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
@@ -69,7 +69,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
       </FormControl>
         }
       {filteredBetalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>Je ({actieveHulpvrager ? actieveHulpvrager.bijnaam : gebruiker?.bijnaam}) hebt nog geen betalingen geregistreerd.</Typography>
+        <Typography sx={{ mb: '25px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd.</Typography>
       }
       {filteredBetalingen.length > 0 &&
         <>

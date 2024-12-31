@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Gebruiker } from '../model/Gebruiker';
 import { Rekening } from '../model/Rekening';
+import { BetalingsSoort } from '../model/Betaling';
 
 interface CustomContextType {
     gebruiker: Gebruiker | undefined;
@@ -11,8 +12,8 @@ interface CustomContextType {
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
     rekeningen: Array<Rekening>;
     setRekeningen: (rekeningen: Array<Rekening>) => void;
-    isMobile: boolean;
-    setIsMobile: (isMobile: boolean) => void;
+    betalingsSoorten: Array<BetalingsSoort>;
+    setBetalingsSoorten: (betalingsSoorten: Array<BetalingsSoort>) => void;
 
 }
 
@@ -36,7 +37,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [actieveHulpvrager, setActieveHulpvrager] = useState<Gebruiker | undefined>(undefined);
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
-    const [isMobile, setIsMobile] = useState<boolean>(false);
+    const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
 
     return (
         <CustomContext.Provider value={{
@@ -44,7 +45,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             actieveHulpvrager, setActieveHulpvrager,
             hulpvragers, setHulpvragers,
             rekeningen, setRekeningen,
-            isMobile, setIsMobile}}>
+            betalingsSoorten, setBetalingsSoorten}}>
             {children}
         </CustomContext.Provider>
     );
