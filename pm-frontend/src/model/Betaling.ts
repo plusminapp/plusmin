@@ -23,3 +23,9 @@ export enum BetalingsSoort {
     storten_spaargeld = 'STORTING_SPAARGELD',
     opname_contant_geld = 'OPNAME_CONTANT_GELD',
   }
+
+  export const betalingsSoortFormatter = (betalingsSoort: string): string => {
+    betalingsSoort = betalingsSoort.split('_').join(' ').toLowerCase();
+    return String(betalingsSoort).charAt(0).toUpperCase() + String(betalingsSoort).slice(1);
+  }
+

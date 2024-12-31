@@ -6,12 +6,12 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Betaling } from '../model/Betaling';
+import { Betaling, betalingsSoortFormatter } from '../../model/Betaling';
 import { useEffect, useState, Fragment } from 'react';
 
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
-import { useCustomContext } from '../context/CustomContext';
-import { RekeningSoort } from '../model/Rekening';
+import { useCustomContext } from '../../context/CustomContext';
+// import { RekeningSoort } from '../../model/Rekening';
 
 interface InUitTabelProps {
   filter: string;
@@ -28,7 +28,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
   const bedragFormatter = (betaling: Betaling): string => {
     const bedrag = currencyFormatter.format(betaling.bedrag)
-    if (betaling.bron?.naam === filter || betaling.bron?.rekeningSoort === RekeningSoort.inkomsten) {
+    if (betaling.bron?.naam === filter) {
       return '-' + bedrag
     } else {
       return bedrag
@@ -41,16 +41,12 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
-  const betalingsSoortFormatter = (betalingsSoort: string): string => {
-    return betalingsSoort.replace('_', ' ').toLowerCase()
-  }
-
   useEffect(() => {
     const filterBronBestemmingVanBetalingen = betalingen.filter((betaling) => betaling.bron?.naam === filter || betaling.bestemming?.naam == filter || filter === 'all')
     setFilteredBetalingen(filterBronBestemmingVanBetalingen)
   }, [filter, betalingen, setFilteredBetalingen]);
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleWeergaveChange = (event: SelectChangeEvent) => {
     setFilter(event.target.value);
   };
 
@@ -63,8 +59,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           labelId="demo-simple-select-standard-label"
           id="demo-simple-select-standard"
           value={filter}
-          onChange={handleChange}
-          label="Age">
+          onChange={handleWeergaveChange}
+          label="Weergave kiezen">
           <MenuItem value='all'>Alles</MenuItem>
           {rekeningen.map((rekening) => (
             <MenuItem value={rekening.naam}>{rekening.naam}</MenuItem>
@@ -77,16 +73,16 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
       }
       {filteredBetalingen.length > 0 &&
         <>
-          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', my: '10px' }}>
+          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
                 <TableRow>
                   <TableCell>Datum</TableCell>
                   <TableCell align="right">Bedrag</TableCell>
                   <TableCell>Omschrijving</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Betalingssoort</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Rekening</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Betaalmethode</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betalingssoort</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Rekening</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -99,11 +95,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{bedragFormatter(betaling)}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
-                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
+                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam}
                       </TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell>
                     </TableRow>

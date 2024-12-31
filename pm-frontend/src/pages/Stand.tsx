@@ -1,5 +1,5 @@
-import { Typography } from "@mui/material";
-// import Saldi from "../components/Saldi";
+import { Box, FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
+import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 
 import { RekeningSaldi } from "../model/Saldi";
@@ -9,12 +9,12 @@ import Resultaat from "../components/Resultaat";
 
 export default function Stand() {
 
-  // const [openingsBalans, setOpeningsBalans] = useState<RekeningSaldi | undefined>(undefined)
-  // const [mutatiesOpDatum, setMutatiesOpDatum] = useState<RekeningSaldi | undefined>(undefined)
+  const [openingsBalans, setOpeningsBalans] = useState<RekeningSaldi | undefined>(undefined)
+  const [mutatiesOpDatum, setMutatiesOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [balansOpDatum, setBalansOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [resultaatOpDatum, setResultaatOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
-
+  const [checked, setChecked] = useState(false);
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager } = useCustomContext();
 
@@ -36,8 +36,8 @@ export default function Stand() {
         setIsLoading(false);
         if (response.ok) {
           const result = await response.json();
-          // setOpeningsBalans(result.openingsBalans)
-          // setMutatiesOpDatum(result.mutatiesOpDatum)
+          setOpeningsBalans(result.openingsBalans)
+          setMutatiesOpDatum(result.mutatiesOpDatum)
           setBalansOpDatum(result.balansOpDatum)
           setResultaatOpDatum(result.resultaatOpDatum)
         } else {
@@ -52,19 +52,47 @@ export default function Stand() {
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
-  }
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
 
   return (
     <>
-      { balansOpDatum !== undefined &&
+      {balansOpDatum !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
-          {/* <Saldi title={'Opening'} saldi={openingsBalans!} /> */}
-          {/* <Saldi title={'Mutaties per'} saldi={mutatiesOpDatum!} /> */}
-          <Resultaat title={'Inkomsten en uitgaven'} saldi={resultaatOpDatum!} />
-          <Resultaat title={'Stand'} saldi={balansOpDatum!} />
+          <FormGroup>
+            <FormControlLabel control={
+              <Switch
+                checked={checked}
+                onChange={handleChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />}
+              label="Toon openening & mutaties" />
+          </FormGroup>
+          <Box sx={{ flexGrow: 1 }}>
+            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>
+              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
+                <Resultaat title={'Inkomsten en uitgaven'} saldi={resultaatOpDatum!} />
+              </Grid>
+              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
+                <Resultaat title={'Stand'} saldi={balansOpDatum!} />
+              </Grid>
+              {checked &&
+                <Grid size={{ xs: 1, sm: 2, md: 3 }}>
+                  <Resultaat title={'Opening'} saldi={openingsBalans!} />
+                </Grid>}
+              {checked &&
+                <Grid size={{ xs: 1, sm: 2, md: 3 }}>
+                  <Resultaat title={'Mutaties per'} saldi={mutatiesOpDatum!} />
+                </Grid>
+              }
+            </Grid>
+          </Box>
         </>
-        }
+      }
     </>
   )
 }

@@ -3,17 +3,18 @@ import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
 import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
-import InkomstenUitgavenTabel from '../components/InkomstenUitgavenTabel';
+import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
 import { Rekening, resultaatRekeningSoorten } from '../model/Rekening';
+import NieuweBetalingDialoog from '../components/Betaling/NieuweBetalingDialoog';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager, rekeningen } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
-
   const [isLoading, setIsLoading] = useState(false);
 
   const resultaatRekeningen: Rekening[] = rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort))
@@ -51,37 +52,44 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      {resultaatRekeningen.map(rekening =>
-        <Accordion defaultExpanded>
-          <AccordionSummary
-            expandIcon={<ArrowDropDownIcon />}
-            aria-controls={rekening.naam}
-            id={rekening.naam}>
-          
-            <Typography component="span">{rekening.naam}</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <InkomstenUitgavenTabel
-              filter={rekening.naam}
-              betalingen={betalingen} />
-          </AccordionDetails>
-        </Accordion>
-      )}
-        <Accordion>
-          <AccordionSummary
-            expandIcon={<ArrowDropDownIcon />}
-            aria-controls='extra'
-            id='extra'>
-          
-            <Typography component="span">Iets anders</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <InkomstenUitgavenTabel
-              filter='all'
-              isFilterSelectable={true}
-              betalingen={betalingen} />
-          </AccordionDetails>
-        </Accordion>
+      <NieuweBetalingDialoog/>
+      <Grid container spacing={{ xs: 0, md: 3 }} columns={{ xs: 1, lg: 6 }}>
+        {resultaatRekeningen.map(rekening =>
+          <Grid size={{ xs: 1, lg: 3 }}>
+            <Accordion >
+              <AccordionSummary
+                expandIcon={<ArrowDropDownIcon />}
+                aria-controls={rekening.naam}
+                id={rekening.naam}>
+                <Typography component="span">{rekening.naam}</Typography>
+              </AccordionSummary>
+              <AccordionDetails sx={{ p: 0 }}>
+                <InkomstenUitgavenTabel
+                  filter={rekening.naam}
+                  betalingen={betalingen} />
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        )}
+        <Grid size={{ xs: 1, lg: 3 }}>
+
+          <Accordion >
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              aria-controls='extra'
+              id='extra'>
+
+              <Typography component="span">Iets anders</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }}>
+              <InkomstenUitgavenTabel
+                filter='all'
+                isFilterSelectable={true}
+                betalingen={betalingen} />
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
+      </Grid>
     </>
   );
 }
