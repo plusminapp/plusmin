@@ -32,12 +32,12 @@ export default function Saldi(props: SaldiProps) {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
 
-  const calculateResult = (): string => {
+  const calculateResult = (): number => {
     const saldi: Saldo[] = props.saldi.saldi
     console.log(saldi)
     const blaat: number = saldi.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
     console.log(blaat)
-    return blaat.toString()
+    return blaat
   }
 
   return (
@@ -51,7 +51,7 @@ export default function Saldi(props: SaldiProps) {
             </TableRow>
             <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell align="left" size='small' sx={{ p: "6px" }}>Totaal</TableCell>
-              <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(-calculateResult())}</TableCell>
+              <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(calculateResult())}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
