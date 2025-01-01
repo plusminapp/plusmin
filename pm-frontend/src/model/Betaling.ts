@@ -29,3 +29,8 @@ export enum BetalingsSoort {
     return String(betalingsSoort).charAt(0).toUpperCase() + String(betalingsSoort).slice(1);
   }
 
+  export const currencyFormatter = new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+  });
+

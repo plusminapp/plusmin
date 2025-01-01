@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 
 import { RekeningSaldi } from '../model/Saldi';
 import { Saldo } from '../model/Saldo';
+import { currencyFormatter } from '../model/Betaling'
 
 interface SaldiProps {
   title: string;
@@ -16,18 +17,6 @@ interface SaldiProps {
 
 export default function Saldi(props: SaldiProps) {
 
-  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  });
-
-  const bedragFormatter = (saldo: Saldo) => {
-    if (saldo.rekening.rekeningSoort === 'INKOMSTEN') {
-      return currencyFormatter.format(-saldo.bedrag)
-    } else {
-      return currencyFormatter.format(saldo.bedrag)
-    }
-  }
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
@@ -58,7 +47,7 @@ export default function Saldi(props: SaldiProps) {
             {props.saldi.saldi.map((saldo) => (
               <TableRow>
                   <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekening.naam}</TableCell>
-                  <TableCell align="right" size='small' sx={{ p: "6px" }}>{bedragFormatter(saldo)}</TableCell>
+                  <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(saldo.bedrag)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

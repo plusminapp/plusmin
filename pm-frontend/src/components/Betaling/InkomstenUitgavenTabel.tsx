@@ -11,65 +11,55 @@ import { useEffect, useState, Fragment } from 'react';
 
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { useCustomContext } from '../../context/CustomContext';
-// import { RekeningSoort } from '../../model/Rekening';
+import { currencyFormatter } from '../../model/Betaling'
+import { Rekening } from '../../model/Rekening';
+import { berekenBedragVoorRekenining } from '../../pages/InkomstenUitgaven';
 
 interface InUitTabelProps {
-  filter: string;
-  isFilterSelectable?: boolean ;
+  actueleRekening: Rekening | undefined;
+  isFilterSelectable?: boolean;
   betalingen: Betaling[];
 }
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
-  
+
   const { actieveHulpvrager, gebruiker, rekeningen } = useCustomContext();
   const betalingen = props.betalingen
-  const [filter, setFilter] = useState<string>(props.filter)
+  const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
 
-  const bedragFormatter = (betaling: Betaling): string => {
-    const bedrag = currencyFormatter.format(betaling.bedrag)
-    if (betaling.bron?.naam === filter) {
-      return '-' + bedrag
-    } else {
-      return bedrag
-    }
-  }
-  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  });
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
   useEffect(() => {
-    const filterBronBestemmingVanBetalingen = betalingen.filter((betaling) => betaling.bron?.naam === filter || betaling.bestemming?.naam == filter || filter === 'all')
-    setFilteredBetalingen(filterBronBestemmingVanBetalingen)
-  }, [filter, betalingen, setFilteredBetalingen]);
+    const filterBetalingenOpBronBestemming = betalingen.filter((betaling) => betaling.bron?.id === actueleRekening?.id || betaling.bestemming?.id == actueleRekening?.id || actueleRekening === undefined)
+    setFilteredBetalingen(filterBetalingenOpBronBestemming)
+  }, [actueleRekening, betalingen, setFilteredBetalingen]);
 
   const handleWeergaveChange = (event: SelectChangeEvent) => {
-    setFilter(event.target.value);
+    setActueleRekening(rekeningen.find(r => r.naam === event.target.value))
   };
 
   return (
     <>
-    { props.isFilterSelectable &&
-      <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel id="demo-simple-select-standard-label">Weergave kiezen</InputLabel>
-        <Select
-          labelId="demo-simple-select-standard-label"
-          id="demo-simple-select-standard"
-          value={filter}
-          onChange={handleWeergaveChange}
-          label="Weergave kiezen">
-          <MenuItem value='all'>Alles</MenuItem>
-          {rekeningen.map((rekening) => (
-            <MenuItem value={rekening.naam}>{rekening.naam}</MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-        }
+      {props.isFilterSelectable &&
+        <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
+          <InputLabel id="demo-simple-select-standard-label">Weergave kiezen</InputLabel>
+          <Select
+            labelId="demo-simple-select-standard-label"
+            id="demo-simple-select-standard"
+            value={actueleRekening ? actueleRekening.naam : 'alles'}
+            onChange={handleWeergaveChange}
+            label="Weergave kiezen">
+            <MenuItem value='alles'>Alles</MenuItem>
+            {rekeningen.map((rekening) => (
+              <MenuItem value={rekening.naam}>{rekening.naam}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      }
       {filteredBetalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd.</Typography>
+        <Typography sx={{ mb: '25px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd{actueleRekening ? ` voor ${actueleRekening.naam}` : ''}.</Typography>
       }
       {filteredBetalingen.length > 0 &&
         <>
@@ -93,10 +83,10 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       aria-haspopup="true"
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{bedragFormatter(betaling)}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
-                      <TableCell align="left" size='small'  sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
+                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam}
                       </TableCell>
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>

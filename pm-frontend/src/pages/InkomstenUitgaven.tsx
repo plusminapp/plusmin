@@ -1,4 +1,4 @@
-import { Betaling } from '../model/Betaling';
+import { Betaling, currencyFormatter } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
@@ -9,6 +9,14 @@ import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
 import { Rekening, resultaatRekeningSoorten } from '../model/Rekening';
 import NieuweBetalingDialoog from '../components/Betaling/NieuweBetalingDialoog';
+
+export const berekenBedragVoorRekenining = (betaling: Betaling, rekening: Rekening | undefined) => {
+  if (rekening === undefined) return betaling.bedrag // filter = 'all'
+  const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1
+  if (betaling.bron?.id === rekening.id) return -betaling.bedrag * factor
+  if (betaling.bestemming?.id === rekening.id) return betaling.bedrag * factor
+  return 0
+}
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -45,6 +53,11 @@ export default function InkomstenUitgaven() {
     fetchBetalingen();
   }, [fetchBetalingen]);
 
+
+  const berekenRekeningTotaal = (rekening: Rekening) => {
+    return betalingen.reduce((acc, betaling) => (acc + berekenBedragVoorRekenining(betaling, rekening)), 0)
+  }
+
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
@@ -52,7 +65,7 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <NieuweBetalingDialoog/>
+      <NieuweBetalingDialoog />
       <Grid container spacing={{ xs: 0, md: 3 }} columns={{ xs: 1, lg: 6 }}>
         {resultaatRekeningen.map(rekening =>
           <Grid size={{ xs: 1, lg: 3 }}>
@@ -61,11 +74,11 @@ export default function InkomstenUitgaven() {
                 expandIcon={<ArrowDropDownIcon />}
                 aria-controls={rekening.naam}
                 id={rekening.naam}>
-                <Typography component="span">{rekening.naam}</Typography>
+                <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
               </AccordionSummary>
               <AccordionDetails sx={{ p: 0 }}>
                 <InkomstenUitgavenTabel
-                  filter={rekening.naam}
+                  actueleRekening={rekening}
                   betalingen={betalingen} />
               </AccordionDetails>
             </Accordion>
@@ -78,12 +91,11 @@ export default function InkomstenUitgaven() {
               expandIcon={<ArrowDropDownIcon />}
               aria-controls='extra'
               id='extra'>
-
               <Typography component="span">Iets anders</Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>
               <InkomstenUitgavenTabel
-                filter='all'
+                actueleRekening={undefined}
                 isFilterSelectable={true}
                 betalingen={betalingen} />
             </AccordionDetails>

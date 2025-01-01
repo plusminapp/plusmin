@@ -9,6 +9,8 @@ import Paper from '@mui/material/Paper';
 import { Typography } from '@mui/material';
 import { RekeningSaldi } from '../model/Saldi';
 import { Saldo } from '../model/Saldo';
+import { currencyFormatter } from '../model/Betaling'
+
 
 interface SaldiProps {
   title: string;
@@ -16,11 +18,6 @@ interface SaldiProps {
 }
 
 export default function Saldi(props: SaldiProps) {
-
-  const currencyFormatter = new Intl.NumberFormat("nl-NL", {
-    style: "currency",
-    currency: "EUR",
-  });
 
   const bedragFormatter = (saldo: Saldo) => {
     if (saldo.rekening.rekeningSoort === 'INKOMSTEN') {

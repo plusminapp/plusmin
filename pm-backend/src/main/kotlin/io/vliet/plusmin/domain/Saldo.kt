@@ -44,4 +44,11 @@ class Saldo(
             this.bedrag,
         )
     }
+    fun toResultaatDTO(): SaldoDTO {
+        return SaldoDTO(
+            this.id,
+            this.rekening.toDTO(),
+            -this.bedrag,
+        )
+    }
 }

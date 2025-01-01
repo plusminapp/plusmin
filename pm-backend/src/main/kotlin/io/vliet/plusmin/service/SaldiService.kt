@@ -56,7 +56,7 @@ class SaldiService {
         val resultaatOpDatum =
             saldiOpDatum.saldi
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
-                .map { it.toDTO() }
+                .map { it.toResultaatDTO() }
                 .sortedBy { it.rekening.sortOrder }
         return StandDTO(
             openingsBalans = SaldiDTO(
