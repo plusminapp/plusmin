@@ -16,12 +16,12 @@ export type Betaling = {
 export enum BetalingsSoort {
     inkomsten = 'INKOMSTEN',
     uitgaven = 'UITGAVEN',
-    aflossing_lening = 'AFLOSSING_LENING',
-    aflossing_creditcard = 'AFLOSSING_CREDICARD',
-    besteding_reservering = 'BESTEDING_RESERVERING',
-    opname_spaargeld = 'OPNAME_SPAARGELD',
-    storten_spaargeld = 'STORTING_SPAARGELD',
-    opname_contant_geld = 'OPNAME_CONTANT_GELD',
+    aflossen_lening = 'AFLOSSEN_LENING',
+    aflossen_creditcard = 'AFLOSSEN_CREDICARD',
+    besteden_reservering = 'BESTEDEN_RESERVERING',
+    opnemen_spaargeld = 'OPNEMEN_SPAARGELD',
+    storten_spaargeld = 'STORTEN_SPAARGELD',
+    opnemen_contant_geld = 'OPNEMEN_CONTANT_GELD',
   }
 
   export const betalingsSoortFormatter = (betalingsSoort: string): string => {

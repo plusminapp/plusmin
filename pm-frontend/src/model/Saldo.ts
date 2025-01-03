@@ -1,7 +1,6 @@
-import { Rekening } from "./Rekening";
 
 export type Saldo = {
     id: number;
-    rekening: Rekening;
+    rekeningNaam: string;
     bedrag: number;
 }

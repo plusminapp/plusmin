@@ -15,7 +15,7 @@
     "omschrijving": "Bonus",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Inkomsten",
-    "bestemming": "Contant"
+    "bestemming": "ASN betaalrekening"
   },
   {
     "boekingsdatum": "20250102",
@@ -58,7 +58,7 @@
     "bedrag": 125,
     "saldo_achteraf": null,
     "omschrijving": "Belastingdienst",
-    "betalingsSoort": "AFLOSSING_LENING",
+    "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "BR Belastingdienst"
   },
@@ -67,17 +67,17 @@
     "bedrag": 150,
     "saldo_achteraf": null,
     "omschrijving": "Aflossen VISA creditcard",
-    "betalingsSoort": "AFLOSSING_CREDICARD",
+    "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Andere uitgaven"
+    "bestemming": "Andere uitgave"
   },
   {
     "boekingsdatum": "20250103",
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas voor Jan",
-    "betalingsSoort": "BESTEDING_RESERVERING",
+    "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Andere uitgaven"
+    "bestemming": "Andere uitgave"
   }
 ]

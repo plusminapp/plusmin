@@ -1,11 +1,9 @@
-[
-  {
-    "datum": "20250101",
-    "saldi": [
-      {
-        "rekening": "Beschikbaar geld",
-        "bedrag": "100"
-      }
-    ]
-  }
-]
+{
+  "datum": "20250101",
+  "saldi": [
+    {
+      "rekeningNaam": "Beschikbaar geld",
+      "bedrag": "100"
+    }
+  ]
+}

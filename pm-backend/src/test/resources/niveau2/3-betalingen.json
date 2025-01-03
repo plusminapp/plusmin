@@ -58,7 +58,7 @@
     "bedrag": 125,
     "saldo_achteraf": null,
     "omschrijving": "Belastingdienst",
-    "betalingsSoort": "AFLOSSING_LENING",
+    "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "VISA creditcard",
     "bestemming": "BR Belastingdienst"
   },
@@ -67,7 +67,7 @@
     "bedrag": 150,
     "saldo_achteraf": null,
     "omschrijving": "Aflossen VISA creditcard",
-    "betalingsSoort": "AFLOSSING_CREDICARD",
+    "betalingsSoort": "AFLOSSEN_CREDICARD",
     "bron": "ASN betaalrekening",
     "bestemming": "VISA creditcard"
   },
@@ -76,7 +76,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas voor Jan",
-    "betalingsSoort": "BESTEDING_RESERVERING",
+    "betalingsSoort": "BESTEDEN_RESERVERING",
     "bron": "VISA creditcard",
     "bestemming": "Reservering"
   },
@@ -85,7 +85,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas voor Jan",
-    "betalingsSoort": "OPNAME_SPAARGELD",
+    "betalingsSoort": "OPNEMEN_SPAARGELD",
     "bron": "ASN spaarrekening",
     "bestemming": "ASN betaalrekening"
   },
@@ -94,7 +94,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas met creditcard betaald",
-    "betalingsSoort": "STORTING_SPAARGELD",
+    "betalingsSoort": "STORTEN_SPAARGELD",
     "bron": "ASN betaalrekening",
     "bestemming": "ASN spaarrekening"
   }

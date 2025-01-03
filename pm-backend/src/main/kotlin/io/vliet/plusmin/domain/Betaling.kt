@@ -70,7 +70,15 @@ class Betaling(
     }
 
     enum class BetalingsSoort {
-        INKOMSTEN, UITGAVEN, AFLOSSING_LENING, AFLOSSING_CREDICARD,
-        BESTEDING_RESERVERING, OPNAME_SPAARGELD, STORTING_SPAARGELD, OPNAME_CONTANT_GELD
+        INKOMSTEN, UITGAVEN, AFLOSSEN_LENING, AFLOSSEN_CREDICARD,
+        BESTEDEN_RESERVERING, OPNEMEN_SPAARGELD, STORTEN_SPAARGELD, OPNEMEN_CONTANT_GELD
+    }
+
+    fun rekeningen2BetalingsSorten(rekeningen: List<Rekening>): Set<BetalingsSoort> {
+        val blaat = rekeningen.map { rekening ->
+            when (rekening.rekeningSoort) {
+                Rekening.RekeningSoort.INKOMSTEN -> BetalingsSoort.
+            }
+        }
     }
 }

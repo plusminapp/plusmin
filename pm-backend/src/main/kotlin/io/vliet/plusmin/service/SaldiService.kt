@@ -1,5 +1,6 @@
 package io.vliet.plusmin.service
 
+import io.vliet.plusmin.controller.SaldiController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Saldi.SaldiDTO
 import io.vliet.plusmin.repository.BetalingRepository
@@ -28,37 +29,35 @@ class SaldiService {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
-    @Autowired
-    lateinit var betalingService: BetalingService
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun getStandOpDatum(gebruiker: Gebruiker, datum: LocalDate): StandDTO {
+    fun getStandOpDatum(gebruiker: Gebruiker, datum: LocalDate): SaldiController.StandDTO {
         val openingSaldi = getOpeningSaldi(gebruiker)
         val mutatieLijst = getMutatieLijstOpDatum(gebruiker, datum)
-        val saldiOpDatum = getSaldiOpDatum(openingSaldi, mutatieLijst)
+        val balansSaldiOpDatum = getBalansSaldiOpDatum(openingSaldi, mutatieLijst)
+        val resultaatSaldiOpDatum = getBalansSaldiOpDatum(openingSaldi, mutatieLijst)
 
         val openingsBalans =
             openingSaldi.saldi
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
-                .map { it.toDTO() }
                 .sortedBy { it.rekening.sortOrder }
+                .map { it.toDTO() }
         val mutatiesOpDatum =
             mutatieLijst.saldi
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
-                .map { it.toDTO() }
                 .sortedBy { it.rekening.sortOrder }
+                .map { it.toDTO() }
         val balansOpDatum =
-            saldiOpDatum.saldi
+            balansSaldiOpDatum.saldi
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
+                .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
-                .sortedBy { it.rekening.sortOrder }
         val resultaatOpDatum =
-            saldiOpDatum.saldi
+            mutatieLijst.saldi
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
-                .map { it.toResultaatDTO() }
                 .sortedBy { it.rekening.sortOrder }
-        return StandDTO(
+                .map { it.toResultaatDTO() }
+        return SaldiController.StandDTO(
             openingsBalans = SaldiDTO(
                 datum = openingSaldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
                 saldi = openingsBalans
@@ -87,6 +86,7 @@ class SaldiService {
 
     fun getMutatieLijstOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
         val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
+        logger.info("rekeningen: ${rekeningenLijst.map{it.naam}.joinToString(", ")}")
         val betalingen = betalingRepository.findAllByGebruikerOpDatum(gebruiker, datum)
         val saldoLijst = rekeningenLijst.map { rekening ->
             val mutatie =
@@ -104,7 +104,7 @@ class SaldiService {
                 if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
     }
 
-    fun getSaldiOpDatum(openingsSaldi: Saldi, mutatieLijst: Saldi): Saldi {
+    fun getBalansSaldiOpDatum(openingsSaldi: Saldi, mutatieLijst: Saldi): Saldi {
         val saldi = openingsSaldi.saldi.map { saldo: Saldo ->
             val mutatie: BigDecimal? = mutatieLijst.saldi.find { it.rekening.naam == saldo.rekening.naam }?.bedrag
             saldo.fullCopy(
@@ -125,37 +125,35 @@ class SaldiService {
         return saldiRepository.save(Saldi(0, gebruiker, eersteBetalingsDatum, saldoLijst))
     }
 
-    fun saveAll(gebruiker: Gebruiker, saldiDtoLijst: List<SaldiDTO>): List<SaldiDTO> {
-        return saldiDtoLijst.map { saldiDTO: SaldiDTO ->
-            val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.BASIC_ISO_DATE)
-            val saldiOpt = saldiRepository.findSaldiGebruikerEnDatum(gebruiker, datum)
-            val saldi = if (saldiOpt.isPresent) {
-                logger.info("Saldi wordt overschreven: ${saldiOpt.get().datum} met id ${saldiOpt.get().id} voor ${gebruiker.bijnaam}")
-                saldiOpt.get().saldi.forEach { saldoRepository.delete(it) }
-                saldiRepository.save(
-                    saldiOpt.get().fullCopy(
-                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it, saldiOpt.get()) },
-                    )
+    fun save(gebruiker: Gebruiker, saldiDTO: SaldiDTO): SaldiDTO {
+        val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.BASIC_ISO_DATE).withDayOfMonth(1)
+        val saldiOpt = saldiRepository.findSaldiGebruikerEnDatum(gebruiker, datum)
+        val saldi = if (saldiOpt.isPresent) {
+            logger.info("Saldi wordt overschreven: ${saldiOpt.get().datum} met id ${saldiOpt.get().id} voor ${gebruiker.bijnaam}")
+            saldiOpt.get().saldi.forEach { saldoRepository.delete(it) }
+            saldiRepository.save(
+                saldiOpt.get().fullCopy(
+                    saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it, saldiOpt.get()) },
                 )
-            } else {
-                saldiRepository.save(
-                    Saldi(
-                        gebruiker = gebruiker,
-                        datum = datum,
-                        saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it) },
-                    )
+            )
+        } else {
+            saldiRepository.save(
+                Saldi(
+                    gebruiker = gebruiker,
+                    datum = datum,
+                    saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it) },
                 )
-            }
-            logger.info("Opslaan saldi ${saldi.datum} voor ${gebruiker.bijnaam}")
-            saldi.toDTO()
+            )
         }
+        logger.info("Opslaan saldi ${saldi.datum} voor ${gebruiker.bijnaam}")
+        return saldi.toDTO()
     }
 
     fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, saldi: Saldi? = null): Saldo {
-        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekening.naam)
+        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekeningNaam)
         if (rekening.isEmpty) {
-            logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekening} voor ${gebruiker.bijnaam}.")
-            throw throw IllegalArgumentException("Rekening ${saldoDTO.rekening} bestaat niet voor ${gebruiker.bijnaam}")
+            logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekeningNaam} voor ${gebruiker.bijnaam}.")
+            throw throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
         }
         val bedrag = saldoDTO.bedrag
         return if (saldi == null) {
@@ -168,11 +166,4 @@ class SaldiService {
             saldo[0].fullCopy(bedrag = bedrag)
         }
     }
-
-    data class StandDTO(
-        val openingsBalans: SaldiDTO,
-        val mutatiesOpDatum: SaldiDTO,
-        val balansOpDatum: SaldiDTO,
-        val resultaatOpDatum: SaldiDTO
-    )
 }

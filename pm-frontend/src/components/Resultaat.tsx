@@ -46,7 +46,7 @@ export default function Saldi(props: SaldiProps) {
           <TableBody>
             {props.saldi.saldi.map((saldo) => (
               <TableRow>
-                  <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekening.naam}</TableCell>
+                  <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekeningNaam}</TableCell>
                   <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(saldo.bedrag)}</TableCell>
               </TableRow>
             ))}

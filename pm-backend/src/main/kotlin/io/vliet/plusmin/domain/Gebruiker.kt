@@ -59,8 +59,7 @@ class Gebruiker(
         roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger,
         rekeningen: List<Rekening> = this.rekeningen,
-        betalingsSoorten: MutableSet<BetalingsSoort> = this.betalingsSoorten
-    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen, betalingsSoorten)
+    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen)
 
     /**
      * Een Data Transfer Object voor de Gebruiker
@@ -78,7 +77,7 @@ class Gebruiker(
         val roles: List<String> = emptyList(),
         val vrijwilligerBijnaam: String = "",
         val rekeningen: List<Rekening> = emptyList(),
-        val betalingsSoorten: List<String> = emptyList(),
+        val betalingsSoorten: Set<String> = emptyList(),
     )
 
     fun toDTO(): GebruikerDTO {
@@ -89,7 +88,7 @@ class Gebruiker(
             this.roles.map { it.toString() },
             this.vrijwilliger?.bijnaam ?: "",
             this.rekeningen.map { it },
-            this.betalingsSoorten.map { it.toString() }
+//            this.betalingsSoorten.map { it.toString() }.toSet()
         )
     }
 

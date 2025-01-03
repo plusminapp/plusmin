@@ -1,51 +1,33 @@
-[
-  {
-    "datum": "20250101",
-    "saldi": [
-      {
-        "rekening": "ASN betaalrekening",
-        "bedrag": "100"
-      },
-      {
-        "rekening": "VISA creditcard",
-        "bedrag": "-325"
-      },
-      {
-        "rekening": "BR Belalstingdienst",
-        "bedrag": "-2000"
-      },
-      {
-        "rekening": "BR Greenchoice",
-        "bedrag": "-750"
-      },
-      {
-        "rekening": "niet besteedbaar",
-        "bedrag": "-150"
-      },
-      {
-        "rekening": "Inkomsten",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "Vaste lasten",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "Andere uitgave",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "ASN spaarrekening",
-        "bedrag": "475"
-      },
-      {
-        "rekening": "Contant",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "Boodschappen",
-        "bedrag": "0"
-      }
-    ]
-  }
-]
+{
+  "datum": "20250101",
+  "saldi": [
+    {
+      "rekeningNaam": "ASN betaalrekening",
+      "bedrag": "100"
+    },
+    {
+      "rekeningNaam": "VISA creditcard",
+      "bedrag": "-325"
+    },
+    {
+      "rekeningNaam": "BR Belastingdienst",
+      "bedrag": "-2000"
+    },
+    {
+      "rekeningNaam": "BR Greenchoice",
+      "bedrag": "-750"
+    },
+    {
+      "rekeningNaam": "Reservering",
+      "bedrag": "-150"
+    },
+    {
+      "rekeningNaam": "ASN spaarrekening",
+      "bedrag": "475"
+    },
+    {
+      "rekeningNaam": "Contant",
+      "bedrag": "0"
+    }
+  ]
+}

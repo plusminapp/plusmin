@@ -1,19 +1,17 @@
-[
-  {
-    "datum": "20250101",
-    "saldi": [
-      {
-        "rekening": "ASN betaalrekening",
-        "bedrag": "100"
-      },
-      {
-        "rekening": "BR Belalstingdienst",
-        "bedrag": "-2000"
-      },
-      {
-        "rekening": "BR Greenchoice",
-        "bedrag": "-750"
-      }
-    ]
-  }
-]
+{
+  "datum": "20250101",
+  "saldi": [
+    {
+      "rekeningNaam": "ASN betaalrekening",
+      "bedrag": "100"
+    },
+    {
+      "rekeningNaam": "BR Belastingdienst",
+      "bedrag": "-2000"
+    },
+    {
+      "rekeningNaam": "BR Greenchoice",
+      "bedrag": "-750"
+    }
+  ]
+}

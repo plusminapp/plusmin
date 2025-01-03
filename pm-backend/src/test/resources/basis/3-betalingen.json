@@ -58,7 +58,7 @@
     "bedrag": 125,
     "saldo_achteraf": null,
     "omschrijving": "Belastingdienst",
-    "betalingsSoort": "AFLOSSING_LENING",
+    "betalingsSoort": "UITGAVEN",
     "bron": "Beschikbaar geld",
     "bestemming": "Uitgaven"
   },
@@ -67,7 +67,7 @@
     "bedrag": 150,
     "saldo_achteraf": null,
     "omschrijving": "Aflossen VISA creditcard",
-    "betalingsSoort": "AFLOSSING_CREDICARD",
+    "betalingsSoort": "UITGAVEN",
     "bron": "Beschikbaar geld",
     "bestemming": "Uitgaven"
   },
@@ -76,7 +76,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas voor Jan",
-    "betalingsSoort": "BESTEDING_RESERVERING",
+    "betalingsSoort": "UITGAVEN",
     "bron": "Beschikbaar geld",
     "bestemming": "Uitgaven"
   }

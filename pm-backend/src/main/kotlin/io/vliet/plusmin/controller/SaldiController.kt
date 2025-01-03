@@ -19,8 +19,6 @@ import java.time.format.DateTimeFormatter
 @RestController
 @RequestMapping("/saldi")
 class SaldiController {
-    @Autowired
-    lateinit var saldiRepository: SaldiRepository
 
     @Autowired
     lateinit var saldiService: SaldiService
@@ -30,54 +28,12 @@ class SaldiController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    // Iedereen mag de eigen saldi opvragen
-    @Operation(summary = "GET de eigen saldi op basis van de JWT")
-    @GetMapping("/")
-    fun getSaldi(): List<Saldi> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET SaldiController.findSaldi() voor gebruiker ${gebruiker.email}.")
-        return saldiRepository.findSaldiVoorGebruiker(gebruiker)
-    }
-
-    @Operation(summary = "GET de eigen laatste openingssaldi (dus huidige periode) op basis van de JWT")
-    @GetMapping("/opening")
-    fun getOpeningsSaldi(): ResponseEntity<Any> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET SaldiController.getOpeningsSaldi() voor gebruiker ${gebruiker.email}.")
-        val openingsSaldi = saldiService.getOpeningSaldi(gebruiker)
-        return ResponseEntity.ok(toSaldiResponse(openingsSaldi))
-    }
-
-//    @Operation(summary = "GET de eigen saldi op datum op basis van de JWT")
-//    @GetMapping("/{datum}")
-//    fun getSaldiOpDatum(@PathVariable("datum") datum: String): SaldiResponse {
-//        val gebruiker = gebruikerController.getJwtGebruiker()
-//        logger.info("GET SaldiController.getSaldiOpDatum() voor gebruiker ${gebruiker.email}.")
-//        return toSaldiResponse(
-//            saldiService.getSaldiOpDatum(
-//                gebruiker,
-//                LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
-//            )
-//        )
-//    }
-
-    @Operation(summary = "GET de eigen stand op datum op basis van de JWT")
-    @GetMapping("/stand/{datum}")
-    fun getStandOpDatum(@PathVariable("datum") datum: String): SaldiService.StandDTO {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        logger.info("GET SaldiController.getStandOpDatum() voor gebruiker ${gebruiker.email}.")
-        return saldiService.getStandOpDatum(
-                gebruiker,
-                LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
-            )
-    }
-
-    @Operation(summary = "GET de eigen stand op datum op basis van de JWT")
+    @Operation(summary = "GET de stand voor hulpvrager op datum")
     @GetMapping("/hulpvrager/{hulpvragerId}/stand/{datum}")
     fun getStandOpDatumVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("datum") datum: String,
-    ): SaldiService.StandDTO {
+    ): StandDTO {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return saldiService.getStandOpDatum(
@@ -86,19 +42,21 @@ class SaldiController {
             )
     }
 
-    fun toSaldiResponse(saldi: Saldi): SaldiResponse {
-        val saldoResponseLijst = saldi.saldi.map { SaldoResponse(it.rekening.toDTO(), it.bedrag) }
-        return SaldiResponse(saldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE), saldoResponseLijst)
+    @Operation(summary = "PUT de saldi voor hulpvrager")
+    @PutMapping("/hulpvrager/{hulpvragerId}")
+    fun upsertSaldiVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @Valid @RequestBody saldiDTO: SaldiDTO): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(saldiService.save(hulpvrager, saldiDTO))
     }
 
-    data class SaldiResponse(
-        val datum: String,
-        val saldi: List<SaldoResponse>
-    )
-
-    data class SaldoResponse(
-        val rekening: Rekening.RekeningDTO,
-        val bedrag: BigDecimal
+    data class StandDTO(
+        val openingsBalans: SaldiDTO,
+        val mutatiesOpDatum: SaldiDTO,
+        val balansOpDatum: SaldiDTO,
+        val resultaatOpDatum: SaldiDTO
     )
 }
 
