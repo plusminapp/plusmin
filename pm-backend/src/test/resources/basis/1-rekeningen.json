@@ -16,8 +16,8 @@
   {
     "rekeningSoort": "CONTANT",
     "nummer": "",
-    "naam": "contant",
-    "afkorting": "cnt",
+    "naam": "Beschikbaar geld",
+    "afkorting": "bg",
     "sortOrder": 3
   }
 ]

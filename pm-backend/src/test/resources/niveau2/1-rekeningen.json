@@ -30,28 +30,28 @@
   {
     "rekeningSoort": "RESERVERING",
     "nummer": "",
-    "naam": "reservering",
+    "naam": "Reservering",
     "afkorting": "res",
     "sortOrder": 5
   },
   {
     "rekeningSoort": "INKOMSTEN",
     "nummer": "",
-    "naam": "inkomsten",
+    "naam": "Inkomsten",
     "afkorting": "ink",
     "sortOrder": 10
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
-    "naam": "vaste lasten",
+    "naam": "Vaste lasten",
     "afkorting": "vl",
     "sortOrder": 12
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
-    "naam": "andere uitgave",
+    "naam": "Andere uitgave",
     "afkorting": "au",
     "sortOrder": 13
   },
@@ -65,14 +65,14 @@
   {
     "rekeningSoort": "CONTANT",
     "nummer": "",
-    "naam": "contant",
+    "naam": "Contant",
     "afkorting": "cnt",
     "sortOrder": 3
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
-    "naam": "boodschappen",
+    "naam": "Boodschappen",
     "afkorting": "boo",
     "sortOrder": 11
   }

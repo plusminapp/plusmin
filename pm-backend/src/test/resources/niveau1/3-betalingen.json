@@ -1,0 +1,83 @@
+[
+  {
+    "boekingsdatum": "20250101",
+    "bedrag": 1000,
+    "saldo_achteraf": null,
+    "omschrijving": "Salaris",
+    "betalingsSoort": "INKOMSTEN",
+    "bron": "Inkomsten",
+    "bestemming": "ASN betaalrekening"
+  },
+  {
+    "boekingsdatum": "20250101",
+    "bedrag": 100,
+    "saldo_achteraf": null,
+    "omschrijving": "Bonus",
+    "betalingsSoort": "INKOMSTEN",
+    "bron": "Inkomsten",
+    "bestemming": "Contant"
+  },
+  {
+    "boekingsdatum": "20250102",
+    "bedrag": 25,
+    "saldo_achteraf": null,
+    "omschrijving": "Jumbo",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "20250102",
+    "bedrag": 15,
+    "saldo_achteraf": null,
+    "omschrijving": "Ramenwasser",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "Contant",
+    "bestemming": "Andere uitgave"
+  },
+  {
+    "boekingsdatum": "20250102",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Greenchoice",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "20250102",
+    "bedrag": 10,
+    "saldo_achteraf": null,
+    "omschrijving": "Vitens",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "20250103",
+    "bedrag": 125,
+    "saldo_achteraf": null,
+    "omschrijving": "Belastingdienst",
+    "betalingsSoort": "AFLOSSING_LENING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "BR Belastingdienst"
+  },
+  {
+    "boekingsdatum": "20250103",
+    "bedrag": 150,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossen VISA creditcard",
+    "betalingsSoort": "AFLOSSING_CREDICARD",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Andere uitgaven"
+  },
+  {
+    "boekingsdatum": "20250103",
+    "bedrag": 50,
+    "saldo_achteraf": null,
+    "omschrijving": "Winterjas voor Jan",
+    "betalingsSoort": "BESTEDING_RESERVERING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Andere uitgaven"
+  }
+]

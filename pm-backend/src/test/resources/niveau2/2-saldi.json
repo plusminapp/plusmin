@@ -1,49 +1,49 @@
 [
   {
-    "datum": "20241201",
+    "datum": "20250101",
     "saldi": [
       {
         "rekening": "ASN betaalrekening",
-        "bedrag": "0"
+        "bedrag": "100"
       },
       {
         "rekening": "VISA creditcard",
-        "bedrag": "0"
+        "bedrag": "-325"
       },
       {
         "rekening": "BR Belalstingdienst",
-        "bedrag": "0"
+        "bedrag": "-2000"
       },
       {
         "rekening": "BR Greenchoice",
+        "bedrag": "-750"
+      },
+      {
+        "rekening": "niet besteedbaar",
+        "bedrag": "-150"
+      },
+      {
+        "rekening": "Inkomsten",
         "bedrag": "0"
       },
       {
-        "rekening": "reservering",
+        "rekening": "Vaste lasten",
         "bedrag": "0"
       },
       {
-        "rekening": "inkomsten",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "vaste lasten",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "andere uitgave",
+        "rekening": "Andere uitgave",
         "bedrag": "0"
       },
       {
         "rekening": "ASN spaarrekening",
+        "bedrag": "475"
+      },
+      {
+        "rekening": "Contant",
         "bedrag": "0"
       },
       {
-        "rekening": "contant",
-        "bedrag": "0"
-      },
-      {
-        "rekening": "boodschappen",
+        "rekening": "Boodschappen",
         "bedrag": "0"
       }
     ]
