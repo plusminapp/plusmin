@@ -13,19 +13,26 @@ export enum RekeningSoort {
     uitgaven = 'UITGAVEN',
     betaalrekening = 'BETAALREKENING',
     spaarrekening = 'SPAARREKENING',
-    contant_geld = 'CONTANT_GELD',
+    contant = 'CONTANT',
     creditcard = 'CREDITCARD',
     lening = 'LENING',
     reservering = 'RESERVERING'
-    }
+}
 
 export const balansRekeningSoorten: RekeningSoort[] = [
-    RekeningSoort.betaalrekening, 
-    RekeningSoort.spaarrekening, 
-    RekeningSoort.contant_geld, 
-    RekeningSoort.creditcard, 
+    RekeningSoort.betaalrekening,
+    RekeningSoort.spaarrekening,
+    RekeningSoort.contant,
+    RekeningSoort.creditcard,
     RekeningSoort.lening,
     RekeningSoort.reservering];
 export const resultaatRekeningSoorten = [
-    RekeningSoort.inkomsten, 
+    RekeningSoort.inkomsten,
     RekeningSoort.uitgaven];
+
+export const betaalmethodeRekeningSoorten = [
+    RekeningSoort.betaalrekening,
+    RekeningSoort.contant,
+    RekeningSoort.creditcard,
+
+]

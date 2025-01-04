@@ -118,7 +118,7 @@ class SaldiService {
         val eersteBetalingsDatum = betalingRepository
             .findAllByGebruiker(gebruiker)
             .sortedBy { it.boekingsdatum }
-            .getOrNull(0)?.boekingsdatum ?: LocalDate.now()
+            .getOrNull(0)?.boekingsdatum?.withDayOfMonth(1) ?: LocalDate.now().withDayOfMonth(1)
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         val saldoLijst = rekeningen.map { Saldo(0, it, BigDecimal(0)) }
         logger.info("NulSaldi gecreeerd voor ${gebruiker} op ${eersteBetalingsDatum}: ${saldoLijst.map { it.rekening.naam }}")

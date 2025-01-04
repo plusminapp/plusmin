@@ -33,7 +33,6 @@ class GebruikerService {
                     bijnaam = gebruikerDTO.bijnaam,
                     roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                     vrijwilliger = vrijwilliger,
-                    betalingsSoorten = gebruikerDTO.betalingsSoorten.map { enumValueOf<Betaling.BetalingsSoort>(it) }.toMutableSet(),
                 )
             } else (
                 Gebruiker(
@@ -41,7 +40,6 @@ class GebruikerService {
                     bijnaam = gebruikerDTO.bijnaam,
                     roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                     vrijwilliger = vrijwilliger,
-                    betalingsSoorten = gebruikerDTO.betalingsSoorten.map { enumValueOf<Betaling.BetalingsSoort>(it) }.toMutableSet(),
                 )
             )
 

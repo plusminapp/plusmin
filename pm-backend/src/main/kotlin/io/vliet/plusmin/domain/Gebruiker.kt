@@ -5,7 +5,6 @@ import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import io.vliet.plusmin.domain.Betaling.BetalingsSoort
 
 @Entity
 @Table(name = "gebruiker")
@@ -30,9 +29,6 @@ class Gebruiker(
     val vrijwilliger: Gebruiker? = null,
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
     var rekeningen: List<Rekening> = emptyList(),
-    @ElementCollection(targetClass = BetalingsSoort::class, fetch = FetchType.EAGER)
-    @Enumerated(EnumType.STRING)
-    val betalingsSoorten: MutableSet<BetalingsSoort> = mutableSetOf(),
     @JsonIgnore
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
     var saldi: List<Saldi> = emptyList()
@@ -77,7 +73,6 @@ class Gebruiker(
         val roles: List<String> = emptyList(),
         val vrijwilligerBijnaam: String = "",
         val rekeningen: List<Rekening> = emptyList(),
-        val betalingsSoorten: Set<String> = emptyList(),
     )
 
     fun toDTO(): GebruikerDTO {

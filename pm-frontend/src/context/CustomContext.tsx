@@ -14,7 +14,8 @@ interface CustomContextType {
     setRekeningen: (rekeningen: Array<Rekening>) => void;
     betalingsSoorten: Array<BetalingsSoort>;
     setBetalingsSoorten: (betalingsSoorten: Array<BetalingsSoort>) => void;
-
+    betaalMethoden: Array<Rekening>;
+    setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -38,6 +39,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
+    const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
 
     return (
         <CustomContext.Provider value={{
@@ -45,7 +47,8 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             actieveHulpvrager, setActieveHulpvrager,
             hulpvragers, setHulpvragers,
             rekeningen, setRekeningen,
-            betalingsSoorten, setBetalingsSoorten}}>
+            betalingsSoorten, setBetalingsSoorten,
+            betaalMethoden, setBetaalMethoden}}>
             {children}
         </CustomContext.Provider>
     );

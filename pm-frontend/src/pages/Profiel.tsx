@@ -9,7 +9,7 @@ import { useCustomContext } from '../context/CustomContext';
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betalingsSoorten } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betalingsSoorten, betaalMethoden } = useCustomContext();
 
 
   return (
@@ -37,10 +37,10 @@ const Profiel: React.FC = () => {
           }
           {rekeningen &&
             <>
-              <Typography sx={{ my: '25px' }}>
+              <Typography variant='h4' sx={{ my: '25px' }}>
                 De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
-                <br />
-                De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+              </Typography>
+              <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
               </Typography>
               {rekeningen
                 .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
@@ -57,6 +57,16 @@ const Profiel: React.FC = () => {
               {betalingsSoorten
                 .map(b =>
                   <Typography sx={{ my: '3px' }}>{b.toString()}</Typography>
+                )}
+            </>}
+          {betaalMethoden &&
+            <>
+              <Typography sx={{ my: '25px' }}>
+                De betaalMethoden van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+              </Typography>
+              {betaalMethoden
+                .map(b =>
+                  <Typography sx={{ my: '3px' }}>{b.naam}</Typography>
                 )}
             </>}
 

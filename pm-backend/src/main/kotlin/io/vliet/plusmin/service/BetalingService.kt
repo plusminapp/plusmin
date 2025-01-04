@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class BetalingService {
@@ -34,7 +35,9 @@ class BetalingService {
                 betalingList[0]
             } else {
                 val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
+                if (bron.isEmpty) throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
                 val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
+                if (bestemming.isEmpty) throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
                 logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
                 Betaling(
                     gebruiker = gebruiker,

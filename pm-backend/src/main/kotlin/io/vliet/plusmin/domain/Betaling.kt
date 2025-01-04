@@ -69,16 +69,22 @@ class Betaling(
         )
     }
 
-    enum class BetalingsSoort {
-        INKOMSTEN, UITGAVEN, AFLOSSEN_LENING, AFLOSSEN_CREDICARD,
-        BESTEDEN_RESERVERING, OPNEMEN_SPAARGELD, STORTEN_SPAARGELD, OPNEMEN_CONTANT_GELD
-    }
+//    enum class BetalingsSoort {
+//        INKOMSTEN, UITGAVEN, AFLOSSEN_LENING, AFLOSSEN_CREDICARD,
+//        BESTEDEN_RESERVERING, OPNEMEN_SPAARGELD, STORTEN_SPAARGELD, OPNEMEN_CONTANT_GELD
+//    }
 
-    fun rekeningen2BetalingsSorten(rekeningen: List<Rekening>): Set<BetalingsSoort> {
-        val blaat = rekeningen.map { rekening ->
-            when (rekening.rekeningSoort) {
-                Rekening.RekeningSoort.INKOMSTEN -> BetalingsSoort.
-            }
-        }
+    enum class BetalingsSoort(
+        val omschrijving: String
+    ) {
+        INKOMSTEN("Inkomsten"),
+        UITGAVEN("Uitgaven"),
+        AANGAAN_LENING("aangaan_lening"),
+        AFLOSSEN_LENING("aflossen_lening"),
+        AFLOSSEN_CREDICARD("aflossen_credicard"),
+        BESTEDEN_RESERVERING("besteden_reservering"),
+        OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
+        STORTEN_SPAARREKENING("storten_spaarrekening"),
+        OPNEMEN_CONTANT_GELD("opnemen_contant_geld")
     }
 }

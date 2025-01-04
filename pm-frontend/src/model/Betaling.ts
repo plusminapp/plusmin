@@ -17,10 +17,10 @@ export enum BetalingsSoort {
     inkomsten = 'INKOMSTEN',
     uitgaven = 'UITGAVEN',
     aflossen_lening = 'AFLOSSEN_LENING',
-    aflossen_creditcard = 'AFLOSSEN_CREDICARD',
+    aflossen_creditcard = 'AFLOSSEN_CREDITCARD',
     besteden_reservering = 'BESTEDEN_RESERVERING',
-    opnemen_spaargeld = 'OPNEMEN_SPAARGELD',
-    storten_spaargeld = 'STORTEN_SPAARGELD',
+    opnemen_spaargeld = 'OPNEMEN_SPAARREKENING',
+    storten_spaargeld = 'STORTEN_SPAARREKENING',
     opnemen_contant_geld = 'OPNEMEN_CONTANT_GELD',
   }
 

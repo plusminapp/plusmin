@@ -23,10 +23,7 @@ export default function Saldi(props: SaldiProps) {
 
   const calculateResult = (): number => {
     const saldi: Saldo[] = props.saldi.saldi
-    console.log(saldi)
-    const blaat: number = saldi.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
-    console.log(blaat)
-    return blaat
+    return saldi.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
   }
 
   return (

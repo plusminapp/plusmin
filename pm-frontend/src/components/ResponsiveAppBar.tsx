@@ -17,6 +17,8 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
+import { betaalmethodeRekeningSoorten, Rekening } from '../model/Rekening';
+import { BetalingsSoort } from '../model/Betaling';
 
 const pages = ['Stand', 'Inkomsten/uitgaven'];
 
@@ -31,10 +33,10 @@ function ResponsiveAppBar() {
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
 
-    const { gebruiker, setGebruiker, 
-        hulpvragers, setHulpvragers, 
-        actieveHulpvrager, setActieveHulpvrager, 
-        setRekeningen, setBetalingsSoorten} = useCustomContext();
+    const { gebruiker, setGebruiker,
+        hulpvragers, setHulpvragers,
+        actieveHulpvrager, setActieveHulpvrager,
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -50,13 +52,33 @@ function ResponsiveAppBar() {
     const handleCloseGebruikerMenu = () => {
         setAnchorElGebruiker(null);
     };
-    
+
+    const transformRekeningen2BetalingsSoorten = (rekeningen: Rekening[]) => {
+        const betalingsSoortValues = Object.values(BetalingsSoort);
+        console.log(betalingsSoortValues)
+        const rekeningSoortValues = rekeningen.map((rekening: Rekening) => rekening.rekeningSoort.toLowerCase())
+        console.log(rekeningSoortValues)
+        const filteredBetalingsSoorten = rekeningSoortValues.flatMap((rekeningSoort) =>
+            betalingsSoortValues.filter((betalingsSoort) =>
+                betalingsSoort.toLowerCase().includes(rekeningSoort.toLowerCase())
+            )
+        );
+        return filteredBetalingsSoorten.filter((value, index, self) => self.indexOf(value) === index); //deduplication ...
+    }
+
+    const transformRekeningen2Betaalmethoden = (rekeningen: Rekening[]) => {
+        return rekeningen.filter((rekening) => 
+            betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)
+        )
+    }
+
     const handleActieveHulpvrager = (id: number) => {
-        var ahv = hulpvragers.find(hv => hv.id === id)
+        let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker
         setActieveHulpvrager(ahv);
         setRekeningen(ahv!.rekeningen)
-        setBetalingsSoorten(ahv!.betalingsSoorten)
+        setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
+        setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setAnchorElGebruiker(null);
         handleNavigation("/profiel")
     };
@@ -75,13 +97,15 @@ function ResponsiveAppBar() {
         if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
             setActieveHulpvrager(data.hulpvragers[0])
             setRekeningen(data.hulpvragers[0].rekeningen)
-            setBetalingsSoorten(data.hulpvragers[0].betalingsSoorten)
+            setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.hulpvragers[0].rekeningen))
+            setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
-            setBetalingsSoorten(data.gebruiker.betalingsSoorten)
+            setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.gebruiker.rekeningen))
+            setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
         }
-    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager])
+    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden])
 
     useEffect(() => {
         fetchGebruikerMetHulpvragers();
