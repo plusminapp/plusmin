@@ -35,7 +35,6 @@ class SaldiService {
         val openingSaldi = getOpeningSaldi(gebruiker)
         val mutatieLijst = getMutatieLijstOpDatum(gebruiker, datum)
         val balansSaldiOpDatum = getBalansSaldiOpDatum(openingSaldi, mutatieLijst)
-        val resultaatSaldiOpDatum = getBalansSaldiOpDatum(openingSaldi, mutatieLijst)
 
         val openingsBalans =
             openingSaldi.saldi
@@ -86,7 +85,7 @@ class SaldiService {
 
     fun getMutatieLijstOpDatum(gebruiker: Gebruiker, datum: LocalDate): Saldi {
         val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        logger.info("rekeningen: ${rekeningenLijst.map{it.naam}.joinToString(", ")}")
+        logger.info("rekeningen: ${rekeningenLijst.map { it.naam }.joinToString(", ")}")
         val betalingen = betalingRepository.findAllByGebruikerOpDatum(gebruiker, datum)
         val saldoLijst = rekeningenLijst.map { rekening ->
             val mutatie =
@@ -161,9 +160,11 @@ class SaldiService {
         } else {
             val saldo = saldi.saldi.filter { it.rekening.naam == rekening.get().naam }
             if (saldo.size == 0) {
-                logger.info("saldi: ${saldi.id} ${rekening.get().naam}")
+                logger.info("saldi: ${saldi.id} heeft geen saldo voor ${rekening.get().naam}; wordt met bedrag 0 aangemaakt.")
+                Saldo(0, rekening.get(), BigDecimal(0))
+            } else {
+                saldo[0].fullCopy(bedrag = bedrag)
             }
-            saldo[0].fullCopy(bedrag = bedrag)
         }
     }
 }

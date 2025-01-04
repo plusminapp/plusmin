@@ -6,6 +6,10 @@
       "bedrag": "100"
     },
     {
+      "rekeningNaam": "Contant",
+      "bedrag": "0"
+    },
+    {
       "rekeningNaam": "BR Belastingdienst",
       "bedrag": "-2000"
     },
