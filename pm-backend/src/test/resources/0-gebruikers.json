@@ -19,22 +19,18 @@
     "email": "hulpvrager-basis@vliet.io",
     "bijnaam": "Hulpvrager Basis",
     "vrijwilligerEmail": "ruud@vliet.io",
-    "roles": ["ROLE_HULPVRAGER"],
-    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN"]
+    "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "hulpvrager-niveau-1@vliet.io",
     "bijnaam": "Hulpvrager Niveau 1",
     "vrijwilligerEmail": "ruud@vliet.io",
-    "roles": ["ROLE_HULPVRAGER"],
-    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN"]
+    "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "hulpvrager-niveau-2@vliet.io",
     "bijnaam": "Hulpvrager Niveau 2",
     "vrijwilligerEmail": "ruud@vliet.io",
-    "roles": ["ROLE_HULPVRAGER"],
-    "betalingsSoorten": ["INKOMSTEN", "UITGAVEN", "AFLOSSEN_LENING", "AFLOSSEN_CREDICARD",
-      "BESTEDEN_RESERVERING", "OPNEMEN_SPAARGELD", "STORTEN_SPAARGELD", "OPNEMEN_CONTANT_GELD"]
+    "roles": ["ROLE_HULPVRAGER"]
   }
 ]

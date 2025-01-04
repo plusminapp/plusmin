@@ -12,7 +12,7 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import KasIcon from "./Kas";
 
 const ICONS = [LoginIcon, LogoutIcon, TaskOutlinedIcon, CreditCardIcon, UpdateOutlinedIcon, SavingsOutlinedIcon, SavingsOutlinedIcon, KasIcon];
-const Legenda = ["Inkomen", "Uitgaven", "Aflossen betalingsregeling", "Aflossen creditcard", "Besteding reservering", "Opname spaargeld", "Storten spaargeld", "Opname contant geld"];
+const Legenda = ["Inkomen", "Uitgaven", "Aflossen betalingsregeling", "Aflossen creditcard", "Besteding reservering", "Opname spaarrekening", "Storten spaarrekening", "Opname contant geld"];
 const Voorbeelden = [
   "Salaris, uitkering, AOW, ...",
   "Voedsel, huur, gemeente belastingen, enrgie, kleding, ...",

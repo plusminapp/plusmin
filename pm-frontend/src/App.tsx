@@ -7,7 +7,7 @@ import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
 import InkomstenUitgaven from './pages/InkomstenUitgaven';
 import Lening from './pages/Lening';
-import Header from './components/ResponsiveAppBar';
+import Header from './components/Header';
 import Budget from './pages/Budget';
 import LoginPagina from './pages/LoginPagina';
 

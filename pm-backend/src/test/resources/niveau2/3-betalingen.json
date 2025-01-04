@@ -85,7 +85,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas voor Jan",
-    "betalingsSoort": "OPNEMEN_SPAARGELD",
+    "betalingsSoort": "OPNEMEN_SPAARREKENING",
     "bron": "ASN spaarrekening",
     "bestemming": "ASN betaalrekening"
   },
@@ -94,7 +94,7 @@
     "bedrag": 50,
     "saldo_achteraf": null,
     "omschrijving": "Winterjas met creditcard betaald",
-    "betalingsSoort": "STORTEN_SPAARGELD",
+    "betalingsSoort": "STORTEN_SPAARREKENING",
     "bron": "ASN betaalrekening",
     "bestemming": "ASN spaarrekening"
   }

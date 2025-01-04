@@ -22,7 +22,7 @@ import { BetalingsSoort } from '../model/Betaling';
 
 const pages = ['Stand', 'Inkomsten/uitgaven'];
 
-function ResponsiveAppBar() {
+function Header() {
     const navigate = useNavigate();
     const handleNavigation = (page: string) => {
         setAnchorElNav(null);
@@ -55,9 +55,7 @@ function ResponsiveAppBar() {
 
     const transformRekeningen2BetalingsSoorten = (rekeningen: Rekening[]) => {
         const betalingsSoortValues = Object.values(BetalingsSoort);
-        console.log(betalingsSoortValues)
         const rekeningSoortValues = rekeningen.map((rekening: Rekening) => rekening.rekeningSoort.toLowerCase())
-        console.log(rekeningSoortValues)
         const filteredBetalingsSoorten = rekeningSoortValues.flatMap((rekeningSoort) =>
             betalingsSoortValues.filter((betalingsSoort) =>
                 betalingsSoort.toLowerCase().includes(rekeningSoort.toLowerCase())
@@ -80,7 +78,6 @@ function ResponsiveAppBar() {
         setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setAnchorElGebruiker(null);
-        handleNavigation("/profiel")
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
@@ -136,6 +133,7 @@ function ResponsiveAppBar() {
 
                         {/* profiel & settings */}
                         <Box sx={{ ml: 'auto', display: 'flex' }}>
+                            <Typography sx={{my: 'auto', mr: {xs:'3px', md: '10px'}}}>{actieveHulpvrager?.bijnaam}</Typography>
                             <Box sx={{ flexDirection: 'row' }}>
                                 <Tooltip title="Open settings">
                                     <IconButton onClick={handleOpenGebruikerMenu} sx={{ p: 0 }}>
@@ -223,4 +221,4 @@ function ResponsiveAppBar() {
         </AppBar>
     );
 }
-export default ResponsiveAppBar;
+export default Header;

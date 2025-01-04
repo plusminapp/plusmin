@@ -26,9 +26,17 @@ export const balansRekeningSoorten: RekeningSoort[] = [
     RekeningSoort.creditcard,
     RekeningSoort.lening,
     RekeningSoort.reservering];
+
 export const resultaatRekeningSoorten = [
     RekeningSoort.inkomsten,
     RekeningSoort.uitgaven];
+
+export const aflossenRekeningSoorten = [
+    RekeningSoort.creditcard,
+    RekeningSoort.lening];
+
+export const reserverenRekeningSoorten = [
+    RekeningSoort.reservering];
 
 export const betaalmethodeRekeningSoorten = [
     RekeningSoort.betaalrekening,
