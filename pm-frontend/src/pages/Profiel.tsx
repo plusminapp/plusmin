@@ -9,7 +9,7 @@ import { useCustomContext } from '../context/CustomContext';
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betalingsSoorten, betaalMethoden } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betalingsSoorten, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
 
 
   return (
@@ -69,7 +69,13 @@ const Profiel: React.FC = () => {
                   <Typography sx={{ my: '3px' }}>{b.naam}</Typography>
                 )}
             </>}
-
+          {betalingsSoorten2Rekeningen &&
+            <>
+              <Typography sx={{ my: '25px' }}>
+                De betalingsSoorten2Rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+              </Typography>
+                  <Typography sx={{ my: '3px' }}>{JSON.stringify(Array.from(betalingsSoorten2Rekeningen.entries()))}</Typography>
+            </>}
         </>
       }
     </Container>

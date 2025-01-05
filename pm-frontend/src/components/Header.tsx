@@ -17,8 +17,8 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
-import { betaalmethodeRekeningSoorten, Rekening } from '../model/Rekening';
-import { BetalingsSoort } from '../model/Betaling';
+import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
+import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 
 const pages = ['Stand', 'Inkomsten/uitgaven'];
 
@@ -36,7 +36,7 @@ function Header() {
     const { gebruiker, setGebruiker,
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
-        setRekeningen, setBetalingsSoorten, setBetaalMethoden } = useCustomContext();
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -65,9 +65,29 @@ function Header() {
     }
 
     const transformRekeningen2Betaalmethoden = (rekeningen: Rekening[]) => {
-        return rekeningen.filter((rekening) => 
+        return rekeningen.filter((rekening) =>
             betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)
         )
+    }
+
+    const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
+        const result = new Map<BetalingsSoort, RekeningPaar>();
+        betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
+            const debetRekeningen = rekeningen.filter(rekening =>
+                rekeningSoortPaar.debet.includes(rekening.rekeningSoort)
+            );
+            const creditRekeningen = rekeningen.filter(rekening =>
+                rekeningSoortPaar.credit.includes(rekening.rekeningSoort)
+            );
+            if (debetRekeningen.length > 0 && creditRekeningen.length > 0) {
+                result.set(betalingsSoort, {
+                    debet: debetRekeningen,
+                    credit: creditRekeningen
+                });
+            }
+        });
+        console.log(`result: ${result.size} ${JSON.stringify(result)}`)
+        return result;
     }
 
     const handleActieveHulpvrager = (id: number) => {
@@ -77,7 +97,9 @@ function Header() {
         setRekeningen(ahv!.rekeningen)
         setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
+        setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
         setAnchorElGebruiker(null);
+        navigate('/profiel')
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
@@ -96,13 +118,17 @@ function Header() {
             setRekeningen(data.hulpvragers[0].rekeningen)
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.hulpvragers[0].rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
+            setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
+
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.gebruiker.rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
+            setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
+
         }
-    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden])
+    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen])
 
     useEffect(() => {
         fetchGebruikerMetHulpvragers();
@@ -133,7 +159,7 @@ function Header() {
 
                         {/* profiel & settings */}
                         <Box sx={{ ml: 'auto', display: 'flex' }}>
-                            <Typography sx={{my: 'auto', mr: {xs:'3px', md: '10px'}}}>{actieveHulpvrager?.bijnaam}</Typography>
+                            <Typography sx={{ my: 'auto', mr: { xs: '3px', md: '10px' } }}>{actieveHulpvrager?.bijnaam}</Typography>
                             <Box sx={{ flexDirection: 'row' }}>
                                 <Tooltip title="Open settings">
                                     <IconButton onClick={handleOpenGebruikerMenu} sx={{ p: 0 }}>

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Gebruiker } from '../model/Gebruiker';
-import { Rekening } from '../model/Rekening';
+import { Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort } from '../model/Betaling';
 
 interface CustomContextType {
@@ -16,6 +16,8 @@ interface CustomContextType {
     setBetalingsSoorten: (betalingsSoorten: Array<BetalingsSoort>) => void;
     betaalMethoden: Array<Rekening>;
     setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
+    betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>;
+    setBetalingsSoorten2Rekeningen: (betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -40,6 +42,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
+    const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
 
     return (
         <CustomContext.Provider value={{
@@ -48,7 +51,8 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             hulpvragers, setHulpvragers,
             rekeningen, setRekeningen,
             betalingsSoorten, setBetalingsSoorten,
-            betaalMethoden, setBetaalMethoden}}>
+            betaalMethoden, setBetaalMethoden,
+            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen}}>
             {children}
         </CustomContext.Provider>
     );

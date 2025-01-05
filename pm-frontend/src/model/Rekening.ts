@@ -19,6 +19,16 @@ export enum RekeningSoort {
     reservering = 'RESERVERING'
 }
 
+export type RekeningSoortPaar = {
+    debet: RekeningSoort[];
+    credit: RekeningSoort[];
+}
+
+export type RekeningPaar = {
+    debet: Rekening[];
+    credit: Rekening[];
+}
+
 export const balansRekeningSoorten: RekeningSoort[] = [
     RekeningSoort.betaalrekening,
     RekeningSoort.spaarrekening,
@@ -42,5 +52,4 @@ export const betaalmethodeRekeningSoorten = [
     RekeningSoort.betaalrekening,
     RekeningSoort.contant,
     RekeningSoort.creditcard,
-
 ]

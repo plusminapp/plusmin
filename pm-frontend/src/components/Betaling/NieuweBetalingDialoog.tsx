@@ -49,7 +49,7 @@ export default function CustomizedDialogs() {
 
   return (
     <React.Fragment>
-      <Button variant="outlined" onClick={handleClickOpen} sx={{ mt: '10px' }}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px' }}>
         Nieuwe betaling
       </Button>
       <BootstrapDialog
