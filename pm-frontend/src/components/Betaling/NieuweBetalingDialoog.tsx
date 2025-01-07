@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
@@ -7,15 +7,18 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { FormControl, Input, InputAdornment, InputLabel, MenuItem, Select, SelectChangeEvent, Skeleton, Stack, TextField } from '@mui/material';
+import { AlertColor, FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { betalingsSoortFormatter } from '../../model/Betaling';
+import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import 'dayjs/locale/nl';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
+import { useAuthContext } from '@asgardeo/auth-react';
+import BetalingsSoortSelect from './BetalingsSoortSelect';
+import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -26,14 +29,40 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export default function CustomizedDialogs() {
-  const [open, setOpen] = React.useState(false);
-  const [datum, setDatum] = React.useState<Dayjs | null>(dayjs());
-  const [betalingsSoort, setbetalingsSoort] = React.useState<string | undefined>(undefined);
-  // const [betaalMethode, setBetaalMethode] = React.useState<string>("");
-  const [omschrijving, setOmschrijving] = React.useState<string>("");
+export default function NieuweBetalingDialoog() {
 
-  const { betalingsSoorten } = useCustomContext();
+  const initialBetalingDTO = {
+    id: 0,
+    boekingsdatum: dayjs(),
+    bedrag: 0,
+    omschrijving: ' ',
+    betalingsSoort: BetalingsSoort.uitgaven,
+    bron: undefined,
+    bestemming: undefined
+  }
+
+  const initialMessage = {
+    message: undefined,
+    type: undefined
+  }
+
+  const [open, setOpen] = useState(false);
+  const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(initialBetalingDTO);
+  const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
+  const [message, setMessage] = useState<SnackbarMessage>(initialMessage);
+
+  const { getIDToken } = useAuthContext();
+  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen } = useCustomContext();
+  const threeMonthsAgo = dayjs().subtract(3, 'month');
+
+  const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
+  useEffect(() => {
+    setBetalingDTO({
+      ...initialBetalingDTO,
+      bron: rekeningPaar?.bron[0].naam,
+      bestemming: rekeningPaar?.bestemming[0].naam
+    })
+  }, [rekeningPaar])
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -42,10 +71,57 @@ export default function CustomizedDialogs() {
     setOpen(false);
   };
 
-  const handleBetalingsSoortChange = (event: SelectChangeEvent) => {
-    setbetalingsSoort(event.target.value);
+  const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
+    setBetalingDTO({ ...betalingDTO, [key]: value })
   };
 
+  const validateForm = (): boolean => {
+    const newErrors: { omschrijving?: string; bedrag?: string } = {};
+
+    let isValid = true;
+    if (!betalingDTO.omschrijving || betalingDTO.omschrijving.trim() === '') {
+      newErrors.omschrijving = 'Omschrijving mag niet leeg zijn.';
+      setMessage({ message: 'Omschrijving is niet geldig: het mag niet leeg zijn.', type: "error" as AlertColor })
+      isValid = false;
+    } 
+    if (betalingDTO.bedrag || isNaN(betalingDTO.bedrag) || betalingDTO.bedrag <= 0) {
+      newErrors.bedrag = 'Bedrag moet een positief getal zijn.';
+      setMessage({ message: 'Bedrag is niet geldig: het moet een getal, groter dan 0 zijn.', type: "error" as AlertColor })
+      isValid = false;
+    } 
+    setErrors((prevErrors) => ({ ...prevErrors, ...newErrors }));
+    return isValid
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (validateForm()) {
+      try {
+        const token = await getIDToken();
+        const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([
+            {
+              ...betalingDTO,
+              omschrijving: betalingDTO.omschrijving?.trim(),
+              boekingsdatum: betalingDTO.boekingsdatum.format('YYYYMMDD'),
+            }]),
+        })
+        if (response.ok) {
+          setBetalingDTO(initialBetalingDTO);
+        } else {
+          console.error("Failed to fetch data", response.status);
+        }
+      } catch (error) {
+        console.error('Fout bij opslaan betaling:', error);
+      }
+    }
+  }
 
   return (
     <React.Fragment>
@@ -75,58 +151,61 @@ export default function CustomizedDialogs() {
         </IconButton>
         <DialogContent dividers>
           <Stack spacing={2}>
-            <TextField
-              variant="standard"
-              id="outlined-controlled"
-              label="Omschrijving?"
-              value={omschrijving}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                setOmschrijving(event.target.value);
-              }}
-            />
+            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+              <InputLabel htmlFor="standard-adornment-amount">Geef een korte omschrijving *</InputLabel>
+              <Input
+                id="omschrijfing"
+                error={!!errors.omschrijving}
+                value={betalingDTO.omschrijving}
+                type="text"
+                onChange={(e) => handleInputChange('omschrijving', e.target.value)}
+              />
+              {errors.omschrijving && (
+                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.omschrijving}</Typography>
+              )}
+            </FormControl>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
+                disableFuture
+                minDate={threeMonthsAgo}
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wanneer was de betaling?"
-                value={datum}
-                onChange={(newValue) => setDatum(newValue)}
+                value={betalingDTO.boekingsdatum}
+                onChange={(newvalue) => handleInputChange('boekingsdatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
               <Input
                 id="standard-adornment-amount"
+                error={!!errors.bedrag}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
+                value={betalingDTO.bedrag}
+                type="number"
+                onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
               />
+              {errors.bedrag && (
+                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
+              )}
             </FormControl>
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel id="demo-simple-select-standard-label">Soort betaling kiezen</InputLabel>
-              <Select
-                variant="standard"
-                labelId="demo-simple-select-standard-label"
-                id="demo-simple-select-standard"
-                value={betalingsSoort}
-                onChange={handleBetalingsSoortChange}
-                label="Soort betaling kiezen">
-                {betalingsSoorten.map((bs) => (
-                  <MenuItem value={bs}>{betalingsSoortFormatter(bs)}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {betalingsSoort === undefined &&
-              <>
-                <Skeleton sx={{ my: '5px' }} variant="rectangular" width='100%' height={50} />
-                <Skeleton sx={{ my: '5px' }} variant="rectangular" width='100%' height={50} />
-              </>
-            }
+            <BetalingsSoortSelect
+              betalingsSoort={betalingDTO.betalingsSoort}
+              bron={betalingDTO.bron}
+              bestemming={betalingDTO.bestemming}
+              onChange={(betalingsSoort, bron, bestemming) => {
+                setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
+              }}
+            />
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleClose}>
+          <Button autoFocus onClick={handleSubmit}>
             Bewaar betaling
           </Button>
         </DialogActions>
       </BootstrapDialog>
+      <StyledSnackbar message={message.message} type={message.type} />
+
     </React.Fragment>
   );
 }

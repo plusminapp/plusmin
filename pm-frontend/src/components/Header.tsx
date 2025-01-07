@@ -73,12 +73,12 @@ function Header() {
     const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
         const result = new Map<BetalingsSoort, RekeningPaar>();
         betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
-            const bronRekeningen = rekeningen.filter(rekening =>
-                rekeningSoortPaar.bron.includes(rekening.rekeningSoort)
-            );
-            const BestemmingRekeningen = rekeningen.filter(rekening =>
-                rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort)
-            );
+            const bronRekeningen = rekeningen
+            .filter(rekening => rekeningSoortPaar.bron.includes(rekening.rekeningSoort))
+            .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
+            const BestemmingRekeningen = rekeningen
+            .filter(rekening => rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort))
+            .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
             if (bronRekeningen.length > 0 && BestemmingRekeningen.length > 0) {
                 result.set(betalingsSoort, {
                     bron: bronRekeningen,
@@ -93,7 +93,7 @@ function Header() {
         let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker
         setActieveHulpvrager(ahv);
-        setRekeningen(ahv!.rekeningen)
+        setRekeningen(ahv!.rekeningen.sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1))
         setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))

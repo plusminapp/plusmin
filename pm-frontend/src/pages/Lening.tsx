@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import {
   TextField,
@@ -13,25 +13,31 @@ import { useAuthContext } from '@asgardeo/auth-react';
 const SaveBetaling = () => {
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen } = useCustomContext();
-
-  const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
-
+  
   const initialBetalingDTO = {
     id: 0,
     boekingsdatum: dayjs(),
     bedrag: 0,
     omschrijving: '',
     betalingsSoort: BetalingsSoort.uitgaven,
-    bron: rekeningPaar?.bron.sort((a,b) => a.sortOrder > b.sortOrder ? 1 : -1)[0].naam,
-    bestemming: rekeningPaar?.bestemming.sort((a,b) => a.sortOrder > b.sortOrder ? 1 : -1)[0].naam
+    bron: undefined,
+    bestemming: undefined
   }
-
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(initialBetalingDTO);
-
+  
+  const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
+  useEffect(() => {
+    setBetalingDTO({
+      ...initialBetalingDTO, 
+      bron: rekeningPaar?.bron[0].naam,
+      bestemming: rekeningPaar?.bestemming[0].naam
+    })
+  },[rekeningPaar])
+  
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
     setBetalingDTO({ ...betalingDTO, [key]: value })
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
 
     e.preventDefault();

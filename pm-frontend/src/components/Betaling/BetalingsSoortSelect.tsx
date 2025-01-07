@@ -72,7 +72,6 @@ const BetalingsSoortSelect = (props: BetalingsSoortSelectProps) => {
                         onChange={handleBronChange}
                     >
                         {rekeningPaar?.bron
-                            .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
                             .map((rekening) => (
                                 <MenuItem key={rekening.id} value={rekening.naam}>
                                     {rekening.naam}
@@ -91,7 +90,6 @@ const BetalingsSoortSelect = (props: BetalingsSoortSelectProps) => {
                         onChange={handleBestemmingChange}
                     >
                         {rekeningPaar?.bestemming
-                            .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
                             .map((rekening) => (
                                 <MenuItem key={rekening.id} value={rekening.naam}>
                                     {rekening.naam}
