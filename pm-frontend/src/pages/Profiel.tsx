@@ -74,7 +74,12 @@ const Profiel: React.FC = () => {
               <Typography sx={{ my: '25px' }}>
                 De betalingsSoorten2Rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
               </Typography>
-                  <Typography sx={{ my: '3px' }}>{JSON.stringify(Array.from(betalingsSoorten2Rekeningen.entries()))}</Typography>
+              {/* <Typography sx={{ my: '3px' }}>{JSON.stringify(Array.from(betalingsSoorten2Rekeningen.entries()))}</Typography> */}
+              {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
+                <Typography sx={{ my: '3px' }}>
+                  {entry[0]}: van {entry[1].bron.map(c => c.naam).join(', ')} naar {entry[1].bestemming.map(c => c.naam).join(', ')}
+                </Typography>
+              ))}
             </>}
         </>
       }

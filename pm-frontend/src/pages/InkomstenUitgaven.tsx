@@ -7,17 +7,9 @@ import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
-import { Rekening, RekeningSoort, resultaatRekeningSoorten } from '../model/Rekening';
+import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
 import NieuweBetalingDialoog from '../components/Betaling/NieuweBetalingDialoog';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
-
-export const berekenBedragVoorRekenining = (betaling: Betaling, rekening: Rekening | undefined) => {
-  if (rekening === undefined) return betaling.bedrag // filter = 'all'
-  const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1
-  if (betaling.bron?.id === rekening.id) return -betaling.bedrag * factor
-  if (betaling.bestemming?.id === rekening.id) return betaling.bedrag * factor
-  return 0
-}
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();

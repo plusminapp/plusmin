@@ -20,7 +20,7 @@ import { useCustomContext } from '../context/CustomContext';
 import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 
-const pages = ['Stand', 'Inkomsten/uitgaven'];
+const pages = ['Stand', 'Inkomsten/uitgaven', 'Lening'];
 
 function Header() {
     const navigate = useNavigate();
@@ -73,20 +73,19 @@ function Header() {
     const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
         const result = new Map<BetalingsSoort, RekeningPaar>();
         betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
-            const debetRekeningen = rekeningen.filter(rekening =>
-                rekeningSoortPaar.debet.includes(rekening.rekeningSoort)
+            const bronRekeningen = rekeningen.filter(rekening =>
+                rekeningSoortPaar.bron.includes(rekening.rekeningSoort)
             );
-            const creditRekeningen = rekeningen.filter(rekening =>
-                rekeningSoortPaar.credit.includes(rekening.rekeningSoort)
+            const BestemmingRekeningen = rekeningen.filter(rekening =>
+                rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort)
             );
-            if (debetRekeningen.length > 0 && creditRekeningen.length > 0) {
+            if (bronRekeningen.length > 0 && BestemmingRekeningen.length > 0) {
                 result.set(betalingsSoort, {
-                    debet: debetRekeningen,
-                    credit: creditRekeningen
+                    bron: bronRekeningen,
+                    bestemming: BestemmingRekeningen
                 });
             }
         });
-        console.log(`result: ${result.size} ${JSON.stringify(result)}`)
         return result;
     }
 

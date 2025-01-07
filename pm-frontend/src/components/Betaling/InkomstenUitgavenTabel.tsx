@@ -12,8 +12,7 @@ import { useEffect, useState, Fragment } from 'react';
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
-import { Rekening } from '../../model/Rekening';
-import { berekenBedragVoorRekenining } from '../../pages/InkomstenUitgaven';
+import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -82,7 +81,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       aria-haspopup="true"
                     >
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>

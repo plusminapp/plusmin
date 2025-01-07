@@ -1,3 +1,4 @@
+import { Betaling } from "./Betaling";
 
 export type Rekening = {
     id: number;
@@ -20,13 +21,13 @@ export enum RekeningSoort {
 }
 
 export type RekeningSoortPaar = {
-    debet: RekeningSoort[];
-    credit: RekeningSoort[];
+    bron: RekeningSoort[];
+    bestemming: RekeningSoort[];
 }
 
 export type RekeningPaar = {
-    debet: Rekening[];
-    credit: Rekening[];
+    bron: Rekening[];
+    bestemming: Rekening[];
 }
 
 export const balansRekeningSoorten: RekeningSoort[] = [
@@ -53,3 +54,12 @@ export const betaalmethodeRekeningSoorten = [
     RekeningSoort.contant,
     RekeningSoort.creditcard,
 ]
+
+export const berekenBedragVoorRekenining = (betaling: Betaling, rekening: Rekening | undefined) => {
+    if (rekening === undefined) return betaling.bedrag // filter = 'all'
+    const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1
+    if (betaling.bron?.id === rekening.id) return -betaling.bedrag * factor
+    if (betaling.bestemming?.id === rekening.id) return betaling.bedrag * factor
+    return 0
+  }
+  

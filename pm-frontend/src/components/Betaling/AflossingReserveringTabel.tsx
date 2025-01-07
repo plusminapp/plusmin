@@ -52,7 +52,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       aria-haspopup="true"
                     >
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"])}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(-betaling.bedrag)}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
