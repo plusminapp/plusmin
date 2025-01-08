@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
@@ -31,15 +31,15 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 export default function NieuweBetalingDialoog() {
 
-  const initialBetalingDTO = {
+  const initialBetalingDTO = useMemo(() => ({
     id: 0,
     boekingsdatum: dayjs(),
     bedrag: 0,
     omschrijving: ' ',
     betalingsSoort: BetalingsSoort.uitgaven,
     bron: undefined,
-    bestemming: undefined
-  }
+    bestemming: undefined,
+}), []);
 
   const initialMessage = {
     message: undefined,
@@ -62,7 +62,7 @@ export default function NieuweBetalingDialoog() {
       bron: rekeningPaar?.bron[0].naam,
       bestemming: rekeningPaar?.bestemming[0].naam
     })
-  }, [rekeningPaar])
+  }, [rekeningPaar, initialBetalingDTO])
 
   const handleClickOpen = () => {
     setOpen(true);

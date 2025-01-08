@@ -1,4 +1,4 @@
-import { aflossenReserverenBetalingsSoorten, Betaling, currencyFormatter } from '../model/Betaling';
+import { aflossenBetalingsSoorten, aflossenReserverenBetalingsSoorten, Betaling, currencyFormatter, reserverenBetalingsSoorten } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
@@ -57,9 +57,21 @@ export default function InkomstenUitgaven() {
       .filter((betaling) => aflossenReserverenBetalingsSoorten.includes(betaling.betalingsSoort))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
   }
+  
+  const heeftAflossenBetalingen = () => {
+    return betalingen.find((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
+  }
 
-  const heeftAflossingReserveringBetalingen = () => {
-    return betalingen.find((betaling) => aflossenReserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+  const heeftReserverenBetalingen = () => {
+    return betalingen.find((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+  }  
+
+  const aflossenReserverenLabel = () => {
+    const words = new Array<string | undefined>();
+    words[0] = heeftAflossenBetalingen() ? "aflossen" : undefined
+    words[1] = heeftReserverenBetalingen() ? "reserveren" : undefined
+    const label = words.filter(Boolean).join('/')
+    return label.charAt(0).toUpperCase() + label.slice(1)
   }
 
   if (isLoading) {
@@ -109,14 +121,14 @@ export default function InkomstenUitgaven() {
               </Accordion>
             </Grid>
           )}
-          {heeftAflossingReserveringBetalingen() &&
+          { (heeftReserverenBetalingen() || heeftAflossenBetalingen()) &&
             <Grid >
               <Accordion >
                 <AccordionSummary
                   expandIcon={<ArrowDropDownIcon />}
                   aria-controls='extra'
                   id='extra'>
-                  <Typography component="span">Aflossing/reservering: {currencyFormatter.format(berekenAflossingReserveringTotaal())}</Typography>
+                  <Typography component="span">{aflossenReserverenLabel()} {currencyFormatter.format(berekenAflossingReserveringTotaal())}</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
                   <AflossingReserveringTabel

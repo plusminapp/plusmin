@@ -1,15 +1,16 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 
-import { Container, Typography } from '@mui/material';
+import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
+import { betalingsSoortFormatter } from '../model/Betaling';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betalingsSoorten, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
 
 
   return (
@@ -17,7 +18,7 @@ const Profiel: React.FC = () => {
       {!state.isAuthenticated &&
         <Typography variant='h4' sx={{ mb: '25px' }}>Je moet eerst inloggen ...</Typography>
       }
-      {state.isAuthenticated &&
+      {state.isAuthenticated && actieveHulpvrager?.id === gebruiker?.id &&
         <>
           <Typography variant='h4' sx={{ mb: '25px' }}>Hi {gebruiker?.bijnaam}, hoe is 't?</Typography>
           <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
@@ -35,55 +36,77 @@ const Profiel: React.FC = () => {
               "{hulpvragers.map(x => x.bijnaam).join(', ')}".
             </Typography>
           }
-          {rekeningen &&
-            <>
-              <Typography variant='h4' sx={{ my: '25px' }}>
-                De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
-              </Typography>
-              <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
-              </Typography>
-              {rekeningen
-                .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
-                .map(r =>
-                  <Typography sx={{ my: '3px' }}>{r.rekeningSoort + ': ' + r.naam}
-                  </Typography>
-                )}
-            </>}
-          {betalingsSoorten &&
-            <>
-              <Typography sx={{ my: '25px' }}>
-                De betalingsSoorten van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
-              </Typography>
-              {betalingsSoorten
-                .map(b =>
-                  <Typography sx={{ my: '3px' }}>{b.toString()}</Typography>
-                )}
-            </>}
-          {betaalMethoden &&
-            <>
-              <Typography sx={{ my: '25px' }}>
-                De betaalMethoden van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
-              </Typography>
-              {betaalMethoden
-                .map(b =>
-                  <Typography sx={{ my: '3px' }}>{b.naam}</Typography>
-                )}
-            </>}
-          {betalingsSoorten2Rekeningen &&
-            <>
-              <Typography sx={{ my: '25px' }}>
-                De betalingsSoorten2Rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
-              </Typography>
-              {/* <Typography sx={{ my: '3px' }}>{JSON.stringify(Array.from(betalingsSoorten2Rekeningen.entries()))}</Typography> */}
-              {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
-                <Typography sx={{ my: '3px' }}>
-                  {entry[0]}: van {entry[1].bron.map(c => c.naam).join(', ')} naar {entry[1].bestemming.map(c => c.naam).join(', ')}
-                </Typography>
-              ))}
-            </>}
         </>
       }
-    </Container>
+      <>
+        {rekeningen &&
+          <>
+            <Typography variant='h4' sx={{ my: '25px' }}>
+              De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
+            </Typography>
+            <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+            </Typography>
+            <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
+              <Table sx={{ width: "100%" }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rekeningsoort</TableCell>
+                    <TableCell>Gekozen naam</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Array.from(rekeningen.map((rekening) => (
+                    <Fragment key={rekening.naam}>
+                      <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.rekeningSoort}</TableCell>
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
+                      </TableRow>
+                    </Fragment>
+                  )))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>}
+        {betaalMethoden &&
+          <>
+            <Typography sx={{ my: '25px' }}>
+              De betaalMethoden van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+            </Typography>
+            {betaalMethoden
+              .map(b =>
+                <Typography sx={{ my: '3px' }}>{b.naam}</Typography>
+              )}
+          </>}
+        {betalingsSoorten2Rekeningen &&
+          <>
+            <Typography sx={{ my: '25px' }}>
+              De betalingsSoorten2Rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+            </Typography>
+            <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
+              <Table sx={{ width: "100%" }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Betalingssort</TableCell>
+                    <TableCell>Bron (debet)</TableCell>
+                    <TableCell>Bestemming (credit)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
+                    <Fragment key={entry[0]}>
+                      <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(entry[0])}</TableCell>
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bron.map(c => c.naam).join(', ')}</TableCell>
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bestemming.map(c => c.naam).join(', ')}</TableCell>
+                      </TableRow>
+                    </Fragment>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>}
+      </>
+    </Container >
   );
 };
 

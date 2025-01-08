@@ -40,6 +40,15 @@ export const aflossenReserverenBetalingsSoorten = [
   BetalingsSoort.besteden_reservering,
 ]
 
+export const aflossenBetalingsSoorten = [
+  BetalingsSoort.aflossen_creditcard,
+  BetalingsSoort.aflossen_lening,
+]
+
+export const reserverenBetalingsSoorten = [
+  BetalingsSoort.besteden_reservering,
+]
+
 export const betalingsSoortFormatter = (betalingsSoort: string): string => {
   betalingsSoort = betalingsSoort.split('_').join(' ').toLowerCase();
   return String(betalingsSoort).charAt(0).toUpperCase() + String(betalingsSoort).slice(1);
