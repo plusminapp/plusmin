@@ -24,7 +24,7 @@ const Profiel: React.FC = () => {
           <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
             Je hebt "{gebruiker?.bijnaam}" als bijnaam gekozen.<br />
             Je {gebruiker?.roles.length && gebruiker?.roles.length > 1 ? " rollen zijn " : " rol is "}
-            {gebruiker?.roles.map(x => x.split('_')[1].toLowerCase()).join(', ')}.
+            "{gebruiker?.roles.map(x => x.split('_')[1].toLowerCase()).join('\", \"')}".
           </Typography>
           {gebruiker?.roles.includes("ROLE_HULPVRAGER") &&
             <Typography sx={{ my: '25px' }}>Je wordt begeleid door "{gebruiker?.vrijwilligerbijnaam}".
@@ -33,13 +33,13 @@ const Profiel: React.FC = () => {
           {gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
             <Typography sx={{ my: '25px' }}>Je begeleidt
               {hulpvragers.length === 0 ? " (nog) niemand " : hulpvragers.length > 1 ? " de hulpvragers " : " de hulpvrager "}
-              "{hulpvragers.map(x => x.bijnaam).join(', ')}".
+              "{hulpvragers.map(x => x.bijnaam).join('\", \"')}".
             </Typography>
           }
         </>
       }
       <>
-        {rekeningen &&
+        {rekeningen && rekeningen.length > 0 &&
           <>
             <Typography variant='h4' sx={{ my: '25px' }}>
               De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
@@ -67,7 +67,7 @@ const Profiel: React.FC = () => {
               </Table>
             </TableContainer>
           </>}
-        {betaalMethoden &&
+        {betaalMethoden && betaalMethoden.length > 0 &&
           <>
             <Typography sx={{ my: '25px' }}>
               De betaalMethoden van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
@@ -77,7 +77,7 @@ const Profiel: React.FC = () => {
                 <Typography sx={{ my: '3px' }}>{b.naam}</Typography>
               )}
           </>}
-        {betalingsSoorten2Rekeningen &&
+        {betalingsSoorten2Rekeningen && (Array.from(betalingsSoorten2Rekeningen.entries())).length > 0 &&
           <>
             <Typography sx={{ my: '25px' }}>
               De betalingsSoorten2Rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
@@ -86,7 +86,7 @@ const Profiel: React.FC = () => {
               <Table sx={{ width: "100%" }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Betalingssort</TableCell>
+                    <TableCell>Betalingssoort</TableCell>
                     <TableCell>Bron (debet)</TableCell>
                     <TableCell>Bestemming (credit)</TableCell>
                   </TableRow>

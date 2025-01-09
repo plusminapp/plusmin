@@ -57,14 +57,14 @@ export default function InkomstenUitgaven() {
       .filter((betaling) => aflossenReserverenBetalingsSoorten.includes(betaling.betalingsSoort))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
   }
-  
+
   const heeftAflossenBetalingen = () => {
     return betalingen.find((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
   }
 
   const heeftReserverenBetalingen = () => {
     return betalingen.find((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
-  }  
+  }
 
   const aflossenReserverenLabel = () => {
     const words = new Array<string | undefined>();
@@ -78,10 +78,16 @@ export default function InkomstenUitgaven() {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
 
+  const onChange = () => {
+    fetchBetalingen()
+  }
+
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <NieuweBetalingDialoog />
+      <NieuweBetalingDialoog
+        nieuweBetalingOpgeslagen={0}
+        onChange={onChange} />
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 6 }}>
           {inkomstenRekeningen.map(rekening =>
@@ -121,7 +127,7 @@ export default function InkomstenUitgaven() {
               </Accordion>
             </Grid>
           )}
-          { (heeftReserverenBetalingen() || heeftAflossenBetalingen()) &&
+          {(heeftReserverenBetalingen() || heeftAflossenBetalingen()) &&
             <Grid >
               <Accordion >
                 <AccordionSummary

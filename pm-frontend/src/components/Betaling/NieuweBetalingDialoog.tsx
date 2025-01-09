@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { AlertColor, FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
+import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 
@@ -29,7 +29,12 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export default function NieuweBetalingDialoog() {
+type NieuweBetalingDialoogProps = {
+  nieuweBetalingOpgeslagen: number;
+  onChange: (nieuweBetalingOpgeslagen: number) => void;
+};
+
+export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps) {
 
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
@@ -39,7 +44,7 @@ export default function NieuweBetalingDialoog() {
     betalingsSoort: BetalingsSoort.uitgaven,
     bron: undefined,
     bestemming: undefined,
-}), []);
+  }), []);
 
   const initialMessage = {
     message: undefined,
@@ -50,6 +55,7 @@ export default function NieuweBetalingDialoog() {
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(initialBetalingDTO);
   const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
   const [message, setMessage] = useState<SnackbarMessage>(initialMessage);
+  const [isValid, setIsValid] = useState<boolean>(false);
 
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen } = useCustomContext();
@@ -68,34 +74,28 @@ export default function NieuweBetalingDialoog() {
     setOpen(true);
   };
   const handleClose = () => {
+    props.onChange(props.nieuweBetalingOpgeslagen++)
     setOpen(false);
   };
 
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
     setBetalingDTO({ ...betalingDTO, [key]: value })
-  };
-
-  const validateForm = (): boolean => {
-    const newErrors: { omschrijving?: string; bedrag?: string } = {};
-
-    let isValid = true;
-    if (!betalingDTO.omschrijving || betalingDTO.omschrijving.trim() === '') {
+    const newErrors: { omschrijving?: string; bedrag?: string } = { omschrijving: undefined, bedrag: undefined };
+    setIsValid(true)
+    if (key === 'omschrijving' && (value as string).trim() === '') {
       newErrors.omschrijving = 'Omschrijving mag niet leeg zijn.';
-      setMessage({ message: 'Omschrijving is niet geldig: het mag niet leeg zijn.', type: "error" as AlertColor })
-      isValid = false;
-    } 
-    if (betalingDTO.bedrag || isNaN(betalingDTO.bedrag) || betalingDTO.bedrag <= 0) {
+      setIsValid(false)
+    }
+    if (key === 'bedrag' && (isNaN(value as number) || value as number <= 0)) {
       newErrors.bedrag = 'Bedrag moet een positief getal zijn.';
-      setMessage({ message: 'Bedrag is niet geldig: het moet een getal, groter dan 0 zijn.', type: "error" as AlertColor })
-      isValid = false;
-    } 
+      setIsValid(false)
+    }
     setErrors((prevErrors) => ({ ...prevErrors, ...newErrors }));
-    return isValid
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
+    if (isValid) {
       try {
         const token = await getIDToken();
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
@@ -113,13 +113,27 @@ export default function NieuweBetalingDialoog() {
             }]),
         })
         if (response.ok) {
-          setBetalingDTO(initialBetalingDTO);
+          setBetalingDTO({
+            ...initialBetalingDTO,
+            bron: rekeningPaar?.bron[0].naam,
+            bestemming: rekeningPaar?.bestemming[0].naam
+          })
+          setIsValid(false)
+          setMessage({
+            message: "Betaling is opgeslagen.",
+            type: "success"
+          })
         } else {
           console.error("Failed to fetch data", response.status);
         }
       } catch (error) {
         console.error('Fout bij opslaan betaling:', error);
       }
+    } else {
+      setMessage({
+        message: "Betaling is niet geldig, herstel de fouten en probeer het opnieuw.",
+        type: "warning"
+      })
     }
   }
 
