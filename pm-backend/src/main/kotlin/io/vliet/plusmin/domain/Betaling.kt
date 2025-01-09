@@ -69,11 +69,7 @@ class Betaling(
         )
     }
 
-//    enum class BetalingsSoort {
-//        INKOMSTEN, UITGAVEN, AFLOSSEN_LENING, AFLOSSEN_CREDICARD,
-//        BESTEDEN_RESERVERING, OPNEMEN_SPAARREKENING, STORTEN_SPAARREKENING, OPNEMEN_CONTANT_GELD
-//    }
-
+//    io.vliet.plusmin.domain.Betaling.BetalingsSoort.TOEVOEGEN_RESERVERING
     enum class BetalingsSoort(
         val omschrijving: String
     ) {
@@ -82,6 +78,7 @@ class Betaling(
         AANGAAN_LENING("aangaan_lening"),
         AFLOSSEN_LENING("aflossen_lening"),
         AFLOSSEN_CREDITCARD("aflossen_creditcard"),
+        TOEVOEGEN_RESERVERING("toevoegen_reservering"),
         BESTEDEN_RESERVERING("besteden_reservering"),
         OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
         STORTEN_SPAARREKENING("storten_spaarrekening"),

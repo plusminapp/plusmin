@@ -1,8 +1,8 @@
-import { aflossenBetalingsSoorten, aflossenReserverenBetalingsSoorten, Betaling, currencyFormatter, reserverenBetalingsSoorten } from '../model/Betaling';
+import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, currencyFormatter, reserverenBetalingsSoorten } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -17,6 +17,7 @@ export default function InkomstenUitgaven() {
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [isLoading, setIsLoading] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const uitgaveRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort == RekeningSoort.uitgaven)
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort == RekeningSoort.inkomsten)
@@ -52,9 +53,26 @@ export default function InkomstenUitgaven() {
     return betalingen.reduce((acc, betaling) => (acc + berekenBedragVoorRekenining(betaling, rekening)), 0)
   }
 
-  const berekenAflossingReserveringTotaal = () => {
+  const berekenAflossingTotaal = () => {
     return betalingen
-      .filter((betaling) => aflossenReserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+      .filter((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
+      .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.aangaan_lening ? betaling.bedrag : -betaling.bedrag)), 0)
+  }
+  const berekenReserveringTotaal = () => {
+    return betalingen
+      .filter((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+      .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? betaling.bedrag : -betaling.bedrag)), 0)
+  }
+
+  const berekenInkomstenTotaal = () => {
+    return betalingen
+      .filter((betaling) => betaling.betalingsSoort === BetalingsSoort.inkomsten)
+      .reduce((acc, betaling) => (acc + betaling.bedrag), 0)
+  }
+
+  const berekenUitgavenTotaal = () => {
+    return betalingen
+      .filter((betaling) => (betaling.betalingsSoort === BetalingsSoort.uitgaven || betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
   }
 
@@ -66,14 +84,6 @@ export default function InkomstenUitgaven() {
     return betalingen.find((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
   }
 
-  const aflossenReserverenLabel = () => {
-    const words = new Array<string | undefined>();
-    words[0] = heeftAflossenBetalingen() ? "aflossen" : undefined
-    words[1] = heeftReserverenBetalingen() ? "reserveren" : undefined
-    const label = words.filter(Boolean).join('/')
-    return label.charAt(0).toUpperCase() + label.slice(1)
-  }
-
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
@@ -82,14 +92,30 @@ export default function InkomstenUitgaven() {
     fetchBetalingen()
   }
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
+
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
+      <FormGroup>
+        <FormControlLabel control={
+          <Switch
+            checked={checked}
+            onChange={handleChange}
+            inputProps={{ 'aria-label': 'controlled' }}
+          />}
+          label="Andere weergaven" />
+      </FormGroup>
       <NieuweBetalingDialoog
         nieuweBetalingOpgeslagen={0}
         onChange={onChange} />
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
-        <Grid size={{ xs: 1, lg: 6 }}>
+        <Grid size={{ xs: 1, lg: 4 }}>
+          {inkomstenRekeningen.length > 1 &&
+            <Typography sx={{ py: '18px', mx: '18px' }}>Uitgaven totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
+          }
           {inkomstenRekeningen.map(rekening =>
             <Grid >
               <Accordion >
@@ -107,9 +133,11 @@ export default function InkomstenUitgaven() {
               </Accordion>
             </Grid>
           )}
-
         </Grid>
-        <Grid size={{ xs: 1, lg: 6 }}>
+        <Grid size={{ xs: 1, lg: 4 }}>
+          {uitgaveRekeningen.length > 1 &&
+            <Typography sx={{ py: '18px', mx: '18px' }}>Uitgaven totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+          }
           {uitgaveRekeningen.map(rekening =>
             <Grid >
               <Accordion >
@@ -127,42 +155,67 @@ export default function InkomstenUitgaven() {
               </Accordion>
             </Grid>
           )}
-          {(heeftReserverenBetalingen() || heeftAflossenBetalingen()) &&
+        </Grid>
+        <Grid size={{ xs: 1, lg: 4 }}>
+          {heeftReserverenBetalingen() && heeftAflossenBetalingen() &&
+            <Typography sx={{ py: '18px', mx: '18px' }}>
+              Aflossingen/Reserveringen totaal: {currencyFormatter.format(berekenAflossingTotaal() + berekenReserveringTotaal())}
+              </Typography>}
+          {heeftAflossenBetalingen() &&
             <Grid >
               <Accordion >
                 <AccordionSummary
                   expandIcon={<ArrowDropDownIcon />}
                   aria-controls='extra'
                   id='extra'>
-                  <Typography component="span">{aflossenReserverenLabel()} {currencyFormatter.format(berekenAflossingReserveringTotaal())}</Typography>
+                  <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())}</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
                   <AflossingReserveringTabel
-                    betalingen={betalingen} />
+                    betalingen={betalingen}
+                    isAflossing={true} />
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+          }
+          {heeftReserverenBetalingen() &&
+            <Grid >
+              <Accordion >
+                <AccordionSummary
+                  expandIcon={<ArrowDropDownIcon />}
+                  aria-controls='extra'
+                  id='extra'>
+                  <Typography component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                  <AflossingReserveringTabel
+                    betalingen={betalingen}
+                    isAflossing={false} />
                 </AccordionDetails>
               </Accordion>
             </Grid>
           }
         </Grid>
 
-        <Grid size={{ xs: 1, lg: 6 }}>
-          <Grid >
-            <Accordion >
-              <AccordionSummary
-                expandIcon={<ArrowDropDownIcon />}
-                aria-controls='extra'
-                id='extra'>
-                <Typography component="span">Kies een eigen weergave </Typography>
-              </AccordionSummary>
-              <AccordionDetails sx={{ p: 0 }}>
-                <InkomstenUitgavenTabel
-                  actueleRekening={undefined}
-                  isFilterSelectable={true}
-                  betalingen={betalingen} />
-              </AccordionDetails>
-            </Accordion>
-          </Grid>
-        </Grid>
+        {checked &&
+          <Grid size={{ xs: 1, lg: 4 }}>
+            <Grid >
+              <Accordion >
+                <AccordionSummary
+                  expandIcon={<ArrowDropDownIcon />}
+                  aria-controls='extra'
+                  id='extra'>
+                  <Typography component="span">Kies een eigen weergave </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ p: 0 }}>
+                  <InkomstenUitgavenTabel
+                    actueleRekening={undefined}
+                    isFilterSelectable={true}
+                    betalingen={betalingen} />
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+          </Grid>}
       </Grid>
     </>
   );

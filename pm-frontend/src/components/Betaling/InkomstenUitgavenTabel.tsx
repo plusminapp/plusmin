@@ -6,7 +6,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Betaling, betalingsSoortFormatter } from '../../model/Betaling';
+import { Betaling } from '../../model/Betaling';
 import { useEffect, useState, Fragment } from 'react';
 
 import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
@@ -69,8 +69,6 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                   <TableCell>Datum</TableCell>
                   <TableCell align="right">Bedrag</TableCell>
                   <TableCell>Omschrijving</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betalingssoort</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Rekening</TableCell>
                   <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell>
                 </TableRow>
               </TableHead>
@@ -84,10 +82,6 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                        {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam}
-                      </TableCell>
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell>

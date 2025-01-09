@@ -6,7 +6,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { aflossenReserverenBetalingsSoorten, Betaling, betalingsSoortFormatter } from '../../model/Betaling';
+import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, reserverenBetalingsSoorten } from '../../model/Betaling';
 import {  Fragment } from 'react';
 
 import { useCustomContext } from '../../context/CustomContext';
@@ -15,12 +15,14 @@ import { Typography } from '@mui/material';
 
 interface AflossingReserveringTabelProps {
   betalingen: Betaling[];
+  isAflossing: boolean;
 }
 
 export default function AflossingReserveringTabel(props: AflossingReserveringTabelProps) {
 
   const { actieveHulpvrager, gebruiker } = useCustomContext();
-  const betalingen = props.betalingen.filter(betaling => aflossenReserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+  const betalingsSoorten = props.isAflossing ? aflossenBetalingsSoorten : reserverenBetalingsSoorten
+  const betalingen = props.betalingen.filter(betaling => betalingsSoorten.includes(betaling.betalingsSoort))
 
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
@@ -40,9 +42,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                   <TableCell>Datum</TableCell>
                   <TableCell align="right">Bedrag</TableCell>
                   <TableCell>Omschrijving</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betalingssoort</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Rekening</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{props.isAflossing ? 'Betaalmethode' : 'Reservering/betaalmethode'}</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -53,14 +53,12 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                       aria-haspopup="true"
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(-betaling.bedrag)}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "6px" }}>
+                        {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
+                        </TableCell>
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>{betalingsSoortFormatter(betaling["betalingsSoort"]!)}</TableCell>
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                        {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bron"]?.naam : betaling["bestemming"]?.naam}
-                      </TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                        {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
+                        {betaling["betalingsSoort"] === 'BESTEDEN_RESERVERING' ? `${betaling.bestemming?.naam} met ${betaling.bron?.naam} `: betaling["bron"]?.naam}
                       </TableCell>
                     </TableRow>
                   </Fragment>

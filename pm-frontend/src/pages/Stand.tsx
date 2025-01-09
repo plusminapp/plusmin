@@ -63,6 +63,7 @@ export default function Stand() {
       {balansOpDatum !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
+          <Typography >Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
           <FormGroup>
             <FormControlLabel control={
               <Switch
@@ -77,9 +78,6 @@ export default function Stand() {
               <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
                 <Resultaat title={'Inkomsten en uitgaven'} saldi={resultaatOpDatum!} />
               </Grid>
-              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
-                <Resultaat title={'Stand'} saldi={balansOpDatum!} />
-              </Grid>
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
                   <Resultaat title={'Opening'} saldi={openingsBalans!} />
@@ -87,8 +85,10 @@ export default function Stand() {
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
                   <Resultaat title={'Mutaties per'} saldi={mutatiesOpDatum!} />
-                </Grid>
-              }
+                </Grid>}
+              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
+                <Resultaat title={'Stand'} saldi={balansOpDatum!} />
+              </Grid>
             </Grid>
           </Box>
         </>
