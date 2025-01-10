@@ -63,7 +63,7 @@ export default function Stand() {
       {balansOpDatum !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
-          <Typography >Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
+          <Typography sx={{my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
           <FormGroup>
             <FormControlLabel control={
               <Switch
