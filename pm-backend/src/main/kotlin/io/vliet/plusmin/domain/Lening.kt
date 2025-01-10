@@ -53,7 +53,19 @@ class Lening(
         val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
-        val sortOrder: Int
+        val sortOrder: Int,
+        var leningSaldiDTO:LeningSaldiDTO? = null
+    ) {
+        fun with(leningSaldiDTO: LeningSaldiDTO): LeningDTO {
+            this.leningSaldiDTO = leningSaldiDTO
+            return this
+        }
+    }
+
+    data class LeningSaldiDTO(
+        val peilDatum: String,
+        val berekendSaldo: BigDecimal,
+        val werkelijkSaldo: BigDecimal
     )
 
     fun toDTO(): LeningDTO {

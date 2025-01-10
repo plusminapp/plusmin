@@ -1,5 +1,6 @@
 package io.vliet.plusmin.service
 
+import io.vliet.plusmin.controller.SaldiController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Lening.LeningDTO
 import io.vliet.plusmin.repository.LeningRepository
@@ -23,12 +24,15 @@ class LeningService {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
+    @Autowired
+    lateinit var saldiService: SaldiService
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(gebruiker: Gebruiker, leningenLijst: List<LeningDTO>) {
         leningenLijst.map { leningDTO ->
             val lening = fromDTO(gebruiker, leningDTO)
-            val verwachteEindBedrag = berekenRestschuldOpDatum(lening, lening.eindDatum)
+            val verwachteEindBedrag = berekenLeningDTOOpDatum(lening, lening.eindDatum)
             if (verwachteEindBedrag != lening.eindBedrag) {
                 logger.warn("Lening ${lening.rekening.naam} verwachte ${verwachteEindBedrag} maar in Lening ${lening.eindBedrag}")
             }
@@ -37,32 +41,41 @@ class LeningService {
         }
     }
 
-    fun berekenRestschuldOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): Saldi.SaldiDTO {
+    fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
         val leningenLijst = leningRepository.findLeningenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.BASIC_ISO_DATE)
-        val saldi = leningenLijst.map { lening ->
-            Saldo.SaldoDTO(
-                rekeningNaam = lening.rekening.naam,
-                bedrag = berekenRestschuldOpDatum(lening, peilDatum)
-            )
+        val standDTO = saldiService.getStandOpDatum(gebruiker, peilDatum)
+
+        return leningenLijst.map { lening ->
+            lening.toDTO()
+                .with(
+                    Lening.LeningSaldiDTO(
+                        peilDatum = peilDatumAsString,
+                        werkelijkSaldo = getBalansVanStand(standDTO, lening.rekening),
+                        berekendSaldo = berekenLeningDTOOpDatum(lening, peilDatum)
+                    )
+                )
         }
-        return Saldi.SaldiDTO(
-            datum = peilDatumAsString,
-            saldi = saldi
-        )
     }
 
-    fun berekenRestschuldOpDatum(lening: Lening, peilDatum: LocalDate): BigDecimal {
+    fun getBalansVanStand(standDTO: SaldiController.StandDTO, rekening: Rekening): BigDecimal {
+        val saldo: Saldo.SaldoDTO? = standDTO.balansOpDatum.saldi.find { it.rekeningNaam == rekening.naam }
+        return if (saldo == null) BigDecimal(0) else -saldo.bedrag
+    }
+
+    fun berekenLeningDTOOpDatum(lening: Lening, peilDatum: LocalDate): BigDecimal {
         if (peilDatum < lening.startDatum) return lening.eindBedrag
         if (peilDatum > lening.eindDatum) return BigDecimal(0)
-        val aantalMaanden = ChronoUnit.MONTHS.between(lening.startDatum, peilDatum)
+        val isHetAlAfgeschreven = if (peilDatum.dayOfMonth < lening.betaalDag) 1 else 0
+        val aantalMaanden = ChronoUnit.MONTHS.between(lening.startDatum, peilDatum) - isHetAlAfgeschreven
+        logger.warn("berekenLeningDTOOpDatum ${aantalMaanden}")
         return lening.eindBedrag - BigDecimal(aantalMaanden) * lening.aflossingsBedrag
     }
 
-    fun berekenRestschuldOpDatum(gebruiker: Gebruiker, leningDTO: LeningDTO, peilDatumAsString: String): BigDecimal {
+    fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, leningDTO: LeningDTO, peilDatumAsString: String): BigDecimal {
         val lening = fromDTO(gebruiker, leningDTO)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.BASIC_ISO_DATE)
-        return berekenRestschuldOpDatum(lening, peilDatum)
+        return berekenLeningDTOOpDatum(lening, peilDatum)
     }
 
     fun fromDTO(gebruiker: Gebruiker, leningDTO: LeningDTO): Lening {

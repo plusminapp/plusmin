@@ -25,7 +25,7 @@ class LeningController {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    @Operation(summary = "GET de leningen op basis van de JWT van een lening")
+    @Operation(summary = "GET de leningen van een hulpvrager")
     @GetMapping("/hulpvrager/{hulpvragerId}")
     fun getLeningenVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
@@ -35,18 +35,19 @@ class LeningController {
         return ResponseEntity.ok().body(leningRepository.findLeningenVoorGebruiker(hulpvrager))
     }
 
-    @Operation(summary = "GET de leningen op basis van de JWT van een lening")
+    @Operation(summary = "GET de saldi leningen van een hulpvrager op datum")
     @GetMapping("/hulpvrager/{hulpvragerId}/datum/{datum}")
     fun getLeningenSaldiVoorHulpvragerOpDatum(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @PathVariable("datum") datum: String,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET LeningController.getLeningenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum}door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(leningService.berekenRestschuldOpDatum (hulpvrager, datum))
+        logger.info("GET LeningController.getLeningenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(leningService.berekenLeningDTOOpDatum (hulpvrager, datum))
     }
 
-    @PostMapping("/hulpvrager/{hulpvragerId}")
+    @Operation(summary = "PUT (upsert) (nieuwe) leningen van een hulpvrager")
+    @PutMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweleningVoorHulpvrager(
         @Valid @RequestBody leningList: List<LeningDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
