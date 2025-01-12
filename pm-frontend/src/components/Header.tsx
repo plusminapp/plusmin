@@ -20,7 +20,7 @@ import { useCustomContext } from '../context/CustomContext';
 import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 
-const pages = ['Stand', 'Inkomsten/uitgaven', 'Lening'];
+const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Leningen'];
 
 function Header() {
     const navigate = useNavigate();

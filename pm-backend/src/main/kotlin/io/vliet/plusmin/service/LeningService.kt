@@ -41,9 +41,9 @@ class LeningService {
         }
     }
 
-    fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
+    fun berekenLeningenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
         val leningenLijst = leningRepository.findLeningenVoorGebruiker(gebruiker)
-        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.BASIC_ISO_DATE)
+        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
         val standDTO = saldiService.getStandOpDatum(gebruiker, peilDatum)
 
         return leningenLijst.map { lening ->

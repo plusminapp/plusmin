@@ -10,6 +10,8 @@ import io.vliet.plusmin.repository.LeningRepository
 import io.vliet.plusmin.domain.Lening.LeningDTO
 import io.vliet.plusmin.service.LeningService
 import jakarta.validation.Valid
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/lening")
@@ -43,7 +45,7 @@ class LeningController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET LeningController.getLeningenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(leningService.berekenLeningDTOOpDatum (hulpvrager, datum))
+        return ResponseEntity.ok().body(leningService.berekenLeningenOpDatum (hulpvrager, datum))
     }
 
     @Operation(summary = "PUT (upsert) (nieuwe) leningen van een hulpvrager")
@@ -51,7 +53,7 @@ class LeningController {
     fun creeerNieuweleningVoorHulpvrager(
         @Valid @RequestBody leningList: List<LeningDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-    ): ResponseEntity<Any>  {
+    ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweleningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(leningService.saveAll(hulpvrager, leningList))
