@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
-import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
+import { berekenBedragVoorRekenining, betaalmethodeRekeningSoorten, Rekening, RekeningSoort } from '../model/Rekening';
 import NieuweBetalingDialoog from '../components/Betaling/NieuweBetalingDialoog';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
 
@@ -48,7 +48,6 @@ export default function InkomstenUitgaven() {
     fetchBetalingen();
   }, [fetchBetalingen]);
 
-
   const berekenRekeningTotaal = (rekening: Rekening) => {
     return betalingen.reduce((acc, betaling) => (acc + berekenBedragVoorRekenining(betaling, rekening)), 0)
   }
@@ -57,8 +56,9 @@ export default function InkomstenUitgaven() {
     return betalingen
       .filter((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
-      // .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.aangaan_lening ? betaling.bedrag : -betaling.bedrag)), 0)
+    // .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.aangaan_lening ? betaling.bedrag : -betaling.bedrag)), 0)
   }
+
   const berekenReserveringTotaal = () => {
     return betalingen
       .filter((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
@@ -75,6 +75,12 @@ export default function InkomstenUitgaven() {
     return betalingen
       .filter((betaling) => (betaling.betalingsSoort === BetalingsSoort.uitgaven || betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
+  }
+
+  const berekenCashFlowTotaal = () => {
+    return betalingen
+      .filter((betaling) => betaalmethodeRekeningSoorten.includes(betaling.bron!.rekeningSoort) || betaalmethodeRekeningSoorten.includes(betaling.bestemming!.rekeningSoort))
+      .reduce((acc, betaling) => (acc + (betaalmethodeRekeningSoorten.includes(betaling.bron!.rekeningSoort) ? -betaling.bedrag : betaling.bedrag)), 0)
   }
 
   const heeftAflossenBetalingen = () => {
@@ -112,6 +118,7 @@ export default function InkomstenUitgaven() {
       <NieuweBetalingDialoog
         nieuweBetalingOpgeslagen={0}
         onChange={onChange} />
+      <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           {inkomstenRekeningen.length > 1 &&
@@ -161,7 +168,7 @@ export default function InkomstenUitgaven() {
           {heeftReserverenBetalingen() && heeftAflossenBetalingen() &&
             <Typography sx={{ py: '18px', mx: '18px' }}>
               Aflossingen/Reserveringen totaal: {currencyFormatter.format(berekenAflossingTotaal() + berekenReserveringTotaal())}
-              </Typography>}
+            </Typography>}
           {heeftAflossenBetalingen() &&
             <Grid >
               <Accordion >

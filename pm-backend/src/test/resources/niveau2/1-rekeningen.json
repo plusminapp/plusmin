@@ -21,55 +21,6 @@
     "sortOrder": 3
   },
   {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "BD Toeslagen",
-    "afkorting": "bdt",
-    "sortOrder": 10
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Flanderijn",
-    "afkorting": "fla",
-    "sortOrder": 11
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Woningcorporatie",
-    "afkorting": "wc",
-    "sortOrder": 12
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Waterschap",
-    "afkorting": "br1",
-    "sortOrder": 14
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Tribuut",
-    "afkorting": "br1",
-    "sortOrder": 15
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Smaal",
-    "afkorting": "br1",
-    "sortOrder": 16
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "Infomedics",
-    "afkorting": "br1",
-    "sortOrder": 17
-  },
-  {
     "rekeningSoort": "INKOMSTEN",
     "nummer": "",
     "naam": "Inkomsten",

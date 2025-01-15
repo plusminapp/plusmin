@@ -139,7 +139,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
 
   return (
     <React.Fragment>
-      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px' }}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
         Nieuwe betaling
       </Button>
       <BootstrapDialog

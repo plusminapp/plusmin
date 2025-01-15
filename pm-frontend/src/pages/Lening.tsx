@@ -114,7 +114,8 @@ export default function Leningen() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >
-            <LeningTabel lening={lening} />
+            <LeningTabel 
+            lening={lening} />
           </AccordionDetails>
         </Accordion>
       )}

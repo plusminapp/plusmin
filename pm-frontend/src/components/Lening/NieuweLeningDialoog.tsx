@@ -186,7 +186,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
               <DatePicker
                 disableFuture
                 slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer was de lening?"
+                label="Wanneer is de schuld/lening gestart?"
                 value={lening.startDatum}
                 onChange={(newvalue) => handleInputLeningWijziging('startDatum', newvalue ? newvalue : dayjs())}
               />
@@ -195,13 +195,13 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
               <DatePicker
                 minDate={dayjs()}
                 slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer was de lening?"
+                label="Wanneer is de schuld/lening afgelost?"
                 value={lening.eindDatum}
                 onChange={(newvalue) => handleInputLeningWijziging('eindDatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Eindbedrag</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">Hoe groot is de schuld/lening?</InputLabel>
               <Input
                 id="standard-adornment-amount"
                 // error={!!errors.bedrag}
@@ -215,7 +215,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
               )} */}
             </FormControl>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Eindbedrag</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">Wat wordt er maandelijks afgelost?</InputLabel>
               <Input
                 id="standard-adornment-amount"
                 // error={!!errors.aflossingsBedrag}
@@ -229,7 +229,20 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
               )} */}
             </FormControl>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Dossiernummer</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">Op welke dag in de maand wordt het overgemaakt?</InputLabel>
+              <Input
+                id="standard-adornment-amount"
+                // error={!!errors.betaalDag}
+                value={lening.betaalDag}
+                type="number"
+                onChange={(e) => handleInputLeningWijziging('betaalDag', parseFloat(e.target.value))}
+              />
+              {/* {errors.bedrag && (
+                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.betaalDag}</Typography>
+              )} */}
+            </FormControl>
+            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+              <InputLabel htmlFor="standard-adornment-amount">Wat is het dossiernummer?</InputLabel>
               <Input
                 id="omschrijfing"
                 // error={!!errors.naam}
@@ -243,13 +256,12 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
             </FormControl>
             <TextField
               id="outlined-basic"
-              label="Outlined"
+              label="Notities"
               variant="standard"
               value={lening.notities}
               fullWidth={true}
               minRows={4}
               onChange={(e) => handleInputLeningWijziging('notities', e.target.value)}
-              sx={{ width: '400px' }}
             />
           </Stack>
         </DialogContent>

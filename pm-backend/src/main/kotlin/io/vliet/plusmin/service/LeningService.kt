@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.controller.SaldiController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Lening.LeningDTO
+import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.LeningRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -30,6 +31,9 @@ class LeningService {
     @Autowired
     lateinit var saldoRepository: SaldoRepository
 
+    @Autowired
+    lateinit var betalingRepository: BetalingRepository
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(gebruiker: Gebruiker, leningenLijst: List<LeningDTO>) {
@@ -43,8 +47,11 @@ class LeningService {
             logger.info("Lening ${leningDTO.rekening.naam} voor ${gebruiker.bijnaam} opgeslagen.")
         }
         val saldi = saldiService.getOpeningSaldi(gebruiker)
-        val saldoDTOLijst = leningenLijst.map{
-            Saldo.SaldoDTO(rekeningNaam = it.rekening.naam, bedrag = -berekenLeningDTOOpDatum(gebruiker, it, saldi.datum.toString()) )
+        val saldoDTOLijst = leningenLijst.map {
+            Saldo.SaldoDTO(
+                rekeningNaam = it.rekening.naam,
+                bedrag = -berekenLeningDTOOpDatum(gebruiker, it, saldi.datum.toString())
+            )
         }
         saldiService.merge(gebruiker, saldi, saldoDTOLijst).map { saldoRepository.save(it) }
     }
@@ -57,15 +64,16 @@ class LeningService {
         return leningenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { lening ->
-            lening.toDTO()
-                .with(
-                    Lening.LeningSaldiDTO(
-                        peilDatum = peilDatumAsString,
-                        werkelijkSaldo = getBalansVanStand(standDTO, lening.rekening),
-                        berekendSaldo = berekenLeningDTOOpDatum(lening, peilDatum)
+                lening.toDTO()
+                    .with(
+                        Lening.LeningSaldiDTO(
+                            peilDatum = peilDatumAsString,
+                            werkelijkSaldo = getBalansVanStand(standDTO, lening.rekening),
+                            berekendSaldo = berekenLeningDTOOpDatum(lening, peilDatum),
+                            betaling = getBetalingVoorLeningOpPeildatum(lening, peilDatum)
+                        )
                     )
-                )
-        }
+            }
     }
 
     fun getBalansVanStand(standDTO: SaldiController.StandDTO, rekening: Rekening): BigDecimal {
@@ -82,6 +90,18 @@ class LeningService {
         return lening.eindBedrag - BigDecimal(aantalMaanden) * lening.aflossingsBedrag
     }
 
+    fun getBetalingVoorLeningOpPeildatum(lening: Lening, peilDatum: LocalDate): BigDecimal {
+        val betalingen = betalingRepository.findAllByGebruikerOpDatum(lening.rekening.gebruiker, peilDatum)
+        logger.info("aantal betalingen: ${betalingen.size}")
+        val filteredBetalingen =
+            betalingen.filter { it.bron.id == lening.rekening.id || it.bestemming.id == lening.rekening.id }
+        logger.info("aantal filteredBetalingen: ${filteredBetalingen.size}")
+        val bedrag =
+            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron == lening.rekening) -betaling.bedrag else betaling.bedrag }
+        logger.info("bedrag: ${bedrag}")
+        return bedrag
+    }
+
     fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, leningDTO: LeningDTO, peilDatumAsString: String): BigDecimal {
         val lening = fromDTO(gebruiker, leningDTO)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
@@ -90,15 +110,21 @@ class LeningService {
 
     fun fromDTO(gebruiker: Gebruiker, leningDTO: LeningDTO): Lening {
         val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, leningDTO.rekening.naam)
+        val maxSortOrder =
+            if (rekeningRepository.findMaxSortOrder().isPresent)
+                rekeningRepository.findMaxSortOrder().get().sortOrder + 1
+            else 1
         val rekening = if (rekeningOpt.isPresent) {
             rekeningOpt.get()
         } else {
-            rekeningRepository.save(Rekening(
-                gebruiker = gebruiker,
-                rekeningSoort = Rekening.RekeningSoort.LENING,
-                naam = leningDTO.rekening.naam,
-                sortOrder = leningDTO.rekening.sortOrder
-            ))
+            rekeningRepository.save(
+                Rekening(
+                    gebruiker = gebruiker,
+                    rekeningSoort = Rekening.RekeningSoort.LENING,
+                    naam = leningDTO.rekening.naam,
+                    sortOrder = maxSortOrder
+                )
+            )
         }
         if (rekening.rekeningSoort != Rekening.RekeningSoort.LENING) {
             val message =

@@ -28,8 +28,8 @@ export default function LeningTabel(props: LeningProps) {
               <TableCell align="right" size='small'>Bedrag/maand</TableCell>
               <TableCell align="right" size='small'>Betaaldag</TableCell>
               <TableCell align="left" size='small'>Dossiernummer</TableCell>
-              <TableCell align="right" size='small'>Verwachte saldo</TableCell>
-              <TableCell align="right" size='small'>Werkelijk saldo</TableCell>
+              <TableCell align="right" size='small'>Verwachte restschuld</TableCell>
+              <TableCell align="right" size='small'>Werkelijk restschuld</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -42,6 +42,9 @@ export default function LeningTabel(props: LeningProps) {
                   <TableCell align="left" size='small'>{props.lening.dossierNummer}</TableCell>
                   <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.leningSaldiDTO!.berekendSaldo)}</TableCell>
                   <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.leningSaldiDTO!.werkelijkSaldo)}</TableCell>
+              </TableRow>
+              <TableRow>
+                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze maand: {currencyFormatter.format(props.lening.leningSaldiDTO!.betaling)}</TableCell>
               </TableRow>
               <TableRow>
                   <TableCell align="left" size='small' colSpan={8}>Notities<br/>{props.lening.notities}</TableCell>

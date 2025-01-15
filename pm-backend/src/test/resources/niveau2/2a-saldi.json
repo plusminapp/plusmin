@@ -6,6 +6,10 @@
       "bedrag": "100"
     },
     {
+      "rekeningNaam": "Contant",
+      "bedrag": "5"
+    },
+    {
       "rekeningNaam": "ASN spaarrekening",
       "bedrag": "475"
     }

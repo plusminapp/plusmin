@@ -17,5 +17,6 @@ export type Lening = {
 export type LeningSaldi = {
     peilDatum: string,
     berekendSaldo: number,
-    werkelijkSaldo: number
+    werkelijkSaldo: number,
+    betaling: number
 }

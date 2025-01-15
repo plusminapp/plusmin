@@ -10,7 +10,7 @@
   },
   {
     "boekingsdatum": "2025-01-02",
-    "bedrag": 25,
+    "bedrag": 25.23,
     "saldo_achteraf": null,
     "omschrijving": "Jumbo",
     "betalingsSoort": "UITGAVEN",
@@ -36,6 +36,51 @@
     "bestemming": "Vaste lasten"
   },
   {
+    "boekingsdatum": "2025-01-02",
+    "bedrag": 14,
+    "saldo_achteraf": null,
+    "omschrijving": "Tribuut",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "2025-01-05",
+    "bedrag": 62.5,
+    "saldo_achteraf": null,
+    "omschrijving": "GBLT",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "2025-01-06",
+    "bedrag": 724.36,
+    "saldo_achteraf": null,
+    "omschrijving": "Huur",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 123.69,
+    "saldo_achteraf": null,
+    "omschrijving": "KPN telefoon mobiel & vast",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 135,
+    "saldo_achteraf": null,
+    "omschrijving": "ONVZ Zorgverzekering",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Vaste lasten"
+  },
+  {
     "boekingsdatum": "2025-01-16",
     "bedrag": 259,
     "saldo_achteraf": null,
@@ -43,5 +88,41 @@
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "BD Toeslagen"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 25,
+    "saldo_achteraf": null,
+    "omschrijving": "Infomedics",
+    "betalingsSoort": "AFLOSSEN_LENING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Infomedics"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 75,
+    "saldo_achteraf": null,
+    "omschrijving": "Smaal",
+    "betalingsSoort": "AFLOSSEN_LENING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Smaal"
+  },
+  {
+    "boekingsdatum": "2025-01-05",
+    "bedrag": 40,
+    "saldo_achteraf": null,
+    "omschrijving": "Waterschap",
+    "betalingsSoort": "AFLOSSEN_LENING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Waterschap"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 40,
+    "saldo_achteraf": null,
+    "omschrijving": "Tribuut",
+    "betalingsSoort": "AFLOSSEN_LENING",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Tribuut"
   }
 ]

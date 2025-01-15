@@ -1,16 +1,5 @@
 [
   {
-    "email": "hans@lsta.nl",
-    "bijnaam": "HansK.VW",
-    "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
-  },
-  {
-    "email": "hkoning.gzn@gmail.com",
-    "bijnaam": "HansK.HV",
-    "vrijwilligerEmail": "hans@lsta.nl",
-    "roles": ["ROLE_HULPVRAGER"]
-  },
-  {
     "email": "ruud@vliet.io",
     "bijnaam": "Ruud Vrijwilliger",
     "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]

@@ -62,7 +62,8 @@ class Lening(
     data class LeningSaldiDTO(
         val peilDatum: String,
         val berekendSaldo: BigDecimal,
-        val werkelijkSaldo: BigDecimal
+        val werkelijkSaldo: BigDecimal,
+        val betaling: BigDecimal
     )
 
     fun toDTO(): LeningDTO {
