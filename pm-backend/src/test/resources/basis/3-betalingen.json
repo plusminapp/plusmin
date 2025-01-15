@@ -1,83 +1,164 @@
 [
   {
-    "boekingsdatum": "20250101",
-    "bedrag": 1000,
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 2135,
     "saldo_achteraf": null,
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Inkomsten",
-    "bestemming": "Beschikbaar geld"
+    "bestemming": "ASN betaalrekening"
   },
   {
-    "boekingsdatum": "20250101",
-    "bedrag": 100,
+    "boekingsdatum": "2025-01-02",
+    "bedrag": 25.23,
     "saldo_achteraf": null,
-    "omschrijving": "Bonus",
-    "betalingsSoort": "INKOMSTEN",
-    "bron": "Inkomsten",
-    "bestemming": "Beschikbaar geld"
-  },
-  {
-    "boekingsdatum": "20250102",
-    "bedrag": 25,
-    "saldo_achteraf": null,
-    "omschrijving": "Jumbo",
+    "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250102",
-    "bedrag": 15,
+    "boekingsdatum": "2025-01-09",
+    "bedrag": 54.01,
     "saldo_achteraf": null,
-    "omschrijving": "Ramenwasser",
+    "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250102",
-    "bedrag": 50,
+    "boekingsdatum": "2025-01-16",
+    "bedrag": 49.91,
+    "saldo_achteraf": null,
+    "omschrijving": "Aldi",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-02",
+    "bedrag": 169,
     "saldo_achteraf": null,
     "omschrijving": "Greenchoice",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250102",
-    "bedrag": 10,
+    "boekingsdatum": "2025-01-02",
+    "bedrag": 14,
     "saldo_achteraf": null,
     "omschrijving": "Vitens",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250103",
-    "bedrag": 125,
+    "boekingsdatum": "2025-01-02",
+    "bedrag": 14,
     "saldo_achteraf": null,
-    "omschrijving": "Belastingdienst",
+    "omschrijving": "Tribuut",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250103",
-    "bedrag": 150,
+    "boekingsdatum": "2025-01-05",
+    "bedrag": 62.5,
     "saldo_achteraf": null,
-    "omschrijving": "Aflossen VISA creditcard",
+    "omschrijving": "GBLT",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   },
   {
-    "boekingsdatum": "20250103",
-    "bedrag": 50,
+    "boekingsdatum": "2025-01-06",
+    "bedrag": 724.36,
     "saldo_achteraf": null,
-    "omschrijving": "Winterjas voor Jan",
+    "omschrijving": "Huur",
     "betalingsSoort": "UITGAVEN",
-    "bron": "Beschikbaar geld",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 123.69,
+    "saldo_achteraf": null,
+    "omschrijving": "KPN telefoon mobiel & vast",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 135,
+    "saldo_achteraf": null,
+    "omschrijving": "ONVZ Zorgverzekering",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 16.45,
+    "saldo_achteraf": null,
+    "omschrijving": "Het Onderdelenhuis",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 4.95,
+    "saldo_achteraf": null,
+    "omschrijving": "Kruidvat",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-16",
+    "bedrag": 259,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossing Belastingdienst",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 25,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossing Infomedics",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 75,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossing Smaal",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-05",
+    "bedrag": 40,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossing Waterschap",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Uitgaven"
+  },
+  {
+    "boekingsdatum": "2025-01-01",
+    "bedrag": 40,
+    "saldo_achteraf": null,
+    "omschrijving": "Aflossing Tribuut",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
     "bestemming": "Uitgaven"
   }
 ]

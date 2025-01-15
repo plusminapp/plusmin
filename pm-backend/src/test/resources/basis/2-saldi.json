@@ -1,8 +1,8 @@
 {
-  "datum": "20250101",
+  "datum": "2025-01-01",
   "saldoLijst": [
     {
-      "rekeningNaam": "Beschikbaar geld",
+      "rekeningNaam": "ASN betaalrekening",
       "bedrag": "100"
     }
   ]

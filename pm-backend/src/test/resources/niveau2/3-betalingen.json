@@ -12,7 +12,25 @@
     "boekingsdatum": "2025-01-02",
     "bedrag": 25.23,
     "saldo_achteraf": null,
-    "omschrijving": "Jumbo",
+    "omschrijving": "Aldi",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-01-09",
+    "bedrag": 54.01,
+    "saldo_achteraf": null,
+    "omschrijving": "Aldi",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
+  },
+  {
+    "boekingsdatum": "2025-01-16",
+    "bedrag": 49.91,
+    "saldo_achteraf": null,
+    "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
     "bestemming": "Boodschappen"
@@ -81,10 +99,28 @@
     "bestemming": "Vaste lasten"
   },
   {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 16.45,
+    "saldo_achteraf": null,
+    "omschrijving": "Het Onderdelenhuis",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Andere uitgave"
+  },
+  {
+    "boekingsdatum": "2025-01-10",
+    "bedrag": 4.95,
+    "saldo_achteraf": null,
+    "omschrijving": "Kruidvat",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Andere uitgave"
+  },
+  {
     "boekingsdatum": "2025-01-16",
     "bedrag": 259,
     "saldo_achteraf": null,
-    "omschrijving": "Belastingdienst",
+    "omschrijving": "Aflossing Belastingdienst",
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "BD Toeslagen"
@@ -93,7 +129,7 @@
     "boekingsdatum": "2025-01-01",
     "bedrag": 25,
     "saldo_achteraf": null,
-    "omschrijving": "Infomedics",
+    "omschrijving": "Aflossing Infomedics",
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "Infomedics"
@@ -102,7 +138,7 @@
     "boekingsdatum": "2025-01-01",
     "bedrag": 75,
     "saldo_achteraf": null,
-    "omschrijving": "Smaal",
+    "omschrijving": "Aflossing Smaal",
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "Smaal"
@@ -111,7 +147,7 @@
     "boekingsdatum": "2025-01-05",
     "bedrag": 40,
     "saldo_achteraf": null,
-    "omschrijving": "Waterschap",
+    "omschrijving": "Aflossing Waterschap",
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "Waterschap"
@@ -120,7 +156,7 @@
     "boekingsdatum": "2025-01-01",
     "bedrag": 40,
     "saldo_achteraf": null,
-    "omschrijving": "Tribuut",
+    "omschrijving": "Aflossing Tribuut",
     "betalingsSoort": "AFLOSSEN_LENING",
     "bron": "ASN betaalrekening",
     "bestemming": "Tribuut"

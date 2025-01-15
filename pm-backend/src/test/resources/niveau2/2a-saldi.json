@@ -3,15 +3,11 @@
   "saldoLijst": [
     {
       "rekeningNaam": "ASN betaalrekening",
-      "bedrag": "100"
-    },
-    {
-      "rekeningNaam": "Contant",
-      "bedrag": "5"
+      "bedrag": "75"
     },
     {
       "rekeningNaam": "ASN spaarrekening",
-      "bedrag": "475"
+      "bedrag": "25"
     }
   ]
 }

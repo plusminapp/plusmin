@@ -15,9 +15,9 @@
   },
   {
     "rekeningSoort": "BETAALREKENING",
-    "nummer": "",
-    "naam": "Beschikbaar geld",
-    "afkorting": "bg",
-    "sortOrder": 3
+    "nummer": "betaalrekeningnummer",
+    "naam": "ASN betaalrekening",
+    "afkorting": "btr",
+    "sortOrder": 1
   }
 ]

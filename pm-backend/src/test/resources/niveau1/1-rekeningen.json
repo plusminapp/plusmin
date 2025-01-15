@@ -11,48 +11,34 @@
     "nummer": "",
     "naam": "Inkomsten",
     "afkorting": "ink",
-    "sortOrder": 10
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Vaste lasten",
-    "afkorting": "vl",
-    "sortOrder": 12
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Andere uitgave",
-    "afkorting": "au",
-    "sortOrder": 13
-  },
-  {
-    "rekeningSoort": "CONTANT",
-    "nummer": "",
-    "naam": "Contant",
-    "afkorting": "cnt",
-    "sortOrder": 3
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "BR Belastingdienst",
-    "afkorting": "br1",
-    "sortOrder": 6
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "BR Greenchoice",
-    "afkorting": "br2",
-    "sortOrder": 7
+    "sortOrder": 110
   },
   {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "Boodschappen",
     "afkorting": "boo",
-    "sortOrder": 11
+    "sortOrder": 111
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Vaste lasten",
+    "afkorting": "vl",
+    "sortOrder": 112
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Andere uitgave",
+    "afkorting": "au",
+    "sortOrder": 113
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Schulden/leningen",
+    "afkorting": "au",
+    "sortOrder": 114
   }
 ]
