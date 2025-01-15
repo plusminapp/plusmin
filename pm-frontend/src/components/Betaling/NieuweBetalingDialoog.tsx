@@ -109,7 +109,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
             {
               ...betalingDTO,
               omschrijving: betalingDTO.omschrijving?.trim(),
-              boekingsdatum: betalingDTO.boekingsdatum.format('YYYYMMDD'),
+              boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
             }]),
         })
         if (response.ok) {

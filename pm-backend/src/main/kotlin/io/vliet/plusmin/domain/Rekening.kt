@@ -17,15 +17,14 @@ class Rekening(
         allocationSize = 1
     )
     val id: Long = 0,
+    val naam: String,
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
     @Enumerated(EnumType.STRING)
     val rekeningSoort: RekeningSoort,
-    val nummer: String?,
-    val naam: String,
-    val afkorting: String,
+    val nummer: String? = null,
     val sortOrder: Int
 ) {
     companion object {
@@ -37,16 +36,14 @@ class Rekening(
         rekeningSoort: RekeningSoort = this.rekeningSoort,
         nummer: String? = this.nummer,
         naam: String = this.naam,
-        afkorting: String = this.afkorting,
         sortOrder: Int = this.sortOrder
-    ) = Rekening(this.id, gebruiker, rekeningSoort, nummer, naam, afkorting, sortOrder)
+    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, sortOrder)
 
     data class RekeningDTO(
         val id: Long = 0,
         val rekeningSoort: String,
         val nummer: String?,
         val naam: String,
-        val afkorting: String,
         val sortOrder: Int
     )
 
@@ -56,7 +53,6 @@ class Rekening(
             this.rekeningSoort.toString(),
             this.nummer,
             this.naam,
-            this.afkorting,
             this.sortOrder
         )
     }

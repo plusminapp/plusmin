@@ -1,6 +1,6 @@
 {
   "datum": "20250101",
-  "saldi": [
+  "saldoLijst": [
     {
       "rekeningNaam": "Beschikbaar geld",
       "bedrag": "100"

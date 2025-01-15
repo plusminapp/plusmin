@@ -1,15 +1,17 @@
+import dayjs from "dayjs"
+import { Rekening } from "./Rekening"
+
 export type Lening = {
 
-    rekeningNaam: string,
-    startDatum: string,
-    eindDatum: string,
+    rekening: Rekening,
+    startDatum: dayjs.Dayjs,
+    eindDatum: dayjs.Dayjs,
     eindBedrag: number,
     aflossingsBedrag: number,
     betaalDag: number,
     dossierNummer: string,
     notities: string,
-    sortOrder: number,
-    leningSaldiDTO: LeningSaldi
+    leningSaldiDTO: LeningSaldi | undefined
 }
 
 export type LeningSaldi = {

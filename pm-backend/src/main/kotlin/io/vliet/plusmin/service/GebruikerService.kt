@@ -20,13 +20,13 @@ class GebruikerService {
 
     fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<Gebruiker> {
         return gebruikersLijst.map { gebruikerDTO ->
-            val vrijwilligerOpt = if (gebruikerDTO.vrijwilligerBijnaam.isNotEmpty()) {
-                gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerBijnaam)
+            val vrijwilligerOpt = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
+                gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
             } else null
             val vrijwilliger = if (vrijwilligerOpt != null && vrijwilligerOpt.isPresent) {
                 vrijwilligerOpt.get()
             } else null
-            logger.info("gebruiker: ${gebruikerDTO.vrijwilligerBijnaam}, vrijwilliger: ${vrijwilliger?.email}")
+            logger.info("gebruiker: ${gebruikerDTO.vrijwilligerEmail}, vrijwilliger: ${vrijwilliger?.email}")
             val gebruikerOpt = gebruikerRepository.findByEmail(gebruikerDTO.email)
             val gebruiker = if (gebruikerOpt.isPresent) {
                 gebruikerOpt.get().fullCopy(

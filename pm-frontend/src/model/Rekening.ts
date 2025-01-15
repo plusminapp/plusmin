@@ -2,10 +2,9 @@ import { Betaling } from "./Betaling";
 
 export type Rekening = {
     id: number;
+    naam: string;
     rekeningSoort: RekeningSoort;
     nummer: string | undefined;
-    naam: string;
-    afkorting: string;
     sortOrder: number;
 }
 

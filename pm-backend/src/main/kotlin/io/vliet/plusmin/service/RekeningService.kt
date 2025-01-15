@@ -4,7 +4,6 @@ import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Rekening.RekeningDTO
 import io.vliet.plusmin.domain.Rekening.RekeningSoort
-import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -16,9 +15,6 @@ class RekeningService {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
-    @Autowired
-    lateinit var gebruikerRepository: GebruikerRepository
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun saveAll(gebruiker: Gebruiker, rekeningenLijst: List<RekeningDTO>): List<RekeningDTO> {
@@ -29,7 +25,7 @@ class RekeningService {
                 rekeningOpt.get().fullCopy(
                     rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
-                    afkorting = rekeningDTO.afkorting
+                    sortOrder = rekeningDTO.sortOrder
                 )
             } else {
                 Rekening(
@@ -37,7 +33,6 @@ class RekeningService {
                     rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
                     naam = rekeningDTO.naam,
-                    afkorting = rekeningDTO.afkorting,
                     sortOrder = rekeningDTO.sortOrder
                 )
             }

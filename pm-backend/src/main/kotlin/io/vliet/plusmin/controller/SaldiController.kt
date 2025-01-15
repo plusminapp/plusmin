@@ -1,10 +1,7 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Rekening
-import io.vliet.plusmin.domain.Saldi
 import io.vliet.plusmin.domain.Saldi.SaldiDTO
-import io.vliet.plusmin.repository.SaldiRepository
 import io.vliet.plusmin.service.SaldiService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -12,7 +9,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -49,7 +45,7 @@ class SaldiController {
         @Valid @RequestBody saldiDTO: SaldiDTO): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(saldiService.save(hulpvrager, saldiDTO))
+        return ResponseEntity.ok().body(saldiService.upsert(hulpvrager, saldiDTO))
     }
 
     data class StandDTO(

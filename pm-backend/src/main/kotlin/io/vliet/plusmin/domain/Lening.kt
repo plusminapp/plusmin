@@ -28,8 +28,7 @@ class Lening(
     val betaalDag: Int,
     val dossierNummer: String,
     @Column(columnDefinition = "TEXT")
-    val notities: String,
-    val sortOrder: Int
+    val notities: String
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
@@ -40,12 +39,11 @@ class Lening(
         betaalDag: Int = this.betaalDag,
         dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
-        sortOrder: Int = this.sortOrder
-    ) = Lening(this.id, rekening, startDatum, eindDatum, eindBedrag, aflossingsBedrag, betaalDag, dossierNummer, notities, sortOrder)
+    ) = Lening(this.id, rekening, startDatum, eindDatum, eindBedrag, aflossingsBedrag, betaalDag, dossierNummer, notities)
 
     data class LeningDTO(
         val id: Long = 0,
-        val rekeningNaam: String,
+        val rekening: Rekening.RekeningDTO,
         val startDatum: String,
         val eindDatum: String,
         val eindBedrag: String,
@@ -53,7 +51,6 @@ class Lening(
         val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
-        val sortOrder: Int,
         var leningSaldiDTO:LeningSaldiDTO? = null
     ) {
         fun with(leningSaldiDTO: LeningSaldiDTO): LeningDTO {
@@ -71,7 +68,7 @@ class Lening(
     fun toDTO(): LeningDTO {
         return LeningDTO(
             this.id,
-            this.rekening.naam,
+            this.rekening.toDTO(),
             this.startDatum.toString(),
             this.eindDatum.toString(),
             this.eindBedrag.toString(),
@@ -79,7 +76,6 @@ class Lening(
             this.betaalDag,
             this.dossierNummer,
             this.notities,
-            this.sortOrder
         )
     }
 }

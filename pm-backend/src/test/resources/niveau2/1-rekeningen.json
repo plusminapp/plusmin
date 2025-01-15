@@ -7,55 +7,6 @@
     "sortOrder": 1
   },
   {
-    "rekeningSoort": "CREDITCARD",
-    "nummer": "creditcardnummer",
-    "naam": "VISA creditcard",
-    "afkorting": "cc",
-    "sortOrder": 4
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "BR Belastingdienst",
-    "afkorting": "br1",
-    "sortOrder": 6
-  },
-  {
-    "rekeningSoort": "LENING",
-    "nummer": "",
-    "naam": "BR Greenchoice",
-    "afkorting": "br2",
-    "sortOrder": 7
-  },
-  {
-    "rekeningSoort": "RESERVERING",
-    "nummer": "",
-    "naam": "Reservering",
-    "afkorting": "res",
-    "sortOrder": 5
-  },
-  {
-    "rekeningSoort": "INKOMSTEN",
-    "nummer": "",
-    "naam": "Inkomsten",
-    "afkorting": "ink",
-    "sortOrder": 10
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Vaste lasten",
-    "afkorting": "vl",
-    "sortOrder": 12
-  },
-  {
-    "rekeningSoort": "UITGAVEN",
-    "nummer": "",
-    "naam": "Andere uitgave",
-    "afkorting": "au",
-    "sortOrder": 13
-  },
-  {
     "rekeningSoort": "SPAARREKENING",
     "nummer": "spaarrekeningnummer",
     "naam": "ASN spaarrekening",
@@ -70,10 +21,80 @@
     "sortOrder": 3
   },
   {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "BD Toeslagen",
+    "afkorting": "bdt",
+    "sortOrder": 10
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Flanderijn",
+    "afkorting": "fla",
+    "sortOrder": 11
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Woningcorporatie",
+    "afkorting": "wc",
+    "sortOrder": 12
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Waterschap",
+    "afkorting": "br1",
+    "sortOrder": 14
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Tribuut",
+    "afkorting": "br1",
+    "sortOrder": 15
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Smaal",
+    "afkorting": "br1",
+    "sortOrder": 16
+  },
+  {
+    "rekeningSoort": "LENING",
+    "nummer": "",
+    "naam": "Infomedics",
+    "afkorting": "br1",
+    "sortOrder": 17
+  },
+  {
+    "rekeningSoort": "INKOMSTEN",
+    "nummer": "",
+    "naam": "Inkomsten",
+    "afkorting": "ink",
+    "sortOrder": 110
+  },
+  {
     "rekeningSoort": "UITGAVEN",
     "nummer": "",
     "naam": "Boodschappen",
     "afkorting": "boo",
-    "sortOrder": 11
+    "sortOrder": 111
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Vaste lasten",
+    "afkorting": "vl",
+    "sortOrder": 112
+  },
+  {
+    "rekeningSoort": "UITGAVEN",
+    "nummer": "",
+    "naam": "Andere uitgave",
+    "afkorting": "au",
+    "sortOrder": 113
   }
 ]

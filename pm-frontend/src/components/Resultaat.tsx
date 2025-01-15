@@ -22,8 +22,8 @@ export default function Saldi(props: SaldiProps) {
   }
 
   const calculateResult = (): number => {
-    const saldi: Saldo[] = props.saldi.saldi
-    return saldi.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
+    const saldoLijst: Saldo[] = props.saldi.saldoLijst
+    return saldoLijst.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
   }
 
   return (
@@ -41,7 +41,7 @@ export default function Saldi(props: SaldiProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.saldi.saldi.map((saldo) => (
+            {props.saldi.saldoLijst.map((saldo) => (
               <TableRow>
                   <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekeningNaam}</TableCell>
                   <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(saldo.bedrag)}</TableCell>

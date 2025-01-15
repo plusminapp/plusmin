@@ -1,0 +1,13 @@
+{
+  "datum": "2025-01-01",
+  "saldoLijst": [
+    {
+      "rekeningNaam": "ASN betaalrekening",
+      "bedrag": "100"
+    },
+    {
+      "rekeningNaam": "ASN spaarrekening",
+      "bedrag": "475"
+    }
+  ]
+}

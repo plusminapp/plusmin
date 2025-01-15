@@ -56,7 +56,8 @@ export default function InkomstenUitgaven() {
   const berekenAflossingTotaal = () => {
     return betalingen
       .filter((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
-      .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.aangaan_lening ? betaling.bedrag : -betaling.bedrag)), 0)
+      .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
+      // .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.aangaan_lening ? betaling.bedrag : -betaling.bedrag)), 0)
   }
   const berekenReserveringTotaal = () => {
     return betalingen

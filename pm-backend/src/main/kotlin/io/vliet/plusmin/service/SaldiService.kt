@@ -37,41 +37,41 @@ class SaldiService {
         val balansSaldiOpDatum = getBalansSaldiOpDatum(openingSaldi, mutatieLijst)
 
         val openingsBalans =
-            openingSaldi.saldi
+            openingSaldi.saldoLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
         val mutatiesOpDatum =
-            mutatieLijst.saldi
+            mutatieLijst.saldoLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
         val balansOpDatum =
-            balansSaldiOpDatum.saldi
+            balansSaldiOpDatum.saldoLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
         val resultaatOpDatum =
-            mutatieLijst.saldi
+            mutatieLijst.saldoLijst
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
         return SaldiController.StandDTO(
             openingsBalans = SaldiDTO(
                 datum = openingSaldi.datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = openingsBalans
+                saldoLijst = openingsBalans
             ),
             mutatiesOpDatum = SaldiDTO(
                 datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = mutatiesOpDatum
+                saldoLijst = mutatiesOpDatum
             ),
             balansOpDatum = SaldiDTO(
                 datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = balansOpDatum
+                saldoLijst = balansOpDatum
             ),
             resultaatOpDatum = SaldiDTO(
                 datum = datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-                saldi = resultaatOpDatum
+                saldoLijst = resultaatOpDatum
             )
         )
     }
@@ -104,13 +104,13 @@ class SaldiService {
     }
 
     fun getBalansSaldiOpDatum(openingsSaldi: Saldi, mutatieLijst: Saldi): Saldi {
-        val saldi = openingsSaldi.saldi.map { saldo: Saldo ->
-            val mutatie: BigDecimal? = mutatieLijst.saldi.find { it.rekening.naam == saldo.rekening.naam }?.bedrag
+        val saldoLijst = openingsSaldi.saldoLijst.map { saldo: Saldo ->
+            val mutatie: BigDecimal? = mutatieLijst.saldoLijst.find { it.rekening.naam == saldo.rekening.naam }?.bedrag
             saldo.fullCopy(
                 bedrag = saldo.bedrag + (mutatie ?: BigDecimal(0))
             )
         }
-        return mutatieLijst.fullCopy(saldi = saldi)
+        return mutatieLijst.fullCopy(saldoLijst = saldoLijst)
     }
 
     fun creeerNulSaldi(gebruiker: Gebruiker): Saldi {
@@ -124,28 +124,38 @@ class SaldiService {
         return saldiRepository.save(Saldi(0, gebruiker, eersteBetalingsDatum, saldoLijst))
     }
 
-    fun save(gebruiker: Gebruiker, saldiDTO: SaldiDTO): SaldiDTO {
-        val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.BASIC_ISO_DATE).withDayOfMonth(1)
+    fun upsert(gebruiker: Gebruiker, saldiDTO: SaldiDTO): SaldiDTO {
+        val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.ISO_LOCAL_DATE).withDayOfMonth(1)
         val saldiOpt = saldiRepository.findSaldiGebruikerEnDatum(gebruiker, datum)
         val saldi = if (saldiOpt.isPresent) {
             logger.info("Saldi wordt overschreven: ${saldiOpt.get().datum} met id ${saldiOpt.get().id} voor ${gebruiker.bijnaam}")
-            saldiOpt.get().saldi.forEach { saldoRepository.delete(it) }
-            saldiRepository.save(
-                saldiOpt.get().fullCopy(
-                    saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it, saldiOpt.get()) },
-                )
-            )
+            saldiRepository.save(saldiOpt.get().fullCopy(saldoLijst = merge(gebruiker, saldiOpt.get(), saldiDTO.saldoLijst)))
         } else {
-            saldiRepository.save(
-                Saldi(
+            val nieuweSaldoList = saldiDTO.saldoLijst.map { dto2Saldo(gebruiker, it) }
+            val nieuwSaldi = Saldi(
                     gebruiker = gebruiker,
                     datum = datum,
-                    saldi = saldiDTO.saldi.map { dto2Saldo(gebruiker, it) },
+                    saldoLijst = nieuweSaldoList
                 )
-            )
+            nieuweSaldoList.forEach { it.saldi = nieuwSaldi }
+            saldiRepository.save(nieuwSaldi)
         }
         logger.info("Opslaan saldi ${saldi.datum} voor ${gebruiker.bijnaam}")
         return saldi.toDTO()
+    }
+
+    fun merge(gebruiker: Gebruiker, saldi: Saldi, saldoDTOs: List<Saldo.SaldoDTO>): List<Saldo> {
+        val bestaandeSaldoMap = saldi.saldoLijst.associateBy { it.rekening.naam }.toMutableMap()
+        val nieuweSaldoList = saldoDTOs.map { saldoDTO ->
+            val bestaandeSaldo = bestaandeSaldoMap[saldoDTO.rekeningNaam]
+            if (bestaandeSaldo == null) {
+                dto2Saldo(gebruiker, saldoDTO, saldi)
+            } else {
+                bestaandeSaldoMap.remove(saldoDTO.rekeningNaam)
+                bestaandeSaldo.fullCopy(bedrag = saldoDTO.bedrag)
+            }
+        }
+        return  bestaandeSaldoMap.values.toList() + nieuweSaldoList
     }
 
     fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, saldi: Saldi? = null): Saldo {
@@ -158,10 +168,10 @@ class SaldiService {
         return if (saldi == null) {
             Saldo(0, rekening.get(), bedrag)
         } else {
-            val saldo = saldi.saldi.filter { it.rekening.naam == rekening.get().naam }
+            val saldo = saldi.saldoLijst.filter { it.rekening.naam == rekening.get().naam }
             if (saldo.size == 0) {
-                logger.info("saldi: ${saldi.id} heeft geen saldo voor ${rekening.get().naam}; wordt met bedrag 0 aangemaakt.")
-                Saldo(0, rekening.get(), BigDecimal(0))
+                logger.info("saldi: ${saldi.id} heeft geen saldo voor ${rekening.get().naam}; wordt met bedrag ${saldoDTO.bedrag} aangemaakt.")
+                Saldo(0, rekening.get(), saldoDTO.bedrag, saldi)
             } else {
                 saldo[0].fullCopy(bedrag = bedrag)
             }

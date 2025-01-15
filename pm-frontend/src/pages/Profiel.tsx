@@ -24,21 +24,26 @@ const Profiel: React.FC = () => {
           <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
             Je hebt "{gebruiker?.bijnaam}" als bijnaam gekozen.<br />
             Je {gebruiker?.roles.length && gebruiker?.roles.length > 1 ? " rollen zijn " : " rol is "}
-            "{gebruiker?.roles.map(x => x.split('_')[1].toLowerCase()).join('\", \"')}".
+            "{gebruiker?.roles.map(x => x.split('_')[1].toLowerCase()).join('", "')}".
           </Typography>
           {gebruiker?.roles.includes("ROLE_HULPVRAGER") &&
-            <Typography sx={{ my: '25px' }}>Je wordt begeleid door "{gebruiker?.vrijwilligerbijnaam}".
+            <Typography sx={{ my: '25px' }}>Je wordt begeleid door "{gebruiker?.vrijwilligerEmail}".
             </Typography>
           }
           {gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
             <Typography sx={{ my: '25px' }}>Je begeleidt
               {hulpvragers.length === 0 ? " (nog) niemand " : hulpvragers.length > 1 ? " de hulpvragers " : " de hulpvrager "}
-              "{hulpvragers.map(x => x.bijnaam).join('\", \"')}".
+              "{hulpvragers.map(x => x.bijnaam).join('", "')}".
             </Typography>
           }
         </>
       }
       <>
+        {!rekeningen || rekeningen.length == 0 &&
+            <Typography variant='h4' sx={{ my: '25px' }}>
+              De huidige actieve hulpvrager {actieveHulpvrager?.bijnaam} heeft geen rekeningen.
+            </Typography>        
+        }
         {rekeningen && rekeningen.length > 0 &&
           <>
             <Typography variant='h4' sx={{ my: '25px' }}>

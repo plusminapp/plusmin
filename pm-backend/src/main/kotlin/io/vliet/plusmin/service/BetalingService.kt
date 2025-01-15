@@ -41,7 +41,7 @@ class BetalingService {
                 logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
                 Betaling(
                     gebruiker = gebruiker,
-                    boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
+                    boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
                     bedrag = betalingDTO.bedrag.toBigDecimal(),
                     omschrijving = betalingDTO.omschrijving,
                     betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
@@ -56,7 +56,7 @@ class BetalingService {
     fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {
         return betalingRepository.findMatchingBetaling(
             gebruiker = gebruiker,
-            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.BASIC_ISO_DATE),
+            boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             bedrag = betalingDTO.bedrag.toBigDecimal(),
             omschrijving = betalingDTO.omschrijving,
             betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),

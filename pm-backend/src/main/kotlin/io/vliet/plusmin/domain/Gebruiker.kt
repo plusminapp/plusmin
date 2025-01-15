@@ -30,8 +30,8 @@ class Gebruiker(
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
     var rekeningen: List<Rekening> = emptyList(),
     @JsonIgnore
-    @OneToMany(mappedBy = "gebruiker", fetch = FetchType.LAZY)
-    var saldi: List<Saldi> = emptyList()
+    @OneToMany(fetch = FetchType.LAZY)
+    var saldoLijst: List<Saldo> = emptyList()
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
@@ -71,7 +71,7 @@ class Gebruiker(
         val email: String,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
         val roles: List<String> = emptyList(),
-        val vrijwilligerBijnaam: String = "",
+        val vrijwilligerEmail: String = "",
         val rekeningen: List<Rekening> = emptyList(),
     )
 

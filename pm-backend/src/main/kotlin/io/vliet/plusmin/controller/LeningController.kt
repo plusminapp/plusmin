@@ -45,7 +45,7 @@ class LeningController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET LeningController.getLeningenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(leningService.berekenLeningenOpDatum (hulpvrager, datum))
+        return ResponseEntity.ok().body(leningService.berekenLeningenOpDatum(hulpvrager, datum))
     }
 
     @Operation(summary = "PUT (upsert) (nieuwe) leningen van een hulpvrager")
@@ -55,7 +55,7 @@ class LeningController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("POST BetalingController.creeerNieuweleningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("PUT LeningController.creeerNieuweleningVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(leningService.saveAll(hulpvrager, leningList))
     }
 }

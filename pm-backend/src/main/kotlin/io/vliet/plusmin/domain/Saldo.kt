@@ -24,17 +24,21 @@ class Saldo(
     @ManyToOne
     @JoinColumn(name = "rekening_id", referencedColumnName = "id")
     val rekening: Rekening,
-    val bedrag: BigDecimal
+    val bedrag: BigDecimal,
+    @ManyToOne
+    @JoinColumn(name = "saldi_id", referencedColumnName = "id")
+    var saldi: Saldi? = null
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
-        bedrag: BigDecimal = this.bedrag
-    ) = Saldo(this.id, rekening, bedrag)
+        bedrag: BigDecimal = this.bedrag,
+        saldi: Saldi? = this.saldi
+    ) = Saldo(this.id, rekening, bedrag, saldi)
 
     data class SaldoDTO(
         val id: Long = 0,
         val rekeningNaam: String,
-        val bedrag: BigDecimal,
+        val bedrag: BigDecimal
     )
 
     fun toDTO(): SaldoDTO {

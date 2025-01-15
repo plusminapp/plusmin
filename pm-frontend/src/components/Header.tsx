@@ -243,6 +243,7 @@ function Header() {
                     <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => signIn()}>Login</Button>
                 }
             </Toolbar>
+            
         </AppBar>
     );
 }

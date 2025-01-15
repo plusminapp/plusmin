@@ -60,7 +60,7 @@ class Betaling(
     fun toDTO(): BetalingDTO {
         return BetalingDTO(
             this.id,
-            this.boekingsdatum.format(DateTimeFormatter.BASIC_ISO_DATE),
+            this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.bedrag.toString(),
             this.omschrijving,
             this.betalingsSoort.toString(),
