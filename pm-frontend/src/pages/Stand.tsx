@@ -23,7 +23,7 @@ export default function Stand() {
     const fetchSaldi = async () => {
       if (actieveHulpvrager) {
         setIsLoading(true);
-        const datum = new Date().toISOString().slice(0, 10);
+        const datum = new Date("2025-01-31").toISOString().slice(0, 10);
         const id = actieveHulpvrager.id 
         const token = await getIDToken();
         const response = await fetch(`/api/v1/saldi/hulpvrager/${id}/stand/${datum}`, {

@@ -1,7 +1,11 @@
-export const Min = ({ height = "24" }) => {
+interface MinProps {
+  color: string;
+}
+
+export const Min = (props: MinProps) => {
   return (
     <svg
-      height={height}
+      height={24}
       viewBox="0 0 24 24"
       width="auto"
       fill="#008000"
@@ -15,7 +19,7 @@ export const Min = ({ height = "24" }) => {
         id="path235" />
       <path
         d="M 12,2 C 6.48,2 2,6.48 2,12 2,17.52 6.48,22 12,22 17.52,22 22,17.52 22,12 22,6.48 17.52,2 12,2 Z m 5,11 H 7 v -2 h 10 z"
-        fill="red"
+        fill={props.color}
         id="path237" />
     </svg >
   );

@@ -11,7 +11,6 @@ import { ArrowDropDownIcon, DatePicker, LocalizationProvider } from "@mui/x-date
 import LeningTabel from "../components/Lening/LeningTabel";
 import { Min } from "../assets/Min";
 import { Plus } from "../assets/Plus";
-import { Waarschuwing } from "../assets/Waarschuwing";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import NieuweLeningDialoog from "../components/Lening/NieuweLeningDialoog";
@@ -66,11 +65,19 @@ export default function Leningen() {
   }
 
   const berekenToestandIcoon = (lening: Lening) => {
-    if (!lening.leningSaldiDTO) return <Waarschuwing />
-    else return lening.leningSaldiDTO.berekendSaldo == lening.leningSaldiDTO.werkelijkSaldo ? <Plus /> :
-      lening.leningSaldiDTO.berekendSaldo < lening.leningSaldiDTO.werkelijkSaldo ? <Min /> :
-        lening.leningSaldiDTO.berekendSaldo - lening.leningSaldiDTO.werkelijkSaldo - lening.aflossingsBedrag == 0 &&
-          lening.betaalDag >= parseInt(lening.leningSaldiDTO.peilDatum.slice(8)) ? <><Plus /><Plus /></> : <Waarschuwing />
+    if (!lening.leningSaldiDTO)
+      return <Min color="black" />
+    else {
+      const isVoorBetaaldag = lening.betaalDag > parseInt(lening.leningSaldiDTO.peilDatum.slice(8));
+      const isOpBetaaldag = lening.betaalDag == parseInt(lening.leningSaldiDTO.peilDatum.slice(8));
+      const kloptSaldo = lening.leningSaldiDTO.berekendSaldo == lening.leningSaldiDTO.werkelijkSaldo;
+      const heeftBetalingAchtersstand = lening.leningSaldiDTO.berekendSaldo < lening.leningSaldiDTO.werkelijkSaldo
+      const isAflossingAlBetaald = lening.leningSaldiDTO.berekendSaldo - lening.leningSaldiDTO.werkelijkSaldo - lening.aflossingsBedrag == 0;
+      return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <Plus color="grey" /> :
+        (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <Plus color="green" /> :
+          isVoorBetaaldag && isAflossingAlBetaald ? <Plus color="lightGreen" /> :
+            heeftBetalingAchtersstand ? <Min color="red" /> : <Plus color="orange" />
+    }
   }
 
   return (
@@ -114,8 +121,8 @@ export default function Leningen() {
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >
-            <LeningTabel 
-            lening={lening} />
+            <LeningTabel
+              lening={lening} />
           </AccordionDetails>
         </Accordion>
       )}
