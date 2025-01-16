@@ -19,6 +19,7 @@ import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
 import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
+import { transformRekeningenToBetalingsSoorten } from '../Header';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -70,7 +71,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen, setRekeningen, setBetalingsSoorten2Rekeningen } = useCustomContext();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -120,6 +121,8 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
         })
         if (response.ok) {
           setRekening({ ...initialRekening })
+          setRekeningen([...rekeningen, rekening])
+          setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten([...rekeningen, rekening]))
           setLening({
             ...initialLening,
             rekening: initialRekening,

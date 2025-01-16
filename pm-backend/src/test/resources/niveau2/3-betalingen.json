@@ -1,12 +1,21 @@
 [
   {
-    "boekingsdatum": "2025-01-01",
+    "boekingsdatum": "2024-12-21",
     "bedrag": 2135,
     "saldo_achteraf": null,
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Inkomsten",
     "bestemming": "ASN betaalrekening"
+  },
+  {
+    "boekingsdatum": "2024-12-23",
+    "bedrag": 74.88,
+    "saldo_achteraf": null,
+    "omschrijving": "Aldi",
+    "betalingsSoort": "UITGAVEN",
+    "bron": "ASN betaalrekening",
+    "bestemming": "Boodschappen"
   },
   {
     "boekingsdatum": "2025-01-02",
@@ -72,7 +81,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-06",
+    "boekingsdatum": "2024-12-28",
     "bedrag": 724.36,
     "saldo_achteraf": null,
     "omschrijving": "Huur",
@@ -99,7 +108,7 @@
     "bestemming": "Vaste lasten"
   },
   {
-    "boekingsdatum": "2025-01-10",
+    "boekingsdatum": "2024-12-22",
     "bedrag": 16.45,
     "saldo_achteraf": null,
     "omschrijving": "Het Onderdelenhuis",
@@ -117,7 +126,7 @@
     "bestemming": "Andere uitgave"
   },
   {
-    "boekingsdatum": "2025-01-16",
+    "boekingsdatum": "2024-12-26",
     "bedrag": 259,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Belastingdienst",
@@ -126,7 +135,7 @@
     "bestemming": "BD Toeslagen"
   },
   {
-    "boekingsdatum": "2025-01-01",
+    "boekingsdatum": "2024-12-26",
     "bedrag": 25,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Infomedics",
@@ -135,7 +144,7 @@
     "bestemming": "Infomedics"
   },
   {
-    "boekingsdatum": "2025-01-01",
+    "boekingsdatum": "2024-12-26",
     "bedrag": 75,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Smaal",
@@ -144,7 +153,7 @@
     "bestemming": "Smaal"
   },
   {
-    "boekingsdatum": "2025-01-05",
+    "boekingsdatum": "2024-12-26",
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Waterschap",
@@ -153,7 +162,7 @@
     "bestemming": "Waterschap"
   },
   {
-    "boekingsdatum": "2025-01-01",
+    "boekingsdatum": "2024-12-21",
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Tribuut",

@@ -16,6 +16,7 @@ export default function InkomstenUitgaven() {
   const { gebruiker, actieveHulpvrager, rekeningen } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
+  const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false);
   // const [checked, setChecked] = useState(false);
 
@@ -47,6 +48,32 @@ export default function InkomstenUitgaven() {
   useEffect(() => {
     fetchBetalingen();
   }, [fetchBetalingen]);
+
+  const fetchAflossingsBedrag = useCallback(async () => {
+    if (gebruiker) {
+      setIsLoading(true);
+      const token = await getIDToken();
+      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+      const response = await fetch(`/api/v1/lening/hulpvrager/${id}/aflossingsbedrag`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      setIsLoading(false);
+      if (response.ok) {
+        const result = await response.json();
+        setAflossingsBedrag(result);
+      } else {
+        console.error("Ophalen van het aflossingsBedrag is mislukt.", response.status);
+      }
+    }
+  }, [getIDToken, actieveHulpvrager, gebruiker]);
+
+  useEffect(() => {
+    fetchAflossingsBedrag();
+  }, [fetchAflossingsBedrag]);
 
   const berekenRekeningTotaal = (rekening: Rekening) => {
     return betalingen.reduce((acc, betaling) => (acc + berekenBedragVoorRekenining(betaling, rekening)), 0)
@@ -102,9 +129,11 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <NieuweBetalingDialoog
-        nieuweBetalingOpgeslagen={0}
-        onChange={onChange} />
+      <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
+        <NieuweBetalingDialoog
+          nieuweBetalingOpgeslagen={0}
+          onChange={onChange} />
+      </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
@@ -163,7 +192,7 @@ export default function InkomstenUitgaven() {
                   expandIcon={<ArrowDropDownIcon />}
                   aria-controls='extra'
                   id='extra'>
-                  <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())}</Typography>
+                  <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
                   <AflossingReserveringTabel

@@ -3,6 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.controller.SaldiController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Lening.LeningDTO
+import io.vliet.plusmin.domain.Lening.LeningData
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.LeningRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -97,7 +98,7 @@ class LeningService {
             betalingen.filter { it.bron.id == lening.rekening.id || it.bestemming.id == lening.rekening.id }
         logger.info("aantal filteredBetalingen: ${filteredBetalingen.size}")
         val bedrag =
-            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron == lening.rekening) -betaling.bedrag else betaling.bedrag }
+            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == lening.rekening.id) acc - betaling.bedrag else acc + betaling.bedrag }
         logger.info("bedrag: ${bedrag}")
         return bedrag
     }
@@ -158,4 +159,24 @@ class LeningService {
         }
         return lening
     }
+
+    fun generateMonthsBetween(startDate: LocalDate, endDate: LocalDate): List<LocalDate> {
+        val dates = mutableListOf<LocalDate>()
+        var current = startDate.withDayOfMonth(1)
+        val end = endDate.withDayOfMonth(1)
+        while (!current.isAfter(end)) {
+            dates.add(current)
+            current = current.plus(1, ChronoUnit.MONTHS)
+        }
+        return dates
+    }
+//    fun berekenLeningGrafiekData(gebruiker: Gebruiker): MutableMap<String, List<LeningData>> {
+//        val formatter = DateTimeFormatter.ofPattern("MMM yy")
+//        val leningen = leningRepository.findLeningenVoorGebruiker(gebruiker)
+//        var leningGrafiekData: MutableMap<String, List<LeningData>> = mutableMapOf()
+//        leningen.forEach { lening ->
+//            val maanden = generateMonthsBetween(lening.startDatum, lening.eindDatum)
+//
+//        }
+//    }
 }

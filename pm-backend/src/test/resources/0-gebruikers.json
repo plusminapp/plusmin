@@ -12,13 +12,13 @@
   },
   {
     "email": "hulpvrager-niveau-1@vliet.io",
-    "bijnaam": "Hulpvrager Niveau 1",
+    "bijnaam": "Hulpvrager Niv-1",
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "ruud.van.vliet@ett-twello.nl",
-    "bijnaam": "Hulpvrager Niveau 2",
+    "bijnaam": "Hulpvrager Niv-1-app",
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   }

@@ -22,6 +22,27 @@ import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Bet
 
 const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Leningen'];
 
+export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
+    const result = new Map<BetalingsSoort, RekeningPaar>();
+    betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
+        const bronRekeningen = rekeningen
+        .filter(rekening => rekeningSoortPaar.bron.includes(rekening.rekeningSoort))
+        .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
+        const BestemmingRekeningen = rekeningen
+        .filter(rekening => rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort))
+        .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
+        if (bronRekeningen.length > 0 && BestemmingRekeningen.length > 0) {
+            result.set(betalingsSoort, {
+                bron: bronRekeningen,
+                bestemming: BestemmingRekeningen
+            });
+        }
+    });
+    return result;
+}
+
+
+
 function Header() {
     const navigate = useNavigate();
     const handleNavigation = (page: string) => {
@@ -68,25 +89,6 @@ function Header() {
         return rekeningen.filter((rekening) =>
             betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)
         )
-    }
-
-    const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
-        const result = new Map<BetalingsSoort, RekeningPaar>();
-        betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
-            const bronRekeningen = rekeningen
-            .filter(rekening => rekeningSoortPaar.bron.includes(rekening.rekeningSoort))
-            .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
-            const BestemmingRekeningen = rekeningen
-            .filter(rekening => rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort))
-            .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
-            if (bronRekeningen.length > 0 && BestemmingRekeningen.length > 0) {
-                result.set(betalingsSoort, {
-                    bron: bronRekeningen,
-                    bestemming: BestemmingRekeningen
-                });
-            }
-        });
-        return result;
     }
 
     const handleActieveHulpvrager = (id: number) => {

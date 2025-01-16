@@ -79,4 +79,12 @@ class Lening(
             this.notities,
         )
     }
+
+    data class LeningGrafiekData(
+        val leningGrafiekMaandData: MutableMap<String, List<LeningData>> = mutableMapOf()
+    )
+    data class LeningData(
+        val leningNaam: String,
+        val restSchuld: BigDecimal
+    )
 }

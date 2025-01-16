@@ -44,7 +44,7 @@ export default function LeningTabel(props: LeningProps) {
                   <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.leningSaldiDTO!.werkelijkSaldo)}</TableCell>
               </TableRow>
               <TableRow>
-                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze maand: {currencyFormatter.format(props.lening.leningSaldiDTO!.betaling)}</TableCell>
+                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze periode: {currencyFormatter.format(props.lening.leningSaldiDTO!.betaling)}</TableCell>
               </TableRow>
               <TableRow>
                   <TableCell align="left" size='small' colSpan={8}>Notities<br/>{props.lening.notities}</TableCell>

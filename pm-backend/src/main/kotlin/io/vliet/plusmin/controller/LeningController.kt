@@ -10,6 +10,7 @@ import io.vliet.plusmin.repository.LeningRepository
 import io.vliet.plusmin.domain.Lening.LeningDTO
 import io.vliet.plusmin.service.LeningService
 import jakarta.validation.Valid
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -35,6 +36,18 @@ class LeningController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET LeningController.getLeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(leningRepository.findLeningenVoorGebruiker(hulpvrager))
+    }
+
+    @Operation(summary = "GET het totale aflossingsbedrag van een hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/aflossingsbedrag")
+    fun getAflossingsbedragVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET LeningController.getLeningenVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val aflossingsBedrag = leningRepository.findLeningenVoorGebruiker(hulpvrager)
+            .fold(BigDecimal(0)) { acc, lening -> acc + lening.aflossingsBedrag }
+        return ResponseEntity.ok().body(aflossingsBedrag)
     }
 
     @Operation(summary = "GET de saldi leningen van een hulpvrager op datum")

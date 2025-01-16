@@ -86,7 +86,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
       newErrors.omschrijving = 'Omschrijving mag niet leeg zijn.';
       setIsValid(false)
     }
-    if (key === 'bedrag' && (isNaN(value as number) || value as number <= 0)) {
+    if (key === 'bedrag' && (isNaN(value as number) || value as number == 0)) {
       newErrors.bedrag = 'Bedrag moet een positief getal zijn.';
       setIsValid(false)
     }

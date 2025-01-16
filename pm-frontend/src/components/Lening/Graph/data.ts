@@ -1,0 +1,87 @@
+export function getData() {
+    return [
+        { month: '2024-05', toeslagen: 7425, smaal: 851.4, infomedics: 386.4, flanderijn: 1304, woningcorporatie: 669.91, waterschap: 644.41, tribuut: 632.74 },
+        { month: '2024-06', toeslagen: 7166, smaal: 776.4, infomedics: 361.4, flanderijn: 1229, woningcorporatie: 644.91, waterschap: 619.41, tribuut: 592.74 },
+        { month: '2024-07', toeslagen: 6907, smaal: 701.4, infomedics: 336.4, flanderijn: 1154, woningcorporatie: 619.91, waterschap: 594.41, tribuut: 552.74 },
+        { month: '2024-08', toeslagen: 6648, smaal: 626.4, infomedics: 311.4, flanderijn: 1079, woningcorporatie: 594.91, waterschap: 569.41, tribuut: 512.74 },
+        { month: '2024-09', toeslagen: 6389, smaal: 551.4, infomedics: 286.4, flanderijn: 1004, woningcorporatie: 569.91, waterschap: 544.41, tribuut: 472.74 },
+        { month: '2024-10', toeslagen: 6130, smaal: 476.4, infomedics: 261.4, flanderijn: 929, woningcorporatie: 544.91, waterschap: 519.41, tribuut: 432.74 },
+        { month: '2024-11', toeslagen: 5871, smaal: 401.4, infomedics: 236.4, flanderijn: 854, woningcorporatie: 519.91, waterschap: 494.41, tribuut: 392.74 },
+        { month: '2024-12', toeslagen: 5612, smaal: 326.4, infomedics: 211.4, flanderijn: 779, woningcorporatie: 494.91, waterschap: 469.41, tribuut: 352.74 },
+        { month: '2025-01', toeslagen: 5353, smaal: 251.4, infomedics: 186.4, flanderijn: 704, woningcorporatie: 469.91, waterschap: 444.41, tribuut: 312.74 },
+        { month: '2025-02', toeslagen: 5094, smaal: 176.4, infomedics: 161.4, flanderijn: 629, woningcorporatie: 444.91, waterschap: 419.41, tribuut: 272.74 },
+        { month: '2025-03', toeslagen: 4835, smaal: 101.4, infomedics: 136.4, flanderijn: 554, woningcorporatie: 419.91, waterschap: 394.41, tribuut: 232.74 },
+        { month: '2025-04', toeslagen: 4576, smaal: 26.4, infomedics: 111.4, flanderijn: 479, woningcorporatie: 394.91, waterschap: 369.41, tribuut: 192.74 },
+        { month: '2025-05', toeslagen: 4317, infomedics: 86.4, flanderijn: 404, woningcorporatie: 369.91, waterschap: 344.41, tribuut: 152.74 },
+        { month: '2025-06', toeslagen: 4058, infomedics: 61.4, flanderijn: 329, woningcorporatie: 344.91, waterschap: 319.41, tribuut: 112.74 },
+        { month: '2025-07', toeslagen: 3799, infomedics: 36.4, flanderijn: 254, woningcorporatie: 319.91, waterschap: 294.41, tribuut: 72.74 },
+        { month: '2025-08', toeslagen: 3540, infomedics: 11.4, flanderijn: 179, woningcorporatie: 294.91, waterschap: 269.41, tribuut: 32.74 },
+        { month: '2025-09', toeslagen: 3281, flanderijn: 104, woningcorporatie: 269.91, waterschap: 244.41 },
+        { month: '2025-10', toeslagen: 3022, flanderijn: 29, woningcorporatie: 244.91, waterschap: 219.41 },
+        { month: '2025-11', toeslagen: 2763, woningcorporatie: 219.91, waterschap: 194.41 },
+        { month: '2025-12', toeslagen: 2504, woningcorporatie: 194.91, waterschap: 169.41 },
+        { month: '2026-01', toeslagen: 2245, woningcorporatie: 169.91, waterschap: 144.41 },
+        { month: '2026-02', toeslagen: 1986, woningcorporatie: 144.91, waterschap: 119.41 },
+        { month: '2026-03', toeslagen: 1727, woningcorporatie: 119.91, waterschap: 94.41 },
+        { month: '2026-04', toeslagen: 1468, woningcorporatie: 94.91, waterschap: 69.41 },
+        { month: '2026-05', toeslagen: 1209, woningcorporatie: 69.91, waterschap: 44.41 },
+        { month: '2026-06', toeslagen: 950, woningcorporatie: 44.91, waterschap: 19.41 },
+        { month: '2026-07', toeslagen: 691, woningcorporatie: 19.91 },
+        { month: '2026-08', toeslagen: 432 },
+        { month: '2026-09', toeslagen: 173 },
+    ];
+}
+
+export function getSeries() {
+    return [
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "toeslagen",
+            yName: "Toeslagen",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "smaal",
+            yName: "Smaal",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "infomedics",
+            yName: "Infomedics",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "flanderijn",
+            yName: "Flanderijn",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "woningcorporatie",
+            yName: "Woningcorporatie",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "waterschap",
+            yName: "Waterschap",
+            stacked: true,
+          },
+          {
+            type: "area",
+            xKey: "month",
+            yKey: "tribuut",
+            yName: "Tribuut",
+            stacked: true,
+          },
+        ]
+    }

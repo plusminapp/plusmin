@@ -14,6 +14,7 @@ import { Plus } from "../assets/Plus";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import NieuweLeningDialoog from "../components/Lening/NieuweLeningDialoog";
+import { LeningenAfbouwGrafiek } from "../components/Lening/Graph/LeningenAfbouwGrafiek";
 
 export default function Leningen() {
 
@@ -68,11 +69,11 @@ export default function Leningen() {
     if (!lening.leningSaldiDTO)
       return <Min color="black" />
     else {
-      const isVoorBetaaldag = lening.betaalDag > parseInt(lening.leningSaldiDTO.peilDatum.slice(8));
+      const isVoorBetaaldag = lening.betaalDag > parseInt(lening.leningSaldiDTO.peilDatum.slice(8)) && parseInt(lening.leningSaldiDTO.peilDatum.slice(8)) >= 21;
       const isOpBetaaldag = lening.betaalDag == parseInt(lening.leningSaldiDTO.peilDatum.slice(8));
       const kloptSaldo = lening.leningSaldiDTO.berekendSaldo == lening.leningSaldiDTO.werkelijkSaldo;
       const heeftBetalingAchtersstand = lening.leningSaldiDTO.berekendSaldo < lening.leningSaldiDTO.werkelijkSaldo
-      const isAflossingAlBetaald = lening.leningSaldiDTO.berekendSaldo - lening.leningSaldiDTO.werkelijkSaldo - lening.aflossingsBedrag == 0;
+      const isAflossingAlBetaald = (Math.round(lening.leningSaldiDTO.berekendSaldo - lening.leningSaldiDTO.werkelijkSaldo - lening.aflossingsBedrag) === 0);
       return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <Plus color="grey" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <Plus color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <Plus color="lightGreen" /> :
@@ -89,22 +90,45 @@ export default function Leningen() {
         <>
           <Typography variant='h4'>Schulden/leningen pagina</Typography>
           <Grid container spacing={2} columns={2} justifyContent="space-between">
+            <Grid size={2} alignItems="start">
+              <Typography sx={{ mt: '5px' }}>
+                De huidige periode (2024-12) loopt van 21&nbsp;december&nbsp;2024 tot en met 20&nbsp;januari&nbsp;2025
+              </Typography>
+            </Grid>
             <Grid size={1} alignItems="start">
               <Box sx={{ my: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
                   <DatePicker
                     slotProps={{ textField: { variant: "standard" } }}
-                    label="Tijdreizen naar"
+                    label="Tijdreizen"
                     value={formDatum}
                     onChange={(newvalue) => handleInputChange(newvalue ? newvalue : dayjs())}
                   />
                 </LocalizationProvider>
               </Box>
             </Grid>
-            <Grid size={1} alignItems="end">
+            <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
               <NieuweLeningDialoog nieuweLeningOpgeslagen={0} onChange={onChange} />
             </Grid>
           </Grid>
+          <Accordion
+          elevation={2}>
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls={"afbouwgrafiek"}
+            id={"afbouwgrafiek"}>
+            <Typography
+              sx={{ color: 'FFF' }}
+              component="span">
+                Verwachte afbouw van de schulden/leningen
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }} >
+            <LeningenAfbouwGrafiek 
+            huidigePeriode="2024-12"/>
+          </AccordionDetails>
+        </Accordion>
+
         </>
       }
       {leningen.map(lening =>
@@ -117,7 +141,7 @@ export default function Leningen() {
             <Typography
               sx={{ color: 'FFF' }}
               component="span">
-              {berekenToestandIcoon(lening)} &nbsp; {lening.rekening.naam} op {lening.leningSaldiDTO?.peilDatum} 
+              {berekenToestandIcoon(lening)} &nbsp; {lening.rekening.naam}
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >
