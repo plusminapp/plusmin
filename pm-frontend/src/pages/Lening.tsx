@@ -117,7 +117,7 @@ export default function Leningen() {
             <Typography
               sx={{ color: 'FFF' }}
               component="span">
-              {lening.rekening.naam} op {lening.leningSaldiDTO?.peilDatum} &nbsp; {berekenToestandIcoon(lening)}
+              {berekenToestandIcoon(lening)} &nbsp; {lening.rekening.naam} op {lening.leningSaldiDTO?.peilDatum} 
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >

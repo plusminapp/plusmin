@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, currencyFormatter, 
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, FormControlLabel, FormGroup, Switch, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -17,7 +17,7 @@ export default function InkomstenUitgaven() {
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [isLoading, setIsLoading] = useState(false);
-  const [checked, setChecked] = useState(false);
+  // const [checked, setChecked] = useState(false);
 
   const uitgaveRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort == RekeningSoort.uitgaven)
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort == RekeningSoort.inkomsten)
@@ -99,22 +99,9 @@ export default function InkomstenUitgaven() {
     fetchBetalingen()
   }
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
-
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <FormGroup>
-        <FormControlLabel control={
-          <Switch
-            checked={checked}
-            onChange={handleChange}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />}
-          label="Andere weergaven" />
-      </FormGroup>
       <NieuweBetalingDialoog
         nieuweBetalingOpgeslagen={0}
         onChange={onChange} />
@@ -204,26 +191,6 @@ export default function InkomstenUitgaven() {
             </Grid>
           }
         </Grid>
-
-        {checked &&
-          <Grid size={{ xs: 1, lg: 4 }}>
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls='extra'
-                  id='extra'>
-                  <Typography component="span">Kies een eigen weergave </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <InkomstenUitgavenTabel
-                    actueleRekening={undefined}
-                    isFilterSelectable={true}
-                    betalingen={betalingen} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          </Grid>}
       </Grid>
     </>
   );

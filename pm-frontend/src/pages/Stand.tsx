@@ -14,7 +14,7 @@ export default function Stand() {
   const [balansOpDatum, setBalansOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [resultaatOpDatum, setResultaatOpDatum] = useState<RekeningSaldi | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = useState(true);
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager } = useCustomContext();
 
@@ -23,7 +23,7 @@ export default function Stand() {
     const fetchSaldi = async () => {
       if (actieveHulpvrager) {
         setIsLoading(true);
-        const datum = new Date("2025-01-31").toISOString().slice(0, 10);
+        const datum = new Date().toISOString().slice(0, 10);
         const id = actieveHulpvrager.id 
         const token = await getIDToken();
         const response = await fetch(`/api/v1/saldi/hulpvrager/${id}/stand/${datum}`, {
@@ -71,7 +71,7 @@ export default function Stand() {
                 onChange={handleChange}
                 inputProps={{ 'aria-label': 'controlled' }}
               />}
-              label="Toon openening & mutaties" />
+              label="Toon opening & mutaties" />
           </FormGroup>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>

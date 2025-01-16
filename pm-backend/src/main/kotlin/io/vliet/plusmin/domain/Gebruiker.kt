@@ -28,10 +28,7 @@ class Gebruiker(
     @JoinColumn(name = "vrijwilliger_id", referencedColumnName = "id")
     val vrijwilliger: Gebruiker? = null,
     @OneToMany(mappedBy = "gebruiker", fetch = FetchType.EAGER)
-    var rekeningen: List<Rekening> = emptyList(),
-    @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY)
-    var saldoLijst: List<Saldo> = emptyList()
+    var rekeningen: List<Rekening> = emptyList()
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {

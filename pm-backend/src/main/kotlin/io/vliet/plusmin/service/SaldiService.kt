@@ -79,7 +79,7 @@ class SaldiService {
     fun getOpeningSaldi(gebruiker: Gebruiker): Saldi {
         val openingsSaldiOpt = saldiRepository.getLaatsteSaldiVoorGebruiker(gebruiker.id)
         return if (openingsSaldiOpt.isEmpty)
-            this.creeerNulSaldi(gebruiker)
+            throw Exception("Nog geen saldi voor ${gebruiker.bijnaam}.")
         else openingsSaldiOpt.get()
     }
 
@@ -125,7 +125,7 @@ class SaldiService {
     }
 
     fun upsert(gebruiker: Gebruiker, saldiDTO: SaldiDTO): SaldiDTO {
-        val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.ISO_LOCAL_DATE).withDayOfMonth(1)
+        val datum = LocalDate.parse(saldiDTO.datum, DateTimeFormatter.ISO_LOCAL_DATE)
         val saldiOpt = saldiRepository.findSaldiGebruikerEnDatum(gebruiker, datum)
         val saldi = if (saldiOpt.isPresent) {
             logger.info("Saldi wordt overschreven: ${saldiOpt.get().datum} met id ${saldiOpt.get().id} voor ${gebruiker.bijnaam}")

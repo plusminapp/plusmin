@@ -44,7 +44,7 @@ class SaldiController {
         @PathVariable("hulpvragerId") hulpvragerId: Long,
         @Valid @RequestBody saldiDTO: SaldiDTO): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} met datum ${saldiDTO.datum}")
         return ResponseEntity.ok().body(saldiService.upsert(hulpvrager, saldiDTO))
     }
 
