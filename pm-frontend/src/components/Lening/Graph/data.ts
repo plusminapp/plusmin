@@ -38,7 +38,7 @@ export function getSeries() {
             type: "area",
             xKey: "month",
             yKey: "toeslagen",
-            yName: "Toeslagen",
+            yName: "BD Toeslagen",
             stacked: true,
           },
           {
