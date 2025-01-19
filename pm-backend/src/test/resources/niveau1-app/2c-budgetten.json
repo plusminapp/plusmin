@@ -1,0 +1,22 @@
+[
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Huur",
+    "budget-type": "periodiek",
+    "bedrag": 750,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Greenchoice",
+    "budgetType": "periodiek",
+    "bedrag": 169,
+    "betaalDag": 26
+  },
+  {
+    "rekening":  "Boodschappen",
+    "budgetNaam": "Boodschappen",
+    "budgetType": "continu",
+    "bedrag": 300
+  }
+]
