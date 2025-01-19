@@ -131,6 +131,7 @@ export default function InkomstenUitgaven() {
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
       <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
         <NieuweBetalingDialoog
+        editMode={false}
           nieuweBetalingOpgeslagen={0}
           onChange={onChange} />
       </Grid>

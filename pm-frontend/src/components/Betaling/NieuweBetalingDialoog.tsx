@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import SaveIcon from '@mui/icons-material/Save';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
@@ -32,10 +33,11 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 type NieuweBetalingDialoogProps = {
   nieuweBetalingOpgeslagen: number;
   onChange: (nieuweBetalingOpgeslagen: number) => void;
+  editMode: boolean;
+  betaling?: BetalingDTO;
 };
 
 export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps) {
-
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
     boekingsdatum: dayjs(),
@@ -46,15 +48,10 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
     bestemming: undefined,
   }), []);
 
-  const initialMessage = {
-    message: undefined,
-    type: undefined
-  }
-
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(props.editMode);
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(initialBetalingDTO);
   const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
-  const [message, setMessage] = useState<SnackbarMessage>(initialMessage);
+  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const { getIDToken } = useAuthContext();
@@ -63,12 +60,16 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
-    setBetalingDTO({
-      ...initialBetalingDTO,
-      bron: rekeningPaar?.bron[0].naam,
-      bestemming: rekeningPaar?.bestemming[0].naam
-    })
-  }, [rekeningPaar, initialBetalingDTO])
+    if (props.editMode && props.betaling) {
+      setBetalingDTO({ ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) });
+    } else {
+      setBetalingDTO({
+        ...initialBetalingDTO,
+        bron: rekeningPaar?.bron[0].naam,
+        bestemming: rekeningPaar?.bestemming[0].naam
+      });
+    }
+  }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -139,9 +140,11 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
 
   return (
     <React.Fragment>
-      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
-        Nieuwe betaling
-      </Button>
+      {!props.editMode &&
+        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
+          Nieuwe betaling
+        </Button>
+      }
       <BootstrapDialog
         onClose={handleClose}
         aria-labelledby="customized-dialog-title"
@@ -149,7 +152,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
         fullWidth
       >
         <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Nieuwe betaling
+          {props.editMode ? "Bewerk betaling" : "Nieuwe betaling"}
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -213,13 +216,10 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleSubmit}>
-            Bewaar betaling
-          </Button>
+          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon />} />
         </DialogActions>
       </BootstrapDialog>
       <StyledSnackbar message={message.message} type={message.type} />
-
     </React.Fragment>
   );
 }

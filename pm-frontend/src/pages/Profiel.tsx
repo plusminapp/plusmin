@@ -55,7 +55,7 @@ const Profiel: React.FC = () => {
               <Table sx={{ width: "100%" }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Rekeningsoort</TableCell>
+                    <TableCell>Soort rekening</TableCell>
                     <TableCell>Gekozen naam</TableCell>
                   </TableRow>
                 </TableHead>
@@ -91,7 +91,7 @@ const Profiel: React.FC = () => {
               <Table sx={{ width: "100%" }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Betalingssoort</TableCell>
+                    <TableCell>Soort betaling</TableCell>
                     <TableCell>Bron (debet)</TableCell>
                     <TableCell>Bestemming (credit)</TableCell>
                   </TableRow>

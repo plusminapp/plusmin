@@ -9,10 +9,12 @@ import Paper from '@mui/material/Paper';
 import { Betaling } from '../../model/Betaling';
 import { useEffect, useState, Fragment } from 'react';
 
-import { FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
 import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
+import NieuweBetalingDialoog from './NieuweBetalingDialoog';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -26,6 +28,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
+  const [selectedBetaling, setSelectedBetaling] = useState<Betaling | null>(null);
+
+  const handleEditClick = (betaling: Betaling) => {
+    setSelectedBetaling(betaling);
+  };
 
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
@@ -70,6 +77,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                   <TableCell align="right">Bedrag</TableCell>
                   <TableCell>Omschrijving</TableCell>
                   <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell>
+                  <TableCell >&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -85,13 +93,27 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell>
+                      <TableCell>
+                        <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey' }}>
+                          <EditIcon fontSize="small" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   </Fragment>
                 ))}
               </TableBody>
             </Table>
           </TableContainer>
-        </>}
+          {selectedBetaling && (
+            <NieuweBetalingDialoog
+              nieuweBetalingOpgeslagen={0}
+              onChange={() => setSelectedBetaling(null)}
+              editMode={true}
+              betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}
+            />
+          )}
+        </>
+      }
     </>
   );
 }
