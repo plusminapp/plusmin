@@ -20,6 +20,7 @@ interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
   isFilterSelectable?: boolean;
   betalingen: Betaling[];
+  onBetalingBewaardChange: () => void;
 }
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
@@ -73,11 +74,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell>Datum</TableCell>
-                  <TableCell align="right">Bedrag</TableCell>
-                  <TableCell>Omschrijving</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell>
-                  <TableCell >&nbsp;</TableCell>
+                  <TableCell sx={{ width:"20%" }}>Datum</TableCell>
+                  <TableCell sx={{ width:"20%" }} align="right">Bedrag</TableCell>
+                  <TableCell sx={{ width:"50%" }}>Omschrijving</TableCell>
+                  {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
+                  <TableCell sx={{ width:"10%" }}>&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -89,10 +90,15 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                     >
                       <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
-                      <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                      <TableCell align="left" size='small' sx={{
+                        p: "6px", whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        maxWidth: "50px" 
+                      }}>{betaling["omschrijving"]}</TableCell>
+                      {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey' }}>
                           <EditIcon fontSize="small" />
@@ -107,7 +113,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           {selectedBetaling && (
             <NieuweBetalingDialoog
               nieuweBetalingOpgeslagen={0}
-              onChange={() => setSelectedBetaling(null)}
+              onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}
             />

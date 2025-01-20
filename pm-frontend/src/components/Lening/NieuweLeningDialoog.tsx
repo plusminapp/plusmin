@@ -31,8 +31,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 type NieuweLeningDialoogProps = {
-  nieuweLeningOpgeslagen: number;
-  onChange: (nieuweLeningOpgeslagen: number) => void;
+  onLeningBewaardChange: () => void;
 };
 
 export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
@@ -77,7 +76,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
     setOpen(true);
   };
   const handleClose = () => {
-    props.onChange(props.nieuweLeningOpgeslagen++)
+    props.onLeningBewaardChange()
     setOpen(false);
   };
 

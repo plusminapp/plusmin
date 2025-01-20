@@ -61,7 +61,7 @@ export default function Leningen() {
     return <Typography sx={{ mb: '25px' }}>De leningen worden opgehaald.</Typography>
   }
 
-  const onChange = () => {
+  const onLeningBewaardChange = () => {
     fetchLeningen()
   }
 
@@ -112,7 +112,7 @@ export default function Leningen() {
               </Box>
             </Grid>
             <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
-              <NieuweLeningDialoog nieuweLeningOpgeslagen={0} onChange={onChange} />
+              <NieuweLeningDialoog onLeningBewaardChange={onLeningBewaardChange} />
             </Grid>
           </Grid>
           <Accordion

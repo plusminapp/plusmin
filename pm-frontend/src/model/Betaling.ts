@@ -50,6 +50,13 @@ export const aflossenBetalingsSoorten = [
   BetalingsSoort.aflossen_lening,
 ]
 
+export const stortenOpnemenBetalingsSoorten = [
+  BetalingsSoort.opnemen_spaarrekening,
+  BetalingsSoort.storten_spaarrekening,
+  BetalingsSoort.opnemen_contant_geld,
+  BetalingsSoort.storten_contant_geld,
+]
+
 export const reserverenBetalingsSoorten = [
   BetalingsSoort.toevoegen_reservering,
   BetalingsSoort.besteden_reservering,

@@ -7,7 +7,7 @@ type BetalingsSoortSelectProps = {
     betalingsSoort: BetalingsSoort;
     bron: string | undefined;
     bestemming: string | undefined;
-    onChange: (betalingsSoort: BetalingsSoort, bron: string | undefined, bestemming: string | undefined) => void;
+    onBetalingsSoortChange: (betalingsSoort: BetalingsSoort, bron: string | undefined, bestemming: string | undefined) => void;
 };
 
 const BetalingsSoortSelect = (props: BetalingsSoortSelectProps) => {
@@ -15,33 +15,32 @@ const BetalingsSoortSelect = (props: BetalingsSoortSelectProps) => {
 
     const [selectedBetalingsSoort, setSelectedBetalingsSoort] = useState<BetalingsSoort>(props.betalingsSoort);
 
-    const rekeningPaar = selectedBetalingsSoort
-        ? betalingsSoorten2Rekeningen.get(selectedBetalingsSoort)
-        : undefined;
+    const rekeningPaar = betalingsSoorten2Rekeningen.get(selectedBetalingsSoort);
 
     const [selectedBronRekening, setSelectedBronRekening] = useState<string | undefined>(props.bron);
     const [selectedBestemmingRekening, setSelectedBestemmingRekening] = useState<string | undefined>(props.bestemming);
 
     const handleBetalingsSoortChange = (event: SelectChangeEvent<BetalingsSoort>) => {
+        console.log("in handleBetalingsSoortChange")
         const newBetalingsSoort = event.target.value as BetalingsSoort;
         const newBron = betalingsSoorten2Rekeningen.get(newBetalingsSoort)?.bron[0].naam
         const newBestemming = betalingsSoorten2Rekeningen.get(newBetalingsSoort)?.bestemming[0].naam
         setSelectedBetalingsSoort(newBetalingsSoort);
         setSelectedBronRekening(newBron);
         setSelectedBestemmingRekening(betalingsSoorten2Rekeningen.get(newBetalingsSoort)?.bestemming[0].naam);
-        props.onChange(newBetalingsSoort, newBron, newBestemming)
+        props.onBetalingsSoortChange(newBetalingsSoort, newBron, newBestemming)
     };
 
     const handleBronChange = (event: SelectChangeEvent<string>) => {
         const newBron = event.target.value;
         setSelectedBronRekening(newBron);
-        props.onChange(selectedBetalingsSoort, newBron, selectedBestemmingRekening)
+        props.onBetalingsSoortChange(selectedBetalingsSoort, newBron, selectedBestemmingRekening)
     };
 
     const handleBestemmingChange = (event: SelectChangeEvent<string>) => {
         const newBestemming = event.target.value;
         setSelectedBestemmingRekening(newBestemming);
-        props.onChange(selectedBetalingsSoort, selectedBronRekening, newBestemming)
+        props.onBetalingsSoortChange(selectedBetalingsSoort, selectedBronRekening, newBestemming)
     };
 
     return (

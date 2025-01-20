@@ -1,4 +1,4 @@
-import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, currencyFormatter, reserverenBetalingsSoorten } from '../model/Betaling';
+import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, currencyFormatter, reserverenBetalingsSoorten, stortenOpnemenBetalingsSoorten } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
-import { berekenBedragVoorRekenining, betaalmethodeRekeningSoorten, Rekening, RekeningSoort } from '../model/Rekening';
+import { berekenBedragVoorRekenining, cashflowRekeningSoorten, Rekening, RekeningSoort } from '../model/Rekening';
 import NieuweBetalingDialoog from '../components/Betaling/NieuweBetalingDialoog';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
 
@@ -106,8 +106,11 @@ export default function InkomstenUitgaven() {
 
   const berekenCashFlowTotaal = () => {
     return betalingen
-      .filter((betaling) => betaalmethodeRekeningSoorten.includes(betaling.bron!.rekeningSoort) || betaalmethodeRekeningSoorten.includes(betaling.bestemming!.rekeningSoort))
-      .reduce((acc, betaling) => (acc + (betaalmethodeRekeningSoorten.includes(betaling.bron!.rekeningSoort) ? -betaling.bedrag : betaling.bedrag)), 0)
+      .filter((betaling) =>
+      (!stortenOpnemenBetalingsSoorten.includes(betaling.betalingsSoort) &&
+        (cashflowRekeningSoorten.includes(betaling.bron!.rekeningSoort) ||
+          cashflowRekeningSoorten.includes(betaling.bestemming!.rekeningSoort))))
+      .reduce((acc, betaling) => (acc + (cashflowRekeningSoorten.includes(betaling.bron!.rekeningSoort) ? -betaling.bedrag : betaling.bedrag)), 0)
   }
 
   const heeftAflossenBetalingen = () => {
@@ -122,7 +125,7 @@ export default function InkomstenUitgaven() {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
 
-  const onChange = () => {
+  const onBetalingBewaardChange = () => {
     fetchBetalingen()
   }
 
@@ -131,9 +134,9 @@ export default function InkomstenUitgaven() {
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
       <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
         <NieuweBetalingDialoog
-        editMode={false}
+          editMode={false}
           nieuweBetalingOpgeslagen={0}
-          onChange={onChange} />
+          onBetalingBewaardChange={onBetalingBewaardChange} />
       </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
@@ -153,7 +156,8 @@ export default function InkomstenUitgaven() {
                 <AccordionDetails sx={{ p: 0 }}>
                   <InkomstenUitgavenTabel
                     actueleRekening={rekening}
-                    betalingen={betalingen} />
+                    betalingen={betalingen}
+                    onBetalingBewaardChange={onBetalingBewaardChange} />
                 </AccordionDetails>
               </Accordion>
             </Grid>
@@ -175,6 +179,7 @@ export default function InkomstenUitgaven() {
                 <AccordionDetails sx={{ p: 0 }}>
                   <InkomstenUitgavenTabel
                     actueleRekening={rekening}
+                    onBetalingBewaardChange={onBetalingBewaardChange}
                     betalingen={betalingen} />
                 </AccordionDetails>
               </Accordion>

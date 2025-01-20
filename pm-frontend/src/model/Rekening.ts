@@ -54,6 +54,13 @@ export const betaalmethodeRekeningSoorten = [
     RekeningSoort.creditcard,
 ]
 
+export const cashflowRekeningSoorten = [
+    RekeningSoort.betaalrekening,
+    RekeningSoort.spaarrekening,
+    RekeningSoort.contant,
+    RekeningSoort.creditcard,
+]
+
 export const berekenBedragVoorRekenining = (betaling: Betaling, rekening: Rekening | undefined) => {
     if (rekening === undefined) return betaling.bedrag // filter = 'all'
     const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1

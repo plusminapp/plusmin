@@ -32,7 +32,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 type NieuweBetalingDialoogProps = {
   nieuweBetalingOpgeslagen: number;
-  onChange: (nieuweBetalingOpgeslagen: number) => void;
+  onBetalingBewaardChange: (nieuweBetalingOpgeslagen: number) => void;
   editMode: boolean;
   betaling?: BetalingDTO;
 };
@@ -49,7 +49,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
   }), []);
 
   const [open, setOpen] = useState(props.editMode);
-  const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(initialBetalingDTO);
+  const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
   const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [isValid, setIsValid] = useState<boolean>(false);
@@ -60,9 +60,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
-    if (props.editMode && props.betaling) {
-      setBetalingDTO({ ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) });
-    } else {
+    if (!props.editMode) {
       setBetalingDTO({
         ...initialBetalingDTO,
         bron: rekeningPaar?.bron[0].naam,
@@ -75,7 +73,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
     setOpen(true);
   };
   const handleClose = () => {
-    props.onChange(props.nieuweBetalingOpgeslagen++)
+    props.onBetalingBewaardChange(props.nieuweBetalingOpgeslagen++)
     setOpen(false);
   };
 
@@ -100,32 +98,34 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
       try {
         const token = await getIDToken();
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}`, {
-          method: "POST",
+        const url = props.editMode ? `/api/v1/betalingen/${betalingDTO.id}` : `/api/v1/betalingen/hulpvrager/${id}`
+        const body = {
+          ...betalingDTO,
+          omschrijving: betalingDTO.omschrijving?.trim(),
+          boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
+        }
+        await fetch(url, {
+          method: props.editMode ? "PUT" : "POST",
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify([
-            {
-              ...betalingDTO,
-              omschrijving: betalingDTO.omschrijving?.trim(),
-              boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
-            }]),
+          body: props.editMode ? JSON.stringify(body) : JSON.stringify([body]),
         })
-        if (response.ok) {
+        setIsValid(false)
+        setMessage({
+          message: "Betaling is opgeslagen.",
+          type: "success"
+        })
+        if (!props.editMode) {
           setBetalingDTO({
             ...initialBetalingDTO,
             bron: rekeningPaar?.bron[0].naam,
             bestemming: rekeningPaar?.bestemming[0].naam
           })
-          setIsValid(false)
-          setMessage({
-            message: "Betaling is opgeslagen.",
-            type: "success"
-          })
         } else {
-          console.error("Failed to fetch data", response.status);
+          props.onBetalingBewaardChange(props.nieuweBetalingOpgeslagen++)
+          setOpen(false);
         }
       } catch (error) {
         console.error('Fout bij opslaan betaling:', error);
@@ -209,7 +209,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
               bestemming={betalingDTO.bestemming}
-              onChange={(betalingsSoort, bron, bestemming) => {
+              onBetalingsSoortChange={(betalingsSoort, bron, bestemming) => {
                 setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
               }}
             />
