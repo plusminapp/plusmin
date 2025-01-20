@@ -112,7 +112,6 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           </TableContainer>
           {selectedBetaling && (
             <NieuweBetalingDialoog
-              nieuweBetalingOpgeslagen={0}
               onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}

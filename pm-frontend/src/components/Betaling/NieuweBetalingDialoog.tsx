@@ -31,8 +31,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 type NieuweBetalingDialoogProps = {
-  nieuweBetalingOpgeslagen: number;
-  onBetalingBewaardChange: (nieuweBetalingOpgeslagen: number) => void;
+  onBetalingBewaardChange: () => void;
   editMode: boolean;
   betaling?: BetalingDTO;
 };
@@ -52,7 +51,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
   const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
-  const [isValid, setIsValid] = useState<boolean>(false);
+  const [isValid, setIsValid] = useState<boolean>(props.editMode ? true : false);
 
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen } = useCustomContext();
@@ -73,7 +72,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
     setOpen(true);
   };
   const handleClose = () => {
-    props.onBetalingBewaardChange(props.nieuweBetalingOpgeslagen++)
+    props.onBetalingBewaardChange()
     setOpen(false);
   };
 
@@ -112,20 +111,21 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
           },
           body: props.editMode ? JSON.stringify(body) : JSON.stringify([body]),
         })
-        setIsValid(false)
         setMessage({
           message: "Betaling is opgeslagen.",
           type: "success"
         })
-        if (!props.editMode) {
+        if (props.editMode) {
+          setIsValid(true)
+          props.onBetalingBewaardChange()
+          setOpen(false);
+        } else {
+          setIsValid(false)
           setBetalingDTO({
             ...initialBetalingDTO,
             bron: rekeningPaar?.bron[0].naam,
             bestemming: rekeningPaar?.bestemming[0].naam
           })
-        } else {
-          props.onBetalingBewaardChange(props.nieuweBetalingOpgeslagen++)
-          setOpen(false);
         }
       } catch (error) {
         console.error('Fout bij opslaan betaling:', error);

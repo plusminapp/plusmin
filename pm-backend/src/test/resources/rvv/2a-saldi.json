@@ -1,13 +1,13 @@
 {
-  "datum": "2025-01-20",
+  "datum": "2025-01-19",
   "saldoLijst": [
     {
       "rekeningNaam": "ASN betaalrekening",
-      "bedrag": "334.51"
+      "bedrag": "396.21"
     },
     {
       "rekeningNaam": "ASN spaarrekening",
-      "bedrag": "71.58"
+      "bedrag": "767.55"
     }
   ]
 }

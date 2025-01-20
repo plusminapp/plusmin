@@ -135,7 +135,6 @@ export default function InkomstenUitgaven() {
       <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
         <NieuweBetalingDialoog
           editMode={false}
-          nieuweBetalingOpgeslagen={0}
           onBetalingBewaardChange={onBetalingBewaardChange} />
       </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
