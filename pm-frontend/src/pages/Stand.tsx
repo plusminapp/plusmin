@@ -6,6 +6,7 @@ import { RekeningSaldi } from "../model/Saldi";
 import { useCustomContext } from "../context/CustomContext";
 import { useAuthContext } from "@asgardeo/auth-react";
 import Resultaat from "../components/Resultaat";
+import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 
 export default function Stand() {
 
@@ -17,6 +18,8 @@ export default function Stand() {
   const [checked, setChecked] = useState(true);
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager } = useCustomContext();
+  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
+
 
 
   useEffect(() => {
@@ -24,7 +27,7 @@ export default function Stand() {
       if (actieveHulpvrager) {
         setIsLoading(true);
         const datum = new Date().toISOString().slice(0, 10);
-        const id = actieveHulpvrager.id 
+        const id = actieveHulpvrager.id
         const token = await getIDToken();
         const response = await fetch(`/api/v1/saldi/hulpvrager/${id}/stand/${datum}`, {
           method: "GET",
@@ -42,6 +45,9 @@ export default function Stand() {
           setResultaatOpDatum(result.resultaatOpDatum)
         } else {
           console.error("Failed to fetch data", response.status);
+          setMessage({
+            message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
+            type: "warning"})
         }
       }
     };
@@ -63,7 +69,7 @@ export default function Stand() {
       {balansOpDatum !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
-          <Typography sx={{my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
+          <Typography sx={{ my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
           <FormGroup>
             <FormControlLabel control={
               <Switch
@@ -93,6 +99,7 @@ export default function Stand() {
           </Box>
         </>
       }
+      <StyledSnackbar message={message.message} type={message.type} />
     </>
   )
 }

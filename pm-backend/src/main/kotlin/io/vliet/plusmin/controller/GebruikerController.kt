@@ -40,21 +40,34 @@ class GebruikerController {
         return gebruikerRepository.findAll().map { it.toDTO() }
     }
 
-    // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen
+    // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen; ADMIN krijgt iedereen terug als hulpvrager
     @Operation(summary = "GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van een gebruiker")
     @GetMapping("/zelf")
     fun findGebruikerInclusiefHulpvragers(): GebruikerMetHulpvragersDTO {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
-        val hulpvragers = gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
-
-        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map {it.toDTO()})
+        val hulpvragers = if (gebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
+            gebruikerRepository.findAll().filter { it.id != gebruiker.id }
+        } else {
+            gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
+        }
+        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map { it.toDTO() })
     }
 
-    // TODO afschermen!!!
+    @Throws(AuthorizationDeniedException::class)
     @PostMapping("")
-    fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> =
-        gebruikerService.saveAll(gebruikerList)
+    fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> {
+        val gebruiker = getJwtGebruiker()
+        logger.info("POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: " +
+                gebruikerList.map { it.email }.joinToString { ", " })
+        if (gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
+            throw AuthorizationDeniedException(
+                "${gebruiker.email} wil nieuwe gebruikers ${
+                    gebruikerList.map { it.email }.joinToString { ", " }
+                } aanmaken maar is geen coördinator.") { false }
+        }
+        return gebruikerService.saveAll(gebruikerList)
+    }
 
     fun getJwtGebruiker(): Gebruiker {
         val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
@@ -77,15 +90,20 @@ class GebruikerController {
         val hulpvrager = hulpvragerOpt.get()
 
         val vrijwilliger = getJwtGebruiker()
-        if (hulpvrager.id != vrijwilliger.id && hulpvrager.vrijwilliger?.id != vrijwilliger.id) {
+        if (hulpvrager.id != vrijwilliger.id &&
+            hulpvrager.vrijwilliger?.id != vrijwilliger.id &&
+            !vrijwilliger.roles.contains(Gebruiker.Role.ROLE_ADMIN)
+        ) {
             logger.error("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}")
-            throw AuthorizationDeniedException("${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}", AuthorizationResult({ false }))
+            throw AuthorizationDeniedException(
+                "${vrijwilliger.email} vraagt toegang tot ${hulpvrager.email}"
+            ) { false }
         }
         return Pair(hulpvrager, vrijwilliger)
     }
 }
 
-data class GebruikerMetHulpvragersDTO (
+data class GebruikerMetHulpvragersDTO(
     val gebruiker: GebruikerDTO,
     val hulpvragers: List<GebruikerDTO>
 )

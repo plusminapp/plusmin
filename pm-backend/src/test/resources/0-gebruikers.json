@@ -20,6 +20,17 @@
     "email": "ruud.van.vliet@ett-twello.nl",
     "bijnaam": "Hulpvrager Niv-1-app",
     "vrijwilligerEmail": "ruud@vliet.io",
+    "roles": ["ROLE_HULPVRAGER", "ROLE_ADMIN"]
+  },
+  {
+    "email": "hans@lsta.nl",
+    "bijnaam": "HansK.VW",
+    "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
+  },
+  {
+    "email": "hkoning.gzn@gmail.com",
+    "bijnaam": "HansK.HV",
+    "vrijwilligerEmail": "hans@lsta.nl",
     "roles": ["ROLE_HULPVRAGER"]
   }
 ]

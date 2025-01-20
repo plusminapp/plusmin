@@ -9,6 +9,7 @@ import { useCustomContext } from "../context/CustomContext";
 import { Lening } from '../model/Lening'
 import { ArrowDropDownIcon, DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import LeningTabel from "../components/Lening/LeningTabel";
+import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 import { Min } from "../assets/Min";
 import { Plus } from "../assets/Plus";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -24,14 +25,14 @@ export default function Leningen() {
   const [leningen, setLeningen] = useState<Lening[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
+  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
 
   const fetchLeningen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
-      // const datum = new Date().toISOString().slice(0, 10);
+      const id = actieveHulpvrager!.id
       const token = await getIDToken();
-      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
       const response = await fetch(`/api/v1/lening/hulpvrager/${id}/datum/${formDatum.toISOString().slice(0, 10)}`, {
         method: "GET",
         headers: {
@@ -45,7 +46,10 @@ export default function Leningen() {
         setLeningen(result);
       } else {
         console.error("Failed to fetch data", response.status);
-      }
+        setMessage({
+          message: `De configuratie voor ${actieveHulpvrager!.bijnaam} is niet correct.`,
+          type: "warning"})
+   }
     }
   }, [getIDToken, actieveHulpvrager, gebruiker, formDatum]);
 
@@ -112,22 +116,22 @@ export default function Leningen() {
             </Grid>
           </Grid>
           <Accordion
-          elevation={2}>
-          <AccordionSummary
-            expandIcon={<ArrowDropDownIcon />}
-            aria-controls={"afbouwgrafiek"}
-            id={"afbouwgrafiek"}>
-            <Typography
-              sx={{ color: 'FFF' }}
-              component="span">
+            elevation={2}>
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              aria-controls={"afbouwgrafiek"}
+              id={"afbouwgrafiek"}>
+              <Typography
+                sx={{ color: 'FFF' }}
+                component="span">
                 Verwachte afbouw van de schulden/leningen
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }} >
-            <LeningenAfbouwGrafiek 
-            huidigePeriode="2024-12"/>
-          </AccordionDetails>
-        </Accordion>
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }} >
+              <LeningenAfbouwGrafiek
+                huidigePeriode="2024-12" />
+            </AccordionDetails>
+          </Accordion>
 
         </>
       }
@@ -150,6 +154,7 @@ export default function Leningen() {
           </AccordionDetails>
         </Accordion>
       )}
+      <StyledSnackbar message={message.message} type={message.type} />
     </>
   )
 }
