@@ -9,10 +9,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import kotlin.jvm.optionals.getOrElse
 
 @Service
 class BetalingService {
@@ -51,6 +49,30 @@ class BetalingService {
             }
             betalingRepository.save(betaling).toDTO()
         }
+    }
+
+    fun save(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): BetalingDTO {
+        val gebruiker = oldBetaling.gebruiker
+        val bronOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
+        val bron = if (bronOpt.isEmpty) {
+            logger.warn("${newBetalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+            oldBetaling.bron
+        } else bronOpt.get()
+        val bestemmingOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
+        val bestemming = if (bestemmingOpt.isEmpty) {
+            logger.warn("${newBetalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
+            oldBetaling.bestemming
+        } else bestemmingOpt.get()
+        logger.info("Opslaan betaling ${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
+        val newBetaling = oldBetaling.fullCopy(
+            boekingsdatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
+            bedrag = newBetalingDTO.bedrag.toBigDecimal(),
+            omschrijving = newBetalingDTO.omschrijving,
+            betalingsSoort = Betaling.BetalingsSoort.valueOf(newBetalingDTO.betalingsSoort),
+            bron = bron,
+            bestemming = bestemming
+        )
+        return betalingRepository.save(newBetaling).toDTO()
     }
 
     fun findMatchingBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): List<Betaling> {
