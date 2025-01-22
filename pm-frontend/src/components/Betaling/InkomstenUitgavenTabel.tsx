@@ -14,7 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
 import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
-import NieuweBetalingDialoog from './NieuweBetalingDialoog';
+import UpsertBetalingDialoogAlternatief from './UpsertBetalingDialoogAlternatief';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -74,11 +74,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ width:"20%" }}>Datum</TableCell>
-                  <TableCell sx={{ width:"20%" }} align="right">Bedrag</TableCell>
-                  <TableCell sx={{ width:"50%" }}>Omschrijving</TableCell>
+                  <TableCell sx={{ width: "20%" }}>Datum</TableCell>
+                  <TableCell sx={{ width: "20%" }} align="right">Bedrag</TableCell>
+                  <TableCell sx={{ width: "50%" }}>Omschrijving</TableCell>
                   {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
-                  <TableCell sx={{ width:"10%" }}>&nbsp;</TableCell>
+                  <TableCell sx={{ width: "10%" }}>&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -94,7 +94,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                         p: "6px", whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        maxWidth: "50px" 
+                        maxWidth: "50px"
                       }}>{betaling["omschrijving"]}</TableCell>
                       {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
@@ -110,13 +110,13 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
               </TableBody>
             </Table>
           </TableContainer>
-          {selectedBetaling && (
-            <NieuweBetalingDialoog
+          {selectedBetaling &&
+            <UpsertBetalingDialoogAlternatief
               onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}
             />
-          )}
+          }
         </>
       }
     </>

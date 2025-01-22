@@ -18,8 +18,8 @@ import 'dayjs/locale/nl';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
-import BetalingsSoortSelect from './BetalingsSoortSelect';
 import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
+import BetalingsSoortSelectAlternatief from './BetalingsSoortSelectAlternatief';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -36,7 +36,7 @@ type NieuweBetalingDialoogProps = {
   betaling?: BetalingDTO;
 };
 
-export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps) {
+export default function UpsertBetalingDialoogAlternatief(props: NieuweBetalingDialoogProps) {
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
     boekingsdatum: dayjs(),
@@ -142,7 +142,7 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
     <React.Fragment>
       {!props.editMode &&
         <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
-          Nieuwe betaling
+          Alternatief
         </Button>
       }
       <BootstrapDialog
@@ -168,6 +168,16 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
         </IconButton>
         <DialogContent dividers>
           <Stack spacing={2}>
+            <Typography variant="subtitle1">Kies een betalingssoort</Typography>
+            <Typography variant="subtitle1">De keuze is nu: een betaling van {betalingDTO.bron} naar {betalingDTO.bestemming}</Typography>
+          <BetalingsSoortSelectAlternatief
+              betalingsSoort={betalingDTO.betalingsSoort}
+              bron={betalingDTO.bron}
+              bestemming={betalingDTO.bestemming}
+              onBetalingsSoortChange={(betalingsSoort, bron, bestemming) => {
+                setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
+              }}
+            />
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Geef een korte omschrijving *</InputLabel>
               <Input
@@ -205,14 +215,6 @@ export default function NieuweBetalingDialoog(props: NieuweBetalingDialoogProps)
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
               )}
             </FormControl>
-            <BetalingsSoortSelect
-              betalingsSoort={betalingDTO.betalingsSoort}
-              bron={betalingDTO.bron}
-              bestemming={betalingDTO.bestemming}
-              onBetalingsSoortChange={(betalingsSoort, bron, bestemming) => {
-                setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
-              }}
-            />
           </Stack>
         </DialogContent>
         <DialogActions>
