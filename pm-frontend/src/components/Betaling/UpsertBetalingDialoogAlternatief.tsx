@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
+import { BetalingDTO, BetalingsSoort, betalingsSoortFormatter } from '../../model/Betaling';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -42,7 +42,7 @@ export default function UpsertBetalingDialoogAlternatief(props: NieuweBetalingDi
     boekingsdatum: dayjs(),
     bedrag: 0,
     omschrijving: ' ',
-    betalingsSoort: BetalingsSoort.uitgaven,
+    betalingsSoort: undefined,
     bron: undefined,
     bestemming: undefined,
   }), []);
@@ -121,11 +121,7 @@ export default function UpsertBetalingDialoogAlternatief(props: NieuweBetalingDi
           setOpen(false);
         } else {
           setIsValid(false)
-          setBetalingDTO({
-            ...initialBetalingDTO,
-            bron: rekeningPaar?.bron[0].naam,
-            bestemming: rekeningPaar?.bestemming[0].naam
-          })
+          setBetalingDTO(initialBetalingDTO)
         }
       } catch (error) {
         console.error('Fout bij opslaan betaling:', error);
@@ -142,7 +138,7 @@ export default function UpsertBetalingDialoogAlternatief(props: NieuweBetalingDi
     <React.Fragment>
       {!props.editMode &&
         <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
-          Alternatief
+          Nieuwe betaling
         </Button>
       }
       <BootstrapDialog
@@ -169,7 +165,7 @@ export default function UpsertBetalingDialoogAlternatief(props: NieuweBetalingDi
         <DialogContent dividers>
           <Stack spacing={2}>
             <Typography variant="subtitle1">Kies een betalingssoort</Typography>
-            <Typography variant="subtitle1">De keuze is nu: een betaling van {betalingDTO.bron} naar {betalingDTO.bestemming}</Typography>
+            <Typography variant="subtitle1">De keuze is nu{betalingDTO.betalingsSoort ? `: een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : " nog niet gekozen."}</Typography>
           <BetalingsSoortSelectAlternatief
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}

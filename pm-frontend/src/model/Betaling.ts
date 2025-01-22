@@ -17,7 +17,7 @@ export type BetalingDTO = {
   boekingsdatum: dayjs.Dayjs;
   bedrag: number;
   omschrijving: string | undefined;
-  betalingsSoort: BetalingsSoort;
+  betalingsSoort: BetalingsSoort | undefined;
   bron: string | undefined;
   bestemming: string | undefined;
 }

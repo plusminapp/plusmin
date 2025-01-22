@@ -8,7 +8,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
 import { berekenBedragVoorRekenining, cashflowRekeningSoorten, Rekening, RekeningSoort } from '../model/Rekening';
-import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
+// import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
 import UpsertBetalingDialoogAlternatief from '../components/Betaling/UpsertBetalingDialoogAlternatief';
 
@@ -134,9 +134,6 @@ export default function InkomstenUitgaven() {
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
       <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
-        <UpsertBetalingDialoog
-          editMode={false}
-          onBetalingBewaardChange={onBetalingBewaardChange} />
         <UpsertBetalingDialoogAlternatief
           editMode={false}
           onBetalingBewaardChange={onBetalingBewaardChange} />
