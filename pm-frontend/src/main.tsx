@@ -9,8 +9,8 @@ import { CustomProvider } from './context/CustomContext.tsx';
 const config = {
   clientID: "wnvfL9kJtnIf0ziF3oK2QUkgaWIa",
   baseUrl: "https://api.eu.asgardeo.io/t/plusmin",
-  signInRedirectURL: "https://plusmin.vliet.io/",
-  signOutRedirectURL: "https://plusmin.vliet.io/",
+  signInRedirectURL: "https://plusminapp.nl",
+  signOutRedirectURL: "https://plusminapp.nl",
   scope: ["openid", "profile"],
 };
 

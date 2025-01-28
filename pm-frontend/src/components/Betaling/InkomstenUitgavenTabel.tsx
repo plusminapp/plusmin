@@ -14,7 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
 import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
-import UpsertBetalingDialoogAlternatief from './UpsertBetalingDialoogAlternatief';
+import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -111,7 +111,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             </Table>
           </TableContainer>
           {selectedBetaling &&
-            <UpsertBetalingDialoogAlternatief
+            <UpsertBetalingDialoog
               onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}

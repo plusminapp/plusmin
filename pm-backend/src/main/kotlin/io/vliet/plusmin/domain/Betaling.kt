@@ -76,12 +76,12 @@ class Betaling(
         INKOMSTEN("Inkomsten"),
         UITGAVEN("Uitgaven"),
         AANGAAN_LENING("aangaan_lening"),
-        AFLOSSEN_LENING("aflossen_lening"),
+        AFLOSSEN("aflossen"),
         AFLOSSEN_CREDITCARD("aflossen_creditcard"),
         TOEVOEGEN_RESERVERING("toevoegen_reservering"),
         BESTEDEN_RESERVERING("besteden_reservering"),
         OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
         STORTEN_SPAARREKENING("storten_spaarrekening"),
-        OPNEMEN_CONTANT_GELD("opnemen_contant_geld")
+        OPNEMEN_CONTANT("opnemen_contant")
     }
 }

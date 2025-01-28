@@ -130,7 +130,7 @@
     "bedrag": 259,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Belastingdienst",
-    "betalingsSoort": "AFLOSSEN_LENING",
+    "betalingsSoort": "AFLOSSEN",
     "bron": "ASN betaalrekening",
     "bestemming": "BD Toeslagen"
   },
@@ -139,7 +139,7 @@
     "bedrag": 25,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Infomedics",
-    "betalingsSoort": "AFLOSSEN_LENING",
+    "betalingsSoort": "AFLOSSEN",
     "bron": "ASN betaalrekening",
     "bestemming": "Infomedics"
   },
@@ -148,7 +148,7 @@
     "bedrag": 75,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Smaal",
-    "betalingsSoort": "AFLOSSEN_LENING",
+    "betalingsSoort": "AFLOSSEN",
     "bron": "ASN betaalrekening",
     "bestemming": "Smaal"
   },
@@ -157,7 +157,7 @@
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Waterschap",
-    "betalingsSoort": "AFLOSSEN_LENING",
+    "betalingsSoort": "AFLOSSEN",
     "bron": "ASN betaalrekening",
     "bestemming": "Waterschap"
   },
@@ -166,7 +166,7 @@
     "bedrag": 40,
     "saldo_achteraf": null,
     "omschrijving": "Aflossing Tribuut",
-    "betalingsSoort": "AFLOSSEN_LENING",
+    "betalingsSoort": "AFLOSSEN",
     "bron": "ASN betaalrekening",
     "bestemming": "Tribuut"
   }
