@@ -54,6 +54,23 @@ export const betaalmethodeRekeningSoorten = [
     RekeningSoort.creditcard,
 ]
 
+export const inkomstenRekeningSoorten = [
+    RekeningSoort.inkomsten,
+]
+
+export const uitgavenRekeningSoorten = [
+    RekeningSoort.uitgaven,
+    RekeningSoort.lening,
+    RekeningSoort.reservering,
+]
+
+export const interneRekeningSoorten = [ 
+    RekeningSoort.spaarrekening,
+    RekeningSoort.contant,
+    RekeningSoort.creditcard,
+    RekeningSoort.reservering,
+]
+
 export const cashflowRekeningSoorten = [
     RekeningSoort.betaalrekening,
     RekeningSoort.spaarrekening,

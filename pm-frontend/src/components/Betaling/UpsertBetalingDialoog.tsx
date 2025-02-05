@@ -19,7 +19,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
 import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
-import BetalingsSoortSelect from '../Archief/BetalingsSoortSelect';
+import BetalingsSoortSelect from '../Betaling/BetalingsSoortSelect';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -164,8 +164,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         </IconButton>
         <DialogContent dividers>
           <Stack spacing={2}>
-            <Typography variant="subtitle1">Kies een betalingssoort</Typography>
-            <Typography variant="subtitle1">De keuze is nu{betalingDTO.betalingsSoort ? `: een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : " nog niet gekozen."}</Typography>
+            <Typography variant="subtitle1">Kies een betalingscategorie</Typography>
+            <Typography variant="subtitle1">{betalingDTO.betalingsSoort ? `De keuze is nu een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : "Er is nog niet gekozen."}</Typography>
           <BetalingsSoortSelect
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
@@ -214,7 +214,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon />} />
+          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }}/>} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
       <StyledSnackbar message={message.message} type={message.type} />

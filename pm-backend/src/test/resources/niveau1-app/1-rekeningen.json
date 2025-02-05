@@ -14,6 +14,20 @@
     "sortOrder": 2
   },
   {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "Contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  },
+  {
+    "rekeningSoort": "CREDITCARD",
+    "nummer": "",
+    "naam": "VISA card",
+    "afkorting": "CC",
+    "sortOrder": 4
+  },
+  {
     "rekeningSoort": "INKOMSTEN",
     "nummer": "",
     "naam": "Inkomsten",

@@ -58,7 +58,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             value={actueleRekening ? actueleRekening.naam : 'alles'}
             onChange={handleWeergaveChange}
             label="Weergave kiezen">
-            <MenuItem value='alles'>Alles</MenuItem>
+            <MenuItem value='alles'>Alle betalingen</MenuItem>
             {rekeningen.map((rekening) => (
               <MenuItem value={rekening.naam}>{rekening.naam}</MenuItem>
             ))}
@@ -66,7 +66,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
         </FormControl>
       }
       {filteredBetalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd{actueleRekening ? ` voor ${actueleRekening.naam}` : ''}.</Typography>
+        <Typography sx={{ mx: '25px', fontSize: '12px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd{actueleRekening ? ` voor ${actueleRekening.naam}` : ''}.</Typography>
       }
       {filteredBetalingen.length > 0 &&
         <>

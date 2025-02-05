@@ -31,7 +31,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
   return (
     <>
       {betalingen.length === 0 &&
-        <Typography sx={{ mb: '25px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd.</Typography>
+        <Typography sx={{ mx: '25px', fontSize: '12px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd.</Typography>
       }
       {betalingen.length > 0 &&
         <>

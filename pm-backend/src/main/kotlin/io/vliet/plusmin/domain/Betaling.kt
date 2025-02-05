@@ -69,19 +69,20 @@ class Betaling(
         )
     }
 
-//    io.vliet.plusmin.domain.Betaling.BetalingsSoort.TOEVOEGEN_RESERVERING
     enum class BetalingsSoort(
         val omschrijving: String
     ) {
         INKOMSTEN("Inkomsten"),
+        RENTE("Rente"),
         UITGAVEN("Uitgaven"),
-        AANGAAN_LENING("aangaan_lening"),
+        INCASSO_CREDITCARD("incasso_creditcard"),
+        LENEN("lenen"),
         AFLOSSEN("aflossen"),
-        AFLOSSEN_CREDITCARD("aflossen_creditcard"),
         TOEVOEGEN_RESERVERING("toevoegen_reservering"),
         BESTEDEN_RESERVERING("besteden_reservering"),
         OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
         STORTEN_SPAARREKENING("storten_spaarrekening"),
-        OPNEMEN_CONTANT("opnemen_contant")
+        OPNEMEN_CONTANT("opnemen_contant"),
+        STORTEN_CONTANT("storten_contant")
     }
 }
