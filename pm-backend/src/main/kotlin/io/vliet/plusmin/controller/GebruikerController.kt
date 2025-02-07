@@ -5,16 +5,14 @@ import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.service.GebruikerService
+import io.vliet.plusmin.service.PeriodeService
 import jakarta.annotation.security.RolesAllowed
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authorization.AuthorizationDeniedException
-import org.springframework.security.authorization.AuthorizationResult
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
@@ -28,6 +26,9 @@ class GebruikerController {
 
     @Autowired
     lateinit var gebruikerService: GebruikerService
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -51,6 +52,8 @@ class GebruikerController {
         } else {
             gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
         }
+        periodeService.checkPeriodeVoorGebruiker(gebruiker)
+        hulpvragers.forEach{ periodeService.checkPeriodeVoorGebruiker(it) }
         return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map { it.toDTO() })
     }
 
@@ -74,11 +77,11 @@ class GebruikerController {
         val email = jwt.claims["username"] as String
         val gebruikerOpt = gebruikerRepository.findByEmail(email)
         return if (gebruikerOpt.isPresent) {
-            logger.info("getJwtGebruiker met email: ${email} gevonden.")
+            logger.info("getJwtGebruiker met email: $email gevonden.")
             gebruikerOpt.get()
         } else {
-            logger.error("GET /gebruiker met email: ${email} bestaat nog niet")
-            throw IllegalStateException("Gebruiker met email ${email} bestaat nog niet")
+            logger.error("GET /gebruiker met email: $email bestaat nog niet")
+            throw IllegalStateException("Gebruiker met email $email bestaat nog niet")
         }
     }
 

@@ -1,8 +1,8 @@
-import { RekeningSaldi } from "./Saldi"
+import { Periode } from "./Periode"
 
 export type Stand = {
-    openingsBalans: RekeningSaldi,
-    mutatiesOpDatum: RekeningSaldi,
-    balansOpDatum: RekeningSaldi,
-    resultaatOpDatum: RekeningSaldi
+    openingsBalans: Periode,
+    mutatiesOpDatum: Periode,
+    balansOpDatum: Periode,
+    resultaatOpDatum: Periode
 }

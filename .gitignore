@@ -8,6 +8,7 @@ target/
 
 node_modules
 dist
+.images
 
 ## Logs
 #logs

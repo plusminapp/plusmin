@@ -4,8 +4,9 @@ echo pm-backend version: ${VERSION}
 echo pm-backend platform: ${PLATFORM}
 
 pushd ${PROJECT_FOLDER}/pm-backend
+mvn clean
 
-if mvn clean package; then
+if mvn package; then
   docker build \
     --platform=$PLATFORM \
     --build-arg JAR_FILE=./target/pm-backend-${VERSION}.jar \

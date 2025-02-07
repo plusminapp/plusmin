@@ -20,6 +20,7 @@ class Gebruiker(
     @Column(unique = true)
     val email: String,
     val bijnaam: String = "Gebruiker zonder bijnaam :-)",
+    val periodeDag: Int = 1,
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
     val roles: MutableSet<Role> = mutableSetOf(),
@@ -49,10 +50,11 @@ class Gebruiker(
     fun fullCopy(
         email: String = this.email,
         bijnaam: String = this.bijnaam,
+        periodeDag: Int = this.periodeDag,
         roles: MutableSet<Role> = this.roles,
         vrijwilliger: Gebruiker? = this.vrijwilliger,
         rekeningen: List<Rekening> = this.rekeningen,
-    ) = Gebruiker(this.id, email, bijnaam, roles, vrijwilliger, rekeningen)
+    ) = Gebruiker(this.id, email, bijnaam, periodeDag, roles, vrijwilliger, rekeningen)
 
     /**
      * Een Data Transfer Object voor de Gebruiker
@@ -67,6 +69,7 @@ class Gebruiker(
         val id: Long = 0,
         val email: String,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
+        val periodeDag: Int = 1,
         val roles: List<String> = emptyList(),
         val vrijwilligerEmail: String = "",
         val rekeningen: List<Rekening> = emptyList(),
@@ -77,10 +80,10 @@ class Gebruiker(
             this.id,
             this.email,
             this.bijnaam,
+            this.periodeDag,
             this.roles.map { it.toString() },
-            this.vrijwilliger?.bijnaam ?: "",
+            this.vrijwilliger?.email ?: "",
             this.rekeningen.map { it },
-//            this.betalingsSoorten.map { it.toString() }.toSet()
         )
     }
 

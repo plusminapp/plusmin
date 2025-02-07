@@ -10,7 +10,7 @@ const config = {
   clientID: "wnvfL9kJtnIf0ziF3oK2QUkgaWIa",
   baseUrl: "https://api.eu.asgardeo.io/t/plusmin",
   signInRedirectURL: "https://plusminapp.nl",
-  signOutRedirectURL: "https://plusminapp.nl",
+  signOutRedirectURL: "https://plusminapp.nl/login",
   scope: ["openid", "profile"],
 };
 

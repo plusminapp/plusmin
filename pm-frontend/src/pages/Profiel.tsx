@@ -10,8 +10,7 @@ import { betalingsSoortFormatter } from '../model/Betaling';
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
-
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, huidigePeriode } = useCustomContext();
 
   return (
     <Container maxWidth="xl">
@@ -40,16 +39,17 @@ const Profiel: React.FC = () => {
       }
       <>
         {!rekeningen || rekeningen.length == 0 &&
-            <Typography variant='h4' sx={{ my: '25px' }}>
-              De huidige actieve hulpvrager {actieveHulpvrager?.bijnaam} heeft geen rekeningen.
-            </Typography>        
+          <Typography variant='h4' sx={{ my: '25px' }}>
+            De huidige actieve hulpvrager {actieveHulpvrager?.bijnaam} heeft geen rekeningen.
+          </Typography>
         }
         {rekeningen && rekeningen.length > 0 &&
           <>
             <Typography variant='h4' sx={{ my: '25px' }}>
-              De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.
+              De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.<br />
             </Typography>
-            <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+            <Typography sx={{ my: '25px' }}>  De huidige periode loopt van {huidigePeriode[0]?.toLocaleDateString()} tot {huidigePeriode[1]?.toLocaleDateString()}.<br/>
+              De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
             </Typography>
             <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
               <Table sx={{ width: "100%" }} aria-label="simple table">

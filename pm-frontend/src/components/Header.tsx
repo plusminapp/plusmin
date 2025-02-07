@@ -26,11 +26,11 @@ export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): M
     const result = new Map<BetalingsSoort, RekeningPaar>();
     betalingsSoorten2RekeningenSoorten.forEach((rekeningSoortPaar, betalingsSoort) => {
         const bronRekeningen = rekeningen
-        .filter(rekening => rekeningSoortPaar.bron.includes(rekening.rekeningSoort))
-        .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
+            .filter(rekening => rekeningSoortPaar.bron.includes(rekening.rekeningSoort))
+            .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1);
         const BestemmingRekeningen = rekeningen
-        .filter(rekening => rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort))
-        .sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1);
+            .filter(rekening => rekeningSoortPaar.bestemming.includes(rekening.rekeningSoort))
+            .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1);
         if (bronRekeningen.length > 0 && BestemmingRekeningen.length > 0) {
             result.set(betalingsSoort, {
                 bron: bronRekeningen,
@@ -40,8 +40,6 @@ export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): M
     });
     return result;
 }
-
-
 
 function Header() {
     const navigate = useNavigate();
@@ -57,7 +55,7 @@ function Header() {
     const { gebruiker, setGebruiker,
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
-        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen } = useCustomContext();
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setHuidigePeriode } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -91,14 +89,34 @@ function Header() {
         )
     }
 
+    function berekenPeriode(dag: number, datum: Date): [startDatum: Date, eindDatum: Date] {
+        const jaar = datum.getFullYear();
+        const maand = datum.getMonth();
+        const dagInMaand = datum.getDate();
+
+        let startDatum: Date;
+        let eindDatum: Date;
+
+        if (dagInMaand >= dag) {
+            startDatum = new Date(jaar, maand, dag);
+            eindDatum = new Date(jaar, maand + 1, dag - 1);
+        } else {
+            startDatum = new Date(jaar, maand - 1, dag);
+            eindDatum = new Date(jaar, maand, dag - 1);
+        }
+
+        return [startDatum, eindDatum];
+    }
+
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker
         setActieveHulpvrager(ahv);
-        setRekeningen(ahv!.rekeningen.sort((a,b) =>  a.sortOrder > b.sortOrder ? 1 : -1))
+        setRekeningen(ahv!.rekeningen.sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1))
         setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
+        setHuidigePeriode(berekenPeriode(ahv!.periodeDag, new Date()))
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -120,20 +138,28 @@ function Header() {
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.hulpvragers[0].rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
-
+            setHuidigePeriode(berekenPeriode(data.hulpvragers[0].periodeDag, new Date()))
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.gebruiker.rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
-
+            setHuidigePeriode(berekenPeriode(data.gebruiker.periodeDag, new Date()))
         }
-    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen])
+    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setHuidigePeriode])
 
     useEffect(() => {
-        fetchGebruikerMetHulpvragers();
-    }, [fetchGebruikerMetHulpvragers]);
+        if (state.isAuthenticated) {
+            fetchGebruikerMetHulpvragers();
+        }
+    }, [state.isAuthenticated, fetchGebruikerMetHulpvragers]);
+
+    useEffect(() => {
+        if (!state.isAuthenticated) {
+            navigate('/login');
+        }
+    }, [state.isAuthenticated, navigate]);
 
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
@@ -188,7 +214,7 @@ function Header() {
                                             {actieveHulpvrager?.id === gebruiker?.id ? '> ' : ''}
                                             {gebruiker?.bijnaam}</Typography>
                                     </MenuItem>
-                                    {hulpvragers.map(hulpvrager =>
+                                    {hulpvragers.sort((a, b) => a.bijnaam.localeCompare(b.bijnaam)).map(hulpvrager =>
                                         <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
                                             <Typography sx={{ textAlign: 'center' }}>
                                                 {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
@@ -245,7 +271,7 @@ function Header() {
                     <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => signIn()}>Login</Button>
                 }
             </Toolbar>
-            
+
         </AppBar>
     );
 }

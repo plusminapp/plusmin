@@ -10,7 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { BetalingDTO, BetalingsSoort, betalingsSoortFormatter } from '../../model/Betaling';
+import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -164,8 +164,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         </IconButton>
         <DialogContent dividers>
           <Stack spacing={2}>
-            <Typography variant="subtitle1">Kies een betalingscategorie</Typography>
-            <Typography variant="subtitle1">{betalingDTO.betalingsSoort ? `De keuze is nu een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : "Er is nog niet gekozen."}</Typography>
+            {/* <Typography variant="subtitle1">Kies een betalingscategorie</Typography>
+            <Typography variant="subtitle1">{betalingDTO.betalingsSoort ? `De keuze is nu een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : "Er is nog niet gekozen."}</Typography> */}
           <BetalingsSoortSelect
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
@@ -174,6 +174,20 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                 setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
               }}
             />
+            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+              <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
+              <Input
+                id="standard-adornment-amount"
+                error={!!errors.bedrag}
+                startAdornment={<InputAdornment position="start">€</InputAdornment>}
+                value={betalingDTO.bedrag}
+                type="number"
+                onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
+              />
+              {errors.bedrag && (
+                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
+              )}
+            </FormControl>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Geef een korte omschrijving *</InputLabel>
               <Input
@@ -197,20 +211,6 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                 onChange={(newvalue) => handleInputChange('boekingsdatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
-            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
-              <Input
-                id="standard-adornment-amount"
-                error={!!errors.bedrag}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-                value={betalingDTO.bedrag}
-                type="number"
-                onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
-              />
-              {errors.bedrag && (
-                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
-              )}
-            </FormControl>
           </Stack>
         </DialogContent>
         <DialogActions>

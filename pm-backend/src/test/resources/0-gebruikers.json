@@ -7,18 +7,21 @@
   {
     "email": "hulpvrager-basis@vliet.io",
     "bijnaam": "Hulpvrager Basis",
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "hulpvrager-niveau-1@vliet.io",
     "bijnaam": "Hulpvrager Niv-1",
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "ruud.van.vliet@ett-twello.nl",
     "bijnaam": "Hulpvrager Niv-1-app",
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER", "ROLE_ADMIN"]
   },
@@ -30,6 +33,7 @@
   {
     "email": "hkoning.gzn@gmail.com",
     "bijnaam": "Hansje HV",
+    "periodeDag": 20,
     "vrijwilligerEmail": "hans@lsta.nl",
     "roles": ["ROLE_HULPVRAGER"]
   }

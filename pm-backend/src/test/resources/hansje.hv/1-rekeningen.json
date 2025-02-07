@@ -21,6 +21,13 @@
     "sortOrder": 3
   },
   {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "Contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  },
+  {
     "rekeningSoort": "INKOMSTEN",
     "nummer": "",
     "naam": "Inkomsten",

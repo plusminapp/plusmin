@@ -1,6 +1,6 @@
 import { Saldo } from "./Saldo";
 
-export type RekeningSaldi = {
-    datum: string;
+export type Periode = {
+    periodeStartDatum: string;
     saldoLijst: Saldo[];
 }

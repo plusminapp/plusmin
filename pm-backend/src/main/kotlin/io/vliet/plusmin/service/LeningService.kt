@@ -1,9 +1,8 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.SaldiController
+import io.vliet.plusmin.controller.PeriodeController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Lening.LeningDTO
-import io.vliet.plusmin.domain.Lening.LeningData
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.LeningRepository
 import io.vliet.plusmin.repository.RekeningRepository
@@ -27,7 +26,7 @@ class LeningService {
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
-    lateinit var saldiService: SaldiService
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -47,20 +46,20 @@ class LeningService {
             leningRepository.save(lening)
             logger.info("Lening ${leningDTO.rekening.naam} voor ${gebruiker.bijnaam} opgeslagen.")
         }
-        val saldi = saldiService.getOpeningSaldi(gebruiker)
+        val saldi = periodeService.getLaatstePeriode(gebruiker)
         val saldoDTOLijst = leningenLijst.map {
             Saldo.SaldoDTO(
                 rekeningNaam = it.rekening.naam,
-                bedrag = -berekenLeningDTOOpDatum(gebruiker, it, saldi.datum.toString())
+                bedrag = -berekenLeningDTOOpDatum(gebruiker, it, saldi.periodeStartDatum.toString())
             )
         }
-        saldiService.merge(gebruiker, saldi, saldoDTOLijst).map { saldoRepository.save(it) }
+        periodeService.merge(gebruiker, saldi, saldoDTOLijst).map { saldoRepository.save(it) }
     }
 
     fun berekenLeningenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
         val leningenLijst = leningRepository.findLeningenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        val standDTO = saldiService.getStandOpDatum(gebruiker, peilDatum)
+        val standDTO = periodeService.getStandOpDatum(gebruiker, peilDatum)
 
         return leningenLijst
             .sortedBy { it.rekening.sortOrder }
@@ -77,7 +76,7 @@ class LeningService {
             }
     }
 
-    fun getBalansVanStand(standDTO: SaldiController.StandDTO, rekening: Rekening): BigDecimal {
+    fun getBalansVanStand(standDTO: PeriodeController.StandDTO, rekening: Rekening): BigDecimal {
         val saldo: Saldo.SaldoDTO? = standDTO.balansOpDatum.saldoLijst.find { it.rekeningNaam == rekening.naam }
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
     }

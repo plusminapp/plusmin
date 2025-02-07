@@ -31,6 +31,17 @@ box-push:
 	docker image push rimvanvliet/pm-backend:${PM_DEV_VERSION}
 	docker image push rimvanvliet/pm-database:${PM_DEV_VERSION}
 
+box-copy:
+	./docker-cp.sh frontend
+	./docker-cp.sh backend
+	./docker-cp.sh database
+
+box-copy-frontend:
+	./docker-cp.sh frontend
+
+box-copy-backend:
+	./docker-cp.sh backend
+
 box-deploy-all:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy.sh" - ruud'
@@ -43,7 +54,7 @@ box-deploy-backend:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_backend.sh" - ruud'
 
-box-frontend: dev-pm-frontend-build box-push box-deploy-frontend
-box-backend: dev-pm-backend-build box-push box-deploy-backend
+box-frontend: dev-pm-frontend-build box-copy-frontend box-deploy-frontend
+box-backend: dev-pm-backend-build box-copy-backend box-deploy-backend
 
-box-all: dev-build-all box-push box-deploy-all
+box-all: dev-build-all box-copy box-deploy-all

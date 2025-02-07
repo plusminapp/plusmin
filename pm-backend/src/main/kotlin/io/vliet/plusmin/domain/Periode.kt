@@ -14,9 +14,9 @@ import java.time.format.DateTimeFormatter
  */
 
 @Entity
-@Table(name = "saldi",
-    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "datum"])])
-class Saldi(
+@Table(name = "periode",
+    uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "periodeStartDatum"])])
+class Periode(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
@@ -29,32 +29,32 @@ class Saldi(
     @JsonIgnore
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
-    val datum: LocalDate,
+    val periodeStartDatum: LocalDate,
     @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
-    @JoinColumn(name = "saldi_id", referencedColumnName = "id")
+    @JoinColumn(name = "periode_id", referencedColumnName = "id")
     var saldoLijst: List<Saldo>
 ) {
-    fun with(saldoLijst: List<Saldo>): Saldi {
+    fun with(saldoLijst: List<Saldo>): Periode {
         this.saldoLijst = saldoLijst
         return this
     }
 
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
-        datum: LocalDate = this.datum,
+        periodeStartDatum: LocalDate = this.periodeStartDatum,
         saldoLijst: List<Saldo> = this.saldoLijst
-    ) = Saldi(this.id, gebruiker, datum, saldoLijst)
+    ) = Periode(this.id, gebruiker, periodeStartDatum, saldoLijst)
 
-    data class SaldiDTO(
+    data class PeriodeDTO(
         val id: Long = 0,
-        val datum: String,
+        val periodeStartDatum: String,
         var saldoLijst: List<Saldo.SaldoDTO>
     )
 
-    fun toDTO(): SaldiDTO {
-        return SaldiDTO(
+    fun toDTO(): PeriodeDTO {
+        return PeriodeDTO(
             this.id,
-            this.datum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            this.periodeStartDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.saldoLijst.map { it.toDTO() }
         )
     }

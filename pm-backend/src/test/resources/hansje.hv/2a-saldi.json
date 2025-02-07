@@ -1,5 +1,5 @@
 {
-  "datum": "2024-12-24",
+  "periodeStartDatum": "2024-12-24",
   "saldoLijst": [
     {
       "rekeningNaam": "Betaalrekening",
@@ -12,6 +12,10 @@
     {
       "rekeningNaam": "Credit Card",
       "bedrag": "-143.5"
+    },
+    {
+      "rekeningNaam": "Contant",
+      "bedrag": "25"
     }
   ]
 }

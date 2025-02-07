@@ -15,7 +15,7 @@ import AflossingReserveringTabel from '../components/Betaling/AflossingReserveri
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager, rekeningen } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, rekeningen, huidigePeriode } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
@@ -30,7 +30,7 @@ export default function InkomstenUitgaven() {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?size=-1`, {
+      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${huidigePeriode[0]?.toISOString().slice(0, 10).slice(0, 10)}&toDate=${huidigePeriode[1]?.toISOString().slice(0, 10)}&size=-1`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -138,6 +138,7 @@ export default function InkomstenUitgaven() {
           onBetalingBewaardChange={onBetalingBewaardChange} />
       </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
+      <Typography sx={{ py: '18px', mx: '18px' }}>Periode van {huidigePeriode[0]?.toLocaleDateString('nl-NL').slice(0,10)} tot {huidigePeriode[1]?.toLocaleDateString('nl-NL').slice(0,10)}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           {inkomstenRekeningen.length > 0 &&

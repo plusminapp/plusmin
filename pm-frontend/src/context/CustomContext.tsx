@@ -18,6 +18,10 @@ interface CustomContextType {
     setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
     betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>;
     setBetalingsSoorten2Rekeningen: (betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>) => void;
+    actuelePeriode: [Date | undefined, Date | undefined];
+    setActuelePeriode: (huidigePeriode: [Date | undefined, Date | undefined]) => void;
+    huidigePeriode: [Date | undefined, Date | undefined];
+    setHuidigePeriode: (huidigePeriode: [Date | undefined, Date | undefined]) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -43,6 +47,8 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
     const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
+    const [actuelePeriode, setActuelePeriode] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
+    const [huidigePeriode, setHuidigePeriode] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
 
     return (
         <CustomContext.Provider value={{
@@ -52,7 +58,9 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             rekeningen, setRekeningen,
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,
-            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen}}>
+            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen,
+            actuelePeriode, setActuelePeriode,
+            huidigePeriode, setHuidigePeriode}}>
             {children}
         </CustomContext.Provider>
     );

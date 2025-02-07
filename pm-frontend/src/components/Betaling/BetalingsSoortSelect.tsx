@@ -146,7 +146,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                             }
                                             {rekeningPaar && rekeningPaar.bestemming.length > 1 &&
                                                 <Grid >
-                                                    <Typography sx={{ m: '3px', fontSize: 12 }}>En is ontvangen op:</Typography>
+                                                    <Typography sx={{ m: '3px', fontSize: 12 }}>Ik heb 't ontvangen:</Typography>
                                                     {rekeningPaar?.bestemming.map((rekening) => (
                                                         <Button
                                                             style={{ textTransform: 'none' }}
@@ -229,7 +229,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                             }
                                             {rekeningPaar && rekeningPaar.bron.length > 1 &&
                                                 <Grid >
-                                                    <Typography sx={{ m: '3px', fontSize: 12 }}>En is betaald met:</Typography>
+                                                    <Typography sx={{ m: '3px', fontSize: 12 }}>Ik heb 't betaald met:</Typography>
                                                     {rekeningPaar?.bron.map((rekening) => (
                                                         <Button
                                                             style={{ textTransform: 'none' }}

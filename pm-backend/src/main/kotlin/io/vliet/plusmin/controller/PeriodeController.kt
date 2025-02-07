@@ -1,8 +1,8 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
-import io.vliet.plusmin.domain.Saldi.SaldiDTO
-import io.vliet.plusmin.service.SaldiService
+import io.vliet.plusmin.domain.Periode.PeriodeDTO
+import io.vliet.plusmin.service.PeriodeService
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,11 +13,11 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @RestController
-@RequestMapping("/saldi")
-class SaldiController {
+@RequestMapping("/periode")
+class PeriodeController {
 
     @Autowired
-    lateinit var saldiService: SaldiService
+    lateinit var periodeService: PeriodeService
 
     @Autowired
     lateinit var gebruikerController: GebruikerController
@@ -32,7 +32,7 @@ class SaldiController {
     ): StandDTO {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return saldiService.getStandOpDatum(
+        return periodeService.getStandOpDatum(
                 hulpvrager,
                 LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
             )
@@ -42,17 +42,17 @@ class SaldiController {
     @PutMapping("/hulpvrager/{hulpvragerId}")
     fun upsertSaldiVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @Valid @RequestBody saldiDTO: SaldiDTO): ResponseEntity<Any> {
+        @Valid @RequestBody periodeDTO: PeriodeDTO): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} met datum ${saldiDTO.datum}")
-        return ResponseEntity.ok().body(saldiService.upsert(hulpvrager, saldiDTO))
+        logger.info("PUT SaldiController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email} met datum ${periodeDTO.periodeStartDatum}")
+        return ResponseEntity.ok().body(periodeService.upsert(hulpvrager, periodeDTO))
     }
 
     data class StandDTO(
-        val openingsBalans: SaldiDTO,
-        val mutatiesOpDatum: SaldiDTO,
-        val balansOpDatum: SaldiDTO,
-        val resultaatOpDatum: SaldiDTO
+        val openingsBalans: PeriodeDTO,
+        val mutatiesOpDatum: PeriodeDTO,
+        val balansOpDatum: PeriodeDTO,
+        val resultaatOpDatum: PeriodeDTO
     )
 }
 

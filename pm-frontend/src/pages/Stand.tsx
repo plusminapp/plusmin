@@ -2,7 +2,7 @@ import { Box, FormControlLabel, FormGroup, Switch, Typography } from "@mui/mater
 import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 
-import { RekeningSaldi } from "../model/Saldi";
+import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
 import { useAuthContext } from "@asgardeo/auth-react";
 import Resultaat from "../components/Resultaat";
@@ -10,10 +10,10 @@ import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 
 export default function Stand() {
 
-  const [openingsBalans, setOpeningsBalans] = useState<RekeningSaldi | undefined>(undefined)
-  const [mutatiesOpDatum, setMutatiesOpDatum] = useState<RekeningSaldi | undefined>(undefined)
-  const [balansOpDatum, setBalansOpDatum] = useState<RekeningSaldi | undefined>(undefined)
-  const [resultaatOpDatum, setResultaatOpDatum] = useState<RekeningSaldi | undefined>(undefined)
+  const [openingsBalans, setOpeningsBalans] = useState<Periode | undefined>(undefined)
+  const [mutatiesOpDatum, setMutatiesOpDatum] = useState<Periode | undefined>(undefined)
+  const [balansOpDatum, setBalansOpDatum] = useState<Periode | undefined>(undefined)
+  const [resultaatOpDatum, setResultaatOpDatum] = useState<Periode | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(true);
   const { getIDToken } = useAuthContext();
@@ -29,7 +29,7 @@ export default function Stand() {
         const datum = new Date().toISOString().slice(0, 10);
         const id = actieveHulpvrager.id
         const token = await getIDToken();
-        const response = await fetch(`/api/v1/saldi/hulpvrager/${id}/stand/${datum}`, {
+        const response = await fetch(`/api/v1/periode/hulpvrager/${id}/stand/${datum}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -82,18 +82,18 @@ export default function Stand() {
           <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>
               <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
-                <Resultaat title={'Inkomsten en uitgaven'} saldi={resultaatOpDatum!} />
+                <Resultaat title={'Inkomsten en uitgaven'} periode={resultaatOpDatum!} />
               </Grid>
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
-                  <Resultaat title={'Opening'} saldi={openingsBalans!} />
+                  <Resultaat title={'Opening'} periode={openingsBalans!} />
                 </Grid>}
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
-                  <Resultaat title={'Mutaties per'} saldi={mutatiesOpDatum!} />
+                  <Resultaat title={'Mutaties per'} periode={mutatiesOpDatum!} />
                 </Grid>}
               <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
-                <Resultaat title={'Stand'} saldi={balansOpDatum!} />
+                <Resultaat title={'Stand'} periode={balansOpDatum!} />
               </Grid>
             </Grid>
           </Box>

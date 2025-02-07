@@ -1,9 +1,7 @@
 package io.vliet.plusmin.domain
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.math.BigDecimal
-import java.time.LocalDate
 
 /*
     De Saldo tabel bevat het saldo van een rekening; door de relatie naar de Saldi tabel
@@ -26,14 +24,14 @@ class Saldo(
     val rekening: Rekening,
     val bedrag: BigDecimal,
     @ManyToOne
-    @JoinColumn(name = "saldi_id", referencedColumnName = "id")
-    var saldi: Saldi? = null
+    @JoinColumn(name = "periode_id", referencedColumnName = "id")
+    var periode: Periode? = null
 ) {
     fun fullCopy(
         rekening: Rekening = this.rekening,
         bedrag: BigDecimal = this.bedrag,
-        saldi: Saldi? = this.saldi
-    ) = Saldo(this.id, rekening, bedrag, saldi)
+        periode: Periode? = this.periode
+    ) = Saldo(this.id, rekening, bedrag, periode)
 
     data class SaldoDTO(
         val id: Long = 0,
