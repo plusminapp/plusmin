@@ -144,9 +144,6 @@ export default function InkomstenUitgaven() {
           {inkomstenRekeningen.length > 0 &&
             <div>
               <Typography >Inkomsten totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
-              <Typography sx={{ fontSize: 12, }}>Hier komen alle betalingen waarmee geld aan de beschikbare middelen wordt toegevoegd:
-                inkomsten en rente.
-              </Typography>
             </div>
           }
           {inkomstenRekeningen.map(rekening =>
@@ -172,9 +169,6 @@ export default function InkomstenUitgaven() {
           {uitgaveRekeningen.length > 1 &&
             <div>
               <Typography >Uitgaven totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
-              <Typography sx={{ fontSize: 12, }}>Hier komen alle betalingen waarmee geld uit de beschikbare middelen wegvloeien:
-                uitgaven, aflossingen en besteding van een reservering.
-              </Typography>
             </div>
           }
           {uitgaveRekeningen.map(rekening =>
@@ -234,8 +228,6 @@ export default function InkomstenUitgaven() {
           {interneRekeningen.length > 0 &&
             <div>
               <Typography >Interne boekingen</Typography>
-              <Typography sx={{ fontSize: 12, }}>Hier komen alle interne boekingen; het moet per betalingssoort worden georganiseerd en niet per rekening:
-                storten/opnemen spaarrekening of contant en incasso creditcard; de huidige weergave klopt dus niet ... </Typography>
             </div>
           }
           {interneRekeningen.map(rekening =>
@@ -265,8 +257,8 @@ export default function InkomstenUitgaven() {
               expandIcon={<ArrowDropDownIcon />}
               aria-controls="blaat"
               id={"blaat"}>
-              <Typography >Betalingen per rekening<br/>
-              <span style={{ fontSize: 12, lineHeight: 1 }}>Hier kun je de betalingen filteren op rekening, bijvoorbeeld alle creditcard betalingen </span></Typography>
+              <Typography >Betalingen per rekening
+              </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>
               <InkomstenUitgavenTabel

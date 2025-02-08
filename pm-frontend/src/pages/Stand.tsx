@@ -1,6 +1,7 @@
 import { Box, FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
@@ -20,6 +21,7 @@ export default function Stand() {
   const { actieveHulpvrager } = useCustomContext();
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
+    const navigate = useNavigate();
 
 
   useEffect(() => {
@@ -28,7 +30,11 @@ export default function Stand() {
         setIsLoading(true);
         const datum = new Date().toISOString().slice(0, 10);
         const id = actieveHulpvrager.id
-        const token = await getIDToken();
+        let token = '';
+        try { token = await getIDToken()} 
+        catch (error) {
+          navigate('/login');
+        }
         const response = await fetch(`/api/v1/periode/hulpvrager/${id}/stand/${datum}`, {
           method: "GET",
           headers: {
