@@ -1,4 +1,5 @@
 import { BetalingsSoort } from "./Betaling";
+import { Periode } from "./Periode";
 import { Rekening } from "./Rekening";
 
 export type Gebruiker = {
@@ -9,5 +10,6 @@ export type Gebruiker = {
     roles: string[];
     vrijwilligerEmail: string | undefined;
     rekeningen: Rekening[];
+    periodes: Periode[];
     betalingsSoorten: BetalingsSoort[];
 }

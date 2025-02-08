@@ -6,23 +6,25 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Periode } from '../model/Periode';
 import { Saldo } from '../model/Saldo';
 import { currencyFormatter } from '../model/Betaling'
+import dayjs from 'dayjs';
 
 interface PeriodeProps {
   title: string;
-  periode: Periode;
+  datum: string;
+  saldi: Saldo[];
 }
 
-export default function Saldi(props: PeriodeProps) {
+export default function Resultaat(props: PeriodeProps) {
 
   const dateFormatter = (date: string) => {
-    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
+    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" })
+    .format(dayjs(date).toDate());
   }
 
   const calculateResult = (): number => {
-    const saldoLijst: Saldo[] = props.periode.saldoLijst
+    const saldoLijst: Saldo[] = props.saldi
     return saldoLijst.reduce((acc, saldo) => (acc + saldo.bedrag), 0)
   }
 
@@ -33,7 +35,7 @@ export default function Saldi(props: PeriodeProps) {
           <TableHead>
             <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell align="left" size='small' sx={{ p: "6px" }}>{props.title}</TableCell>
-              <TableCell align="right" size='small' sx={{ p: "6px" }}>{dateFormatter(props.periode.periodeStartDatum)}</TableCell>
+              <TableCell align="right" size='small' sx={{ p: "6px" }}>{dateFormatter(props.datum)}</TableCell>
             </TableRow>
             <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
               <TableCell align="left" size='small' sx={{ p: "6px" }}>Totaal</TableCell>
@@ -41,10 +43,10 @@ export default function Saldi(props: PeriodeProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.periode.saldoLijst.map((saldo) => (
+            {props.saldi.map((saldo) => (
               <TableRow>
-                  <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekeningNaam}</TableCell>
-                  <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(saldo.bedrag)}</TableCell>
+                <TableCell align="left" size='small' sx={{ p: "6px" }}>{saldo.rekeningNaam}</TableCell>
+                <TableCell align="right" size='small' sx={{ p: "6px" }}>{currencyFormatter.format(saldo.bedrag)}</TableCell>
               </TableRow>
             ))}
           </TableBody>

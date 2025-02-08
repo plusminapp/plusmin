@@ -1,8 +1,10 @@
-import { Periode } from "./Periode"
+import { Saldo } from "./Saldo"
 
 export type Stand = {
-    openingsBalans: Periode,
-    mutatiesOpDatum: Periode,
-    balansOpDatum: Periode,
-    resultaatOpDatum: Periode
+    periodeStartDatum: string,
+    peilDatum: string,
+    openingsBalans: Saldo[],
+    mutatiesOpDatum: Saldo[],
+    balansOpDatum: Saldo[],
+    resultaatOpDatum: Saldo[],
 }

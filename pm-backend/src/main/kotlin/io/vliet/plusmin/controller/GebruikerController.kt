@@ -2,8 +2,10 @@ package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
+import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
 import io.vliet.plusmin.service.PeriodeService
 import jakarta.annotation.security.RolesAllowed
@@ -30,6 +32,9 @@ class GebruikerController {
     @Autowired
     lateinit var periodeService: PeriodeService
 
+    @Autowired
+    lateinit var periodeRepository: PeriodeRepository
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
@@ -38,7 +43,7 @@ class GebruikerController {
     fun getAlleGebruikers(): List<GebruikerDTO> {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
-        return gebruikerRepository.findAll().map { it.toDTO() }
+        return gebruikerRepository.findAll().map { toDTO(it) }
     }
 
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen; ADMIN krijgt iedereen terug als hulpvrager
@@ -52,16 +57,17 @@ class GebruikerController {
         } else {
             gebruikerRepository.findHulpvragersVoorVrijwilliger(gebruiker)
         }
-        periodeService.checkPeriodeVoorGebruiker(gebruiker)
-        hulpvragers.forEach{ periodeService.checkPeriodeVoorGebruiker(it) }
-        return GebruikerMetHulpvragersDTO(gebruiker.toDTO(), hulpvragers.map { it.toDTO() })
+        periodeService.checkPeriodesVoorGebruiker(gebruiker)
+        hulpvragers.forEach { periodeService.checkPeriodesVoorGebruiker(it) }
+        return GebruikerMetHulpvragersDTO(toDTO(gebruiker), hulpvragers.map { toDTO(it) })
     }
 
     @Throws(AuthorizationDeniedException::class)
     @PostMapping("")
     fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> {
         val gebruiker = getJwtGebruiker()
-        logger.info("POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: " +
+        logger.info(
+            "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: " +
                 gebruikerList.map { it.email }.joinToString { ", " })
         if (gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
             throw AuthorizationDeniedException(
@@ -104,9 +110,35 @@ class GebruikerController {
         }
         return Pair(hulpvrager, vrijwilliger)
     }
-}
 
-data class GebruikerMetHulpvragersDTO(
-    val gebruiker: GebruikerDTO,
-    val hulpvragers: List<GebruikerDTO>
-)
+
+    data class GebruikerDTO(
+        val id: Long = 0,
+        val email: String,
+        val bijnaam: String = "Gebruiker zonder bijnaam :-)",
+        val periodeDag: Int = 1,
+        val roles: List<String> = emptyList(),
+        val vrijwilligerEmail: String = "",
+        val rekeningen: List<Rekening> = emptyList(),
+        val periodes: List<Periode> = emptyList(),
+    )
+
+    fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
+        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+        return GebruikerDTO(
+            gebruiker.id,
+            gebruiker.email,
+            gebruiker.bijnaam,
+            gebruiker.periodeDag,
+            gebruiker.roles.map { it.toString() },
+            gebruiker.vrijwilliger?.email ?: "",
+            gebruiker.rekeningen.map { it },
+            periodes
+        )
+    }
+
+    data class GebruikerMetHulpvragersDTO(
+        val gebruiker: GebruikerDTO,
+        val hulpvragers: List<GebruikerDTO>
+    )
+}

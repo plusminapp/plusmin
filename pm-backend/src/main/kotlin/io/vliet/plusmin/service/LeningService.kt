@@ -1,6 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.controller.PeriodeController
+import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Lening.LeningDTO
 import io.vliet.plusmin.repository.BetalingRepository
@@ -29,6 +30,9 @@ class LeningService {
     lateinit var periodeService: PeriodeService
 
     @Autowired
+    lateinit var saldoService: SaldoService
+
+    @Autowired
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
@@ -46,20 +50,21 @@ class LeningService {
             leningRepository.save(lening)
             logger.info("Lening ${leningDTO.rekening.naam} voor ${gebruiker.bijnaam} opgeslagen.")
         }
-        val saldi = periodeService.getLaatstePeriode(gebruiker)
+        val periode = periodeService.getPeriode(gebruiker, LocalDate.now())
         val saldoDTOLijst = leningenLijst.map {
             Saldo.SaldoDTO(
                 rekeningNaam = it.rekening.naam,
-                bedrag = -berekenLeningDTOOpDatum(gebruiker, it, saldi.periodeStartDatum.toString())
+                bedrag = -berekenLeningDTOOpDatum(gebruiker, it, periode.periodeStartDatum.toString())
             )
         }
-        periodeService.merge(gebruiker, saldi, saldoDTOLijst).map { saldoRepository.save(it) }
+        saldoService.merge(gebruiker, periode, saldoDTOLijst).map { saldoRepository.save(it) }
     }
 
     fun berekenLeningenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
         val leningenLijst = leningRepository.findLeningenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        val standDTO = periodeService.getStandOpDatum(gebruiker, peilDatum)
+        val periode = periodeService.getPeriode(gebruiker, peilDatum)
+        val standDTO = saldoService.getStandOpDatum(periode, peilDatum)
 
         return leningenLijst
             .sortedBy { it.rekening.sortOrder }
@@ -76,9 +81,15 @@ class LeningService {
             }
     }
 
-    fun getBalansVanStand(standDTO: PeriodeController.StandDTO, rekening: Rekening): BigDecimal {
-        val saldo: Saldo.SaldoDTO? = standDTO.balansOpDatum.saldoLijst.find { it.rekeningNaam == rekening.naam }
+    fun getBalansVanStand(standDTO: SaldoController.StandDTO, rekening: Rekening): BigDecimal {
+        val saldo: Saldo.SaldoDTO? = standDTO.balansOpDatum.find { it.rekeningNaam == rekening.naam }
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
+    }
+
+    fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, leningDTO: LeningDTO, peilDatumAsString: String): BigDecimal {
+        val lening = fromDTO(gebruiker, leningDTO)
+        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
+        return berekenLeningDTOOpDatum(lening, peilDatum)
     }
 
     fun berekenLeningDTOOpDatum(lening: Lening, peilDatum: LocalDate): BigDecimal {
@@ -100,12 +111,6 @@ class LeningService {
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == lening.rekening.id) acc - betaling.bedrag else acc + betaling.bedrag }
         logger.info("bedrag: ${bedrag}")
         return bedrag
-    }
-
-    fun berekenLeningDTOOpDatum(gebruiker: Gebruiker, leningDTO: LeningDTO, peilDatumAsString: String): BigDecimal {
-        val lening = fromDTO(gebruiker, leningDTO)
-        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        return berekenLeningDTOOpDatum(lening, peilDatum)
     }
 
     fun fromDTO(gebruiker: Gebruiker, leningDTO: LeningDTO): Lening {

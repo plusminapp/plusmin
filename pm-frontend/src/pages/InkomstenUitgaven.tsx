@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, betalingsSoortForma
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary,Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -12,6 +12,7 @@ import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog'
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
+import { PeriodeSelect } from '../components/PeriodeSelect';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -30,7 +31,7 @@ export default function InkomstenUitgaven() {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${huidigePeriode[0]?.toISOString().slice(0, 10).slice(0, 10)}&toDate=${huidigePeriode[1]?.toISOString().slice(0, 10)}&size=-1`, {
+      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${huidigePeriode?.periodeStartDatum}&toDate=${huidigePeriode?.periodeEindDatum}&size=-1`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -45,7 +46,7 @@ export default function InkomstenUitgaven() {
         console.error("Failed to fetch data", response.status);
       }
     }
-  }, [getIDToken, actieveHulpvrager, gebruiker]);
+  }, [getIDToken, actieveHulpvrager, gebruiker, huidigePeriode]);
 
   useEffect(() => {
     fetchBetalingen();
@@ -136,9 +137,9 @@ export default function InkomstenUitgaven() {
         <UpsertBetalingDialoog
           editMode={false}
           onBetalingBewaardChange={onBetalingBewaardChange} />
+        <PeriodeSelect/>
       </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
-      <Typography sx={{ py: '18px', mx: '18px' }}>Periode van {huidigePeriode[0]?.toLocaleDateString('nl-NL').slice(0,10)} tot {huidigePeriode[1]?.toLocaleDateString('nl-NL').slice(0,10)}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           {inkomstenRekeningen.length > 0 &&

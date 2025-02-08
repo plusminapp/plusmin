@@ -1,5 +1,6 @@
 package io.vliet.plusmin.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -24,6 +25,7 @@ class Saldo(
     val rekening: Rekening,
     val bedrag: BigDecimal,
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
     var periode: Periode? = null
 ) {

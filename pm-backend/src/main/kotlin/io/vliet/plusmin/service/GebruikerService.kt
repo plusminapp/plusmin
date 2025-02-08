@@ -1,7 +1,7 @@
 package io.vliet.plusmin.service
 
+import io.vliet.plusmin.controller.GebruikerController.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker.Role
 import io.vliet.plusmin.repository.GebruikerRepository
 import org.slf4j.Logger

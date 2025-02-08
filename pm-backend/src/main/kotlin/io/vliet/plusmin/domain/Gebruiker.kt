@@ -56,38 +56,7 @@ class Gebruiker(
         rekeningen: List<Rekening> = this.rekeningen,
     ) = Gebruiker(this.id, email, bijnaam, periodeDag, roles, vrijwilliger, rekeningen)
 
-    /**
-     * Een Data Transfer Object voor de Gebruiker
-     *
-     * Deze data class wordt gebruikt om:
-     *  - als invoer: een nieuwe gebruiker aan te maken
-     *  - als uitvoer: de hulpvragers bij een vrijwilliger mee te geven
-     *
-     *  Let op: de DTO bevat NIET de rekeningen
-     */
-    data class GebruikerDTO(
-        val id: Long = 0,
-        val email: String,
-        val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-        val periodeDag: Int = 1,
-        val roles: List<String> = emptyList(),
-        val vrijwilligerEmail: String = "",
-        val rekeningen: List<Rekening> = emptyList(),
-    )
-
-    fun toDTO(): GebruikerDTO {
-        return GebruikerDTO(
-            this.id,
-            this.email,
-            this.bijnaam,
-            this.periodeDag,
-            this.roles.map { it.toString() },
-            this.vrijwilliger?.email ?: "",
-            this.rekeningen.map { it },
-        )
-    }
-
-    enum class Role {
+     enum class Role {
         ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
     }
 }

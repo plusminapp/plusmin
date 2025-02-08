@@ -30,34 +30,39 @@ class Periode(
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
     val periodeStartDatum: LocalDate,
+    val periodeEindDatum: LocalDate,
+    @Enumerated(EnumType.STRING)
     val periodeStatus: PeriodeStatus = PeriodeStatus.HUIDIG,
-    @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
-    @JoinColumn(name = "periode_id", referencedColumnName = "id")
-    var saldoLijst: List<Saldo>
+//    @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
+//    @JoinColumn(name = "periode_id", referencedColumnName = "id")
+//    var saldoLijst: List<Saldo>
 ) {
-    fun with(saldoLijst: List<Saldo>): Periode {
-        this.saldoLijst = saldoLijst
-        return this
-    }
+//    fun with(saldoLijst: List<Saldo>): Periode {
+//        this.saldoLijst = saldoLijst
+//        return this
+//    }
 
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         periodeStartDatum: LocalDate = this.periodeStartDatum,
+        periodeEindDatum: LocalDate = this.periodeEindDatum,
         periodeStatus: PeriodeStatus = this.periodeStatus,
-        saldoLijst: List<Saldo> = this.saldoLijst
-    ) = Periode(this.id, gebruiker, periodeStartDatum, periodeStatus, saldoLijst)
+//        saldoLijst: List<Saldo> = this.saldoLijst
+    ) = Periode(this.id, gebruiker, periodeStartDatum, periodeEindDatum, periodeStatus)
 
     data class PeriodeDTO(
         val id: Long = 0,
         val periodeStartDatum: String,
-        var saldoLijst: List<Saldo.SaldoDTO>
+        val periodeStatus: PeriodeStatus,
+        var saldoLijst: List<Saldo.SaldoDTO> = emptyList()
     )
 
     fun toDTO(): PeriodeDTO {
         return PeriodeDTO(
             this.id,
             this.periodeStartDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
-            this.saldoLijst.map { it.toDTO() }
+            this.periodeStatus,
+//            this.saldoLijst.map { it.toDTO() }
         )
     }
     enum class PeriodeStatus {

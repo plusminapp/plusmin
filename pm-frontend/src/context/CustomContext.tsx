@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Gebruiker } from '../model/Gebruiker';
 import { Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort } from '../model/Betaling';
+import { Periode } from '../model/Periode';
 
 interface CustomContextType {
     gebruiker: Gebruiker | undefined;
@@ -10,6 +11,10 @@ interface CustomContextType {
     setActieveHulpvrager: (actieveHulpvrager: Gebruiker | undefined) => void;
     hulpvragers: Array<Gebruiker>;
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
+    periodes: Array<Periode>;
+    setPeriodes: (periodes: Array<Periode>) => void;
+    huidigePeriode: Periode | undefined;
+    setHuidigePeriode: (huidigePeriode: Periode | undefined) => void;
     rekeningen: Array<Rekening>;
     setRekeningen: (rekeningen: Array<Rekening>) => void;
     betalingsSoorten: Array<BetalingsSoort>;
@@ -18,10 +23,6 @@ interface CustomContextType {
     setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
     betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>;
     setBetalingsSoorten2Rekeningen: (betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>) => void;
-    actuelePeriode: [Date | undefined, Date | undefined];
-    setActuelePeriode: (huidigePeriode: [Date | undefined, Date | undefined]) => void;
-    huidigePeriode: [Date | undefined, Date | undefined];
-    setHuidigePeriode: (huidigePeriode: [Date | undefined, Date | undefined]) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -43,24 +44,24 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [gebruiker, setGebruiker] = useState<Gebruiker | undefined>(undefined);
     const [actieveHulpvrager, setActieveHulpvrager] = useState<Gebruiker | undefined>(undefined);
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
+    const [periodes, setPeriodes] = useState<Array<Periode>>([]);
+    const [huidigePeriode, setHuidigePeriode] = useState<Periode | undefined>(undefined);
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
     const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
-    const [actuelePeriode, setActuelePeriode] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
-    const [huidigePeriode, setHuidigePeriode] = useState<[Date | undefined, Date | undefined]>([undefined, undefined]);
 
     return (
         <CustomContext.Provider value={{
             gebruiker, setGebruiker,
             actieveHulpvrager, setActieveHulpvrager,
             hulpvragers, setHulpvragers,
+            periodes, setPeriodes,
+            huidigePeriode, setHuidigePeriode,
             rekeningen, setRekeningen,
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,
-            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen,
-            actuelePeriode, setActuelePeriode,
-            huidigePeriode, setHuidigePeriode}}>
+            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen}}>
             {children}
         </CustomContext.Provider>
     );

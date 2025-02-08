@@ -6,11 +6,12 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
 import { betalingsSoortFormatter } from '../model/Betaling';
+import { formatPeriode } from '../model/Periode';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, huidigePeriode } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, periodes, huidigePeriode } = useCustomContext();
 
   return (
     <Container maxWidth="xl">
@@ -48,8 +49,11 @@ const Profiel: React.FC = () => {
             <Typography variant='h4' sx={{ my: '25px' }}>
               De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.<br />
             </Typography>
-            <Typography sx={{ my: '25px' }}>  De huidige periode loopt van {huidigePeriode[0]?.toLocaleDateString()} tot {huidigePeriode[1]?.toLocaleDateString()}.<br/>
-              De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
+            <Typography sx={{ my: '25px' }}>
+              De huidige periode loopt van {huidigePeriode?.periodeStartDatum?.toString()} tot {huidigePeriode?.periodeEindDatum?.toString()}.<br/>
+              De periodes voor {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn: {periodes.map(periode => formatPeriode(periode)).join(', ')}.
+            </Typography>
+            <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
             </Typography>
             <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
               <Table sx={{ width: "100%" }} aria-label="simple table">

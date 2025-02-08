@@ -3,39 +3,38 @@ import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
 import { useAuthContext } from "@asgardeo/auth-react";
 import Resultaat from "../components/Resultaat";
 import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
+import type { Stand } from "../model/Stand";
+import dayjs from "dayjs";
+import { PeriodeSelect } from "../components/PeriodeSelect";
 
 export default function Stand() {
 
-  const [openingsBalans, setOpeningsBalans] = useState<Periode | undefined>(undefined)
-  const [mutatiesOpDatum, setMutatiesOpDatum] = useState<Periode | undefined>(undefined)
-  const [balansOpDatum, setBalansOpDatum] = useState<Periode | undefined>(undefined)
-  const [resultaatOpDatum, setResultaatOpDatum] = useState<Periode | undefined>(undefined)
+  const [stand, setStand] = useState<Stand | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(true);
-  const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager } = useCustomContext();
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
-    const navigate = useNavigate();
-
+  const { getIDToken } = useAuthContext();
+  const { actieveHulpvrager, huidigePeriode } = useCustomContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSaldi = async () => {
-      if (actieveHulpvrager) {
+      if (actieveHulpvrager && huidigePeriode) {
         setIsLoading(true);
-        const datum = new Date().toISOString().slice(0, 10);
+        const vandaag = dayjs().format('YYYY-MM-DD');
+        const datum = huidigePeriode.periodeEindDatum > vandaag ? vandaag : huidigePeriode.periodeEindDatum;
         const id = actieveHulpvrager.id
         let token = '';
-        try { token = await getIDToken()} 
+        try { token = await getIDToken() }
         catch (error) {
           navigate('/login');
         }
-        const response = await fetch(`/api/v1/periode/hulpvrager/${id}/stand/${datum}`, {
+        const response = await fetch(`/api/v1/saldo/hulpvrager/${id}/stand/${datum}`, {
           method: "GET",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -45,21 +44,19 @@ export default function Stand() {
         setIsLoading(false);
         if (response.ok) {
           const result = await response.json();
-          setOpeningsBalans(result.openingsBalans)
-          setMutatiesOpDatum(result.mutatiesOpDatum)
-          setBalansOpDatum(result.balansOpDatum)
-          setResultaatOpDatum(result.resultaatOpDatum)
+          setStand(result)
         } else {
           console.error("Failed to fetch data", response.status);
           setMessage({
             message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
-            type: "warning"})
+            type: "warning"
+          })
         }
       }
     };
     fetchSaldi();
 
-  }, [actieveHulpvrager, getIDToken]);
+  }, [actieveHulpvrager, huidigePeriode, getIDToken]);
 
 
   if (isLoading) {
@@ -72,34 +69,37 @@ export default function Stand() {
 
   return (
     <>
-      {balansOpDatum !== undefined &&
+      {stand !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
           <Typography sx={{ my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
+          <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
           <FormGroup>
-            <FormControlLabel control={
-              <Switch
-                checked={checked}
-                onChange={handleChange}
-                inputProps={{ 'aria-label': 'controlled' }}
-              />}
-              label="Toon opening & mutaties" />
-          </FormGroup>
+              <FormControlLabel control={
+                <Switch
+                  checked={checked}
+                  onChange={handleChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />}
+                label="Toon opening & mutaties" />
+            </FormGroup>
+            <PeriodeSelect />
+          </Grid>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>
               <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
-                <Resultaat title={'Inkomsten en uitgaven'} periode={resultaatOpDatum!} />
+                <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
               </Grid>
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
-                  <Resultaat title={'Opening'} periode={openingsBalans!} />
+                  <Resultaat title={'Opening'} datum={stand.periodeStartDatum} saldi={stand.openingsBalans!} />
                 </Grid>}
               {checked &&
                 <Grid size={{ xs: 1, sm: 2, md: 3 }}>
-                  <Resultaat title={'Mutaties per'} periode={mutatiesOpDatum!} />
+                  <Resultaat title={'Mutaties per'} datum={stand.peilDatum} saldi={stand.mutatiesOpDatum!} />
                 </Grid>}
               <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
-                <Resultaat title={'Stand'} periode={balansOpDatum!} />
+                <Resultaat title={'Stand'} datum={stand.peilDatum} saldi={stand.balansOpDatum!} />
               </Grid>
             </Grid>
           </Box>

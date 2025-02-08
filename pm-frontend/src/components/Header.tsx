@@ -19,6 +19,7 @@ import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
 import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
+import { Periode } from '../model/Periode';
 
 const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Leningen'];
 
@@ -55,7 +56,7 @@ function Header() {
     const { gebruiker, setGebruiker,
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
-        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setHuidigePeriode } = useCustomContext();
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setHuidigePeriode } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -89,24 +90,24 @@ function Header() {
         )
     }
 
-    function berekenPeriode(dag: number, datum: Date): [startDatum: Date, eindDatum: Date] {
-        const jaar = datum.getFullYear();
-        const maand = datum.getMonth();
-        const dagInMaand = datum.getDate();
+    // function berekenPeriode(dag: number, datum: Date): [startDatum: Date, eindDatum: Date] {
+    //     const jaar = datum.getFullYear();
+    //     const maand = datum.getMonth();
+    //     const dagInMaand = datum.getDate();
 
-        let startDatum: Date;
-        let eindDatum: Date;
+    //     let startDatum: Date;
+    //     let eindDatum: Date;
 
-        if (dagInMaand >= dag) {
-            startDatum = new Date(jaar, maand, dag);
-            eindDatum = new Date(jaar, maand + 1, dag - 1);
-        } else {
-            startDatum = new Date(jaar, maand - 1, dag);
-            eindDatum = new Date(jaar, maand, dag - 1);
-        }
+    //     if (dagInMaand >= dag) {
+    //         startDatum = new Date(jaar, maand, dag);
+    //         eindDatum = new Date(jaar, maand + 1, dag - 1);
+    //     } else {
+    //         startDatum = new Date(jaar, maand - 1, dag);
+    //         eindDatum = new Date(jaar, maand, dag - 1);
+    //     }
 
-        return [startDatum, eindDatum];
-    }
+    //     return [startDatum, eindDatum];
+    // }
 
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
@@ -116,7 +117,8 @@ function Header() {
         setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
-        setHuidigePeriode(berekenPeriode(ahv!.periodeDag, new Date()))
+        setPeriodes(ahv!.periodes)
+        setHuidigePeriode(ahv!.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])  
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -138,16 +140,18 @@ function Header() {
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.hulpvragers[0].rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
-            setHuidigePeriode(berekenPeriode(data.hulpvragers[0].periodeDag, new Date()))
+            setPeriodes(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
+            setHuidigePeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])  
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
             setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.gebruiker.rekeningen))
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
-            setHuidigePeriode(berekenPeriode(data.gebruiker.periodeDag, new Date()))
+            setPeriodes(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
+            setHuidigePeriode(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
         }
-    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setHuidigePeriode])
+    }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes])
 
     useEffect(() => {
         if (state.isAuthenticated) {
