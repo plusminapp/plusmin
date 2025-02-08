@@ -3,7 +3,6 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -20,15 +19,12 @@ class BetalingService {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
-    @Autowired
-    lateinit var gebruikerRepository: GebruikerRepository
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruiker: Gebruiker, betalingenLijst: List<Betaling.BetalingDTO>): List<BetalingDTO> {
+    fun saveAll(gebruiker: Gebruiker, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
         return betalingenLijst.map { betalingDTO ->
             val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
-            val betaling = if (betalingList.size > 0) {
+            val betaling = if (betalingList.isNotEmpty()) {
                 logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
                 betalingList[0]
             } else {

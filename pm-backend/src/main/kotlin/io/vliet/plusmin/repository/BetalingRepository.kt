@@ -14,7 +14,6 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
     override fun findAll(): List<Betaling>
     fun findAllByGebruiker(gebruiker: Gebruiker): List<Betaling>
 
-
     @Query(
         value = "SELECT b FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker AND " +

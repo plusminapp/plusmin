@@ -30,6 +30,7 @@ class Periode(
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
     val periodeStartDatum: LocalDate,
+    val periodeStatus: PeriodeStatus = PeriodeStatus.HUIDIG,
     @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
     @JoinColumn(name = "periode_id", referencedColumnName = "id")
     var saldoLijst: List<Saldo>
@@ -42,8 +43,9 @@ class Periode(
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
         periodeStartDatum: LocalDate = this.periodeStartDatum,
+        periodeStatus: PeriodeStatus = this.periodeStatus,
         saldoLijst: List<Saldo> = this.saldoLijst
-    ) = Periode(this.id, gebruiker, periodeStartDatum, saldoLijst)
+    ) = Periode(this.id, gebruiker, periodeStartDatum, periodeStatus, saldoLijst)
 
     data class PeriodeDTO(
         val id: Long = 0,
@@ -57,5 +59,8 @@ class Periode(
             this.periodeStartDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.saldoLijst.map { it.toDTO() }
         )
+    }
+    enum class PeriodeStatus {
+        HUIDIG, OPEN, GESLOTEN, OPGERUIMD
     }
 }

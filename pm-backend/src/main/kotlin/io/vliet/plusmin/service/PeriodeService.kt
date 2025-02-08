@@ -6,7 +6,6 @@ import io.vliet.plusmin.domain.Periode.PeriodeDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,9 +18,6 @@ import java.time.format.DateTimeFormatter
 class PeriodeService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
-
-    @Autowired
-    lateinit var saldoRepository: SaldoRepository
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -84,7 +80,7 @@ class PeriodeService {
 
     fun getMutatieLijstOpDatum(gebruiker: Gebruiker, datum: LocalDate): Periode {
         val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        logger.info("rekeningen: ${rekeningenLijst.map { it.naam }.joinToString(", ")}")
+        logger.info("rekeningen: ${rekeningenLijst.joinToString(", ") { it.naam }}")
         val periode = berekenPeriode(gebruiker.periodeDag, datum)
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, periode.first, datum)
         val saldoLijst = rekeningenLijst.map { rekening ->
@@ -92,7 +88,7 @@ class PeriodeService {
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
             Saldo(0, rekening, mutatie)
         }
-        return Periode(0, gebruiker, datum, saldoLijst)
+        return Periode(0, gebruiker, datum, saldoLijst = saldoLijst)
     }
 
     fun berekenMutaties(betaling: Betaling, rekening: Rekening): BigDecimal {
@@ -114,12 +110,11 @@ class PeriodeService {
         val jaar = datum.year
         val maand = datum.monthValue
         val dagInMaand = datum.dayOfMonth
-        val startDatum: LocalDate
 
-        if (dagInMaand >= dag) {
-            startDatum = LocalDate.of(jaar, maand, dag)
+        val startDatum: LocalDate = if (dagInMaand >= dag) {
+            LocalDate.of(jaar, maand, dag)
         } else {
-            startDatum = LocalDate.of(jaar, maand, dag).minusMonths(1)
+            LocalDate.of(jaar, maand, dag).minusMonths(1)
         }
         return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
     }
@@ -131,9 +126,9 @@ class PeriodeService {
             logger.error("Periode verschuiving nog niet geïmplemteerd")
             throw NotImplementedError("Periode verschuiving nog niet geïmplemteerd")
         }
-        val huidigePeriodeDatums = berekenPeriode(gebruiker.periodeDag, LocalDate.now())
-        if (huidigePeriodeDatums.first > laatstePeriode.periodeStartDatum) {
-            creeerPeriodes(laatstePeriode, huidigePeriodeDatums.first)
+        val huidigePeriodeStartDatum = berekenPeriode(gebruiker.periodeDag, LocalDate.now()).first
+        if (huidigePeriodeStartDatum > laatstePeriode.periodeStartDatum) {
+            creeerPeriodes(laatstePeriode, huidigePeriodeStartDatum)
         }
     }
 
@@ -141,8 +136,8 @@ class PeriodeService {
         val periodeStartDatum = berekenPeriode(gebruiker.periodeDag, LocalDate.now()).first
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         val saldoLijst = rekeningen.map { Saldo(0, it, BigDecimal(0)) }
-        logger.info("NulSaldi gecreeerd voor ${gebruiker} op ${periodeStartDatum}: ${saldoLijst.map { it.rekening.naam }}")
-        return periodeRepository.save(Periode(0, gebruiker, periodeStartDatum, saldoLijst))
+        logger.info("NulSaldi gecreëerd voor $gebruiker op ${periodeStartDatum}: ${saldoLijst.map { it.rekening.naam }}")
+        return periodeRepository.save(Periode(0, gebruiker, periodeStartDatum, saldoLijst = saldoLijst))
     }
 
     fun creeerPeriodes(periode: Periode, startDatum: LocalDate) {
@@ -161,6 +156,7 @@ class PeriodeService {
         )
         nieuweSaldoLijst.forEach { it.periode = nieuwePeriode }
         periodeRepository.save(nieuwePeriode)
+        periodeRepository.save(periode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
         if (nieuwePeriode.periodeStartDatum < startDatum) {
             creeerPeriodes(nieuwePeriode, startDatum)
         }
@@ -214,7 +210,7 @@ class PeriodeService {
             Saldo(0, rekening.get(), bedrag)
         } else {
             val saldo = periode.saldoLijst.filter { it.rekening.naam == rekening.get().naam }
-            if (saldo.size == 0) {
+            if (saldo.isEmpty()) {
                 logger.info("saldi: ${periode.id} heeft geen saldo voor ${rekening.get().naam}; wordt met bedrag ${saldoDTO.bedrag} aangemaakt.")
                 Saldo(0, rekening.get(), saldoDTO.bedrag, periode)
             } else {

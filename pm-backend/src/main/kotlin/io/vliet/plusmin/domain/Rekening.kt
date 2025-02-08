@@ -63,16 +63,16 @@ class Rekening(
     }
 }
 
-    val balansRekeningSoort = arrayOf(
-        Rekening.RekeningSoort.BETAALREKENING,
-        Rekening.RekeningSoort.SPAARREKENING,
-        Rekening.RekeningSoort.CONTANT,
-        Rekening.RekeningSoort.CREDITCARD,
-        Rekening.RekeningSoort.LENING,
-        Rekening.RekeningSoort.RESERVERING
-    )
+val balansRekeningSoort = arrayOf(
+    Rekening.RekeningSoort.BETAALREKENING,
+    Rekening.RekeningSoort.SPAARREKENING,
+    Rekening.RekeningSoort.CONTANT,
+    Rekening.RekeningSoort.CREDITCARD,
+    Rekening.RekeningSoort.LENING,
+    Rekening.RekeningSoort.RESERVERING
+)
 
-    val resultaatRekeningSoort = arrayOf(
-        Rekening.RekeningSoort.INKOMSTEN,
-        Rekening.RekeningSoort.UITGAVEN,
-    )
+val resultaatRekeningSoort = arrayOf(
+    Rekening.RekeningSoort.INKOMSTEN,
+    Rekening.RekeningSoort.UITGAVEN,
+)

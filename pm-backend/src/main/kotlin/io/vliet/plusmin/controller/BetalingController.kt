@@ -3,7 +3,6 @@ package io.vliet.plusmin.controller
 //import io.vliet.plusmin.service.Camt053Service
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
@@ -115,12 +114,12 @@ class BetalingController {
     ): ResponseEntity<Any> {
         val betalingOpt = betalingRepository.findById(betalingId)
         if (betalingOpt.isEmpty) {
-            logger.warn("Betaling met id ${betalingId} niet gevonden.")
-            return ResponseEntity("Betaling met id ${betalingId} niet gevonden.", HttpStatus.NOT_FOUND)
+            logger.warn("Betaling met id $betalingId niet gevonden.")
+            return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
         }
         val betaling = betalingOpt.get()
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
-        logger.info("PUT BetalingController.wijzigBetaling met id ${betalingId} voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betalingen = betalingService.save(betaling, betalingDTO)
         return ResponseEntity.ok().body(betalingen)
     }

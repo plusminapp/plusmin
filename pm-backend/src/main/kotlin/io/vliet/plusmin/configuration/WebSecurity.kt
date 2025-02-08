@@ -27,10 +27,10 @@ class SecurityConfig(
     @Throws(Exception::class)
     fun filterChain(httpSecurity: HttpSecurity): SecurityFilterChain {
         return httpSecurity
-            .authorizeHttpRequests(Customizer {
+            .authorizeHttpRequests {
                 it.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                     .anyRequest().authenticated()
-            })
+            }
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .oauth2ResourceServer { it.jwt { it.jwtAuthenticationConverter(jwtAuthenticationConverter()) } }

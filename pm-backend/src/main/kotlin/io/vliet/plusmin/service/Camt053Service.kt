@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
-import java.math.BigDecimal
 
 @Service
 class Camt053Service {
@@ -59,11 +58,11 @@ class Camt053Service {
                         (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend")
                     else
                         (entryDetails.rltdPties?.dbtrAcct?.id?.iban ?: "onbekend")
-                    val naam_tegenrekening = if (isDebit)
+                    val naamTegenrekening = if (isDebit)
                         (entryDetails.rltdPties?.cdtr?.nm ?: "onbekend")
                     else
                         (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend")
-                    val omschrijving = "${reportEntry2.addtlNtryInf}\n $tegenrekening, $naam_tegenrekening"
+                    val omschrijving = "${reportEntry2.addtlNtryInf}\n $tegenrekening, $naamTegenrekening"
                     try {
                         betalingRepository.save(
                             Betaling(

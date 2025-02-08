@@ -1,6 +1,5 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker.Role
