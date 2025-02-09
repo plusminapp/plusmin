@@ -130,20 +130,24 @@ export default function InkomstenUitgaven() {
     fetchBetalingen()
   }
 
+  const isPeriodeOpen = huidigePeriode?.periodeStatus === 'OPEN' || huidigePeriode?.periodeStatus === 'HUIDIG';
+
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
+      <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, md: 3 }}>
         <Grid size={1}>
           <PeriodeSelect />
         </Grid>
-        <Grid size={1} alignItems={{xs: 'start', md: 'end'}} sx={{ mb: '12px', display: 'flex' }}>
-        <UpsertBetalingDialoog
-            editMode={false}
-            onBetalingBewaardChange={onBetalingBewaardChange} />
-        </Grid>
+        <Grid size={1}>
+        <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>        </Grid>
+        {isPeriodeOpen &&
+          <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
+            <UpsertBetalingDialoog
+              editMode={false}
+              onBetalingBewaardChange={onBetalingBewaardChange} />
+          </Grid>}
       </Grid>
-      <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           {inkomstenRekeningen.length > 0 &&
@@ -205,6 +209,7 @@ export default function InkomstenUitgaven() {
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
                   <AflossingReserveringTabel
+                    onBetalingBewaardChange={onBetalingBewaardChange}
                     betalingen={betalingen.filter(betaling => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                     isAflossing={true} />
                 </AccordionDetails>
@@ -222,6 +227,7 @@ export default function InkomstenUitgaven() {
                 </AccordionSummary>
                 <AccordionDetails sx={{ p: 0 }}>
                   <AflossingReserveringTabel
+                    onBetalingBewaardChange={onBetalingBewaardChange}
                     betalingen={betalingen.filter(betaling => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                     isAflossing={false} />
                 </AccordionDetails>

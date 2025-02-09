@@ -73,17 +73,21 @@ export default function Stand() {
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
           <Typography sx={{ my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
-          <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
-          <FormGroup>
-              <FormControlLabel control={
-                <Switch
-                  checked={checked}
-                  onChange={handleChange}
-                  inputProps={{ 'aria-label': 'controlled' }}
-                />}
-                label="Toon opening & mutaties" />
-            </FormGroup>
-            <PeriodeSelect />
+          <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
+            <Grid size={1}>
+              <PeriodeSelect />
+            </Grid>
+            <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
+              <FormGroup sx={{ ml: 'auto' }} >
+                <FormControlLabel control={
+                  <Switch
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />}
+                  label="Toon opening & mutaties" />
+              </FormGroup>
+            </Grid>
           </Grid>
           <Box sx={{ flexGrow: 1 }}>
             <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>

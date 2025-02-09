@@ -28,7 +28,6 @@ export default function Leningen() {
   const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
-
   const fetchLeningen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
@@ -49,8 +48,9 @@ export default function Leningen() {
         console.error("Failed to fetch data", response.status);
         setMessage({
           message: `De configuratie voor ${actieveHulpvrager!.bijnaam} is niet correct.`,
-          type: "warning"})
-   }
+          type: "warning"
+        })
+      }
     }
   }, [getIDToken, actieveHulpvrager, gebruiker, formDatum]);
 
@@ -94,7 +94,10 @@ export default function Leningen() {
       {leningen.length > 0 &&
         <>
           <Typography variant='h4'>Schulden/leningen pagina</Typography>
-          <Grid container spacing={2} columns={{xs:1, md: 3}} justifyContent="space-between">
+          <Grid container spacing={2} columns={{ xs: 1, md: 3 }} justifyContent="space-between">
+            <Grid size={1} alignItems="start">
+              <PeriodeSelect />
+            </Grid>
             <Grid size={1} alignItems="start">
               <Box sx={{ my: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
@@ -107,10 +110,7 @@ export default function Leningen() {
                 </LocalizationProvider>
               </Box>
             </Grid>
-            <Grid size={1} alignItems="start">
-              <PeriodeSelect />
-            </Grid>
-            <Grid size={1} alignItems={{xs: 'start', md: 'end'}} sx={{ mb: '12px', display: 'flex' }}>
+            <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
               <NieuweLeningDialoog onLeningBewaardChange={onLeningBewaardChange} />
             </Grid>
           </Grid>

@@ -25,7 +25,7 @@ interface InUitTabelProps {
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
-  const { actieveHulpvrager, gebruiker, rekeningen } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen, huidigePeriode } = useCustomContext();
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
@@ -46,6 +46,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const handleWeergaveChange = (event: SelectChangeEvent) => {
     setActueleRekening(rekeningen.find(r => r.naam === event.target.value))
   };
+
+  const isPeriodeOpen = huidigePeriode?.periodeStatus === 'OPEN' || huidigePeriode?.periodeStatus === 'HUIDIG';
 
   return (
     <>
@@ -73,8 +75,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
-                <TableRow>
-                  <TableCell sx={{ width: "20%" }}>Datum</TableCell>
+              <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableCell sx={{ width: "20%" }}>Datum</TableCell>
                   <TableCell sx={{ width: "20%" }} align="right">Bedrag</TableCell>
                   <TableCell sx={{ width: "50%" }}>Omschrijving</TableCell>
                   {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
@@ -99,11 +101,13 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell> */}
-                      <TableCell>
-                        <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey' }}>
-                          <EditIcon fontSize="small" />
-                        </Button>
-                      </TableCell>
+                      {isPeriodeOpen &&
+                        <TableCell size='small' sx={{ p: "6px" }}>
+                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "0px" }}>
+                            <EditIcon fontSize="small" />
+                          </Button>
+                        </TableCell>
+                      }
                     </TableRow>
                   </Fragment>
                 ))}
