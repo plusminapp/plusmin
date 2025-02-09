@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, betalingsSoortForma
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary,Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -133,11 +133,15 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
+      <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
+        <Grid size={1}>
+          <PeriodeSelect />
+        </Grid>
+        <Grid size={1} alignItems={{xs: 'start', md: 'end'}} sx={{ mb: '12px', display: 'flex' }}>
         <UpsertBetalingDialoog
-          editMode={false}
-          onBetalingBewaardChange={onBetalingBewaardChange} />
-        <PeriodeSelect/>
+            editMode={false}
+            onBetalingBewaardChange={onBetalingBewaardChange} />
+        </Grid>
       </Grid>
       <Typography sx={{ py: '18px', mx: '18px' }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>

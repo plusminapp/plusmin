@@ -14,7 +14,7 @@ export function PeriodeSelect() {
     return (
         <>
             {huidigePeriode &&
-                <Box sx={{ ml: 'auto' }}>
+                <Box sx={{ my: 2 , maxWidth: '340px'}}>
                     <FormControl variant="standard" fullWidth>
                         <InputLabel id="demo-simple-select-label">Kies de periode</InputLabel>
                         <Select

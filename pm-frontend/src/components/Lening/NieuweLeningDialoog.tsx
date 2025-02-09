@@ -147,7 +147,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
 
   return (
     <React.Fragment>
-      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: 'auto' }}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: {md:'auto', xs: 0}, mr: {md:0, xs: 'auto'} }}>
         Nieuwe lening
       </Button>
       <BootstrapDialog

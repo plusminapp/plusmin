@@ -137,7 +137,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   return (
     <React.Fragment>
       {!props.editMode &&
-        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ my: '10px' }}>
+        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
           Nieuwe betaling
         </Button>
       }
@@ -166,7 +166,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           <Stack spacing={2}>
             {/* <Typography variant="subtitle1">Kies een betalingscategorie</Typography>
             <Typography variant="subtitle1">{betalingDTO.betalingsSoort ? `De keuze is nu een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : "Er is nog niet gekozen."}</Typography> */}
-          <BetalingsSoortSelect
+            <BetalingsSoortSelect
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
               bestemming={betalingDTO.bestemming}
@@ -214,7 +214,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }}/>} >BEWAAR</Button>
+          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
       <StyledSnackbar message={message.message} type={message.type} />

@@ -6,19 +6,19 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
 import { betalingsSoortFormatter } from '../model/Betaling';
-import { formatPeriode } from '../model/Periode';
+import { PeriodeSelect } from '../components/PeriodeSelect';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, periodes, huidigePeriode } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
 
   return (
     <Container maxWidth="xl">
       {!state.isAuthenticated &&
         <Typography variant='h4' sx={{ mb: '25px' }}>Je moet eerst inloggen ...</Typography>
       }
-      {state.isAuthenticated && actieveHulpvrager?.id === gebruiker?.id &&
+      {state.isAuthenticated && 
         <>
           <Typography variant='h4' sx={{ mb: '25px' }}>Hi {gebruiker?.bijnaam}, hoe is 't?</Typography>
           <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
@@ -49,10 +49,9 @@ const Profiel: React.FC = () => {
             <Typography variant='h4' sx={{ my: '25px' }}>
               De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.<br />
             </Typography>
-            <Typography sx={{ my: '25px' }}>
-              De huidige periode loopt van {huidigePeriode?.periodeStartDatum?.toString()} tot {huidigePeriode?.periodeEindDatum?.toString()}.<br/>
-              De periodes voor {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn: {periodes.map(periode => formatPeriode(periode)).join(', ')}.
+            <Typography sx={{ my: '25px' }}>De periode wisseldag van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} is {actieveHulpvrager ? actieveHulpvrager.periodeDag : gebruiker?.periodeDag}
             </Typography>
+            <PeriodeSelect />
             <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
             </Typography>
             <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>

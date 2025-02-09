@@ -1,5 +1,6 @@
 {
-  "periodeStartDatum": "2024-12-24",
+  "periodeStartDatum": "2024-12-20",
+  "periodeStatus": "OPEN",
   "saldoLijst": [
     {
       "rekeningNaam": "Betaalrekening",

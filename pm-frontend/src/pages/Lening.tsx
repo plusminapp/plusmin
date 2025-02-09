@@ -16,6 +16,7 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import NieuweLeningDialoog from "../components/Lening/NieuweLeningDialoog";
 import { LeningenAfbouwGrafiek } from "../components/Lening/Graph/LeningenAfbouwGrafiek";
+import { PeriodeSelect } from "../components/PeriodeSelect";
 
 export default function Leningen() {
 
@@ -93,12 +94,7 @@ export default function Leningen() {
       {leningen.length > 0 &&
         <>
           <Typography variant='h4'>Schulden/leningen pagina</Typography>
-          <Grid container spacing={2} columns={2} justifyContent="space-between">
-            <Grid size={2} alignItems="start">
-              <Typography sx={{ mt: '5px' }}>
-                De huidige periode (2024-12) loopt van 21&nbsp;december&nbsp;2024 tot en met 20&nbsp;januari&nbsp;2025
-              </Typography>
-            </Grid>
+          <Grid container spacing={2} columns={{xs:1, md: 3}} justifyContent="space-between">
             <Grid size={1} alignItems="start">
               <Box sx={{ my: 2 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
@@ -111,7 +107,10 @@ export default function Leningen() {
                 </LocalizationProvider>
               </Box>
             </Grid>
-            <Grid size={1} alignItems="end" sx={{ mb: '12px', display: 'flex' }}>
+            <Grid size={1} alignItems="start">
+              <PeriodeSelect />
+            </Grid>
+            <Grid size={1} alignItems={{xs: 'start', md: 'end'}} sx={{ mb: '12px', display: 'flex' }}>
               <NieuweLeningDialoog onLeningBewaardChange={onLeningBewaardChange} />
             </Grid>
           </Grid>
