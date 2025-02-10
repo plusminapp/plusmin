@@ -49,10 +49,10 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
                 <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell>Datum</TableCell>
-                  <TableCell align="right">Bedrag</TableCell>
-                  <TableCell>Omschrijving</TableCell>
-                  <TableCell >&nbsp;</TableCell>
+                  <TableCell sx={{ p: "0px" }}>Datum</TableCell>
+                  <TableCell sx={{ p: "0 18px 0 0" }} align="right">Bedrag</TableCell>
+                  <TableCell sx={{ p: "0px" }}>Omschrijving</TableCell>
+                  <TableCell sx={{ p: "0px" }}>&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -62,11 +62,11 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       aria-haspopup="true"
                     >
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "6px" }}>
+                      <TableCell align="left" size='small' sx={{ p: "0px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>
                         {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
                       </TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{betaling["omschrijving"]}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "0px" }}>{betaling["omschrijving"]}</TableCell>
                       {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'BESTEDEN_RESERVERING' ? `${betaling.bestemming?.naam} met ${betaling.bron?.naam} `: betaling["bron"]?.naam}
                       </TableCell> */}

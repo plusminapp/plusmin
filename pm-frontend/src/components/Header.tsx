@@ -90,25 +90,6 @@ function Header() {
         )
     }
 
-    // function berekenPeriode(dag: number, datum: Date): [startDatum: Date, eindDatum: Date] {
-    //     const jaar = datum.getFullYear();
-    //     const maand = datum.getMonth();
-    //     const dagInMaand = datum.getDate();
-
-    //     let startDatum: Date;
-    //     let eindDatum: Date;
-
-    //     if (dagInMaand >= dag) {
-    //         startDatum = new Date(jaar, maand, dag);
-    //         eindDatum = new Date(jaar, maand + 1, dag - 1);
-    //     } else {
-    //         startDatum = new Date(jaar, maand - 1, dag);
-    //         eindDatum = new Date(jaar, maand, dag - 1);
-    //     }
-
-    //     return [startDatum, eindDatum];
-    // }
-
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker

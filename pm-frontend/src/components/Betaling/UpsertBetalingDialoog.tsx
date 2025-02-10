@@ -47,15 +47,15 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     bestemming: undefined,
   }), []);
 
+  type BetalingDtoErrors = { betalingsSoort?: String, omschrijving?: string; bedrag?: string; boekingsdatum?: string }
+  const initialBetalingDtoErrors = { betalingsSoort: undefined, omschrijving: undefined, bedrag: undefined, boekingsdatum: undefined }
   const [open, setOpen] = useState(props.editMode);
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
-  const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
+  const [errors, setErrors] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
-  const [isValid, setIsValid] = useState<boolean>(props.editMode ? true : false);
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen } = useCustomContext();
-  const threeMonthsAgo = dayjs().subtract(3, 'month');
+  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, huidigePeriode } = useCustomContext();
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
@@ -76,24 +76,49 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     setOpen(false);
   };
 
-  const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
-    setBetalingDTO({ ...betalingDTO, [key]: value })
-    const newErrors: { omschrijving?: string; bedrag?: string } = { omschrijving: undefined, bedrag: undefined };
-    setIsValid(true)
+  const validateKeyValue = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]): string | undefined => {
+    if (key === 'betalingsSoort' && !value) {
+      return 'Kies een betalingscategorie.';
+    }
     if (key === 'omschrijving' && (value as string).trim() === '') {
-      newErrors.omschrijving = 'Omschrijving mag niet leeg zijn.';
-      setIsValid(false)
+      return 'Omschrijving mag niet leeg zijn.';
     }
     if (key === 'bedrag' && (isNaN(value as number) || value as number == 0)) {
-      newErrors.bedrag = 'Bedrag moet een positief getal zijn.';
-      setIsValid(false)
+      return 'Bedrag moet een positief getal zijn.';
     }
-    setErrors((prevErrors) => ({ ...prevErrors, ...newErrors }));
+    if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(huidigePeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(huidigePeriode?.periodeEindDatum))) {
+      return `De boekingsdatum moet in de gekozen periode liggen (van ${huidigePeriode?.periodeStartDatum} t/m ${huidigePeriode?.periodeEindDatum}).`;
+    }
+    return undefined;
   };
+
+  const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
+    setBetalingDTO({ ...betalingDTO, [key]: value })
+    const error = validateKeyValue(key, value)
+    if (error) {
+      setErrors({ ...errors, [key]: error });
+    } else {  
+      setErrors({ ...errors, [key]: undefined }); 
+    }
+  }
+
+  const validateBetalingDTO = () => {
+    const newErrors: BetalingDtoErrors = initialBetalingDtoErrors;
+    (Object.keys(initialBetalingDtoErrors) as (keyof BetalingDtoErrors)[]).forEach((key) => {
+      const error = validateKeyValue(key, betalingDTO[key]);
+      if (error) {
+        newErrors[key as keyof BetalingDtoErrors] = error;
+      }  
+    });  
+    setErrors(newErrors);
+    return newErrors;
+  }  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isValid) {
+    const errorMessages = Object.values(validateBetalingDTO()).filter(error => error !== undefined).join(' ');
+    console.log('errorMessages:', errorMessages)
+    if (errorMessages.length == 0) {
       try {
         const token = await getIDToken();
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
@@ -116,11 +141,9 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           type: "success"
         })
         if (props.editMode) {
-          setIsValid(true)
           props.onBetalingBewaardChange()
           setOpen(false);
         } else {
-          setIsValid(false)
           setBetalingDTO(initialBetalingDTO)
         }
       } catch (error) {
@@ -128,17 +151,17 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       }
     } else {
       setMessage({
-        message: "Betaling is niet geldig, herstel de fouten en probeer het opnieuw.",
-        type: "warning"
+        message: `Betaling is niet geldig, herstel de fouten en probeer het opnieuw. ${errorMessages}`,
+        type: "error"
       })
     }
   }
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select();
-};
+  };
 
-return (
+  return (
     <React.Fragment>
       {!props.editMode &&
         <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
@@ -175,9 +198,13 @@ return (
               bron={betalingDTO.bron}
               bestemming={betalingDTO.bestemming}
               onBetalingsSoortChange={(betalingsSoort, bron, bestemming) => {
+                handleInputChange('betalingsSoort', betalingsSoort)
                 setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
               }}
             />
+            {errors.betalingsSoort && (
+              <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.betalingsSoort}</Typography>
+            )}
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
               <Input
@@ -187,8 +214,8 @@ return (
                 value={betalingDTO.bedrag}
                 type="number"
                 onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
-                onFocus={handleFocus} 
-                />
+                onFocus={handleFocus}
+              />
               {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
               )}
@@ -209,20 +236,21 @@ return (
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
                 disableFuture
-                minDate={threeMonthsAgo}
+                minDate={dayjs(huidigePeriode?.periodeStartDatum)}
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wanneer was de betaling?"
                 value={betalingDTO.boekingsdatum}
                 onChange={(newvalue) => handleInputChange('boekingsdatum', newvalue ? newvalue : dayjs())}
-              />
+                />
+                {errors.boekingsdatum && (
+                  <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.boekingsdatum}</Typography>
+                )}
             </LocalizationProvider>
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
-        {JSON.stringify(isValid)}
-        |{JSON.stringify(errors)}|
       </BootstrapDialog>
       <StyledSnackbar message={message.message} type={message.type} />
     </React.Fragment>

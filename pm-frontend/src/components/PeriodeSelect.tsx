@@ -26,7 +26,7 @@ export function PeriodeSelect() {
                         >
                             {periodes.map((periode: Periode) => (
                                 <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
-                                    {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus})
+                                    {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
                                 </MenuItem>
                             )
                             )}
