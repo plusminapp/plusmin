@@ -145,7 +145,11 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
     }
   }
 
-  return (
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.target.select();
+};
+
+return (
     <React.Fragment>
       <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: {md:'auto', xs: 0}, mr: {md:0, xs: 'auto'} }}>
         Nieuwe lening
@@ -211,6 +215,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
                 value={lening.eindBedrag}
                 type="number"
                 onChange={(e) => handleInputLeningWijziging('eindBedrag', parseFloat(e.target.value))}
+                onFocus={handleFocus} 
               />
               {/* {errors.eindBedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.eindBedrag}</Typography>
@@ -225,6 +230,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
                 value={lening.aflossingsBedrag}
                 type="number"
                 onChange={(e) => handleInputLeningWijziging('aflossingsBedrag', parseFloat(e.target.value))}
+                onFocus={handleFocus} 
               />
               {/* {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.aflossingsBedrag}</Typography>
@@ -238,6 +244,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
                 value={lening.betaalDag}
                 type="number"
                 onChange={(e) => handleInputLeningWijziging('betaalDag', parseFloat(e.target.value))}
+                onFocus={handleFocus} 
               />
               {/* {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.betaalDag}</Typography>

@@ -134,7 +134,11 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     }
   }
 
-  return (
+  const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
+    event.target.select();
+};
+
+return (
     <React.Fragment>
       {!props.editMode &&
         <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
@@ -183,7 +187,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                 value={betalingDTO.bedrag}
                 type="number"
                 onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
-              />
+                onFocus={handleFocus} 
+                />
               {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
               )}
@@ -216,6 +221,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         <DialogActions>
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
+        {JSON.stringify(isValid)}
+        |{JSON.stringify(errors)}|
       </BootstrapDialog>
       <StyledSnackbar message={message.message} type={message.type} />
     </React.Fragment>
