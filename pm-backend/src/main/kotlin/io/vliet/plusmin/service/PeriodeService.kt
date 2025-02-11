@@ -35,7 +35,7 @@ class PeriodeService {
 
     fun getOpeningPeriode(gebruiker: Gebruiker): Periode {
         return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-            ?: periodeRepository.getInitielePeriod(gebruiker)
+//            ?: periodeRepository.getInitielePeriode(gebruiker)
             ?: throw IllegalStateException("Geen initiële periode voor gebruiker ${gebruiker.email}")
     }
 
@@ -62,7 +62,7 @@ class PeriodeService {
         val startHuidigePeriode = berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first
         if (laatstePeriodeOpt == null) {
             creeerEerstePeriodeMetNulSaldi(gebruiker)
-        } else if (laatstePeriodeOpt.periodeStartDatum != null &&  laatstePeriodeOpt.periodeStartDatum < startHuidigePeriode) {
+        } else if (laatstePeriodeOpt.periodeStartDatum < startHuidigePeriode) {
             saldoService.creeerPeriodes(laatstePeriodeOpt, startHuidigePeriode)
         }
     }

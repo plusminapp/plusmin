@@ -99,7 +99,7 @@ function Header() {
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
         setPeriodes(ahv!.periodes)
-        setHuidigePeriode(ahv!.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])  
+        setHuidigePeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])  
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };

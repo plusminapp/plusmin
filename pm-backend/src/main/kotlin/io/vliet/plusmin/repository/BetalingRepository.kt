@@ -24,7 +24,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         value = "SELECT b FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker AND " +
                 "b.boekingsdatum >= :openingsDatum AND " +
-                "b.boekingsdatum < :eindDatum"
+                "b.boekingsdatum <= :eindDatum"
     )    fun findAllByGebruikerTussenDatums(gebruiker: Gebruiker, openingsDatum: LocalDate, eindDatum: LocalDate): List<Betaling>
 
     @Query(

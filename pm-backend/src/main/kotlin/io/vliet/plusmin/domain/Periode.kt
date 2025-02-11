@@ -26,14 +26,14 @@ class Periode(
     @JsonIgnore
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
-    val periodeStartDatum: LocalDate?,
+    val periodeStartDatum: LocalDate,
     val periodeEindDatum: LocalDate,
     @Enumerated(EnumType.STRING)
     val periodeStatus: PeriodeStatus = PeriodeStatus.HUIDIG,
 ) {
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
-        periodeStartDatum: LocalDate? = this.periodeStartDatum,
+        periodeStartDatum: LocalDate = this.periodeStartDatum,
         periodeEindDatum: LocalDate = this.periodeEindDatum,
         periodeStatus: PeriodeStatus = this.periodeStatus,
     ) = Periode(this.id, gebruiker, periodeStartDatum, periodeEindDatum, periodeStatus)
@@ -49,12 +49,12 @@ class Periode(
     fun toDTO(): PeriodeDTO {
         return PeriodeDTO(
             this.id,
-            this.periodeStartDatum?.format(DateTimeFormatter.ISO_LOCAL_DATE) ?: "",
+            this.periodeStartDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.periodeEindDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.periodeStatus,
         )
     }
     enum class PeriodeStatus {
-        HUIDIG, OPEN, GESLOTEN, OPGERUIMD
+        HUIDIG, OPEN, INITIEEL, GESLOTEN, OPGERUIMD
     }
 }

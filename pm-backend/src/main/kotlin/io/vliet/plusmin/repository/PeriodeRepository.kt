@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
-import java.util.Optional
 
 @Repository
 interface PeriodeRepository : JpaRepository<Periode, Long> {
@@ -41,9 +40,10 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
 
     @Query(
         value = "SELECT p FROM Periode p " +
-                "WHERE p.gebruiker = :gebruiker " +
+                "WHERE p.periodeStatus = 'INITIEEL' " +
+                "AND p.gebruiker = :gebruiker " +
                 "ORDER BY p.periodeStartDatum ASC LIMIT 1"
     )
-    fun getInitielePeriod(gebruiker: Gebruiker): Periode?
+    fun getInitielePeriode(gebruiker: Gebruiker): Periode?
 }
 

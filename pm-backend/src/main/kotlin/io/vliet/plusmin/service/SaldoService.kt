@@ -30,19 +30,22 @@ class SaldoService {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun getStandOpDatum(openingPeriode: Periode, periodeStartDatum: LocalDate, peilDatum: LocalDate): SaldoController.StandDTO {
-        logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum} -> ${openingPeriode.periodeEindDatum} ${openingPeriode.periodeStatus}")
+        logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum}, periodeStartDatum: ${periodeStartDatum}, peilDatum: ${peilDatum}")
         val openingsSaldi = getOpeningSaldi(openingPeriode)
-        val mutatieLijst =
+        val mutatiePeriodeOpeningLijst =
+            berekenMutatieLijstOpDatum(openingPeriode.gebruiker, openingPeriode.periodeStartDatum, periodeStartDatum.minusDays(1))
+        val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
+        val mutatiePeildatumLijst =
             berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periodeStartDatum, peilDatum)
-        val balansSaldiOpDatum = berekenSaldiOpDatum(openingsSaldi, mutatieLijst)
+        val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening  , mutatiePeildatumLijst)
 
         val openingsBalans =
-            openingsSaldi
+            balansSaldiBijOpening
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
         val mutatiesOpDatum =
-            mutatieLijst
+            mutatiePeildatumLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
@@ -52,12 +55,12 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toDTO() }
         val resultaatOpDatum =
-            mutatieLijst
+            mutatiePeildatumLijst
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
         return SaldoController.StandDTO(
-            periodeStartDatum = openingPeriode.periodeStartDatum ?: openingPeriode.periodeEindDatum,
+            periodeStartDatum = periodeStartDatum,
             peilDatum = peilDatum,
             openingsBalans = openingsBalans,
             mutatiesOpDatum = mutatiesOpDatum,
@@ -79,13 +82,13 @@ class SaldoService {
 
     fun berekenMutatieLijstOpDatum(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
         val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        logger.info("rekeningen: ${rekeningenLijst.joinToString(", ") { it.naam }}")
         val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
         val saldoLijst = rekeningenLijst.map { rekening ->
             val mutatie =
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
             Saldo(0, rekening, mutatie)
         }
+        logger.warn("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
         return saldoLijst
     }
 
@@ -163,7 +166,7 @@ class SaldoService {
                 )
             )
         }
-        if (nieuwePeriode.periodeStartDatum != null && nieuwePeriode.periodeStartDatum < startDatum) {
+        if (nieuwePeriode.periodeStartDatum < startDatum) {
             creeerPeriodes(nieuwePeriode, startDatum)
         }
     }
