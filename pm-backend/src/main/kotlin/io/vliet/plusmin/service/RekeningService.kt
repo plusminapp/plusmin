@@ -20,9 +20,9 @@ class RekeningService {
     fun saveAll(gebruiker: Gebruiker, rekeningenLijst: List<RekeningDTO>): List<RekeningDTO> {
         return rekeningenLijst.map { rekeningDTO ->
             val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, rekeningDTO.naam)
-            val rekening = if (rekeningOpt.isPresent) {
-                logger.info("Rekening bestaat al: ${rekeningOpt.get().naam} met id ${rekeningOpt.get().id} voor ${gebruiker.bijnaam}")
-                rekeningOpt.get().fullCopy(
+            val rekening = if (rekeningOpt != null) {
+                logger.info("Rekening bestaat al: ${rekeningOpt.naam} met id ${rekeningOpt.id} voor ${gebruiker.bijnaam}")
+                rekeningOpt.fullCopy(
                     rekeningSoort = enumValueOf<RekeningSoort>(rekeningDTO.rekeningSoort),
                     nummer = rekeningDTO.nummer,
                     sortOrder = rekeningDTO.sortOrder

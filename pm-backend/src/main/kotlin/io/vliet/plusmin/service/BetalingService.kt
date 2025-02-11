@@ -29,9 +29,9 @@ class BetalingService {
                 betalingList[0]
             } else {
                 val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-                if (bron.isEmpty) throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                    ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
                 val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-                if (bestemming.isEmpty) throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                    ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
                 logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
                 Betaling(
                     gebruiker = gebruiker,
@@ -39,8 +39,8 @@ class BetalingService {
                     bedrag = betalingDTO.bedrag.toBigDecimal(),
                     omschrijving = betalingDTO.omschrijving,
                     betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
-                    bron = bron.get(),
-                    bestemming = bestemming.get()
+                    bron = bron,
+                    bestemming = bestemming
                 )
             }
             betalingRepository.save(betaling).toDTO()
@@ -50,15 +50,15 @@ class BetalingService {
     fun save(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): BetalingDTO {
         val gebruiker = oldBetaling.gebruiker
         val bronOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bron)
-        val bron = if (bronOpt.isEmpty) {
+        val bron = if (bronOpt == null) {
             logger.warn("${newBetalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             oldBetaling.bron
-        } else bronOpt.get()
+        } else bronOpt
         val bestemmingOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
-        val bestemming = if (bestemmingOpt.isEmpty) {
+        val bestemming = if (bestemmingOpt == null) {
             logger.warn("${newBetalingDTO.bestemming} bestaat niet voor ${gebruiker.bijnaam}.")
             oldBetaling.bestemming
-        } else bestemmingOpt.get()
+        } else bestemmingOpt
         logger.info("Opslaan betaling ${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),

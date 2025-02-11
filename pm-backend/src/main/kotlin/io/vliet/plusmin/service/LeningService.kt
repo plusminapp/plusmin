@@ -63,8 +63,9 @@ class LeningService {
     fun berekenLeningenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<LeningDTO> {
         val leningenLijst = leningRepository.findLeningenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        val periode = periodeService.getPeriode(gebruiker, peilDatum)
-        val standDTO = saldoService.getStandOpDatum(periode, peilDatum)
+        val periode = periodeService.getOpeningPeriode(gebruiker)
+        val periodeStartDatum = periodeService.berekenPeriodeDatums(periode.gebruiker.periodeDag, peilDatum).first
+        val standDTO = saldoService.getStandOpDatum(periode, periodeStartDatum, peilDatum)
 
         return leningenLijst
             .sortedBy { it.rekening.sortOrder }
@@ -114,15 +115,13 @@ class LeningService {
     }
 
     fun fromDTO(gebruiker: Gebruiker, leningDTO: LeningDTO): Lening {
-        val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, leningDTO.rekening.naam)
+        val maxSortOrderOpt = rekeningRepository.findMaxSortOrder()
         val maxSortOrder =
-            if (rekeningRepository.findMaxSortOrder().isPresent)
-                rekeningRepository.findMaxSortOrder().get().sortOrder + 1
+            if (maxSortOrderOpt != null)
+                maxSortOrderOpt.sortOrder + 1
             else 1
-        val rekening = if (rekeningOpt.isPresent) {
-            rekeningOpt.get()
-        } else {
-            rekeningRepository.save(
+        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, leningDTO.rekening.naam)
+            ?: rekeningRepository.save(
                 Rekening(
                     gebruiker = gebruiker,
                     rekeningSoort = Rekening.RekeningSoort.LENING,
@@ -130,16 +129,14 @@ class LeningService {
                     sortOrder = maxSortOrder
                 )
             )
-        }
         if (rekening.rekeningSoort != Rekening.RekeningSoort.LENING) {
             val message =
                 "Rekening ${leningDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningSoort} en kan dus geen lening koppelen."
             logger.error(message)
             throw DataIntegrityViolationException(message)
         }
-        val leningOpt = leningRepository.findLeningVoorRekeningNaam(gebruiker, leningDTO.rekening.naam)
-        val lening = if (leningOpt.isEmpty) {
-            Lening(
+        val lening = leningRepository.findLeningVoorRekeningNaam(gebruiker, leningDTO.rekening.naam)
+            ?.fullCopy(
                 rekening = rekening,
                 startDatum = LocalDate.parse(leningDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                 eindDatum = LocalDate.parse(leningDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
@@ -149,9 +146,8 @@ class LeningService {
                 dossierNummer = leningDTO.dossierNummer,
                 notities = leningDTO.notities,
             )
-        } else {
-            leningOpt.get().fullCopy(
-                rekening = rekeningOpt.get(),
+            ?: Lening(
+                rekening = rekening,
                 startDatum = LocalDate.parse(leningDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                 eindDatum = LocalDate.parse(leningDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
                 eindBedrag = leningDTO.eindBedrag.toBigDecimal(),
@@ -160,7 +156,6 @@ class LeningService {
                 dossierNummer = leningDTO.dossierNummer,
                 notities = leningDTO.notities,
             )
-        }
         return lening
     }
 

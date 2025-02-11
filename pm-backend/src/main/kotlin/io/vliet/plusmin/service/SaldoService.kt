@@ -29,9 +29,11 @@ class SaldoService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun getStandOpDatum(periode: Periode, datum: LocalDate): SaldoController.StandDTO {
-        val openingsSaldi = getOpeningSaldi(periode)
-        val mutatieLijst = berekenMutatieLijstOpDatum(periode.gebruiker, datum)
+    fun getStandOpDatum(openingPeriode: Periode, periodeStartDatum: LocalDate, peilDatum: LocalDate): SaldoController.StandDTO {
+        logger.warn("openingPeriode: ${openingPeriode.periodeStartDatum} -> ${openingPeriode.periodeEindDatum} ${openingPeriode.periodeStatus}")
+        val openingsSaldi = getOpeningSaldi(openingPeriode)
+        val mutatieLijst =
+            berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periodeStartDatum, peilDatum)
         val balansSaldiOpDatum = berekenSaldiOpDatum(openingsSaldi, mutatieLijst)
 
         val openingsBalans =
@@ -55,8 +57,8 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
         return SaldoController.StandDTO(
-            periodeStartDatum = periode.periodeStartDatum,
-            peilDatum = datum,
+            periodeStartDatum = openingPeriode.periodeStartDatum ?: openingPeriode.periodeEindDatum,
+            peilDatum = peilDatum,
             openingsBalans = openingsBalans,
             mutatiesOpDatum = mutatiesOpDatum,
             balansOpDatum = balansOpDatum,
@@ -64,15 +66,21 @@ class SaldoService {
         )
     }
 
-    fun getOpeningSaldi(periode: Periode): List<Saldo> {
-        return saldoRepository.findAllByPeriode(periode)
+    fun getOpeningSaldi(openingPeriode: Periode): List<Saldo> {
+        // vul aan met 0-saldi voor missende rekeningen
+        val alleRekeningen = rekeningRepository.findRekeningenVoorGebruiker(openingPeriode.gebruiker)
+        val bestaandeSaldiRekeningen = saldoRepository.findAllByPeriode(openingPeriode).map { it.rekening }
+        logger.warn("bestaandeSaldiRekeningen: ${bestaandeSaldiRekeningen.joinToString { it.naam }}")
+        val missendeSaldiRekeningen = alleRekeningen.filterNot { bestaandeSaldiRekeningen.map { it.naam }.contains(it.naam) }
+        logger.warn("missendeSaldiRekeningen: ${missendeSaldiRekeningen.joinToString { it.naam }}")
+        val saldoLijst = missendeSaldiRekeningen.map { Saldo.SaldoDTO(0, it.naam, BigDecimal(0)) }
+        return merge(openingPeriode.gebruiker, openingPeriode, saldoLijst)
     }
 
-    fun berekenMutatieLijstOpDatum(gebruiker: Gebruiker, datum: LocalDate): List<Saldo> {
+    fun berekenMutatieLijstOpDatum(gebruiker: Gebruiker, vanDatum: LocalDate, totDatum: LocalDate): List<Saldo> {
         val rekeningenLijst = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         logger.info("rekeningen: ${rekeningenLijst.joinToString(", ") { it.naam }}")
-        val periode = berekenPeriode(gebruiker.periodeDag, datum)
-        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, periode.first, datum)
+        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(gebruiker, vanDatum, totDatum)
         val saldoLijst = rekeningenLijst.map { rekening ->
             val mutatie =
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
@@ -96,18 +104,81 @@ class SaldoService {
         return saldoLijst
     }
 
-    fun berekenPeriode(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
-        val jaar = datum.year
-        val maand = datum.monthValue
-        val dagInMaand = datum.dayOfMonth
 
-        val startDatum: LocalDate = if (dagInMaand >= dag) {
-            LocalDate.of(jaar, maand, dag)
-        } else {
-            LocalDate.of(jaar, maand, dag).minusMonths(1)
+    fun merge(gebruiker: Gebruiker, periode: Periode, saldoDTOs: List<Saldo.SaldoDTO>): List<Saldo> {
+        val saldiBijPeriode = saldoRepository.findAllByPeriode(periode)
+        val bestaandeSaldoMap: MutableMap<String, Saldo> =
+            saldiBijPeriode.associateBy { it.rekening.naam }.toMutableMap()
+        val nieuweSaldoList = saldoDTOs.map { saldoDTO ->
+            val bestaandeSaldo = bestaandeSaldoMap[saldoDTO.rekeningNaam]
+            if (bestaandeSaldo == null) {
+                dto2Saldo(gebruiker, saldoDTO, periode)
+            } else {
+                bestaandeSaldoMap.remove(saldoDTO.rekeningNaam)
+                bestaandeSaldo.fullCopy(bedrag = saldoDTO.bedrag)
+            }
         }
-        return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
+        return bestaandeSaldoMap.values.toList() + nieuweSaldoList
     }
+
+    fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, periode: Periode): Saldo {
+        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekeningNaam)
+        if (rekening == null) {
+            logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekeningNaam} voor ${gebruiker.bijnaam}.")
+            throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
+        }
+        val bedrag = saldoDTO.bedrag
+        val saldo = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
+        return if (saldo == null) {
+            Saldo(0, rekening, bedrag, periode)
+        } else {
+            saldo.fullCopy(bedrag = bedrag)
+        }
+    }
+
+    fun creeerPeriodes(periode: Periode, startDatum: LocalDate) {
+        periodeRepository.save(periode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
+        val mutatieLijst =
+            berekenMutatieLijstOpDatum(
+                periode.gebruiker,
+                periode.periodeStartDatum ?: periode.periodeEindDatum,
+                periode.periodeEindDatum
+            )
+        val periodeSaldi = saldoRepository.findAllByPeriode(periode)
+
+        val nieuwePeriode = periodeRepository.save(
+            Periode(
+                gebruiker = periode.gebruiker,
+                periodeStartDatum = periode.periodeEindDatum.plusDays(1),
+                periodeEindDatum = periode.periodeEindDatum.plusMonths(1),
+                periodeStatus = Periode.PeriodeStatus.HUIDIG
+            )
+        )
+        berekenSaldiOpDatum(periodeSaldi, mutatieLijst).map {
+            saldoRepository.save(
+                Saldo(
+                    rekening = it.rekening,
+                    bedrag = it.bedrag,
+                    periode = nieuwePeriode
+                )
+            )
+        }
+        if (nieuwePeriode.periodeStartDatum != null && nieuwePeriode.periodeStartDatum < startDatum) {
+            creeerPeriodes(nieuwePeriode, startDatum)
+        }
+    }
+//    fun berekenPeriode(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
+//        val jaar = datum.year
+//        val maand = datum.monthValue
+//        val dagInMaand = datum.dayOfMonth
+//
+//        val startDatum: LocalDate = if (dagInMaand >= dag) {
+//            LocalDate.of(jaar, maand, dag)
+//        } else {
+//            LocalDate.of(jaar, maand, dag).minusMonths(1)
+//        }
+//        return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
+//    }
 
 //    fun upsert(gebruiker: Gebruiker, datum: LocalDate, saldiDTO: List<Saldo.SaldoDTO>): PeriodeDTO {
 //        val periodeOpt = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
@@ -129,61 +200,5 @@ class SaldoService {
 //        logger.info("Opslaan saldi ${periode.periodeStartDatum} voor ${gebruiker.bijnaam}")
 //        return periode.toDTO()
 //    }
-
-    fun merge(gebruiker: Gebruiker, periode: Periode, saldoDTOs: List<Saldo.SaldoDTO>): List<Saldo> {
-        val saldiBijPeriode = saldoRepository.findAllByPeriode(periode)
-        val bestaandeSaldoMap: MutableMap<String, Saldo> =
-            saldiBijPeriode.associateBy { it.rekening.naam }.toMutableMap()
-        val nieuweSaldoList = saldoDTOs.map { saldoDTO ->
-            val bestaandeSaldo = bestaandeSaldoMap[saldoDTO.rekeningNaam]
-            if (bestaandeSaldo == null) {
-                dto2Saldo(gebruiker, saldoDTO, periode)
-            } else {
-                bestaandeSaldoMap.remove(saldoDTO.rekeningNaam)
-                bestaandeSaldo.fullCopy(bedrag = saldoDTO.bedrag)
-            }
-        }
-        return bestaandeSaldoMap.values.toList() + nieuweSaldoList
-    }
-
-    fun dto2Saldo(gebruiker: Gebruiker, saldoDTO: Saldo.SaldoDTO, periode: Periode): Saldo {
-        val rekeningOpt = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, saldoDTO.rekeningNaam)
-        if (rekeningOpt.isEmpty) {
-            logger.error("Ophalen niet bestaande rekening ${saldoDTO.rekeningNaam} voor ${gebruiker.bijnaam}.")
-            throw throw IllegalArgumentException("Rekening ${saldoDTO.rekeningNaam} bestaat niet voor ${gebruiker.bijnaam}")
-        }
-        val rekening = rekeningOpt.get()
-        val saldoOpt = saldoRepository.findOneByPeriodeAndRekening(periode, rekening)
-        val bedrag = saldoDTO.bedrag
-        return if (saldoOpt.isEmpty) {
-            Saldo(0, rekening, bedrag, periode)
-        } else {
-            saldoOpt.get().fullCopy(bedrag = bedrag)
-        }
-    }
-
-    fun creeerPeriodes(periode: Periode, startDatum: LocalDate) {
-        periodeRepository.save(periode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
-        val mutatieLijst =
-            berekenMutatieLijstOpDatum(periode.gebruiker, periode.periodeEindDatum)
-        val periodeSaldi = saldoRepository.findAllByPeriode(periode)
-
-        val nieuwePeriode = periodeRepository.save(Periode(
-            gebruiker = periode.gebruiker,
-            periodeStartDatum = periode.periodeEindDatum.plusDays(1),
-            periodeEindDatum = periode.periodeEindDatum.plusMonths(1),
-            periodeStatus = Periode.PeriodeStatus.HUIDIG
-        ))
-        berekenSaldiOpDatum(periodeSaldi, mutatieLijst).map {
-            saldoRepository.save(Saldo(
-                rekening = it.rekening,
-                bedrag = it.bedrag,
-                periode = nieuwePeriode
-            ))
-        }
-        if (nieuwePeriode.periodeStartDatum < startDatum) {
-            creeerPeriodes(nieuwePeriode, startDatum)
-        }
-    }
 
 }

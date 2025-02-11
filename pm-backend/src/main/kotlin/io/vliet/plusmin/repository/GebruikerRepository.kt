@@ -9,7 +9,7 @@ import java.util.*
 
 @Repository
 interface GebruikerRepository : JpaRepository<Gebruiker, Long> {
-    fun findByEmail(email: String): Optional<Gebruiker>
+    fun findByEmail(email: String): Gebruiker?
 
     @Query(value = "SELECT g FROM Gebruiker g WHERE g.vrijwilliger = :vrijwilliger")
     fun findHulpvragersVoorVrijwilliger(vrijwilliger: Gebruiker): List<Gebruiker>

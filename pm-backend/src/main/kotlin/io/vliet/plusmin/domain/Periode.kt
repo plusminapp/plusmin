@@ -6,11 +6,8 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /*
-    De Saldi tabel bevat de saldi van de rekeningen van een gebruiker (hulpvrager) op 1 moment in de tijd
-    uitgangspunt: 1ste van de maand worden
-    - de resultaatrekeningen op 0 gezet,
-    - alle resultaat boekingen van de vorige maand op 0 gezet,
-    - een nieuw Saldi record in de database bewaard
+    De Saldi tabel bevat de saldi van de rekeningen van een gebruiker (hulpvrager) op 1 moment in de tijd:
+    laatste dag van de Periode worden
  */
 
 @Entity
@@ -29,30 +26,22 @@ class Periode(
     @JsonIgnore
     @JoinColumn(name = "gebruiker_id")
     val gebruiker: Gebruiker,
-    val periodeStartDatum: LocalDate,
+    val periodeStartDatum: LocalDate?,
     val periodeEindDatum: LocalDate,
     @Enumerated(EnumType.STRING)
     val periodeStatus: PeriodeStatus = PeriodeStatus.HUIDIG,
-//    @OneToMany(cascade = arrayOf(CascadeType.ALL), fetch = FetchType.EAGER)
-//    @JoinColumn(name = "periode_id", referencedColumnName = "id")
-//    var saldoLijst: List<Saldo>
 ) {
-//    fun with(saldoLijst: List<Saldo>): Periode {
-//        this.saldoLijst = saldoLijst
-//        return this
-//    }
-
     fun fullCopy(
         gebruiker: Gebruiker = this.gebruiker,
-        periodeStartDatum: LocalDate = this.periodeStartDatum,
+        periodeStartDatum: LocalDate? = this.periodeStartDatum,
         periodeEindDatum: LocalDate = this.periodeEindDatum,
         periodeStatus: PeriodeStatus = this.periodeStatus,
-//        saldoLijst: List<Saldo> = this.saldoLijst
     ) = Periode(this.id, gebruiker, periodeStartDatum, periodeEindDatum, periodeStatus)
 
     data class PeriodeDTO(
         val id: Long = 0,
         val periodeStartDatum: String,
+        val periodeEindDatum: String,
         val periodeStatus: PeriodeStatus,
         var saldoLijst: List<Saldo.SaldoDTO> = emptyList()
     )
@@ -60,9 +49,9 @@ class Periode(
     fun toDTO(): PeriodeDTO {
         return PeriodeDTO(
             this.id,
-            this.periodeStartDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
+            this.periodeStartDatum?.format(DateTimeFormatter.ISO_LOCAL_DATE) ?: "",
+            this.periodeEindDatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.periodeStatus,
-//            this.saldoLijst.map { it.toDTO() }
         )
     }
     enum class PeriodeStatus {

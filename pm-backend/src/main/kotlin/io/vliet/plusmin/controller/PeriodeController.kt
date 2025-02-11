@@ -38,7 +38,7 @@ class PeriodeController {
         logger.info("GET PeriodeController.getPeriodesVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}.")
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         return ResponseEntity.ok().body(periodeRepository.getPeriodesVoorGebruiker(hulpvrager).map {
-            PeriodeDTO(it.id, formatter.format(it.periodeStartDatum),  it.periodeStatus)})
+            PeriodeDTO(it.id, formatter.format(it.periodeStartDatum),formatter.format(it.periodeEindDatum),  it.periodeStatus)})
     }
 }
 

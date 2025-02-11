@@ -29,13 +29,17 @@ class PeriodeService {
 
 
     fun getPeriode(gebruiker: Gebruiker, datum: LocalDate): Periode {
-        val openingsSaldiOpt = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
-        if (openingsSaldiOpt.isEmpty)
-            throw IllegalStateException("geen periode voor ${gebruiker.email} op ${datum}")
-        else return openingsSaldiOpt.get()
+        return periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
+            ?: throw IllegalStateException("Geen periode voor ${gebruiker.email} op ${datum}")
     }
 
-    fun berekenPeriode(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
+    fun getOpeningPeriode(gebruiker: Gebruiker): Periode {
+        return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+            ?: periodeRepository.getInitielePeriod(gebruiker)
+            ?: throw IllegalStateException("Geen initiële periode voor gebruiker ${gebruiker.email}")
+    }
+
+    fun berekenPeriodeDatums(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
         val jaar = datum.year
         val maand = datum.monthValue
         val dagInMaand = datum.dayOfMonth
@@ -49,21 +53,22 @@ class PeriodeService {
     }
 
     /*
+        TODO check of dit klopt!!!
         - check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
         - check of alle rekeningen in de huidige periode een saldo hebben, anders aanmaken met bedrag 0
      */
     fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
         val laatstePeriodeOpt = periodeRepository.getLaatstePeriodeGebruiker(gebruiker.id)
-        val startHuidigePeriode = berekenPeriode(gebruiker.periodeDag, LocalDate.now()).first
-        if (laatstePeriodeOpt.isEmpty) {
+        val startHuidigePeriode = berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first
+        if (laatstePeriodeOpt == null) {
             creeerEerstePeriodeMetNulSaldi(gebruiker)
-        } else if (laatstePeriodeOpt.get().periodeStartDatum < startHuidigePeriode) {
-            saldoService.creeerPeriodes(laatstePeriodeOpt.get(), startHuidigePeriode)
+        } else if (laatstePeriodeOpt.periodeStartDatum != null &&  laatstePeriodeOpt.periodeStartDatum < startHuidigePeriode) {
+            saldoService.creeerPeriodes(laatstePeriodeOpt, startHuidigePeriode)
         }
     }
 
     fun creeerEerstePeriodeMetNulSaldi(gebruiker: Gebruiker) {
-        val (periodeStartDatum, periodeEindDatum) = berekenPeriode(gebruiker.periodeDag, LocalDate.now())
+        val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now())
         val huidigePeriode = periodeRepository.save(Periode(0, gebruiker, periodeStartDatum, periodeEindDatum))
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         rekeningen.forEach {

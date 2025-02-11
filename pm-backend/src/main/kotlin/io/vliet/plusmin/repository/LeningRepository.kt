@@ -21,5 +21,5 @@ interface LeningRepository : JpaRepository<Lening, Long> {
                 "JOIN rekening r ON r = l.rekening " +
                 "WHERE r.gebruiker = :gebruiker AND r.naam = :rekeningNaam"
     )
-    fun findLeningVoorRekeningNaam(gebruiker: Gebruiker, rekeningNaam: String): Optional<Lening>
+    fun findLeningVoorRekeningNaam(gebruiker: Gebruiker, rekeningNaam: String): Lening?
 }

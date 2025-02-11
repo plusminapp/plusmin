@@ -6,7 +6,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -42,11 +41,8 @@ class SecurityConfig(
         val converter = JwtAuthenticationConverter()
         converter.setJwtGrantedAuthoritiesConverter {
             val username = it.claims["username"] as String
-            val gebruikerOpt = gebruikerRepository.findByEmail(username)
-            val user = if (gebruikerOpt.isPresent)
-                gebruikerOpt.get()
-            else
-                gebruikerRepository.save(Gebruiker(email = username))
+            val user =
+                gebruikerRepository.findByEmail(username) ?: gebruikerRepository.save(Gebruiker(email = username))
             logger.info("In SecurityConfig.jwtAuthenticationConverter voor ${user.username} met ${user.authorities}")
             user.authorities
         }

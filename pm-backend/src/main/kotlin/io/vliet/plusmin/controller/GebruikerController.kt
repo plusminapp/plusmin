@@ -81,13 +81,13 @@ class GebruikerController {
     fun getJwtGebruiker(): Gebruiker {
         val jwt = SecurityContextHolder.getContext().authentication.principal as Jwt
         val email = jwt.claims["username"] as String
-        val gebruikerOpt = gebruikerRepository.findByEmail(email)
-        return if (gebruikerOpt.isPresent) {
-            logger.info("getJwtGebruiker met email: $email gevonden.")
-            gebruikerOpt.get()
-        } else {
+        val gebruiker = gebruikerRepository.findByEmail(email)
+        return if (gebruiker == null) {
             logger.error("GET /gebruiker met email: $email bestaat nog niet")
             throw IllegalStateException("Gebruiker met email $email bestaat nog niet")
+        } else {
+            logger.info("getJwtGebruiker met email: $email gevonden.")
+            gebruiker
         }
     }
 
@@ -120,11 +120,11 @@ class GebruikerController {
         val roles: List<String> = emptyList(),
         val vrijwilligerEmail: String = "",
         val rekeningen: List<Rekening> = emptyList(),
-        val periodes: List<Periode> = emptyList(),
+        val periodes: List<Periode.PeriodeDTO> = emptyList(),
     )
 
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
-        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+        val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.email,
@@ -133,7 +133,7 @@ class GebruikerController {
             gebruiker.roles.map { it.toString() },
             gebruiker.vrijwilliger?.email ?: "",
             gebruiker.rekeningen.map { it },
-            periodes
+            periodes= periodes.map { it.toDTO() }
         )
     }
 

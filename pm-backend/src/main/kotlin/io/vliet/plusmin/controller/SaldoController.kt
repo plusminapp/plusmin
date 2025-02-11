@@ -37,10 +37,11 @@ class SaldoController {
     ): StandDTO {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val periode = periodeService.getPeriode(hulpvrager, LocalDate.parse(datum))
+        val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
         return saldoService.getStandOpDatum(
-            periode,
-            LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+            periodeService.getOpeningPeriode(hulpvrager),
+            periodeService.berekenPeriodeDatums(hulpvrager.periodeDag, peilDatum).first,
+            peilDatum
         )
     }
 

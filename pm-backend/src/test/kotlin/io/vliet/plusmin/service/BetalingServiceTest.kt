@@ -48,9 +48,9 @@ class BetalingServiceTest {
     @Test
     fun testSaveAll() {
         `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Betaalrekening"))
-            .thenReturn(Optional.of(testBetaalrekening))
+            .thenReturn(testBetaalrekening)
         `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Uitgave"))
-            .thenReturn(Optional.of(testUitgave))
+            .thenReturn(testUitgave)
         `when`(betalingRepository.save(any(Betaling::class.java))).thenReturn(testBetaling)
 
         val result = betalingService.saveAll(testGebruiker, testBetalingenLijst)
@@ -61,7 +61,7 @@ class BetalingServiceTest {
 
     @Test
     fun testSaveAllThrowsExceptionWhenRekeningNotFound() {
-        `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Rekening1")).thenReturn(Optional.empty())
+        `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Rekening1")).thenReturn(null)
 
         assertThrows<Exception> {
             betalingService.saveAll(testGebruiker, testBetalingenLijst)
