@@ -23,7 +23,7 @@ interface AflossingReserveringTabelProps {
 
 export default function AflossingReserveringTabel(props: AflossingReserveringTabelProps) {
 
-  const { actieveHulpvrager, gebruiker, huidigePeriode } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, gekozenPeriode } = useCustomContext();
   const betalingsSoorten = props.isAflossing ? aflossenBetalingsSoorten : reserverenBetalingsSoorten
   const betalingen = props.betalingen.filter(betaling => betalingsSoorten.includes(betaling.betalingsSoort))
   const [selectedBetaling, setSelectedBetaling] = useState<Betaling | null>(null);
@@ -36,7 +36,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
     setSelectedBetaling(betaling);
   };
 
-  const isPeriodeOpen = huidigePeriode?.periodeStatus === 'OPEN' || huidigePeriode?.periodeStatus === 'HUIDIG';
+  const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
   return (
     <>

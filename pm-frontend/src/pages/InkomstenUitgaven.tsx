@@ -16,7 +16,7 @@ import { PeriodeSelect } from '../components/PeriodeSelect';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager, rekeningen, huidigePeriode } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, rekeningen, gekozenPeriode } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<Betaling[]>([])
   const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
@@ -31,7 +31,7 @@ export default function InkomstenUitgaven() {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${huidigePeriode?.periodeStartDatum}&toDate=${huidigePeriode?.periodeEindDatum}&size=-1`, {
+      const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${gekozenPeriode?.periodeStartDatum}&toDate=${gekozenPeriode?.periodeEindDatum}&size=-1`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -46,7 +46,7 @@ export default function InkomstenUitgaven() {
         console.error("Failed to fetch data", response.status);
       }
     }
-  }, [getIDToken, actieveHulpvrager, gebruiker, huidigePeriode]);
+  }, [getIDToken, actieveHulpvrager, gebruiker, gekozenPeriode]);
 
   useEffect(() => {
     fetchBetalingen();
@@ -130,7 +130,7 @@ export default function InkomstenUitgaven() {
     fetchBetalingen()
   }
 
-  const isPeriodeOpen = huidigePeriode?.periodeStatus === 'OPEN' || huidigePeriode?.periodeStatus === 'HUIDIG';
+  const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
   return (
     <>

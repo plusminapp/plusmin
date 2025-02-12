@@ -56,7 +56,7 @@ function Header() {
     const { gebruiker, setGebruiker,
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
-        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setHuidigePeriode } = useCustomContext();
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setGekozenPeriode } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -99,7 +99,7 @@ function Header() {
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
         setPeriodes(ahv!.periodes)
-        setHuidigePeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])  
+        setGekozenPeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])  
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -122,7 +122,7 @@ function Header() {
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
             setPeriodes(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setHuidigePeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])  
+            setGekozenPeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])  
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
@@ -130,7 +130,7 @@ function Header() {
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
             setPeriodes(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setHuidigePeriode(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
+            setGekozenPeriode(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
         }
     }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes])
 

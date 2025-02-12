@@ -13,8 +13,8 @@ interface CustomContextType {
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
     periodes: Array<Periode>;
     setPeriodes: (periodes: Array<Periode>) => void;
-    huidigePeriode: Periode | undefined;
-    setHuidigePeriode: (huidigePeriode: Periode | undefined) => void;
+    gekozenPeriode: Periode | undefined;
+    setGekozenPeriode: (gekozenPeriode: Periode | undefined) => void;
     rekeningen: Array<Rekening>;
     setRekeningen: (rekeningen: Array<Rekening>) => void;
     betalingsSoorten: Array<BetalingsSoort>;
@@ -45,7 +45,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [actieveHulpvrager, setActieveHulpvrager] = useState<Gebruiker | undefined>(undefined);
     const [hulpvragers, setHulpvragers] = useState<Array<Gebruiker>>([]);
     const [periodes, setPeriodes] = useState<Array<Periode>>([]);
-    const [huidigePeriode, setHuidigePeriode] = useState<Periode | undefined>(undefined);
+    const [gekozenPeriode, setGekozenPeriode] = useState<Periode | undefined>(undefined);
     const [rekeningen, setRekeningen] = useState<Array<Rekening>>([]);
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
@@ -57,7 +57,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             actieveHulpvrager, setActieveHulpvrager,
             hulpvragers, setHulpvragers,
             periodes, setPeriodes,
-            huidigePeriode, setHuidigePeriode,
+            gekozenPeriode, setGekozenPeriode,
             rekeningen, setRekeningen,
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,

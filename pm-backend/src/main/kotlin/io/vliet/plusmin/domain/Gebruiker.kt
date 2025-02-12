@@ -19,8 +19,8 @@ class Gebruiker(
     val id: Long = 0,
     @Column(unique = true)
     val email: String,
-    val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-    val periodeDag: Int = 1,
+    val bijnaam: String = "Gebruiker zonder bijnaam",
+    val periodeDag: Int = 20,
     @ElementCollection(fetch = FetchType.EAGER, targetClass = Role::class)
     @Enumerated(EnumType.STRING)
     val roles: MutableSet<Role> = mutableSetOf(),

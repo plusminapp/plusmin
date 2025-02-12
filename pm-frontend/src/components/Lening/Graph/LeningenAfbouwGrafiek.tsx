@@ -3,7 +3,7 @@ import { AgAreaSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { getData, getSeries } from "./data";
 
 type ChartProps = {
-  huidigePeriode: string;
+  gekozenPeriode: string;
 }
 
 export const LeningenAfbouwGrafiek = (props: ChartProps) => {
@@ -17,9 +17,9 @@ export const LeningenAfbouwGrafiek = (props: ChartProps) => {
         crossLines: [
           {
             type: 'line',
-            value: props.huidigePeriode, 
+            value: props.gekozenPeriode, 
             label: {
-              text: props.huidigePeriode,
+              text: props.gekozenPeriode,
               position: 'top',
               fontSize: 12,
           },

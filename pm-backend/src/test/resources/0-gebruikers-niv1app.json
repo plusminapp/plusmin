@@ -1,0 +1,10 @@
+[
+  {
+    "email": "ruud.van.vliet@ett-twello.nl",
+    "bijnaam": "Hulpvrager Niv-1-app",
+    "periodeDag": 20,
+    "vrijwilligerEmail": "ruud@vliet.io",
+    "roles": ["ROLE_HULPVRAGER"],
+    "periodes": []
+  }
+]

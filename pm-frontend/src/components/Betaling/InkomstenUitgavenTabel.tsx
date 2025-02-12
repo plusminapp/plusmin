@@ -25,7 +25,7 @@ interface InUitTabelProps {
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
-  const { actieveHulpvrager, gebruiker, rekeningen, huidigePeriode } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen, gekozenPeriode } = useCustomContext();
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
@@ -47,7 +47,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
     setActueleRekening(rekeningen.find(r => r.naam === event.target.value))
   };
 
-  const isPeriodeOpen = huidigePeriode?.periodeStatus === 'OPEN' || huidigePeriode?.periodeStatus === 'HUIDIG';
+  const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
   return (
     <>

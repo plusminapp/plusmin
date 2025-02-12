@@ -1,14 +1,12 @@
 package io.vliet.plusmin.service
 
+import io.vliet.plusmin.controller.GebruikerController.GebruikerDTO
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.PeriodeRepository
-import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.math.BigDecimal
 import java.time.LocalDate
 
 @Service
@@ -16,17 +14,7 @@ class PeriodeService {
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
 
-    @Autowired
-    lateinit var saldoService: SaldoService
-
-    @Autowired
-    lateinit var saldoRepository: SaldoRepository
-
-    @Autowired
-    lateinit var rekeningRepository: RekeningRepository
-
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
-
 
     fun getPeriode(gebruiker: Gebruiker, datum: LocalDate): Periode {
         return periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
@@ -53,28 +41,96 @@ class PeriodeService {
     }
 
     /*
-        TODO check of dit klopt!!!
         - check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
-        - check of alle rekeningen in de huidige periode een saldo hebben, anders aanmaken met bedrag 0
      */
     fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
-        val laatstePeriodeOpt = periodeRepository.getLaatstePeriodeGebruiker(gebruiker.id)
-        val startHuidigePeriode = berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first
-        if (laatstePeriodeOpt == null) {
-            creeerEerstePeriodeMetNulSaldi(gebruiker)
-        } else if (laatstePeriodeOpt.periodeStartDatum < startHuidigePeriode) {
-            saldoService.creeerPeriodes(laatstePeriodeOpt, startHuidigePeriode)
+        val laatstePeriode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
+        logger.warn("laatstePeriode: ${laatstePeriode?.periodeStartDatum} -> ${laatstePeriode?.periodeEindDatum} ${laatstePeriode?.periodeStatus}")
+        if (laatstePeriode == null) {
+            creeerInitielePeriode(gebruiker, berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first)
+        } else if (laatstePeriode.periodeEindDatum < LocalDate.now()) {
+            creeerVolgendePeriodes(laatstePeriode)
         }
     }
 
-    fun creeerEerstePeriodeMetNulSaldi(gebruiker: Gebruiker) {
-        val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now())
-        val huidigePeriode = periodeRepository.save(Periode(0, gebruiker, periodeStartDatum, periodeEindDatum))
-        val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
-        rekeningen.forEach {
-            saldoRepository.save(Saldo(0, it, BigDecimal(0), huidigePeriode))
+    fun creeerVolgendePeriodes(vorigePeriode: Periode) {
+        if (vorigePeriode.periodeStatus == Periode.PeriodeStatus.HUIDIG) {
+            periodeRepository.save(vorigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
         }
-        logger.info("NulSaldi gecreëerd voor $gebruiker op ${periodeStartDatum}: ${rekeningen.map { it.naam }}")
+        // TODO rekening houden met verschuivende periode door gewijzigde gebruiker.periodeDag
+        val nieuwePeriode = periodeRepository.save(
+            Periode(
+                gebruiker = vorigePeriode.gebruiker,
+                periodeStartDatum = vorigePeriode.periodeEindDatum.plusDays(1),
+                periodeEindDatum = vorigePeriode.periodeEindDatum.plusMonths(1),
+                periodeStatus = Periode.PeriodeStatus.HUIDIG
+            )
+        )
+        if (nieuwePeriode.periodeEindDatum < LocalDate.now()) {
+            creeerVolgendePeriodes(nieuwePeriode)
+        }
+    }
 
+    fun creeerInitielePeriode(gebruiker: Gebruiker, startDatum: LocalDate) {
+        if (periodeRepository.getPeriodesVoorGebruiker(gebruiker).size == 0) {
+            val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(gebruiker.periodeDag, startDatum)
+            logger.info("Initiële periode gecreëerd voor $gebruiker op ${periodeStartDatum}")
+            val initielePeriode = periodeRepository.save(
+                Periode(
+                    0,
+                    gebruiker,
+                    periodeStartDatum.minusDays(1),
+                    periodeStartDatum.minusDays(1),
+                    Periode.PeriodeStatus.GESLOTEN
+                )
+            )
+            if (initielePeriode.periodeEindDatum < LocalDate.now()) {
+                creeerVolgendePeriodes(initielePeriode)
+            }
+        }
+    }
+
+    fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: GebruikerDTO) {
+        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
+        if (periodes.size == 2 && periodes[1].periodeStatus == Periode.PeriodeStatus.HUIDIG) { // initiële periode + huidige periode
+            pasPeriodeDagAan(periodes, gebruikerDTO.periodeDag)
+        } else {
+            pasPeriodeDagAan(
+                periodes.filter { it.periodeStatus == Periode.PeriodeStatus.OPEN || it.periodeStatus == Periode.PeriodeStatus.HUIDIG },
+                gebruikerDTO.periodeDag
+            )
+        }
+    }
+
+    fun pasPeriodeDagAan(periodes: List<Periode>, periodeDag: Int) {
+        if (periodes.isEmpty()) return
+        val sortedPeriodes = periodes.sortedBy { it.periodeStartDatum }
+
+        if (sortedPeriodes[0].periodeStartDatum == sortedPeriodes[0].periodeEindDatum) { // initiële periode
+            val periodeStartDatum = sortedPeriodes[0].periodeStartDatum.withDayOfMonth(periodeDag).minusDays(1)
+            periodeRepository.save(
+                sortedPeriodes[0].fullCopy(
+                    periodeStartDatum = periodeStartDatum,
+                    periodeEindDatum = periodeStartDatum
+                )
+            )
+        } else {
+            val periodeEindDatum = berekenPeriodeDatums(periodeDag, sortedPeriodes[0].periodeStartDatum).second
+            periodeRepository.save(
+                sortedPeriodes[0].fullCopy(
+                    periodeStartDatum = sortedPeriodes[0].periodeStartDatum,
+                    periodeEindDatum = periodeEindDatum
+                )
+            )
+        }
+        sortedPeriodes.drop(1).forEach {
+            val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(periodeDag, it.periodeStartDatum)
+            periodeRepository.save(
+                it.fullCopy(
+                    periodeStartDatum = periodeStartDatum,
+                    periodeEindDatum = periodeEindDatum
+                )
+            )
+        }
     }
 }

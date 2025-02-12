@@ -4,27 +4,29 @@ import { useCustomContext } from "../context/CustomContext";
 
 export function PeriodeSelect() {
 
-    const { periodes, huidigePeriode, setHuidigePeriode } = useCustomContext();
+    const { periodes, gekozenPeriode, setGekozenPeriode } = useCustomContext();
 
-    const handleHuidigePeriodeChange = (event: SelectChangeEvent<string>) => {
+    const handlegekozenPeriodeChange = (event: SelectChangeEvent<string>) => {
         const periode = periodes.find(periode => periode.periodeStartDatum.toString() === event.target.value)
-        setHuidigePeriode(periode);
+        setGekozenPeriode(periode);
     };
 
     return (
         <>
-            {huidigePeriode &&
+            {gekozenPeriode &&
                 <Box sx={{ my: 2 , maxWidth: '340px'}}>
                     <FormControl variant="standard" fullWidth>
                         <InputLabel id="demo-simple-select-label">Kies de periode</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
-                            value={huidigePeriode.periodeStartDatum.toString()}
+                            value={gekozenPeriode.periodeStartDatum.toString()}
                             label="Periode"
-                            onChange={handleHuidigePeriodeChange}
+                            onChange={handlegekozenPeriodeChange}
                         >
-                            {periodes.map((periode: Periode) => (
+                            {periodes
+                            .sort((a, b) => b.periodeStartDatum.toString().localeCompare(a.periodeStartDatum.toString()))
+                            .map((periode: Periode) => (
                                 <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
                                     {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
                                 </MenuItem>

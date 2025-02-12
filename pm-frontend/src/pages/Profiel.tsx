@@ -36,6 +36,7 @@ const Profiel: React.FC = () => {
               "{hulpvragers.map(x => x.bijnaam).join('", "')}".
             </Typography>
           }
+          <PeriodeSelect/>
         </>
       }
       <>
@@ -51,7 +52,6 @@ const Profiel: React.FC = () => {
             </Typography>
             <Typography sx={{ my: '25px' }}>De periode wisseldag van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} is {actieveHulpvrager ? actieveHulpvrager.periodeDag : gebruiker?.periodeDag}
             </Typography>
-            <PeriodeSelect />
             <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
             </Typography>
             <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>

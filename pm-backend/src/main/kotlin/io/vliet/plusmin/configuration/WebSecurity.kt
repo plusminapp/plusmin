@@ -1,7 +1,9 @@
 package io.vliet.plusmin.configuration
 
+import io.vliet.plusmin.controller.GebruikerController
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.service.GebruikerService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -18,7 +20,8 @@ import org.springframework.security.web.SecurityFilterChain
 @EnableWebSecurity
 @EnableMethodSecurity(jsr250Enabled = true)
 class SecurityConfig(
-    private val gebruikerRepository: GebruikerRepository
+    private val gebruikerRepository: GebruikerRepository,
+    private val gebruikerService: GebruikerService
 ) {
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -41,8 +44,8 @@ class SecurityConfig(
         val converter = JwtAuthenticationConverter()
         converter.setJwtGrantedAuthoritiesConverter {
             val username = it.claims["username"] as String
-            val user =
-                gebruikerRepository.findByEmail(username) ?: gebruikerRepository.save(Gebruiker(email = username))
+            val user = gebruikerRepository.findByEmail(username)
+                ?: gebruikerService.save(GebruikerController.GebruikerDTO(email = username))
             logger.info("In SecurityConfig.jwtAuthenticationConverter voor ${user.username} met ${user.authorities}")
             user.authorities
         }

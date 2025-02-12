@@ -128,7 +128,7 @@ export default function Leningen() {
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }} >
               <LeningenAfbouwGrafiek
-                huidigePeriode="2024-12" />
+                gekozenPeriode="2024-12" />
             </AccordionDetails>
           </Accordion>
 

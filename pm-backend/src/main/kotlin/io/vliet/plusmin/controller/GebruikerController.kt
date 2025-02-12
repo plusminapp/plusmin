@@ -69,7 +69,7 @@ class GebruikerController {
         logger.info(
             "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: " +
                 gebruikerList.map { it.email }.joinToString { ", " })
-        if (gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
+        if (!gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
             throw AuthorizationDeniedException(
                 "${gebruiker.email} wil nieuwe gebruikers ${
                     gebruikerList.map { it.email }.joinToString { ", " }
@@ -116,7 +116,7 @@ class GebruikerController {
         val id: Long = 0,
         val email: String,
         val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-        val periodeDag: Int = 1,
+        val periodeDag: Int = 20,
         val roles: List<String> = emptyList(),
         val vrijwilligerEmail: String = "",
         val rekeningen: List<Rekening> = emptyList(),

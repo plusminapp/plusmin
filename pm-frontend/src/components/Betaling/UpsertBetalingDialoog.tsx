@@ -39,7 +39,7 @@ type UpsertBetalingDialoogProps = {
 export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps) {
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
-    boekingsdatum: dayjs(),
+    boekingsdatum: dayjs(), 
     bedrag: 0,
     omschrijving: ' ',
     betalingsSoort: undefined,
@@ -55,18 +55,20 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, huidigePeriode } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, gekozenPeriode } = useCustomContext();
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
     if (!props.editMode) {
+
       setBetalingDTO({
         ...initialBetalingDTO,
+        boekingsdatum: gekozenPeriode?.periodeEindDatum && dayjs().toISOString().slice(0,10) > gekozenPeriode?.periodeEindDatum  ? dayjs(gekozenPeriode?.periodeEindDatum) : dayjs(),
         bron: rekeningPaar?.bron[0].naam,
         bestemming: rekeningPaar?.bestemming[0].naam
       });
     }
-  }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling]);
+  }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling, gekozenPeriode]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -86,8 +88,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     if (key === 'bedrag' && (isNaN(value as number) || value as number == 0)) {
       return 'Bedrag moet een positief getal zijn.';
     }
-    if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(huidigePeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(huidigePeriode?.periodeEindDatum))) {
-      return `De boekingsdatum moet in de gekozen periode liggen (van ${huidigePeriode?.periodeStartDatum} t/m ${huidigePeriode?.periodeEindDatum}).`;
+    if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(gekozenPeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(gekozenPeriode?.periodeEindDatum))) {
+      return `De boekingsdatum moet in de gekozen periode liggen (van ${gekozenPeriode?.periodeStartDatum} t/m ${gekozenPeriode?.periodeEindDatum}).`;
     }
     return undefined;
   };
@@ -235,8 +237,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
             </FormControl>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
-                disableFuture
-                minDate={dayjs(huidigePeriode?.periodeStartDatum)}
+                maxDate={dayjs(gekozenPeriode?.periodeEindDatum)}
+                minDate={dayjs(gekozenPeriode?.periodeStartDatum)}
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wanneer was de betaling?"
                 value={betalingDTO.boekingsdatum}

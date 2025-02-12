@@ -19,15 +19,15 @@ export default function Stand() {
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, huidigePeriode } = useCustomContext();
+  const { actieveHulpvrager, gekozenPeriode } = useCustomContext();
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSaldi = async () => {
-      if (actieveHulpvrager && huidigePeriode) {
+      if (actieveHulpvrager && gekozenPeriode) {
         setIsLoading(true);
         const vandaag = dayjs().format('YYYY-MM-DD');
-        const datum = huidigePeriode.periodeEindDatum > vandaag ? vandaag : huidigePeriode.periodeEindDatum;
+        const datum = gekozenPeriode.periodeEindDatum > vandaag ? vandaag : gekozenPeriode.periodeEindDatum;
         const id = actieveHulpvrager.id
         let token = '';
         try { token = await getIDToken() }
@@ -56,7 +56,7 @@ export default function Stand() {
     };
     fetchSaldi();
 
-  }, [actieveHulpvrager, huidigePeriode, getIDToken]);
+  }, [actieveHulpvrager, gekozenPeriode, getIDToken]);
 
 
   if (isLoading) {

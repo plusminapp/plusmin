@@ -25,7 +25,7 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
                 "(SELECT MAX(periode_start_datum) FROM periode p WHERE p.gebruiker_id = :gebruikerId)",
         nativeQuery = true
     )
-    fun getLaatstePeriodeGebruiker(gebruikerId: Long): Periode?
+    fun getLaatstePeriodeVoorGebruiker(gebruikerId: Long): Periode?
 
     @Query(value = "SELECT p FROM Periode p WHERE p.gebruiker = :gebruiker")
     fun getPeriodesVoorGebruiker(gebruiker: Gebruiker): List<Periode>
@@ -38,12 +38,12 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
     )
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode?
 
-    @Query(
-        value = "SELECT p FROM Periode p " +
-                "WHERE p.periodeStatus = 'INITIEEL' " +
-                "AND p.gebruiker = :gebruiker " +
-                "ORDER BY p.periodeStartDatum ASC LIMIT 1"
-    )
-    fun getInitielePeriode(gebruiker: Gebruiker): Periode?
+//    @Query(
+//        value = "SELECT p FROM Periode p " +
+//                "WHERE p.periodeStatus = 'INITIEEL' " +
+//                "AND p.gebruiker = :gebruiker " +
+//                "ORDER BY p.periodeStartDatum ASC LIMIT 1"
+//    )
+//    fun getInitielePeriode(gebruiker: Gebruiker): Periode?
 }
 
