@@ -3,6 +3,7 @@ package io.vliet.plusmin.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
 import io.vliet.plusmin.repository.AflossingRepository
+import io.vliet.plusmin.service.AflossingGrafiekService
 import io.vliet.plusmin.service.AflossingService
 import jakarta.validation.Valid
 import org.slf4j.Logger
@@ -20,6 +21,9 @@ class AflossingController {
 
     @Autowired
     lateinit var aflossingService: AflossingService
+
+    @Autowired
+    lateinit var aflossingGrafiekService: AflossingGrafiekService
 
     @Autowired
     lateinit var gebruikerController: GebruikerController
@@ -69,5 +73,17 @@ class AflossingController {
         logger.info("PUT AflossingController.creeerNieuweaflossingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(aflossingService.creeerAflossingen(hulpvrager, aflossingList))
     }
+
+    @Operation(summary = "GET de Aflossing Series voor hulpvrager op datum")
+    @GetMapping("/hulpvrager/{hulpvragerId}/series")
+    fun getAflossingenSeriesVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET AflossingController.getAflossingenSeriesVoorHulpvrager voor ${hulpvrager.email}")
+        return ResponseEntity.ok().body(aflossingGrafiekService.genereerSeries(hulpvrager))
+    }
+
+
 }
 

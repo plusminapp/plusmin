@@ -168,14 +168,4 @@ class AflossingService {
             )
         return aflossing
     }
-
-//    fun berekenAflossingGrafiekData(gebruiker: Gebruiker): MutableMap<String, List<AflossingData>> {
-//        val formatter = DateTimeFormatter.ofPattern("MMM yy")
-//        val aflossingen = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
-//        var aflossingGrafiekData: MutableMap<String, List<AflossingData>> = mutableMapOf()
-//        aflossingen.forEach { aflossing ->
-//            val maanden = generateMonthsBetween(aflossing.startDatum, aflossing.eindDatum)
-//
-//        }
-//    }
 }
