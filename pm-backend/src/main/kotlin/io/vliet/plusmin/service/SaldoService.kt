@@ -73,9 +73,9 @@ class SaldoService {
         // vul aan met 0-saldi voor missende rekeningen
         val alleRekeningen = rekeningRepository.findRekeningenVoorGebruiker(openingPeriode.gebruiker)
         val bestaandeSaldiRekeningen = saldoRepository.findAllByPeriode(openingPeriode).map { it.rekening }
-        logger.warn("bestaandeSaldiRekeningen: ${bestaandeSaldiRekeningen.joinToString { it.naam }}")
+        logger.debug("bestaandeSaldiRekeningen: ${bestaandeSaldiRekeningen.joinToString { it.naam }}")
         val missendeSaldiRekeningen = alleRekeningen.filterNot { bestaandeSaldiRekeningen.map { it.naam }.contains(it.naam) }
-        logger.warn("missendeSaldiRekeningen: ${missendeSaldiRekeningen.joinToString { it.naam }}")
+        logger.debug("missendeSaldiRekeningen: ${missendeSaldiRekeningen.joinToString { it.naam }}")
         val saldoLijst = missendeSaldiRekeningen.map { Saldo.SaldoDTO(0, it.naam, BigDecimal(0)) }
         return merge(openingPeriode.gebruiker, openingPeriode, saldoLijst)
     }
@@ -88,7 +88,7 @@ class SaldoService {
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
             Saldo(0, rekening, mutatie)
         }
-        logger.warn("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
+        logger.debug("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
         return saldoLijst
     }
 
@@ -106,7 +106,6 @@ class SaldoService {
         }
         return saldoLijst
     }
-
 
     fun merge(gebruiker: Gebruiker, periode: Periode, saldoDTOs: List<Saldo.SaldoDTO>): List<Saldo> {
         val saldiBijPeriode = saldoRepository.findAllByPeriode(periode)
@@ -138,70 +137,4 @@ class SaldoService {
             saldo.fullCopy(bedrag = bedrag)
         }
     }
-
-    fun creeerPeriodes(periode: Periode, startDatum: LocalDate) {
-        periodeRepository.save(periode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
-        val mutatieLijst =
-            berekenMutatieLijstOpDatum(
-                periode.gebruiker,
-                periode.periodeStartDatum ?: periode.periodeEindDatum,
-                periode.periodeEindDatum
-            )
-        val periodeSaldi = saldoRepository.findAllByPeriode(periode)
-
-        val nieuwePeriode = periodeRepository.save(
-            Periode(
-                gebruiker = periode.gebruiker,
-                periodeStartDatum = periode.periodeEindDatum.plusDays(1),
-                periodeEindDatum = periode.periodeEindDatum.plusMonths(1),
-                periodeStatus = Periode.PeriodeStatus.HUIDIG
-            )
-        )
-        berekenSaldiOpDatum(periodeSaldi, mutatieLijst).map {
-            saldoRepository.save(
-                Saldo(
-                    rekening = it.rekening,
-                    bedrag = it.bedrag,
-                    periode = nieuwePeriode
-                )
-            )
-        }
-        if (nieuwePeriode.periodeStartDatum < startDatum) {
-            creeerPeriodes(nieuwePeriode, startDatum)
-        }
-    }
-//    fun berekenPeriode(dag: Int, datum: LocalDate): Pair<LocalDate, LocalDate> {
-//        val jaar = datum.year
-//        val maand = datum.monthValue
-//        val dagInMaand = datum.dayOfMonth
-//
-//        val startDatum: LocalDate = if (dagInMaand >= dag) {
-//            LocalDate.of(jaar, maand, dag)
-//        } else {
-//            LocalDate.of(jaar, maand, dag).minusMonths(1)
-//        }
-//        return Pair(startDatum, startDatum.plusMonths(1).minusDays(1))
-//    }
-
-//    fun upsert(gebruiker: Gebruiker, datum: LocalDate, saldiDTO: List<Saldo.SaldoDTO>): PeriodeDTO {
-//        val periodeOpt = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, datum)
-//        val periode = if (periodeOpt.isPresent) {
-//            logger.info("Saldi wordt overschreven: ${periodeOpt.get().periodeStartDatum} met id ${periodeOpt.get().id} voor ${gebruiker.bijnaam}")
-//            periodeRepository.save(
-//                periodeOpt.get().fullCopy(saldoLijst = merge(gebruiker, periodeOpt.get(), saldiDTO))
-//            )
-//        } else {
-//            val nieuweSaldoLijst = saldiDTO.map { dto2Saldo(gebruiker, it) }
-//            val nieuwePeriode = Periode(
-//                gebruiker = gebruiker,
-//                periodeStartDatum = datum,
-//                saldoLijst = nieuweSaldoLijst
-//            )
-//            nieuweSaldoLijst.forEach { it.periode = nieuwePeriode }
-//            periodeRepository.save(nieuwePeriode)
-//        }
-//        logger.info("Opslaan saldi ${periode.periodeStartDatum} voor ${gebruiker.bijnaam}")
-//        return periode.toDTO()
-//    }
-
 }

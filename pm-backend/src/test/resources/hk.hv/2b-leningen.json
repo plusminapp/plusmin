@@ -1,7 +1,7 @@
 [
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "BD Toeslagen",
       "sortOrder": 10
@@ -16,7 +16,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Infomedics",
       "sortOrder": 17
@@ -31,7 +31,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Tribuut",
       "sortOrder": 15

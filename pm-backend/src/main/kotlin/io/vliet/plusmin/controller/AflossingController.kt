@@ -67,7 +67,7 @@ class AflossingController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT AflossingController.creeerNieuweaflossingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(aflossingService.saveAll(hulpvrager, aflossingList))
+        return ResponseEntity.ok().body(aflossingService.creeerAflossingen(hulpvrager, aflossingList))
     }
 }
 

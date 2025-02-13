@@ -132,7 +132,7 @@
     "omschrijving": "Aflossing Belastingdienst",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Schulden/leningen"
+    "bestemming": "Schulden/aflossingen"
   },
   {
     "boekingsdatum": "2024-12-26",
@@ -141,7 +141,7 @@
     "omschrijving": "Aflossing Infomedics",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Schulden/leningen"
+    "bestemming": "Schulden/aflossingen"
   },
   {
     "boekingsdatum": "2024-12-26",
@@ -150,7 +150,7 @@
     "omschrijving": "Aflossing Smaal",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Schulden/leningen"
+    "bestemming": "Schulden/aflossingen"
   },
   {
     "boekingsdatum": "2024-12-26",
@@ -159,7 +159,7 @@
     "omschrijving": "Aflossing Waterschap",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Schulden/leningen"
+    "bestemming": "Schulden/aflossingen"
   },
   {
     "boekingsdatum": "2024-12-21",
@@ -168,6 +168,6 @@
     "omschrijving": "Aflossing Tribuut",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Schulden/leningen"
+    "bestemming": "Schulden/aflossingen"
   }
 ]

@@ -49,13 +49,6 @@ class RekeningController {
         return ResponseEntity.ok().body(rekeningRepository.findRekeningenVoorGebruiker(hulpvrager))
     }
 
-    // Nieuwe eigen rekeningen
-    @PostMapping("")
-    fun creeerNieuweRekening(@Valid @RequestBody rekeningList: List<RekeningDTO>): List<RekeningDTO> {
-        val gebruiker = gebruikerController.getJwtGebruiker()
-        return rekeningService.saveAll(gebruiker, rekeningList)
-    }
-
     @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweRekeningVoorHulpvrager(
         @Valid @RequestBody rekeningList: List<RekeningDTO>,

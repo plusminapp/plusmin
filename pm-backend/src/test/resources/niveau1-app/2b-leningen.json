@@ -1,7 +1,7 @@
 [
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "BD Toeslagen",
       "sortOrder": 10
@@ -16,7 +16,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Smaal",
       "sortOrder": 16
@@ -31,7 +31,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Infomedics",
       "sortOrder": 17
@@ -46,7 +46,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Flanderijn",
       "sortOrder": 11
@@ -61,7 +61,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Woningcorporatie",
       "sortOrder": 12
@@ -76,7 +76,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Waterschap",
       "sortOrder": 14
@@ -91,7 +91,7 @@
   },
   {
     "rekening": {
-      "rekeningSoort": "LENING",
+      "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Tribuut",
       "sortOrder": 15

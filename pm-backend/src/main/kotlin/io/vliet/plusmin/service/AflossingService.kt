@@ -3,10 +3,7 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
-import io.vliet.plusmin.repository.BetalingRepository
-import io.vliet.plusmin.repository.AflossingRepository
-import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.SaldoRepository
+import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +26,9 @@ class AflossingService {
     lateinit var periodeService: PeriodeService
 
     @Autowired
+    lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
     lateinit var saldoService: SaldoService
 
     @Autowired
@@ -39,25 +39,32 @@ class AflossingService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruiker: Gebruiker, aflossingenLijst: List<AflossingDTO>) {
+    fun creeerAflossingen(gebruiker: Gebruiker, aflossingenLijst: List<AflossingDTO>) {
         aflossingenLijst.map { aflossingDTO ->
             val aflossing = fromDTO(gebruiker, aflossingDTO)
-            val verwachteEindBedrag = berekenAflossingDTOOpDatum(aflossing, aflossing.eindDatum)
+            val verwachteEindBedrag = berekenAflossingBedragOpDatum(aflossing, aflossing.eindDatum)
             if (verwachteEindBedrag != aflossing.eindBedrag) {
                 logger.warn("Aflossing ${aflossing.rekening.naam} verwachte ${verwachteEindBedrag} maar in Aflossing ${aflossing.eindBedrag}")
             }
             aflossingRepository.save(aflossing)
             logger.info("Aflossing ${aflossingDTO.rekening.naam} voor ${gebruiker.bijnaam} opgeslagen.")
+            val periode = periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+            if (periode != null) {
+                saldoRepository.save(
+                    Saldo(
+                        rekening = aflossing.rekening,
+                        bedrag = -berekenAflossingBedragOpDatum(
+                            gebruiker,
+                            aflossingDTO,
+                            periode.periodeStartDatum.toString()
+                        ),
+                        periode = periode
+                    )
+                )
+            }
         }
-        val periode = periodeService.getPeriode(gebruiker, LocalDate.now())
-        val saldoDTOLijst = aflossingenLijst.map {
-            Saldo.SaldoDTO(
-                rekeningNaam = it.rekening.naam,
-                bedrag = -berekenAflossingDTOOpDatum(gebruiker, it, periode.periodeStartDatum.toString())
-            )
-        }
-        saldoService.merge(gebruiker, periode, saldoDTOLijst).map { saldoRepository.save(it) }
     }
+
 
     fun berekenAflossingenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<AflossingDTO> {
         val aflossingenLijst = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
@@ -74,7 +81,7 @@ class AflossingService {
                         Aflossing.AflossingSaldiDTO(
                             peilDatum = peilDatumAsString,
                             werkelijkSaldo = getBalansVanStand(standDTO, aflossing.rekening),
-                            berekendSaldo = berekenAflossingDTOOpDatum(aflossing, peilDatum),
+                            berekendSaldo = berekenAflossingBedragOpDatum(aflossing, peilDatum),
                             betaling = getBetalingVoorAflossingOpPeildatum(aflossing, peilDatum)
                         )
                     )
@@ -86,13 +93,17 @@ class AflossingService {
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
     }
 
-    fun berekenAflossingDTOOpDatum(gebruiker: Gebruiker, aflossingDTO: AflossingDTO, peilDatumAsString: String): BigDecimal {
+    fun berekenAflossingBedragOpDatum(
+        gebruiker: Gebruiker,
+        aflossingDTO: AflossingDTO,
+        peilDatumAsString: String
+    ): BigDecimal {
         val aflossing = fromDTO(gebruiker, aflossingDTO)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        return berekenAflossingDTOOpDatum(aflossing, peilDatum)
+        return berekenAflossingBedragOpDatum(aflossing, peilDatum)
     }
 
-    fun berekenAflossingDTOOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
+    fun berekenAflossingBedragOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
         if (peilDatum < aflossing.startDatum) return aflossing.eindBedrag
         if (peilDatum > aflossing.eindDatum) return BigDecimal(0)
         val isHetAlAfgeschreven = if (peilDatum.dayOfMonth <= aflossing.betaalDag) 0 else 1
@@ -158,16 +169,6 @@ class AflossingService {
         return aflossing
     }
 
-    fun generateMonthsBetween(startDate: LocalDate, endDate: LocalDate): List<LocalDate> {
-        val dates = mutableListOf<LocalDate>()
-        var current = startDate.withDayOfMonth(1)
-        val end = endDate.withDayOfMonth(1)
-        while (!current.isAfter(end)) {
-            dates.add(current)
-            current = current.plus(1, ChronoUnit.MONTHS)
-        }
-        return dates
-    }
 //    fun berekenAflossingGrafiekData(gebruiker: Gebruiker): MutableMap<String, List<AflossingData>> {
 //        val formatter = DateTimeFormatter.ofPattern("MMM yy")
 //        val aflossingen = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)

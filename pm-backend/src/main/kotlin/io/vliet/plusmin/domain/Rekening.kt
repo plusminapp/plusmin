@@ -2,6 +2,7 @@ package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import java.math.BigDecimal
 
 @Entity
 @Table(
@@ -44,6 +45,7 @@ class Rekening(
         val rekeningSoort: String,
         val nummer: String?,
         val naam: String,
+        val saldo: BigDecimal = BigDecimal(0),
         val sortOrder: Int
     )
 
@@ -53,7 +55,7 @@ class Rekening(
             this.rekeningSoort.toString(),
             this.nummer,
             this.naam,
-            this.sortOrder
+            sortOrder = this.sortOrder
         )
     }
 

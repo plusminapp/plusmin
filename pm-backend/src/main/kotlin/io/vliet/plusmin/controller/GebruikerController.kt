@@ -84,7 +84,7 @@ class GebruikerController {
             logger.error("GET /gebruiker met email: $email bestaat nog niet")
             throw IllegalStateException("Gebruiker met email $email bestaat nog niet")
         } else {
-            logger.info("getJwtGebruiker met email: $email gevonden.")
+            logger.debug("getJwtGebruiker met email: $email gevonden.")
             gebruiker
         }
     }
