@@ -41,14 +41,18 @@ class PeriodeService {
     }
 
     /*
-        - check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
+        check of de huidige periode bestaat, anders aanmaken sinds de laatst bestaande periode
      */
     fun checkPeriodesVoorGebruiker(gebruiker: Gebruiker) {
         val laatstePeriode = periodeRepository.getLaatstePeriodeVoorGebruiker(gebruiker.id)
-        logger.warn("laatstePeriode: ${laatstePeriode?.periodeStartDatum} -> ${laatstePeriode?.periodeEindDatum} ${laatstePeriode?.periodeStatus}")
+        logger.debug("laatstePeriode voor ${gebruiker.email}: ${laatstePeriode?.periodeStartDatum} -> ${laatstePeriode?.periodeEindDatum} ${laatstePeriode?.periodeStatus}")
+        val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+        logger.debug("periodes voor ${gebruiker.email}: ${periodes.map { it.periodeStartDatum }.joinToString(", ")} ")
         if (laatstePeriode == null) {
+            logger.warn("voor ${gebruiker.email}: laatstePeriode == null")
             creeerInitielePeriode(gebruiker, berekenPeriodeDatums(gebruiker.periodeDag, LocalDate.now()).first)
         } else if (laatstePeriode.periodeEindDatum < LocalDate.now()) {
+            logger.info("creeerVolgendePeriodes voor ${gebruiker.email}: ${laatstePeriode.periodeStartDatum}->${laatstePeriode.periodeEindDatum}")
             creeerVolgendePeriodes(laatstePeriode)
         }
     }
@@ -57,7 +61,6 @@ class PeriodeService {
         if (vorigePeriode.periodeStatus == Periode.PeriodeStatus.HUIDIG) {
             periodeRepository.save(vorigePeriode.fullCopy(periodeStatus = Periode.PeriodeStatus.OPEN))
         }
-        // TODO rekening houden met verschuivende periode door gewijzigde gebruiker.periodeDag
         val nieuwePeriode = periodeRepository.save(
             Periode(
                 gebruiker = vorigePeriode.gebruiker,
@@ -73,7 +76,7 @@ class PeriodeService {
 
     fun creeerInitielePeriode(gebruiker: Gebruiker, startDatum: LocalDate) {
         if (periodeRepository.getPeriodesVoorGebruiker(gebruiker).size == 0) {
-            val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(gebruiker.periodeDag, startDatum)
+            val periodeStartDatum = berekenPeriodeDatums(gebruiker.periodeDag, startDatum).first
             logger.info("Initiële periode gecreëerd voor $gebruiker op ${periodeStartDatum}")
             val initielePeriode = periodeRepository.save(
                 Periode(
@@ -92,45 +95,56 @@ class PeriodeService {
 
     fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: GebruikerDTO) {
         val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
-        if (periodes.size == 2 && periodes[1].periodeStatus == Periode.PeriodeStatus.HUIDIG) { // initiële periode + huidige periode
-            pasPeriodeDagAan(periodes, gebruikerDTO.periodeDag)
-        } else {
-            pasPeriodeDagAan(
-                periodes.filter { it.periodeStatus == Periode.PeriodeStatus.OPEN || it.periodeStatus == Periode.PeriodeStatus.HUIDIG },
-                gebruikerDTO.periodeDag
-            )
-        }
-    }
-
-    fun pasPeriodeDagAan(periodes: List<Periode>, periodeDag: Int) {
-        if (periodes.isEmpty()) return
-        val sortedPeriodes = periodes.sortedBy { it.periodeStartDatum }
-
-        if (sortedPeriodes[0].periodeStartDatum == sortedPeriodes[0].periodeEindDatum) { // initiële periode
-            val periodeStartDatum = sortedPeriodes[0].periodeStartDatum.withDayOfMonth(periodeDag).minusDays(1)
+        if (periodes.size == 2 &&
+            periodes[0].periodeStartDatum == periodes[0].periodeEindDatum &&
+            periodes[1].periodeStatus == Periode.PeriodeStatus.HUIDIG
+        ) { // initiële periode + huidige periode
+            val initielePeriodeEindDatum =
+                berekenPeriodeDatums(gebruikerDTO.periodeDag, LocalDate.now()).first.minusDays(1)
+            logger.info("Initiele PeriodeDag aanpassen voor ${gebruiker.email} van ${periodes[0].periodeStartDatum} naar ${initielePeriodeEindDatum}")
             periodeRepository.save(
-                sortedPeriodes[0].fullCopy(
-                    periodeStartDatum = periodeStartDatum,
-                    periodeEindDatum = periodeStartDatum
+                periodes[0].fullCopy(
+                    periodeStartDatum = initielePeriodeEindDatum,
+                    periodeEindDatum = initielePeriodeEindDatum
+                )
+            )
+            periodeRepository.save(
+                periodes[1].fullCopy(
+                    periodeStartDatum = initielePeriodeEindDatum.plusDays(1),
+                    periodeEindDatum = initielePeriodeEindDatum.plusMonths(1)
                 )
             )
         } else {
-            val periodeEindDatum = berekenPeriodeDatums(periodeDag, sortedPeriodes[0].periodeStartDatum).second
+            val teVerschuivenPeriodes =
+                periodes.filter { it.periodeStatus == Periode.PeriodeStatus.OPEN || it.periodeStatus == Periode.PeriodeStatus.HUIDIG }
+                    .sortedBy { it.periodeStartDatum }
+            logger.debug(
+                "PeriodeDag aanpassen voor ${gebruiker.email}: teVerschuivenPeriodes: " +
+                        teVerschuivenPeriodes.map { "${it.periodeStartDatum} (${it.periodeStatus})" }.joinToString(", ")
+            )
+            val periodeEindDatum1stePeriode =
+                berekenPeriodeDatums(gebruikerDTO.periodeDag, teVerschuivenPeriodes[0].periodeEindDatum).second
+            logger.debug("periodeEindDatum1stePeriode: {}", periodeEindDatum1stePeriode)
+            logger.debug("Periode verschuiven van ${teVerschuivenPeriodes[0].periodeStartDatum}/${teVerschuivenPeriodes[0].periodeEindDatum} -> ${teVerschuivenPeriodes[0].periodeStartDatum}/$periodeEindDatum1stePeriode")
             periodeRepository.save(
-                sortedPeriodes[0].fullCopy(
-                    periodeStartDatum = sortedPeriodes[0].periodeStartDatum,
-                    periodeEindDatum = periodeEindDatum
+                teVerschuivenPeriodes[0].fullCopy(
+                    periodeStartDatum = teVerschuivenPeriodes[0].periodeStartDatum,
+                    periodeEindDatum = periodeEindDatum1stePeriode
                 )
             )
-        }
-        sortedPeriodes.drop(1).forEach {
-            val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(periodeDag, it.periodeStartDatum)
-            periodeRepository.save(
-                it.fullCopy(
-                    periodeStartDatum = periodeStartDatum,
-                    periodeEindDatum = periodeEindDatum
+            teVerschuivenPeriodes.drop(1).forEach {
+                val (periodeStartDatum, periodeEindDatum) = berekenPeriodeDatums(
+                    gebruikerDTO.periodeDag,
+                    it.periodeEindDatum
                 )
-            )
+                logger.debug("Periode verschuiven van ${it.periodeStartDatum}/${it.periodeEindDatum} -> $periodeStartDatum/$periodeEindDatum")
+                periodeRepository.save(
+                    it.fullCopy(
+                        periodeStartDatum = periodeStartDatum,
+                        periodeEindDatum = periodeEindDatum
+                    )
+                )
+            }
         }
     }
 }

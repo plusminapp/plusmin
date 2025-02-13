@@ -3,14 +3,12 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.controller.GebruikerController.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.Role
-import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-import java.time.LocalDate
 
 @Service
 class GebruikerService {
@@ -19,9 +17,6 @@ class GebruikerService {
 
     @Autowired
     lateinit var periodeService: PeriodeService
-
-    @Autowired
-    lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -55,11 +50,15 @@ class GebruikerService {
         )
 
         if (gebruiker.periodeDag != gebruikerDTO.periodeDag) {
-            periodeService.pasPeriodeDagAan(gebruiker, gebruikerDTO)
-            gebruikerRepository.save(gebruiker.fullCopy(periodeDag = gebruikerDTO.periodeDag))
+            if (gebruikerDTO.periodeDag > 28) {
+                logger.warn("Periodedag moet kleiner of gelijk zijn aan 28 (gevraagd: ${gebruikerDTO.periodeDag})")
+            } else {
+                logger.info("Periodedag wordt aangepast voor gebruiker ${gebruiker.email} van ${gebruiker.periodeDag} -> ${gebruikerDTO.periodeDag}")
+                periodeService.pasPeriodeDagAan(gebruiker, gebruikerDTO)
+                gebruikerRepository.save(gebruiker.fullCopy(periodeDag = gebruikerDTO.periodeDag))
+            }
         }
 
-        logger.warn("extra peridoes is niet geïmplementeerd")
 
 //        val initielePeriodeStartDatum: LocalDate = if (gebruikerDTO.periodes.size > 0) {
 //            LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)
