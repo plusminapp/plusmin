@@ -7,21 +7,21 @@
   {
     "email": "hulpvrager-basis@vliet.io",
     "bijnaam": "Hulpvrager Basis",
-    "periodeDag": 22,
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "hulpvrager-niveau-1@vliet.io",
     "bijnaam": "Hulpvrager Niv-1",
-    "periodeDag": 22,
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "ruud.van.vliet@ett-twello.nl",
     "bijnaam": "Hulpvrager Niv-1-app",
-    "periodeDag": 19,
+    "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER", "ROLE_ADMIN"]
   },

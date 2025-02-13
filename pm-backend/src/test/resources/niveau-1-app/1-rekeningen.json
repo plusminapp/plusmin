@@ -4,14 +4,16 @@
     "nummer": "betaalrekeningnummer",
     "naam": "ASN betaalrekening",
     "afkorting": "btr",
-    "sortOrder": 1
+    "sortOrder": 1,
+    "saldo": 75
   },
   {
     "rekeningSoort": "SPAARREKENING",
     "nummer": "spaarrekeningnummer",
     "naam": "ASN spaarrekening",
     "afkorting": "spr",
-    "sortOrder": 2
+    "sortOrder": 2,
+    "saldo": 25
   },
   {
     "rekeningSoort": "CONTANT",
