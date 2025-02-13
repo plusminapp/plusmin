@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
-import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
+import { berekenBedragVoorRekenining, Rekening, RekeningSoort, resultaatRekeningSoorten } from '../model/Rekening';
 import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
@@ -22,6 +22,7 @@ export default function InkomstenUitgaven() {
   const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false);
 
+  const resultaatRekeningen: Rekening[] = rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort))
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => inkomstenRekeningSoorten.includes(rekening.rekeningSoort))
   const uitgaveRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.uitgaven)
   const interneRekeningen: Rekening[] = rekeningen.filter(rekening => interneRekeningSoorten.includes(rekening.rekeningSoort))
@@ -57,7 +58,7 @@ export default function InkomstenUitgaven() {
       setIsLoading(true);
       const token = await getIDToken();
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/lening/hulpvrager/${id}/aflossingsbedrag`, {
+      const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}/aflossingsbedrag`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -135,6 +136,9 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
+      <Grid >
+        {resultaatRekeningen.map(rekening => rekening.naam).join(', ')}
+      </Grid>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, md: 3 }}>
         <Grid size={1}>
           <PeriodeSelect />

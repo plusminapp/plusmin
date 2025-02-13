@@ -1,25 +1,24 @@
 package io.vliet.plusmin.repository
 
 import io.vliet.plusmin.domain.Gebruiker
-import io.vliet.plusmin.domain.Lening
+import io.vliet.plusmin.domain.Aflossing
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
-import java.util.*
 
 @Repository
-interface LeningRepository : JpaRepository<Lening, Long> {
+interface AflossingRepository : JpaRepository<Aflossing, Long> {
     @Query(
-        value = "SELECT l FROM Lening l " +
+        value = "SELECT l FROM Aflossing l " +
                 "JOIN rekening r ON r = l.rekening " +
                 "WHERE r.gebruiker = :gebruiker"
     )
-    fun findLeningenVoorGebruiker(gebruiker: Gebruiker): List<Lening>
+    fun findAflossingenVoorGebruiker(gebruiker: Gebruiker): List<Aflossing>
 
     @Query(
-        value = "SELECT l FROM Lening l " +
+        value = "SELECT l FROM Aflossing l " +
                 "JOIN rekening r ON r = l.rekening " +
                 "WHERE r.gebruiker = :gebruiker AND r.naam = :rekeningNaam"
     )
-    fun findLeningVoorRekeningNaam(gebruiker: Gebruiker, rekeningNaam: String): Lening?
+    fun findAflossingVoorRekeningNaam(gebruiker: Gebruiker, rekeningNaam: String): Aflossing?
 }

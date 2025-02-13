@@ -58,7 +58,7 @@ class Rekening(
     }
 
     enum class RekeningSoort {
-        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, LENING, RESERVERING,
+        BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
         INKOMSTEN, UITGAVEN
     }
 }
@@ -68,7 +68,7 @@ val balansRekeningSoort = arrayOf(
     Rekening.RekeningSoort.SPAARREKENING,
     Rekening.RekeningSoort.CONTANT,
     Rekening.RekeningSoort.CREDITCARD,
-    Rekening.RekeningSoort.LENING,
+    Rekening.RekeningSoort.AFLOSSING,
     Rekening.RekeningSoort.RESERVERING
 )
 

@@ -77,7 +77,7 @@ class PeriodeService {
     fun creeerInitielePeriode(gebruiker: Gebruiker, startDatum: LocalDate) {
         if (periodeRepository.getPeriodesVoorGebruiker(gebruiker).size == 0) {
             val periodeStartDatum = berekenPeriodeDatums(gebruiker.periodeDag, startDatum).first
-            logger.info("Initiële periode gecreëerd voor $gebruiker op ${periodeStartDatum}")
+            logger.info("Initiële periode gecreëerd voor ${gebruiker.email} op ${periodeStartDatum}")
             val initielePeriode = periodeRepository.save(
                 Periode(
                     0,

@@ -6,10 +6,10 @@ import java.time.LocalDate
 
 @Entity
 @Table(
-    name = "lening",
+    name = "aflossing",
     uniqueConstraints = [UniqueConstraint(columnNames = ["gebruiker", "naam"])]
 )
-class Lening(
+class Aflossing(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(
@@ -39,9 +39,9 @@ class Lening(
         betaalDag: Int = this.betaalDag,
         dossierNummer: String = this.dossierNummer,
         notities: String = this.notities,
-    ) = Lening(this.id, rekening, startDatum, eindDatum, eindBedrag, aflossingsBedrag, betaalDag, dossierNummer, notities)
+    ) = Aflossing(this.id, rekening, startDatum, eindDatum, eindBedrag, aflossingsBedrag, betaalDag, dossierNummer, notities)
 
-    data class LeningDTO(
+    data class AflossingDTO(
         val id: Long = 0,
         val rekening: Rekening.RekeningDTO,
         val startDatum: String,
@@ -51,23 +51,23 @@ class Lening(
         val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
-        var leningSaldiDTO:LeningSaldiDTO? = null
+        var aflossingSaldiDTO:AflossingSaldiDTO? = null
     ) {
-        fun with(leningSaldiDTO: LeningSaldiDTO): LeningDTO {
-            this.leningSaldiDTO = leningSaldiDTO
+        fun with(aflossingSaldiDTO: AflossingSaldiDTO): AflossingDTO {
+            this.aflossingSaldiDTO = aflossingSaldiDTO
             return this
         }
     }
 
-    data class LeningSaldiDTO(
+    data class AflossingSaldiDTO(
         val peilDatum: String,
         val berekendSaldo: BigDecimal,
         val werkelijkSaldo: BigDecimal,
         val betaling: BigDecimal
     )
 
-    fun toDTO(): LeningDTO {
-        return LeningDTO(
+    fun toDTO(): AflossingDTO {
+        return AflossingDTO(
             this.id,
             this.rekening.toDTO(),
             this.startDatum.toString(),
@@ -80,11 +80,11 @@ class Lening(
         )
     }
 
-    data class LeningGrafiekData(
-        val leningGrafiekMaandData: MutableMap<String, List<LeningData>> = mutableMapOf()
+    data class AflossingGrafiekData(
+        val aflossingGrafiekMaandData: MutableMap<String, List<AflossingData>> = mutableMapOf()
     )
-    data class LeningData(
-        val leningNaam: String,
+    data class AflossingData(
+        val aflossingNaam: String,
         val restSchuld: BigDecimal
     )
 }

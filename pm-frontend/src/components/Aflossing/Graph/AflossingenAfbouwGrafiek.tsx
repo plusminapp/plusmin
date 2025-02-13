@@ -6,7 +6,7 @@ type ChartProps = {
   gekozenPeriode: string;
 }
 
-export const LeningenAfbouwGrafiek = (props: ChartProps) => {
+export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
   const chartOptions: AgChartOptions = {
     data: getData(),
     series: getSeries() as AgAreaSeriesOptions[],

@@ -6,15 +6,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 // import Paper from '@mui/material/Paper';
 
-import { Lening } from '../../model/Lening';
+import { Aflossing } from '../../model/Aflossing';
 import { currencyFormatter } from '../../model/Betaling'
 
 
-interface LeningProps {
-  lening: Lening;
+interface AflossingProps {
+  aflossing: Aflossing;
 }
 
-export default function LeningTabel(props: LeningProps) {
+export default function AflossingTabel(props: AflossingProps) {
 
   return (
     <>
@@ -34,20 +34,20 @@ export default function LeningTabel(props: LeningProps) {
           </TableHead>
           <TableBody>
               <TableRow>
-                  <TableCell align="left" size='small'>{props.lening.startDatum.toString()}</TableCell>
-                  <TableCell align="left" size='small'>{props.lening.eindDatum.toString()}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.eindBedrag)}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.aflossingsBedrag)}</TableCell>
-                  <TableCell align="right" size='small'>{props.lening.betaalDag}</TableCell>
-                  <TableCell align="left" size='small'>{props.lening.dossierNummer}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.leningSaldiDTO!.berekendSaldo)}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.lening.leningSaldiDTO!.werkelijkSaldo)}</TableCell>
+                  <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
+                  <TableCell align="left" size='small'>{props.aflossing.eindDatum.toString()}</TableCell>
+                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
+                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
+                  <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
+                  <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
+                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.berekendSaldo)}</TableCell>
+                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.werkelijkSaldo)}</TableCell>
               </TableRow>
               <TableRow>
-                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze periode: {currencyFormatter.format(props.lening.leningSaldiDTO!.betaling)}</TableCell>
+                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.betaling)}</TableCell>
               </TableRow>
               <TableRow>
-                  <TableCell align="left" size='small' colSpan={8}>Notities<br/>{props.lening.notities}</TableCell>
+                  <TableCell align="left" size='small' colSpan={8}>Notities<br/>{props.aflossing.notities}</TableCell>
               </TableRow>
           </TableBody>
         </Table>

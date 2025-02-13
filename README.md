@@ -21,7 +21,7 @@ In eerste instantie ontwikkel ik de app voor mezelf, maar in de toekomst is het 
 
 ## Probleemstelling
 
-Een deel van de mensen met geldzorgen heeft weinig digitale vaardigheden en communiceert veel via een mobiuele telefoon (weinig overzicht, veel door elkaar). In de praktijk blijkt dat bestaande hulpmiddelen voor schuldhulpverlening niet voldoen aan de behoeften van administratiemaatjes en hulpvragers. Er is behoefte aan een eenvoudige, toegankelijke oplossing die:
+Een deel van de mensen met geldzorgen heeft weinig digitale vaardigheden en communiceert veel via een mobiuele telefoon (weinig overzicht, veel door elkaar). In de praktijk blijkt dat bestaande hulpmiddelen voor schuldhulpveraflossing niet voldoen aan de behoeften van administratiemaatjes en hulpvragers. Er is behoefte aan een eenvoudige, toegankelijke oplossing die:
 - Eenvoudig inkomsten en uitgaven kan registreren
 - Budgettering ondersteunt en de voortgang (uitputting) van budgetten bewaakt
 - Heldere signalen geeft bij afwijkingen van de uitputting ten opzichte van het budget

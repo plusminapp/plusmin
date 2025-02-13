@@ -1,7 +1,7 @@
 import dayjs from "dayjs"
 import { Rekening } from "./Rekening"
 
-export type Lening = {
+export type Aflossing = {
 
     rekening: Rekening,
     startDatum: dayjs.Dayjs,
@@ -11,10 +11,10 @@ export type Lening = {
     betaalDag: number,
     dossierNummer: string,
     notities: string,
-    leningSaldiDTO: LeningSaldi | undefined
+    aflossingSaldiDTO: AflossingSaldi | undefined
 }
 
-export type LeningSaldi = {
+export type AflossingSaldi = {
     peilDatum: string,
     berekendSaldo: number,
     werkelijkSaldo: number,

@@ -67,7 +67,7 @@ export const betalingsSoorten2RekeningenSoorten = new Map<BetalingsSoort, Rekeni
   [BetalingsSoort.rente, { bron: [RekeningSoort.inkomsten], bestemming: [RekeningSoort.spaarrekening] }],
   // Uitgaven
   [BetalingsSoort.uitgaven, { bron: [RekeningSoort.betaalrekening, RekeningSoort.contant, RekeningSoort.creditcard], bestemming: [RekeningSoort.uitgaven] }],
-  [BetalingsSoort.aflossen, { bron: [RekeningSoort.betaalrekening], bestemming: [RekeningSoort.lening] }],
+  [BetalingsSoort.aflossen, { bron: [RekeningSoort.betaalrekening], bestemming: [RekeningSoort.aflossing] }],
   [BetalingsSoort.besteden_reservering, { bron: [RekeningSoort.betaalrekening, RekeningSoort.contant, RekeningSoort.creditcard], bestemming: [RekeningSoort.reservering] }],
   // Intern
   [BetalingsSoort.incasso_creditcard, { bron: [RekeningSoort.betaalrekening], bestemming: [RekeningSoort.creditcard] }],

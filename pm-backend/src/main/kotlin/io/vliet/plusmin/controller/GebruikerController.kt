@@ -66,14 +66,12 @@ class GebruikerController {
     @PostMapping("")
     fun creeerNieuweGebruiker(@Valid @RequestBody gebruikerList: List<GebruikerDTO>): List<Gebruiker> {
         val gebruiker = getJwtGebruiker()
+        val nieuweGebruikers = gebruikerList.map { it.email }.joinToString(", ")
         logger.info(
-            "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: " +
-                gebruikerList.map { it.email }.joinToString { ", " })
+            "POST GebruikerController.creeerNieuweGebruiker() door vrijwilliger ${gebruiker.email}: $nieuweGebruikers")
         if (!gebruiker.roles.contains(Gebruiker.Role.ROLE_COORDINATOR)) {
             throw AuthorizationDeniedException(
-                "${gebruiker.email} wil nieuwe gebruikers ${
-                    gebruikerList.map { it.email }.joinToString { ", " }
-                } aanmaken maar is geen coördinator.") { false }
+                "${gebruiker.email} wil nieuwe gebruikers ${nieuweGebruikers} aanmaken maar is geen coördinator.") { false }
         }
         return gebruikerService.saveAll(gebruikerList)
     }

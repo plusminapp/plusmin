@@ -21,7 +21,7 @@ import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/R
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 import { Periode } from '../model/Periode';
 
-const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Leningen'];
+const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'];
 
 export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
     const result = new Map<BetalingsSoort, RekeningPaar>();

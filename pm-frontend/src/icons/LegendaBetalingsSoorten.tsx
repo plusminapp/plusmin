@@ -16,7 +16,7 @@ const Legenda = ["Inkomen", "Uitgaven", "Aflossen betalingsregeling", "Aflossen 
 const Voorbeelden = [
   "Salaris, uitkering, AOW, ...",
   "Voedsel, huur, gemeente belastingen, enrgie, kleding, ...",
-  "Betalingen voor een lening",
+  "Betalingen voor een aflossing",
   "Betalingen van de creditcardschuld",
   "Betaling van iets waarvoor je hebt gespaard",
   "Opname van de spaarrekening",

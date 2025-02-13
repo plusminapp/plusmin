@@ -9,7 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, TextField } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { Lening } from '../../model/Lening';
+import { Aflossing } from '../../model/Aflossing';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -30,21 +30,21 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-type NieuweLeningDialoogProps = {
-  onLeningBewaardChange: () => void;
+type NieuweAflossingDialoogProps = {
+  onAflossingBewaardChange: () => void;
 };
 
-export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
+export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProps) {
 
   const initialRekening = useMemo(() => ({
     id: 0,
     naam: "",
-    rekeningSoort: RekeningSoort.lening,
+    rekeningSoort: RekeningSoort.aflossing,
     nummer: "",
     sortOrder: 0,
   }), []);
 
-  const initialLening = useMemo(() => ({
+  const initialAflossing = useMemo(() => ({
     id: 0,
     rekening: initialRekening,
     startDatum: dayjs(),
@@ -54,7 +54,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
     betaalDag: 1,
     dossierNummer: "",
     notities: "",
-    leningSaldiDTO: undefined
+    aflossingSaldiDTO: undefined
   }), [initialRekening]);
 
   const initialMessage = {
@@ -64,7 +64,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
 
   const [open, setOpen] = useState(false);
   const [rekening, setRekening] = useState<Rekening>(initialRekening);
-  const [lening, setLening] = useState<Lening>(initialLening);
+  const [aflossing, setAflossing] = useState<Aflossing>(initialAflossing);
   // const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
   const [message, setMessage] = useState<SnackbarMessage>(initialMessage);
   const [isValid, setIsValid] = useState<boolean>(false);
@@ -76,12 +76,12 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
     setOpen(true);
   };
   const handleClose = () => {
-    props.onLeningBewaardChange()
+    props.onAflossingBewaardChange()
     setOpen(false);
   };
 
-  const handleInputLeningWijziging = <K extends keyof Lening>(key: K, value: Lening[K]) => {
-    setLening({ ...lening, [key]: value })
+  const handleInputAflossingWijziging = <K extends keyof Aflossing>(key: K, value: Aflossing[K]) => {
+    setAflossing({ ...aflossing, [key]: value })
     // const newErrors: { omschrijving?: string; bedrag?: string } = { omschrijving: undefined, bedrag: undefined };
     setIsValid(true)
     // if (key === 'naam' && (value as string).trim() === '') {
@@ -104,7 +104,7 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
       try {
         const token = await getIDToken();
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-        const response = await fetch(`/api/v1/lening/hulpvrager/${id}`, {
+        const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
           method: "PUT",
           headers: {
             "Authorization": `Bearer ${token}`,
@@ -112,34 +112,34 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
           },
           body: JSON.stringify([
             {
-              ...lening,
+              ...aflossing,
               rekening: rekening,
-              startDatum: lening.startDatum.format('YYYY-MM-DD'),
-              eindDatum: lening.eindDatum.format('YYYY-MM-DD'),
+              startDatum: aflossing.startDatum.format('YYYY-MM-DD'),
+              eindDatum: aflossing.eindDatum.format('YYYY-MM-DD'),
             }]),
         })
         if (response.ok) {
           setRekening({ ...initialRekening })
           setRekeningen([...rekeningen, rekening])
           setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten([...rekeningen, rekening]))
-          setLening({
-            ...initialLening,
+          setAflossing({
+            ...initialAflossing,
             rekening: initialRekening,
           })
           setIsValid(false)
           setMessage({
-            message: "Lening is opgeslagen.",
+            message: "Aflossing is opgeslagen.",
             type: "success"
           })
         } else {
           console.error("Failed to fetch data", response.status);
         }
       } catch (error) {
-        console.error('Fout bij opslaan lening:', error);
+        console.error('Fout bij opslaan aflossing:', error);
       }
     } else {
       setMessage({
-        message: "Lening is niet geldig, herstel de fouten en probeer het opnieuw.",
+        message: "Aflossing is niet geldig, herstel de fouten en probeer het opnieuw.",
         type: "warning"
       })
     }
@@ -152,15 +152,15 @@ export default function NieuweLeningDialoog(props: NieuweLeningDialoogProps) {
 return (
     <React.Fragment>
       <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: {md:'auto', xs: 0}, mr: {md:0, xs: 'auto'} }}>
-        Nieuwe lening
+        Nieuwe aflossing
       </Button>
       <BootstrapDialog
         onClose={handleClose}
-        aria-labelledby="lening-titel"
+        aria-labelledby="aflossing-titel"
         open={open}
         fullWidth>
-        <DialogTitle sx={{ m: 0, p: 2 }} id="lening-titel">
-          Nieuwe lening
+        <DialogTitle sx={{ m: 0, p: 2 }} id="aflossing-titel">
+          Nieuwe aflossing
         </DialogTitle>
         <IconButton
           aria-label="close"
@@ -176,7 +176,7 @@ return (
         <DialogContent dividers>
           <Stack spacing={2}>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">De naam van de schuld/lening</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">De naam van de schuld/aflossing</InputLabel>
               <Input
                 id="omschrijfing"
                 // error={!!errors.naam}
@@ -192,29 +192,29 @@ return (
               <DatePicker
                 disableFuture
                 slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer is de schuld/lening gestart?"
-                value={lening.startDatum}
-                onChange={(newvalue) => handleInputLeningWijziging('startDatum', newvalue ? newvalue : dayjs())}
+                label="Wanneer is de schuld/aflossing gestart?"
+                value={aflossing.startDatum}
+                onChange={(newvalue) => handleInputAflossingWijziging('startDatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
                 minDate={dayjs()}
                 slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer is de schuld/lening afgelost?"
-                value={lening.eindDatum}
-                onChange={(newvalue) => handleInputLeningWijziging('eindDatum', newvalue ? newvalue : dayjs())}
+                label="Wanneer is de schuld/aflossing afgelost?"
+                value={aflossing.eindDatum}
+                onChange={(newvalue) => handleInputAflossingWijziging('eindDatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Hoe groot is de schuld/lening?</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">Hoe groot is de schuld/aflossing?</InputLabel>
               <Input
                 id="standard-adornment-amount"
                 // error={!!errors.bedrag}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
-                value={lening.eindBedrag}
+                value={aflossing.eindBedrag}
                 type="number"
-                onChange={(e) => handleInputLeningWijziging('eindBedrag', parseFloat(e.target.value))}
+                onChange={(e) => handleInputAflossingWijziging('eindBedrag', parseFloat(e.target.value))}
                 onFocus={handleFocus} 
               />
               {/* {errors.eindBedrag && (
@@ -227,9 +227,9 @@ return (
                 id="standard-adornment-amount"
                 // error={!!errors.aflossingsBedrag}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
-                value={lening.aflossingsBedrag}
+                value={aflossing.aflossingsBedrag}
                 type="number"
-                onChange={(e) => handleInputLeningWijziging('aflossingsBedrag', parseFloat(e.target.value))}
+                onChange={(e) => handleInputAflossingWijziging('aflossingsBedrag', parseFloat(e.target.value))}
                 onFocus={handleFocus} 
               />
               {/* {errors.bedrag && (
@@ -241,9 +241,9 @@ return (
               <Input
                 id="standard-adornment-amount"
                 // error={!!errors.betaalDag}
-                value={lening.betaalDag}
+                value={aflossing.betaalDag}
                 type="number"
-                onChange={(e) => handleInputLeningWijziging('betaalDag', parseFloat(e.target.value))}
+                onChange={(e) => handleInputAflossingWijziging('betaalDag', parseFloat(e.target.value))}
                 onFocus={handleFocus} 
               />
               {/* {errors.bedrag && (
@@ -255,9 +255,9 @@ return (
               <Input
                 id="omschrijfing"
                 // error={!!errors.naam}
-                value={lening.dossierNummer}
+                value={aflossing.dossierNummer}
                 type="text"
-                onChange={(e) => handleInputLeningWijziging('dossierNummer', e.target.value)}
+                onChange={(e) => handleInputAflossingWijziging('dossierNummer', e.target.value)}
                 />
               {/* {errors.omschrijving && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.omschrijving}</Typography>
@@ -267,16 +267,16 @@ return (
               id="outlined-basic"
               label="Notities"
               variant="standard"
-              value={lening.notities}
+              value={aflossing.notities}
               fullWidth={true}
               minRows={4}
-              onChange={(e) => handleInputLeningWijziging('notities', e.target.value)}
+              onChange={(e) => handleInputAflossingWijziging('notities', e.target.value)}
             />
           </Stack>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleSubmit}>
-            Bewaar lening
+            Bewaar aflossing
           </Button>
         </DialogActions>
       </BootstrapDialog>

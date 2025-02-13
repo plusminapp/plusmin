@@ -9,6 +9,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 
 @Service
 class GebruikerService {
@@ -30,35 +31,42 @@ class GebruikerService {
         val vrijwilliger = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
             gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
         } else null
-        logger.info("gebruiker: ${gebruikerDTO.vrijwilligerEmail}, vrijwilliger: ${vrijwilliger?.email}")
+        logger.info("gebruiker: ${gebruikerDTO.email}, vrijwilliger: ${vrijwilliger?.email}")
         val gebruikerOpt = gebruikerRepository.findByEmail(gebruikerDTO.email)
-        val gebruiker = gebruikerRepository.save(
+        val gebruiker =
             if (gebruikerOpt != null) {
-                gebruikerOpt.fullCopy(
-                    bijnaam = gebruikerDTO.bijnaam,
-                    roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
-                    vrijwilliger = vrijwilliger,
+                gebruikerRepository.save(
+                    gebruikerOpt.fullCopy(
+                        bijnaam = gebruikerDTO.bijnaam,
+                        roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
+                        vrijwilliger = vrijwilliger,
+                    )
                 )
             } else {
-                Gebruiker(
-                    email = gebruikerDTO.email,
-                    bijnaam = gebruikerDTO.bijnaam,
-                    roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
-                    vrijwilliger = vrijwilliger,
+                gebruikerRepository.save(
+                    Gebruiker(
+                        email = gebruikerDTO.email,
+                        bijnaam = gebruikerDTO.bijnaam,
+                        periodeDag = gebruikerDTO.periodeDag,
+                        roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
+                        vrijwilliger = vrijwilliger,
+                    )
                 )
             }
-        )
 
-        if (gebruiker.periodeDag != gebruikerDTO.periodeDag) {
-            if (gebruikerDTO.periodeDag > 28) {
-                logger.warn("Periodedag moet kleiner of gelijk zijn aan 28 (gevraagd: ${gebruikerDTO.periodeDag})")
-            } else {
-                logger.info("Periodedag wordt aangepast voor gebruiker ${gebruiker.email} van ${gebruiker.periodeDag} -> ${gebruikerDTO.periodeDag}")
-                periodeService.pasPeriodeDagAan(gebruiker, gebruikerDTO)
-                gebruikerRepository.save(gebruiker.fullCopy(periodeDag = gebruikerDTO.periodeDag))
+        if (gebruikerOpt != null) {
+            if (gebruiker.periodeDag != gebruikerDTO.periodeDag) {
+                if (gebruikerDTO.periodeDag > 28) {
+                    logger.warn("Periodedag moet kleiner of gelijk zijn aan 28 (gevraagd: ${gebruikerDTO.periodeDag})")
+                } else {
+                    logger.info("Periodedag wordt aangepast voor gebruiker ${gebruiker.email} van ${gebruiker.periodeDag} -> ${gebruikerDTO.periodeDag}")
+                    periodeService.pasPeriodeDagAan(gebruiker, gebruikerDTO)
+                    gebruikerRepository.save(gebruiker.fullCopy(periodeDag = gebruikerDTO.periodeDag))
+                }
             }
+        } else {
+            periodeService.creeerInitielePeriode(gebruiker, LocalDate.now())
         }
-
 
 //        val initielePeriodeStartDatum: LocalDate = if (gebruikerDTO.periodes.size > 0) {
 //            LocalDate.parse(gebruikerDTO.periodes.sortedBy { it.periodeStartDatum }[0].periodeStartDatum)

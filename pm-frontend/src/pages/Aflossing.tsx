@@ -6,34 +6,34 @@ import Box from '@mui/material/Box';
 import { useCallback, useEffect, useState } from "react";
 import { useCustomContext } from "../context/CustomContext";
 
-import { Lening } from '../model/Lening'
+import { Aflossing } from '../model/Aflossing'
 import { ArrowDropDownIcon, DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import LeningTabel from "../components/Lening/LeningTabel";
+import AflossingTabel from "../components/Aflossing/AflossingTabel";
 import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 import { Min } from "../assets/Min";
 import { Plus } from "../assets/Plus";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-import NieuweLeningDialoog from "../components/Lening/NieuweLeningDialoog";
-import { LeningenAfbouwGrafiek } from "../components/Lening/Graph/LeningenAfbouwGrafiek";
+import NieuweAflossingDialoog from "../components/Aflossing/NieuweAflossingDialoog";
+import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
 import { PeriodeSelect } from "../components/PeriodeSelect";
 
-export default function Leningen() {
+export default function Aflossingen() {
 
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager } = useCustomContext();
 
-  const [leningen, setLeningen] = useState<Lening[]>([])
+  const [aflossingen, setAflossingen] = useState<Aflossing[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
-  const fetchLeningen = useCallback(async () => {
+  const fetchAflossingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
       const id = actieveHulpvrager!.id
       const token = await getIDToken();
-      const response = await fetch(`/api/v1/lening/hulpvrager/${id}/datum/${formDatum.toISOString().slice(0, 10)}`, {
+      const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}/datum/${formDatum.toISOString().slice(0, 10)}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -43,7 +43,7 @@ export default function Leningen() {
       setIsLoading(false);
       if (response.ok) {
         const result = await response.json();
-        setLeningen(result);
+        setAflossingen(result);
       } else {
         console.error("Failed to fetch data", response.status);
         setMessage({
@@ -55,30 +55,30 @@ export default function Leningen() {
   }, [getIDToken, actieveHulpvrager, gebruiker, formDatum]);
 
   useEffect(() => {
-    fetchLeningen();
-  }, [fetchLeningen]);
+    fetchAflossingen();
+  }, [fetchAflossingen]);
 
   if (isLoading) {
-    return <Typography sx={{ mb: '25px' }}>De leningen worden opgehaald.</Typography>
+    return <Typography sx={{ mb: '25px' }}>De aflossingen worden opgehaald.</Typography>
   }
 
-  const onLeningBewaardChange = () => {
-    fetchLeningen()
+  const onAflossingBewaardChange = () => {
+    fetchAflossingen()
   }
 
   const handleInputChange = (datum: dayjs.Dayjs) => {
     setFormDatum(datum)
   }
 
-  const berekenToestandIcoon = (lening: Lening) => {
-    if (!lening.leningSaldiDTO)
+  const berekenToestandIcoon = (aflossing: Aflossing) => {
+    if (!aflossing.aflossingSaldiDTO)
       return <Min color="black" />
     else {
-      const isVoorBetaaldag = lening.betaalDag > parseInt(lening.leningSaldiDTO.peilDatum.slice(8)) && parseInt(lening.leningSaldiDTO.peilDatum.slice(8)) >= 21;
-      const isOpBetaaldag = lening.betaalDag == parseInt(lening.leningSaldiDTO.peilDatum.slice(8));
-      const kloptSaldo = lening.leningSaldiDTO.berekendSaldo == lening.leningSaldiDTO.werkelijkSaldo;
-      const heeftBetalingAchtersstand = lening.leningSaldiDTO.berekendSaldo < lening.leningSaldiDTO.werkelijkSaldo
-      const isAflossingAlBetaald = (Math.round(lening.leningSaldiDTO.berekendSaldo - lening.leningSaldiDTO.werkelijkSaldo - lening.aflossingsBedrag) === 0);
+      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) && parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) >= 21;
+      const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8));
+      const kloptSaldo = aflossing.aflossingSaldiDTO.berekendSaldo == aflossing.aflossingSaldiDTO.werkelijkSaldo;
+      const heeftBetalingAchtersstand = aflossing.aflossingSaldiDTO.berekendSaldo < aflossing.aflossingSaldiDTO.werkelijkSaldo
+      const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldiDTO.berekendSaldo - aflossing.aflossingSaldiDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
       return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <Plus color="grey" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <Plus color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <Plus color="lightGreen" /> :
@@ -88,12 +88,12 @@ export default function Leningen() {
 
   return (
     <>
-      {leningen.length === 0 &&
-        <Typography variant='h4'>{actieveHulpvrager?.bijnaam} heeft geen schulden/leningen ingericht.</Typography>
+      {aflossingen.length === 0 &&
+        <Typography variant='h4'>{actieveHulpvrager?.bijnaam} heeft geen schulden/aflossingen ingericht.</Typography>
       }
-      {leningen.length > 0 &&
+      {aflossingen.length > 0 &&
         <>
-          <Typography variant='h4'>Schulden/leningen pagina</Typography>
+          <Typography variant='h4'>Schulden/aflossingen pagina</Typography>
           <Grid container spacing={2} columns={{ xs: 1, md: 3 }} justifyContent="space-between">
             <Grid size={1} alignItems="start">
               <PeriodeSelect />
@@ -111,7 +111,7 @@ export default function Leningen() {
               </Box>
             </Grid>
             <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
-              <NieuweLeningDialoog onLeningBewaardChange={onLeningBewaardChange} />
+              <NieuweAflossingDialoog onAflossingBewaardChange={onAflossingBewaardChange} />
             </Grid>
           </Grid>
           <Accordion
@@ -123,33 +123,33 @@ export default function Leningen() {
               <Typography
                 sx={{ color: 'FFF' }}
                 component="span">
-                Verwachte afbouw van de schulden/leningen
+                Verwachte afbouw van de schulden/aflossingen
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }} >
-              <LeningenAfbouwGrafiek
+              <AflossingenAfbouwGrafiek
                 gekozenPeriode="2024-12" />
             </AccordionDetails>
           </Accordion>
 
         </>
       }
-      {leningen.map(lening =>
+      {aflossingen.map(aflossing =>
         <Accordion
           elevation={2}>
           <AccordionSummary
             expandIcon={<ArrowDropDownIcon />}
-            aria-controls={lening.rekening.naam}
-            id={lening.rekening.naam}>
+            aria-controls={aflossing.rekening.naam}
+            id={aflossing.rekening.naam}>
             <Typography
               sx={{ color: 'FFF' }}
               component="span">
-              {berekenToestandIcoon(lening)} &nbsp; {lening.rekening.naam}
+              {berekenToestandIcoon(aflossing)} &nbsp; {aflossing.rekening.naam}
             </Typography>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >
-            <LeningTabel
-              lening={lening} />
+            <AflossingTabel
+              aflossing={aflossing} />
           </AccordionDetails>
         </Accordion>
       )}

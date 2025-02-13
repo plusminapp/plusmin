@@ -1,7 +1,7 @@
 {
   "name": "pm-frontend",
   "private": true,
-  "version": "0.0.4",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -23,7 +23,6 @@
     "@mui/material": "^6.1.5",
     "@mui/x-date-pickers": "^7.23.3",
     "ag-charts-react": "^11.0.4",
-    "convert-source-map": "^2.0.0",
     "dayjs": "^1.11.13",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
