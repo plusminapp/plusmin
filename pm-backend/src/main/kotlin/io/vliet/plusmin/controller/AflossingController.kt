@@ -74,16 +74,40 @@ class AflossingController {
         return ResponseEntity.ok().body(aflossingService.creeerAflossingen(hulpvrager, aflossingList))
     }
 
-    @Operation(summary = "GET de Aflossing Series voor hulpvrager op datum")
+    @Operation(summary = "GET de Aflossing GrafiekSeries voor hulpvrager")
     @GetMapping("/hulpvrager/{hulpvragerId}/series")
-    fun getAflossingenSeriesVoorHulpvrager(
+    fun getAflossingenGrafiekSeriesVoorHulpvrager(
         @PathVariable("hulpvragerId") hulpvragerId: Long
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
-        logger.info("GET AflossingController.getAflossingenSeriesVoorHulpvrager voor ${hulpvrager.email}")
-        return ResponseEntity.ok().body(aflossingGrafiekService.genereerSeries(hulpvrager))
+        logger.info("GET AflossingController.getAflossingenSeriesVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(aflossingGrafiekService.genereerAflossingGrafiekSeries(hulpvrager))
     }
 
+    @Operation(summary = "GET de Aflossing GrafiekData voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/data")
+    fun getAflossingenGrafiekDataVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET AflossingController.getAflossingenDataVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(aflossingGrafiekService.genereerAflossingGrafiekData(hulpvrager))
+    }
 
+    @Operation(summary = "GET de Aflossing GrafiekDataen GrafiekSerie voor hulpvrager")
+    @GetMapping("/hulpvrager/{hulpvragerId}/aflossinggrafiek")
+    fun getAflossingenGrafiekDTOVoorHulpvrager(
+        @PathVariable("hulpvragerId") hulpvragerId: Long
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("GET AflossingController.getAflossingenDataVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(
+            AflossingGrafiekService.AflossingGrafiekDTO(
+                aflossingGrafiekSerie = aflossingGrafiekService.genereerAflossingGrafiekSeries(hulpvrager),
+                aflossingGrafiekData = aflossingGrafiekService.genereerAflossingGrafiekData(hulpvrager),
+            ),
+
+            )
+    }
 }
 

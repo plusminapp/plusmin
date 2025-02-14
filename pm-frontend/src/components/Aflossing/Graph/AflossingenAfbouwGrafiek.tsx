@@ -1,12 +1,18 @@
 import { AgCharts } from "ag-charts-react";
 import { AgAreaSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { getData, getSeries } from "./data";
+import { useState } from "react";
 
 type ChartProps = {
   gekozenPeriode: string;
 }
 
 export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
+
+  const [data, setData] = useState<null | HTMLElement>(null);
+  const [series, setSeries] = useState<AgAreaSeriesOptions[]>([]);
+
+
   const chartOptions: AgChartOptions = {
     data: getData(),
     series: getSeries() as AgAreaSeriesOptions[],
@@ -17,12 +23,12 @@ export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
         crossLines: [
           {
             type: 'line',
-            value: props.gekozenPeriode, 
+            value: props.gekozenPeriode,
             label: {
               text: props.gekozenPeriode,
               position: 'top',
               fontSize: 12,
-          },
+            },
           },
         ],
         label: {
@@ -35,7 +41,7 @@ export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
         position: "left",
         label: {
           formatter: (params) => {
-            return `${new Intl.NumberFormat("nl-NL", {style: "currency", currency: "EUR",}).format(params.value)}`;
+            return `${new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR", }).format(params.value)}`;
           },
         },
       },
