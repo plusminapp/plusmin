@@ -127,8 +127,7 @@ export default function Aflossingen() {
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }} >
-              <AflossingenAfbouwGrafiek
-                gekozenPeriode="2024-12" />
+              <AflossingenAfbouwGrafiek />
             </AccordionDetails>
           </Accordion>
 

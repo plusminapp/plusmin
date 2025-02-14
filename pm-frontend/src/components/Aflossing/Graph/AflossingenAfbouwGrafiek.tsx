@@ -1,21 +1,48 @@
 import { AgCharts } from "ag-charts-react";
 import { AgAreaSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { getData, getSeries } from "./data";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useAuthContext } from "@asgardeo/auth-react";
+import { useCustomContext } from "../../../context/CustomContext";
+import { Aflossing } from "../../../model/Aflossing";
+import dayjs from "dayjs";
 
-type ChartProps = {
-  gekozenPeriode: string;
-}
+export const AflossingenAfbouwGrafiek = () => {
 
-export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
+  const { getIDToken } = useAuthContext();
+  const { gebruiker, actieveHulpvrager } = useCustomContext();
 
-  const [data, setData] = useState<null | HTMLElement>(null);
-  const [series, setSeries] = useState<AgAreaSeriesOptions[]>([]);
+  const [aflossingen, setAflossingen] = useState<Aflossing[]>([]);
 
+  const fetchAflossingen = useCallback(async () => {
+    if (gebruiker) {  
+      const token = await getIDToken();
+      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
+      const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const result = await response.json();
+        setAflossingen(result);
+      } else {
+        console.error("Ophalen van het aflossingen is mislukt.", response.status);
+      }
+    }
+  }, [getIDToken, actieveHulpvrager, gebruiker]);
+
+  useEffect(() => {
+    fetchAflossingen();
+  }, [fetchAflossingen]);
+
+  const huidigePeriode = dayjs().format("YYYY-MM"); 
 
   const chartOptions: AgChartOptions = {
-    data: getData(),
-    series: getSeries() as AgAreaSeriesOptions[],
+    data: Object.values(getData(aflossingen)),
+    series: getSeries(aflossingen) as AgAreaSeriesOptions[],
     axes: [
       {
         type: "category",
@@ -23,9 +50,9 @@ export const AflossingenAfbouwGrafiek = (props: ChartProps) => {
         crossLines: [
           {
             type: 'line',
-            value: props.gekozenPeriode,
+            value: huidigePeriode,
             label: {
-              text: props.gekozenPeriode,
+              text: huidigePeriode,
               position: 'top',
               fontSize: 12,
             },

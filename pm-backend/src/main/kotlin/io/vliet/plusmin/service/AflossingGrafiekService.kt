@@ -68,9 +68,10 @@ class AflossingGrafiekService {
     }
 
     fun genereerAflossingGrafiekSeries(gebruiker: Gebruiker): String {
-        val rekeningen = rekeningRepository
-            .findRekeningenVoorGebruiker(gebruiker)
-            .filter { it.rekeningSoort == Rekening.RekeningSoort.AFLOSSING }
+        val rekeningen = aflossingRepository
+            .findAflossingenVoorGebruiker(gebruiker)
+            .map { it.rekening }
+
         return toGrafiekSerieJsonString(rekeningen.map {
             AflossingGrafiekSerie(
                 yKey = it.naam.lowercase().replace("\\s".toRegex(), ""),
