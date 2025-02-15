@@ -126,7 +126,7 @@ class BetalingDao {
             qCount.setParameter("qtd", toDate)
         }
 
-        val content = (qSelect.resultList as List<Betaling>)
+        val content = (qSelect.resultList as List<Betaling>).map { it.toDTO() }
         val count = (qCount.singleResult)
 
         val page = PageImpl(content, pageRequest, count)

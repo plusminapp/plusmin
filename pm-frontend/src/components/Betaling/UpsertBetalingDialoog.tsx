@@ -45,6 +45,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     betalingsSoort: undefined,
     bron: undefined,
     bestemming: undefined,
+    budgetNaam: undefined
   }), []);
 
   type BetalingDtoErrors = { betalingsSoort?: String, omschrijving?: string; bedrag?: string; boekingsdatum?: string }

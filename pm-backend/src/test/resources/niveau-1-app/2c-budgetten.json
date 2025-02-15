@@ -3,23 +3,63 @@
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Huur",
     "budgetType": "periodiek",
-    "budgetPeriode": "maand",
-    "bedrag": 650,
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 724.36,
     "betaalDag": 26
   },
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Greenchoice",
     "budgetType": "periodiek",
-    "budgetPeriode": "maand",
+    "budgetPeriodiciteit": "maand",
     "bedrag": 169,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Vitens",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 14,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "Tribuut",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 14,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "GBLT",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 62.5,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "KPN telefoon mobiel & vast",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 123.69,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Vaste lasten",
+    "budgetNaam": "ONVZ Zorgverzekering",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 135,
     "betaalDag": 26
   },
   {
     "rekeningNaam":  "Boodschappen",
     "budgetNaam": "Boodschappen",
     "budgetType": "continu",
-    "budgetPeriode": "week",
+    "budgetPeriodiciteit": "week",
     "bedrag": 100
   }
 ]

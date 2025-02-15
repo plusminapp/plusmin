@@ -7,7 +7,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import EditIcon from '@mui/icons-material/Edit';
 
-import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, reserverenBetalingsSoorten } from '../../model/Betaling';
+import { aflossenBetalingsSoorten, BetalingDTO, BetalingsSoort, reserverenBetalingsSoorten } from '../../model/Betaling';
 import { Fragment, useState } from 'react';
 
 import { useCustomContext } from '../../context/CustomContext';
@@ -16,7 +16,7 @@ import { Button, Typography } from '@mui/material';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 
 interface AflossingReserveringTabelProps {
-  betalingen: Betaling[];
+  betalingen: BetalingDTO[];
   isAflossing: boolean;
   onBetalingBewaardChange: () => void;
 }
@@ -25,14 +25,14 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
 
   const { actieveHulpvrager, gebruiker, gekozenPeriode } = useCustomContext();
   const betalingsSoorten = props.isAflossing ? aflossenBetalingsSoorten : reserverenBetalingsSoorten
-  const betalingen = props.betalingen.filter(betaling => betalingsSoorten.includes(betaling.betalingsSoort))
-  const [selectedBetaling, setSelectedBetaling] = useState<Betaling | null>(null);
+  const betalingen = props.betalingen.filter(betaling => betaling.betalingsSoort && betalingsSoorten.includes(betaling.betalingsSoort))
+  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | null>(null);
 
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
 
-  const handleEditClick = (betaling: Betaling) => {
+  const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
   };
 
@@ -67,9 +67,6 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                         {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
                       </TableCell>
                       <TableCell align="left" size='small' sx={{ p: "0px" }}>{betaling["omschrijving"]}</TableCell>
-                      {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                        {betaling["betalingsSoort"] === 'BESTEDEN_RESERVERING' ? `${betaling.bestemming?.naam} met ${betaling.bron?.naam} `: betaling["bron"]?.naam}
-                      </TableCell> */}
                       {isPeriodeOpen &&
                         <TableCell>
                           <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey' }}>
@@ -87,7 +84,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
             <UpsertBetalingDialoog
               onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
-              betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}
+              betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
             />
           }
         </>}

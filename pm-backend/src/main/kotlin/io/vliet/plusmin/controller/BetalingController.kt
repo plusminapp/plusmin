@@ -85,7 +85,8 @@ class BetalingController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET BetalingController.getAlleBetalingenVanHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val betalingen =
-            betalingDao.search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
+            betalingDao
+                .search(hulpvrager, sizeAsString, pageAsString, sort, query, status, fromDate, toDate)
         return ResponseEntity.ok().body(betalingen)
     }
 
@@ -103,7 +104,7 @@ class BetalingController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val betalingen = betalingService.saveAll(hulpvrager, betalingList)
+        val betalingen = betalingService.creeerAll(hulpvrager, betalingList)
         return ResponseEntity.ok().body(betalingen)
     }
 
@@ -120,8 +121,7 @@ class BetalingController {
         val betaling = betalingOpt.get()
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
         logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val betalingen = betalingService.save(betaling, betalingDTO)
-        return ResponseEntity.ok().body(betalingen)
+        return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
     }
 
     @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")

@@ -6,20 +6,19 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
-import { Betaling } from '../../model/Betaling';
+import { BetalingDTO, currencyFormatter } from '../../model/Betaling';
 import { useEffect, useState, Fragment } from 'react';
 
 import { Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
-import { currencyFormatter } from '../../model/Betaling'
 import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
   isFilterSelectable?: boolean;
-  betalingen: Betaling[];
+  betalingen: BetalingDTO[];
   onBetalingBewaardChange: () => void;
 }
 
@@ -28,10 +27,10 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const { actieveHulpvrager, gebruiker, rekeningen, gekozenPeriode } = useCustomContext();
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
-  const [filteredBetalingen, setFilteredBetalingen] = useState<Betaling[]>([])
-  const [selectedBetaling, setSelectedBetaling] = useState<Betaling | null>(null);
+  const [filteredBetalingen, setFilteredBetalingen] = useState<BetalingDTO[]>([])
+  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | null>(null);
 
-  const handleEditClick = (betaling: Betaling) => {
+  const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
   };
 
@@ -39,7 +38,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
   }
   useEffect(() => {
-    const filterBetalingenOpBronBestemming = betalingen.filter((betaling) => betaling.bron?.id === actueleRekening?.id || betaling.bestemming?.id == actueleRekening?.id || actueleRekening === undefined)
+    const filterBetalingenOpBronBestemming = betalingen.filter((betaling) => betaling.bron === actueleRekening?.naam || betaling.bestemming === actueleRekening?.naam || actueleRekening === undefined)
     setFilteredBetalingen(filterBetalingenOpBronBestemming)
   }, [actueleRekening, betalingen, setFilteredBetalingen]);
 
@@ -118,7 +117,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             <UpsertBetalingDialoog
               onBetalingBewaardChange={props.onBetalingBewaardChange}
               editMode={true}
-              betaling={{ ...selectedBetaling, bron: selectedBetaling.bron?.naam, bestemming: selectedBetaling.bestemming?.naam }}
+              betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
             />
           }
         </>

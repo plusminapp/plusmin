@@ -26,7 +26,9 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val rekeningSoort: RekeningSoort,
     val nummer: String? = null,
-    val sortOrder: Int
+    val sortOrder: Int,
+    @OneToMany(mappedBy = "rekening", fetch = FetchType.EAGER)
+    var budgetten: List<Budget> = emptyList()
 ) {
     companion object {
         val sortableFields = setOf("id", "naam", "afkorting")
@@ -37,8 +39,9 @@ class Rekening(
         rekeningSoort: RekeningSoort = this.rekeningSoort,
         nummer: String? = this.nummer,
         naam: String = this.naam,
-        sortOrder: Int = this.sortOrder
-    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, sortOrder)
+        sortOrder: Int = this.sortOrder,
+        budgetten: List<Budget> = this.budgetten
+    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, sortOrder, budgetten)
 
     data class RekeningDTO(
         val id: Long = 0,
@@ -46,7 +49,8 @@ class Rekening(
         val nummer: String?,
         val naam: String,
         val saldo: BigDecimal = BigDecimal(0),
-        val sortOrder: Int
+        val sortOrder: Int,
+        val budgetten: List<Budget>
     )
 
     fun toDTO(): RekeningDTO {
@@ -55,7 +59,8 @@ class Rekening(
             this.rekeningSoort.toString(),
             this.nummer,
             this.naam,
-            sortOrder = this.sortOrder
+            sortOrder = this.sortOrder,
+            budgetten = this.budgetten
         )
     }
 

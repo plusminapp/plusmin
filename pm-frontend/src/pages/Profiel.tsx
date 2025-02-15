@@ -60,6 +60,7 @@ const Profiel: React.FC = () => {
                   <TableRow>
                     <TableCell>Soort rekening</TableCell>
                     <TableCell>Gekozen naam</TableCell>
+                    <TableCell>Gekoppelde budgetten</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -68,6 +69,7 @@ const Profiel: React.FC = () => {
                       <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.rekeningSoort}</TableCell>
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.budgetten.map(b => b.budgetNaam).join(', ')}</TableCell>
                       </TableRow>
                     </Fragment>
                   )))}

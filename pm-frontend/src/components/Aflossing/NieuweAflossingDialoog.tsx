@@ -42,6 +42,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     rekeningSoort: RekeningSoort.aflossing,
     nummer: "",
     sortOrder: 0,
+    budgetten: [],
   }), []);
 
   const initialAflossing = useMemo(() => ({
@@ -54,7 +55,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     betaalDag: 1,
     dossierNummer: "",
     notities: "",
-    aflossingSaldiDTO: undefined
+    aflossingSaldiDTO: undefined,
   }), [initialRekening]);
 
   const initialMessage = {

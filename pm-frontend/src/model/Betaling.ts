@@ -10,16 +10,18 @@ export type Betaling = {
   betalingsSoort: BetalingsSoort;
   bron: Rekening | undefined;
   bestemming: Rekening | undefined;
+  budget: string | undefined;
 }
 
 export type BetalingDTO = {
   id: number;
   boekingsdatum: dayjs.Dayjs;
   bedrag: number;
-  omschrijving: string | undefined;
+  omschrijving: string;
   betalingsSoort: BetalingsSoort | undefined;
   bron: string | undefined;
   bestemming: string | undefined;
+  budgetNaam: string | undefined;
 }
 
 export enum BetalingsSoort {

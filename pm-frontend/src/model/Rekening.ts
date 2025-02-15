@@ -1,4 +1,5 @@
-import { Betaling } from "./Betaling";
+import { BetalingDTO } from "./Betaling";
+import { Budget } from "./Budget";
 
 export type Rekening = {
     id: number;
@@ -6,6 +7,7 @@ export type Rekening = {
     rekeningSoort: RekeningSoort;
     nummer: string | undefined;
     sortOrder: number;
+    budgetten: Budget[];
 }
 
 export enum RekeningSoort {
@@ -78,11 +80,11 @@ export const cashflowRekeningSoorten = [
     RekeningSoort.creditcard,
 ]
 
-export const berekenBedragVoorRekenining = (betaling: Betaling, rekening: Rekening | undefined) => {
+export const berekenBedragVoorRekenining = (betaling: BetalingDTO, rekening: Rekening | undefined) => {
     if (rekening === undefined) return betaling.bedrag // filter = 'all'
     const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1
-    if (betaling.bron?.id === rekening.id) return -betaling.bedrag * factor
-    if (betaling.bestemming?.id === rekening.id) return betaling.bedrag * factor
+    if (betaling.bron === rekening.naam) return -betaling.bedrag * factor
+    if (betaling.bestemming === rekening.naam) return betaling.bedrag * factor
     return 0
   }
   

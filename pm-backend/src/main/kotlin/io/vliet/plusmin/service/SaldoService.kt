@@ -19,9 +19,6 @@ class SaldoService {
     lateinit var saldoRepository: SaldoRepository
 
     @Autowired
-    lateinit var periodeRepository: PeriodeRepository
-
-    @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired

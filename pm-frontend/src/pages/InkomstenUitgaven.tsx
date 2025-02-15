@@ -1,4 +1,4 @@
-import { aflossenBetalingsSoorten, Betaling, BetalingsSoort, betalingsSoortFormatter, currencyFormatter, inkomstenBetalingsSoorten, internBetalingsSoorten, reserverenBetalingsSoorten } from '../model/Betaling';
+import { aflossenBetalingsSoorten, BetalingDTO, BetalingsSoort, betalingsSoortFormatter, currencyFormatter, inkomstenBetalingsSoorten, internBetalingsSoorten, reserverenBetalingsSoorten } from '../model/Betaling';
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
@@ -19,7 +19,7 @@ export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager, rekeningen, gekozenPeriode } = useCustomContext();
 
-  const [betalingen, setBetalingen] = useState<Betaling[]>([])
+  const [betalingen, setBetalingen] = useState<BetalingDTO[]>([])
   const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false);
 
@@ -85,13 +85,13 @@ export default function InkomstenUitgaven() {
 
   const berekenAflossingTotaal = () => {
     return betalingen
-      .filter((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
+      .filter((betaling) => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
   }
 
   const berekenReserveringTotaal = () => {
     return betalingen
-      .filter((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+      .filter((betaling) => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
       .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? betaling.bedrag : -betaling.bedrag)), 0)
   }
 
@@ -116,11 +116,11 @@ export default function InkomstenUitgaven() {
   }
 
   const heeftAflossenBetalingen = () => {
-    return betalingen.find((betaling) => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
+    return betalingen.find((betaling) => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
   }
 
   const heeftReserverenBetalingen = () => {
-    return betalingen.find((betaling) => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
+    return betalingen.find((betaling) => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
   }
 
   if (isLoading) {
@@ -191,7 +191,7 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          betalingen={betalingen.filter(betaling => inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort&& inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           onBetalingBewaardChange={onBetalingBewaardChange} />
                       </AccordionDetails>
                     </Accordion>
@@ -234,7 +234,7 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
                           onBetalingBewaardChange={onBetalingBewaardChange}
-                          betalingen={betalingen.filter(betaling => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={true} />
                       </AccordionDetails>
                     </Accordion>
@@ -252,7 +252,7 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
                           onBetalingBewaardChange={onBetalingBewaardChange}
-                          betalingen={betalingen.filter(betaling => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={false} />
                       </AccordionDetails>
                     </Accordion>
@@ -278,7 +278,7 @@ export default function InkomstenUitgaven() {
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
                           onBetalingBewaardChange={onBetalingBewaardChange}
-                          betalingen={betalingen.filter(betaling => internBetalingsSoorten.includes(betaling.betalingsSoort))} />
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && internBetalingsSoorten.includes(betaling.betalingsSoort))} />
                       </AccordionDetails>
                     </Accordion>
                   </Grid>
