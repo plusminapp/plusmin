@@ -15,7 +15,8 @@
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Boodschappen"
+    "bestemming": "Boodschappen",
+    "budgetNaam": "Boodschappen"
   },
   {
     "boekingsdatum": "2025-02-02",
@@ -24,7 +25,8 @@
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Boodschappen"
+    "bestemming": "Boodschappen",
+    "budgetNaam": "Boodschappen"
   },
   {
     "boekingsdatum": "2025-02-09",
@@ -33,7 +35,8 @@
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Boodschappen"
+    "bestemming": "Boodschappen",
+    "budgetNaam": "Boodschappen"
   },
   {
     "boekingsdatum": "2025-02-16",
@@ -42,7 +45,8 @@
     "omschrijving": "Aldi",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Boodschappen"
+    "bestemming": "Boodschappen",
+    "budgetNaam": "Boodschappen"
   },
   {
     "boekingsdatum": "2025-02-02",
@@ -51,7 +55,9 @@
     "omschrijving": "Greenchoice",
     "betalingsSoort": "UITGAVEN",
     "bron": "ASN betaalrekening",
-    "bestemming": "Vaste lasten"
+    "bestemming": "Vaste lasten",
+    "budgetNaam": "Greenchoice"
+
   },
   {
     "boekingsdatum": "2025-02-02",
