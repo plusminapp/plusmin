@@ -75,11 +75,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
               <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell sx={{ width: "20%", p: "0px" }}>Datum</TableCell>
-                  <TableCell sx={{ width: "20%", p: "0 18px 0 0" }} align="right">Bedrag</TableCell>
-                  <TableCell sx={{ width: "50%", p: "0px" }}>Omschrijving</TableCell>
+              <TableCell sx={{ width: "20%", p: "5px" }}>Datum</TableCell>
+                  <TableCell sx={{ width: "20%", p: "0 18px 0 5px" }} align="right">Bedrag</TableCell>
+                  <TableCell sx={{ width: "50%", p: "5px" }}>Omschrijving</TableCell>
                   {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
-                  <TableCell sx={{ width: "10%", p: "0px" }}>&nbsp;</TableCell>
+                  <TableCell sx={{ width: "10%", p: "5px" }}>&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -89,10 +89,10 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       aria-haspopup="true"
                     >
-                      <TableCell align="left" size='small' sx={{ p: "0px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
                       <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
                       <TableCell align="left" size='small' sx={{
-                        p: "0px", whiteSpace: "nowrap",
+                        p: "5px", whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         maxWidth: "50px"
@@ -101,8 +101,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell> */}
                       {isPeriodeOpen &&
-                        <TableCell size='small' sx={{ p: "0px" }}>
-                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "0px" }}>
+                        <TableCell size='small' sx={{ p: "5px" }}>
+                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
                             <EditIcon fontSize="small" />
                           </Button>
                         </TableCell>

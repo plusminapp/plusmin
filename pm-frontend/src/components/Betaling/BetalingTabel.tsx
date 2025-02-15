@@ -1,10 +1,11 @@
 import React from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box } from '@mui/material';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 import dayjs from 'dayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening } from '../../model/Rekening';
 import { Budget } from '../../model/Budget';
+import { PlusIcon } from '../../icons/Plus';
 
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
@@ -25,8 +26,14 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen }) => {
     return formatter.format(bedrag);
   };
 
+  const bestemmingSortOrderMap = rekeningen.reduce((acc, rekening) => {
+    acc[rekening.naam] = rekening.sortOrder;
+    return acc;
+  }, {} as Record<string, number>);
+  
   const bestemmingen = Array.from(new Set(betalingen
     .filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)
+    .sort((a, b) => (bestemmingSortOrderMap[a.bestemming!!] || 0) - (bestemmingSortOrderMap[b.bestemming!!] || 0))
     .map(betaling => betaling.bestemming)
     .filter(naam => naam !== undefined))) as string[];
 
@@ -54,17 +61,14 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen }) => {
   });
 
   const berekenBudgetBedrag = (budget: Budget): number => {
-    console.log(`budget: ${budget.budgetNaam} met ${budget.budgetPeriodiciteit}`)
     if (budget.budgetPeriodiciteit.toLowerCase() === 'maand') {
-      console.log(`maand budget: ${budget.budgetNaam} met ${budget.budgetPeriodiciteit}`)
       return budget.bedrag;
     } else {
-      console.log(`week budget: ${budget.budgetNaam} met ${budget.budgetPeriodiciteit}`)
       const daysGoneBy = dayjs().diff(dayjs().startOf('month'), 'day') + 1;
       return budget.bedrag * daysGoneBy / 7;
     }
   };
-  
+
   const budgetten = rekeningen.reduce((acc: { [x: string]: number; }, rekening: Rekening) => {
     acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + berekenBudgetBedrag(budget), 0);
     return acc;
@@ -140,7 +144,11 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen }) => {
             <TableCell sx={{ padding: '5px' }} align="right" />
             {bestemmingen.map(bestemming => (
               <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                {budgetten[bestemming] != 0 ? formatter.format(budgetten[bestemming]) : ''}
+                <Box display="flex" alignItems="center" justifyContent="flex-end">
+                  {budgetten[bestemming] != 0 && <PlusIcon color={'green'} height={15} />}
+                  &nbsp;
+                  {budgetten[bestemming] != 0 ? formatter.format(budgetten[bestemming] + totalen.bestemmingen[bestemming]) : ''}
+                </Box>
               </TableCell>
             ))}
             <TableCell sx={{ padding: '5px' }} align="right" />

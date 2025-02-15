@@ -14,6 +14,9 @@ import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog'
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
 import { PeriodeSelect } from '../components/PeriodeSelect';
+import { InkomstenIcon } from '../icons/Inkomsten';
+import { UitgavenIcon } from '../icons/Uitgaven';
+import { InternIcon } from '../icons/Intern';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -92,16 +95,16 @@ export default function InkomstenUitgaven() {
   const berekenReserveringTotaal = () => {
     return betalingen
       .filter((betaling) => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))
-      .reduce((acc, betaling) => (acc + (betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? betaling.bedrag : -betaling.bedrag)), 0)
+      .reduce((acc, betaling) => (acc + Number((betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? betaling.bedrag : -betaling.bedrag))), 0)
   }
 
-  const berekenInkomstenTotaal = () => {
+  const berekenInkomstenTotaal = (): number => {
     return betalingen
       .filter((betaling) => betaling.betalingsSoort === BetalingsSoort.inkomsten)
-      .reduce((acc, betaling) => (acc + betaling.bedrag), 0)
+      .reduce((acc, betaling) => (acc + Number(betaling.bedrag)), 0)
   }
 
-  const berekenUitgavenTotaal = () => {
+  const berekenUitgavenTotaal = (): number => {
     return betalingen
       .filter((betaling) => (betaling.betalingsSoort === BetalingsSoort.uitgaven ||
         betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ||
@@ -110,8 +113,8 @@ export default function InkomstenUitgaven() {
       .reduce((acc, betaling) => (acc - betaling.bedrag), 0)
   }
 
-  const berekenCashFlowTotaal = () => {
-    return berekenInkomstenTotaal() + berekenUitgavenTotaal()
+  const berekenCashFlowTotaal = (): number => {
+    return Number(berekenInkomstenTotaal()) + Number(berekenUitgavenTotaal())
 
   }
 
@@ -141,7 +144,12 @@ export default function InkomstenUitgaven() {
           <PeriodeSelect />
         </Grid>
         <Grid size={1}>
-          <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>        </Grid>
+          <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>
+            Inkomend ({currencyFormatter.format(Number(berekenInkomstenTotaal()))}) 
+            - uitgaand ({currencyFormatter.format(Number(berekenUitgavenTotaal()))}) geld
+            = {currencyFormatter.format(berekenCashFlowTotaal())}
+          </Typography>
+        </Grid>
         {isPeriodeOpen &&
           <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
             <UpsertBetalingDialoog
@@ -176,7 +184,7 @@ export default function InkomstenUitgaven() {
               <Grid size={{ xs: 1, lg: 4 }}>
                 {inkomstenRekeningen.length > 0 &&
                   <div>
-                    <Typography >Inkomsten totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
+                    <Typography ><InkomstenIcon /> totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
                   </div>
                 }
                 {inkomstenRekeningen.map(rekening =>
@@ -191,7 +199,7 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort&& inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           onBetalingBewaardChange={onBetalingBewaardChange} />
                       </AccordionDetails>
                     </Accordion>
@@ -201,7 +209,7 @@ export default function InkomstenUitgaven() {
               <Grid size={{ xs: 1, lg: 4 }}>
                 {uitgaveRekeningen.length > 1 &&
                   <div>
-                    <Typography >Uitgaven totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+                    <Typography ><UitgavenIcon /> totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
                   </div>
                 }
                 {uitgaveRekeningen.map(rekening =>
@@ -262,7 +270,7 @@ export default function InkomstenUitgaven() {
               <Grid size={{ xs: 1, lg: 4 }}>
                 {interneRekeningen.length > 0 &&
                   <div>
-                    <Typography >Interne boekingen</Typography>
+                    <Typography ><InternIcon/></Typography>
                   </div>
                 }
                 {interneRekeningen.map(rekening =>

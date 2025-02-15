@@ -49,10 +49,10 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
                 <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell sx={{ p: "0px" }}>Datum</TableCell>
-                  <TableCell sx={{ p: "0 18px 0 0" }} align="right">Bedrag</TableCell>
-                  <TableCell sx={{ p: "0px" }}>Omschrijving</TableCell>
-                  <TableCell sx={{ p: "0px" }}>&nbsp;</TableCell>
+                  <TableCell sx={{ p: "5px" }}>Datum</TableCell>
+                  <TableCell sx={{ p: "5px" }} align="right">Bedrag</TableCell>
+                  <TableCell sx={{ p: "5px" }}>Omschrijving</TableCell>
+                  <TableCell sx={{ p: "5px" }}>&nbsp;</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -62,14 +62,14 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                       sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                       aria-haspopup="true"
                     >
-                      <TableCell align="left" size='small' sx={{ p: "0px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>
+                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
+                      <TableCell align="right" size='small' sx={{ p: "5px" }}>
                         {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
                       </TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "0px" }}>{betaling["omschrijving"]}</TableCell>
+                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{betaling["omschrijving"]}</TableCell>
                       {isPeriodeOpen &&
-                        <TableCell>
-                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey' }}>
+                        <TableCell size='small' sx={{ p: "5px" }}>
+                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', p: "5px" , color: 'grey' }}>
                             <EditIcon fontSize="small" />
                           </Button>
                         </TableCell>

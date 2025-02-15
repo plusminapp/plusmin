@@ -10,8 +10,8 @@ import { Aflossing } from '../model/Aflossing'
 import { ArrowDropDownIcon, DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import AflossingTabel from "../components/Aflossing/AflossingTabel";
 import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
-import { Min } from "../assets/Min";
-import { Plus } from "../assets/Plus";
+import { Min } from "../icons/Min";
+import { PlusIcon } from "../icons/Plus";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import NieuweAflossingDialoog from "../components/Aflossing/NieuweAflossingDialoog";
@@ -79,10 +79,10 @@ export default function Aflossingen() {
       const kloptSaldo = aflossing.aflossingSaldiDTO.berekendSaldo == aflossing.aflossingSaldiDTO.werkelijkSaldo;
       const heeftBetalingAchtersstand = aflossing.aflossingSaldiDTO.berekendSaldo < aflossing.aflossingSaldiDTO.werkelijkSaldo
       const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldiDTO.berekendSaldo - aflossing.aflossingSaldiDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
-      return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <Plus color="grey" /> :
-        (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <Plus color="green" /> :
-          isVoorBetaaldag && isAflossingAlBetaald ? <Plus color="lightGreen" /> :
-            heeftBetalingAchtersstand ? <Min color="red" /> : <Plus color="orange" />
+      return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="grey" /> :
+        (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <PlusIcon color="green" /> :
+          isVoorBetaaldag && isAflossingAlBetaald ? <PlusIcon color="lightGreen" /> :
+            heeftBetalingAchtersstand ? <Min color="red" /> : <PlusIcon color="orange" />
     }
   }
 
