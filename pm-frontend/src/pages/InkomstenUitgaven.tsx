@@ -7,7 +7,8 @@ import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
-import { berekenBedragVoorRekenining, Rekening, RekeningSoort, resultaatRekeningSoorten } from '../model/Rekening';
+import BetaalTabel from '../components/Betaling/BetalingTabel';
+import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
 import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
@@ -22,7 +23,6 @@ export default function InkomstenUitgaven() {
   const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false);
 
-  const resultaatRekeningen: Rekening[] = rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort))
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => inkomstenRekeningSoorten.includes(rekening.rekeningSoort))
   const uitgaveRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.uitgaven)
   const interneRekeningen: Rekening[] = rekeningen.filter(rekening => interneRekeningSoorten.includes(rekening.rekeningSoort))
@@ -136,15 +136,12 @@ export default function InkomstenUitgaven() {
   return (
     <>
       <Typography variant='h4'>Inkomsten & uitgaven</Typography>
-      <Grid >
-        {resultaatRekeningen.map(rekening => rekening.naam).join(', ')}
-      </Grid>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, md: 3 }}>
         <Grid size={1}>
           <PeriodeSelect />
         </Grid>
         <Grid size={1}>
-        <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>        </Grid>
+          <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>Inkomend - uitgaand geld: {currencyFormatter.format(berekenCashFlowTotaal())}</Typography>        </Grid>
         {isPeriodeOpen &&
           <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
             <UpsertBetalingDialoog
@@ -152,119 +149,146 @@ export default function InkomstenUitgaven() {
               onBetalingBewaardChange={onBetalingBewaardChange} />
           </Grid>}
       </Grid>
-      <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
-        <Grid size={{ xs: 1, lg: 4 }}>
-          {inkomstenRekeningen.length > 0 &&
-            <div>
-              <Typography >Inkomsten totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
-            </div>
-          }
-          {inkomstenRekeningen.map(rekening =>
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls={rekening.naam}
-                  id={rekening.naam}>
-                  <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <InkomstenUitgavenTabel
-                    actueleRekening={rekening}
-                    betalingen={betalingen.filter(betaling => inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
-                    onBetalingBewaardChange={onBetalingBewaardChange} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          )}
-        </Grid>
-        <Grid size={{ xs: 1, lg: 4 }}>
-          {uitgaveRekeningen.length > 1 &&
-            <div>
-              <Typography >Uitgaven totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
-            </div>
-          }
-          {uitgaveRekeningen.map(rekening =>
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls={rekening.naam}
-                  id={rekening.naam}>
-                  <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <InkomstenUitgavenTabel
-                    actueleRekening={rekening}
-                    onBetalingBewaardChange={onBetalingBewaardChange}
-                    betalingen={betalingen.filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          )}
-          {heeftAflossenBetalingen() &&
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls='extra'
-                  id='extra'>
-                  <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <AflossingReserveringTabel
-                    onBetalingBewaardChange={onBetalingBewaardChange}
-                    betalingen={betalingen.filter(betaling => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
-                    isAflossing={true} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          }
-          {heeftReserverenBetalingen() &&
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls='extra'
-                  id='extra'>
-                  <Typography component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <AflossingReserveringTabel
-                    onBetalingBewaardChange={onBetalingBewaardChange}
-                    betalingen={betalingen.filter(betaling => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
-                    isAflossing={false} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          }
-        </Grid>
-        <Grid size={{ xs: 1, lg: 4 }}>
-          {interneRekeningen.length > 0 &&
-            <div>
-              <Typography >Interne boekingen</Typography>
-            </div>
-          }
-          {interneRekeningen.map(rekening =>
-            <Grid >
-              <Accordion >
-                <AccordionSummary
-                  expandIcon={<ArrowDropDownIcon />}
-                  aria-controls={rekening.naam}
-                  id={rekening.naam}>
-                  <Typography component="span">{betalingsSoortFormatter(rekening.naam)} betalingen</Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ p: 0 }}>
-                  <InkomstenUitgavenTabel
-                    actueleRekening={rekening}
-                    onBetalingBewaardChange={onBetalingBewaardChange}
-                    betalingen={betalingen.filter(betaling => internBetalingsSoorten.includes(betaling.betalingsSoort))} />
-                </AccordionDetails>
-              </Accordion>
-            </Grid>
-          )}
-        </Grid>
+      <Grid sx={{ mb: '25px' }}>
+        <Accordion >
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls={'BetalingTabel'}
+            id={'BetalingTabel'}>
+            <Typography component="span">Weergave als tabel</Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <BetaalTabel
+              betalingen={betalingen} />
+          </AccordionDetails>
+        </Accordion>
       </Grid>
+      <Grid sx={{ mb: '25px' }}>
+        <Accordion >
+          <AccordionSummary
+            expandIcon={<ArrowDropDownIcon />}
+            aria-controls={'BetalingTabel'}
+            id={'BetalingTabel'}>
+            <Typography component="span">Weergave als 3 kolommen</Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
+              <Grid size={{ xs: 1, lg: 4 }}>
+                {inkomstenRekeningen.length > 0 &&
+                  <div>
+                    <Typography >Inkomsten totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
+                  </div>
+                }
+                {inkomstenRekeningen.map(rekening =>
+                  <Grid >
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ArrowDropDownIcon />}
+                        aria-controls={rekening.naam}
+                        id={rekening.naam}>
+                        <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 0 }}>
+                        <InkomstenUitgavenTabel
+                          actueleRekening={rekening}
+                          betalingen={betalingen.filter(betaling => inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          onBetalingBewaardChange={onBetalingBewaardChange} />
+                      </AccordionDetails>
+                    </Accordion>
+                  </Grid>
+                )}
+              </Grid>
+              <Grid size={{ xs: 1, lg: 4 }}>
+                {uitgaveRekeningen.length > 1 &&
+                  <div>
+                    <Typography >Uitgaven totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+                  </div>
+                }
+                {uitgaveRekeningen.map(rekening =>
+                  <Grid >
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ArrowDropDownIcon />}
+                        aria-controls={rekening.naam}
+                        id={rekening.naam}>
+                        <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 0 }}>
+                        <InkomstenUitgavenTabel
+                          actueleRekening={rekening}
+                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)} />
+                      </AccordionDetails>
+                    </Accordion>
+                  </Grid>
+                )}
+                {heeftAflossenBetalingen() &&
+                  <Grid >
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ArrowDropDownIcon />}
+                        aria-controls='extra'
+                        id='extra'>
+                        <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 0 }}>
+                        <AflossingReserveringTabel
+                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          betalingen={betalingen.filter(betaling => aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          isAflossing={true} />
+                      </AccordionDetails>
+                    </Accordion>
+                  </Grid>
+                }
+                {heeftReserverenBetalingen() &&
+                  <Grid >
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ArrowDropDownIcon />}
+                        aria-controls='extra'
+                        id='extra'>
+                        <Typography component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 0 }}>
+                        <AflossingReserveringTabel
+                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          betalingen={betalingen.filter(betaling => reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          isAflossing={false} />
+                      </AccordionDetails>
+                    </Accordion>
+                  </Grid>
+                }
+              </Grid>
+              <Grid size={{ xs: 1, lg: 4 }}>
+                {interneRekeningen.length > 0 &&
+                  <div>
+                    <Typography >Interne boekingen</Typography>
+                  </div>
+                }
+                {interneRekeningen.map(rekening =>
+                  <Grid >
+                    <Accordion >
+                      <AccordionSummary
+                        expandIcon={<ArrowDropDownIcon />}
+                        aria-controls={rekening.naam}
+                        id={rekening.naam}>
+                        <Typography component="span">{betalingsSoortFormatter(rekening.naam)} betalingen</Typography>
+                      </AccordionSummary>
+                      <AccordionDetails sx={{ p: 0 }}>
+                        <InkomstenUitgavenTabel
+                          actueleRekening={rekening}
+                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          betalingen={betalingen.filter(betaling => internBetalingsSoorten.includes(betaling.betalingsSoort))} />
+                      </AccordionDetails>
+                    </Accordion>
+                  </Grid>
+                )}
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+      </Grid>
+
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           <Accordion >

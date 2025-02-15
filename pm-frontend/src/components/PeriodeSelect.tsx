@@ -1,6 +1,7 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent } from "@mui/material";
+import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
+import { useEffect } from "react";
 
 export function PeriodeSelect() {
 
@@ -11,10 +12,25 @@ export function PeriodeSelect() {
         setGekozenPeriode(periode);
     };
 
+    useEffect(() => {
+        if (periodes.length === 1) {
+            setGekozenPeriode(periodes[0])
+        }
+    }, [periodes, setGekozenPeriode])
+
+    const openPeriodes = periodes.filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
+
     return (
         <>
-            {gekozenPeriode &&
-                <Box sx={{ my: 2 , maxWidth: '340px'}}>
+            {openPeriodes.length === 1 && gekozenPeriode &&
+                <Box sx={{ mt: '37px', maxWidth: '340px' }}>
+                    <Typography >
+                        Periode: {gekozenPeriode.periodeStartDatum} - {gekozenPeriode.periodeEindDatum} ({gekozenPeriode.periodeStatus.toLocaleLowerCase()})
+                    </Typography>
+                </Box>
+            }
+            {openPeriodes.length > 1 && gekozenPeriode &&
+                <Box sx={{ my: 2, maxWidth: '340px' }}>
                     <FormControl variant="standard" fullWidth>
                         <InputLabel id="demo-simple-select-label">Kies de periode</InputLabel>
                         <Select
@@ -24,14 +40,13 @@ export function PeriodeSelect() {
                             label="Periode"
                             onChange={handlegekozenPeriodeChange}
                         >
-                            {periodes
-                            .sort((a, b) => b.periodeStartDatum.toString().localeCompare(a.periodeStartDatum.toString()))
-                            .map((periode: Periode) => (
-                                <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
-                                    {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
-                                </MenuItem>
-                            )
-                            )}
+                            {openPeriodes
+                                .map((periode: Periode) => (
+                                    <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
+                                        {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
+                                    </MenuItem>
+                                )
+                                )}
                         </Select>
                     </FormControl>
                 </Box>}

@@ -140,11 +140,15 @@ export default function Aflossingen() {
             expandIcon={<ArrowDropDownIcon />}
             aria-controls={aflossing.rekening.naam}
             id={aflossing.rekening.naam}>
-            <Typography
-              sx={{ color: 'FFF' }}
-              component="span">
-              {berekenToestandIcoon(aflossing)} &nbsp; {aflossing.rekening.naam}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {berekenToestandIcoon(aflossing)}
+              <Typography
+                sx={{ color: 'FFF', ml: 1, whiteSpace: 'nowrap' }}
+                component="span"
+                align="left">
+                {aflossing.rekening.naam}
+              </Typography>
+            </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }} >
             <AflossingTabel
