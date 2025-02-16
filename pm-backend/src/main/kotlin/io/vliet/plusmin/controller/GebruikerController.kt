@@ -1,9 +1,11 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.vliet.plusmin.domain.Aflossing
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Rekening
+import io.vliet.plusmin.repository.AflossingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
 import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.service.GebruikerService
@@ -34,6 +36,9 @@ class GebruikerController {
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
+
+    @Autowired
+    lateinit var aflossingRepository: AflossingRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -119,10 +124,12 @@ class GebruikerController {
         val vrijwilligerEmail: String = "",
         val rekeningen: List<Rekening> = emptyList(),
         val periodes: List<Periode.PeriodeDTO> = emptyList(),
+        val aflossingen: List<Aflossing.AflossingSamenvattingDTO> = emptyList(),
     )
 
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
         val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
+        val aflossingen: List<Aflossing> = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         return GebruikerDTO(
             gebruiker.id,
             gebruiker.email,
@@ -131,7 +138,8 @@ class GebruikerController {
             gebruiker.roles.map { it.toString() },
             gebruiker.vrijwilliger?.email ?: "",
             gebruiker.rekeningen.map { it },
-            periodes= periodes.map { it.toDTO() }
+            periodes= periodes.map { it.toDTO() },
+            aflossingen = aflossingen.map { it.toSamenvattingDTO() }
         )
     }
 

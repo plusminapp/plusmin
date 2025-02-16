@@ -20,3 +20,8 @@ export type AflossingSaldi = {
     werkelijkSaldo: number,
     betaling: number
 }
+
+export type AflossingSamenvattingDTO = {
+    aflossingNaam: string,
+    aflossingsBedrag: number,
+}

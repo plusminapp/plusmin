@@ -1,4 +1,4 @@
-import { BetalingsSoort } from "./Betaling";
+import { AflossingSamenvattingDTO } from "./Aflossing";
 import { Periode } from "./Periode";
 import { Rekening } from "./Rekening";
 
@@ -11,5 +11,5 @@ export type Gebruiker = {
     vrijwilligerEmail: string | undefined;
     rekeningen: Rekening[];
     periodes: Periode[];
-    betalingsSoorten: BetalingsSoort[];
+    aflossingen: AflossingSamenvattingDTO[];
 }

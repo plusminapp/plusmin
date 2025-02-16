@@ -59,13 +59,6 @@ class Aflossing(
         }
     }
 
-    data class AflossingSaldiDTO(
-        val peilDatum: String,
-        val berekendSaldo: BigDecimal,
-        val werkelijkSaldo: BigDecimal,
-        val betaling: BigDecimal
-    )
-
     fun toDTO(): AflossingDTO {
         return AflossingDTO(
             this.id,
@@ -77,6 +70,24 @@ class Aflossing(
             this.betaalDag,
             this.dossierNummer,
             this.notities,
+        )
+    }
+
+    data class AflossingSaldiDTO(
+        val peilDatum: String,
+        val berekendSaldo: BigDecimal,
+        val werkelijkSaldo: BigDecimal,
+        val betaling: BigDecimal
+    )
+
+    data class AflossingSamenvattingDTO(
+        val aflossingNaam: String,
+        val aflossingsBedrag: BigDecimal,
+    )
+    fun toSamenvattingDTO(): AflossingSamenvattingDTO {
+        return AflossingSamenvattingDTO(
+            this.rekening.naam,
+            this.aflossingsBedrag
         )
     }
 }

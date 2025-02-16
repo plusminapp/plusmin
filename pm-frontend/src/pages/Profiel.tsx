@@ -1,24 +1,34 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
 
 import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
-import { betalingsSoort2Categorie, betalingsSoortFormatter } from '../model/Betaling';
+import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter } from '../model/Betaling';
 import { PeriodeSelect } from '../components/PeriodeSelect';
+import { Rekening } from '../model/Rekening';
+import { AflossingSamenvattingDTO } from '../model/Aflossing';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
   const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
 
+  useEffect(() => {
+    console.log(`actieveHulpvrager.aflossingen: ${actieveHulpvrager?.aflossingen.map(a => a.aflossingNaam).join(', ')}`);
+  }, [actieveHulpvrager?.aflossingen]);
+
+  const blaat = (rekening: Rekening): AflossingSamenvattingDTO | undefined =>
+    actieveHulpvrager?.aflossingen.filter(a => a.aflossingNaam === rekening.naam)[0]
+
+
   return (
     <Container maxWidth="xl">
       {!state.isAuthenticated &&
         <Typography variant='h4' sx={{ mb: '25px' }}>Je moet eerst inloggen ...</Typography>
       }
-      {state.isAuthenticated && 
+      {state.isAuthenticated &&
         <>
           <Typography variant='h4' sx={{ mb: '25px' }}>Hi {gebruiker?.bijnaam}, hoe is 't?</Typography>
           <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
@@ -36,7 +46,7 @@ const Profiel: React.FC = () => {
               "{hulpvragers.map(x => x.bijnaam).join('", "')}".
             </Typography>
           }
-          <PeriodeSelect/>
+          <PeriodeSelect />
         </>
       }
       <>
@@ -69,7 +79,14 @@ const Profiel: React.FC = () => {
                       <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.rekeningSoort}</TableCell>
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
-                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.budgetten.map(b => b.budgetNaam).join(', ')}</TableCell>
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>
+                          <span dangerouslySetInnerHTML={{
+                            __html: rekening.budgetten.map(b =>
+                              `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()})`).join('<br />')
+                          }} />
+                          {blaat(rekening) &&
+                            `${blaat(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(blaat(rekening)?.aflossingsBedrag))}/maand)`}
+                        </TableCell>
                       </TableRow>
                     </Fragment>
                   )))}
