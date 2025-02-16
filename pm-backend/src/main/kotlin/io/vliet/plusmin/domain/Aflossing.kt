@@ -79,12 +79,4 @@ class Aflossing(
             this.notities,
         )
     }
-
-    data class AflossingGrafiekData(
-        val aflossingGrafiekMaandData: MutableMap<String, List<AflossingData>> = mutableMapOf()
-    )
-    data class AflossingData(
-        val aflossingNaam: String,
-        val restSchuld: BigDecimal
-    )
 }
