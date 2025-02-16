@@ -61,12 +61,11 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
     if (!props.editMode) {
-
       setBetalingDTO({
         ...initialBetalingDTO,
         boekingsdatum: gekozenPeriode?.periodeEindDatum && dayjs().toISOString().slice(0,10) > gekozenPeriode?.periodeEindDatum  ? dayjs(gekozenPeriode?.periodeEindDatum) : dayjs(),
-        bron: rekeningPaar?.bron[0].naam,
-        bestemming: rekeningPaar?.bestemming[0].naam
+        // bron: rekeningPaar?.bron[0].naam,
+        // bestemming: rekeningPaar?.bestemming[0].naam
       });
     }
   }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling, gekozenPeriode]);
@@ -200,9 +199,10 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
               bestemming={betalingDTO.bestemming}
-              onBetalingsSoortChange={(betalingsSoort, bron, bestemming) => {
+              budget={betalingDTO.budgetNaam}
+              onBetalingsSoortChange={(betalingsSoort, bron, bestemming, budgetNaam) => {
                 handleInputChange('betalingsSoort', betalingsSoort)
-                setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming })
+                setBetalingDTO({ ...betalingDTO, betalingsSoort, bron, bestemming, budgetNaam })
               }}
             />
             {errors.betalingsSoort && (

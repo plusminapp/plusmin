@@ -154,6 +154,7 @@ export default function InkomstenUitgaven() {
           <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
             <UpsertBetalingDialoog
               editMode={false}
+              betaling={undefined}
               onBetalingBewaardChange={onBetalingBewaardChange} />
           </Grid>}
       </Grid>
@@ -167,6 +168,7 @@ export default function InkomstenUitgaven() {
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
             <BetaalTabel
+            aflossingsBedrag={aflossingsBedrag}
               betalingen={betalingen} />
           </AccordionDetails>
         </Accordion>

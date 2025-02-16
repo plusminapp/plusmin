@@ -5,7 +5,7 @@ import { Container, Paper, Table, TableBody, TableCell, TableContainer, TableHea
 import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
-import { betalingsSoortFormatter } from '../model/Betaling';
+import { betalingsSoort2Categorie, betalingsSoortFormatter } from '../model/Betaling';
 import { PeriodeSelect } from '../components/PeriodeSelect';
 
 const Profiel: React.FC = () => {
@@ -96,6 +96,7 @@ const Profiel: React.FC = () => {
               <Table sx={{ width: "100%" }} aria-label="simple table">
                 <TableHead>
                   <TableRow>
+                    <TableCell>Betaling categorie</TableCell>
                     <TableCell>Soort betaling</TableCell>
                     <TableCell>Bron (debet)</TableCell>
                     <TableCell>Bestemming (credit)</TableCell>
@@ -105,6 +106,7 @@ const Profiel: React.FC = () => {
                   {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
                     <Fragment key={entry[0]}>
                       <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                        <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(betalingsSoort2Categorie(entry[0]) ?? '')}</TableCell>
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(entry[0])}</TableCell>
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bron.map(c => c.naam).join(', ')}</TableCell>
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bestemming.map(c => c.naam).join(', ')}</TableCell>

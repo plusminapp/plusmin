@@ -24,6 +24,12 @@ export type BetalingDTO = {
   budgetNaam: string | undefined;
 }
 
+export enum BetalingsCategorie {
+  inkomsten = 'INKOMSTEN',
+  uitgaven = 'UITGAVEN',
+  intern = 'INTERN',
+}
+
 export enum BetalingsSoort {
   // Inkomsten
   inkomsten = 'INKOMSTEN',
@@ -78,8 +84,23 @@ export const betalingsSoorten2RekeningenSoorten = new Map<BetalingsSoort, Rekeni
   [BetalingsSoort.opnemen_contant, { bron: [RekeningSoort.betaalrekening], bestemming: [RekeningSoort.contant] }],
   [BetalingsSoort.storten_contant, { bron: [RekeningSoort.contant], bestemming: [RekeningSoort.betaalrekening] }],
 ]);
-export const inkomstenBetalingsSoorten = [BetalingsSoort.inkomsten, BetalingsSoort.rente]
-    
-export const uitgavenBetalingsSoorten = [BetalingsSoort.uitgaven, BetalingsSoort.aflossen, BetalingsSoort.besteden_reservering]
 
+export const inkomstenBetalingsSoorten = [BetalingsSoort.inkomsten, BetalingsSoort.rente]
+export const uitgavenBetalingsSoorten = [BetalingsSoort.uitgaven, BetalingsSoort.aflossen, BetalingsSoort.besteden_reservering]
 export const internBetalingsSoorten = [BetalingsSoort.incasso_creditcard, BetalingsSoort.opnemen_spaarrekening, BetalingsSoort.storten_spaarrekening, BetalingsSoort.opnemen_contant, BetalingsSoort.storten_contant]
+
+export const betalingsSoort2Categorie = (betalingsSoort: BetalingsSoort | undefined): BetalingsCategorie | undefined => {
+  if (!betalingsSoort) return undefined;
+  if (inkomstenBetalingsSoorten.includes(betalingsSoort)) return BetalingsCategorie.inkomsten;
+  if (uitgavenBetalingsSoorten.includes(betalingsSoort)) return BetalingsCategorie.uitgaven;
+  if (internBetalingsSoorten.includes(betalingsSoort)) return BetalingsCategorie.intern;
+  return undefined;
+};
+
+export const betalingsCategorie2Soort = (betalingsCategorie: BetalingsCategorie | undefined): BetalingsSoort[] | undefined => {
+  if (betalingsCategorie === BetalingsCategorie.inkomsten) return inkomstenBetalingsSoorten
+  if (betalingsCategorie === BetalingsCategorie.uitgaven) return uitgavenBetalingsSoorten
+  if (betalingsCategorie === BetalingsCategorie.intern) return internBetalingsSoorten
+  return undefined
+}
+

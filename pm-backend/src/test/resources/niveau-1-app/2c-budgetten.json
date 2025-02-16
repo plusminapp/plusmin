@@ -41,7 +41,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "KPN telefoon mobiel & vast",
+    "budgetNaam": "KPN",
     "budgetType": "periodiek",
     "budgetPeriodiciteit": "maand",
     "bedrag": 123.69,
@@ -49,7 +49,7 @@
   },
   {
     "rekeningNaam": "Vaste lasten",
-    "budgetNaam": "ONVZ Zorgverzekering",
+    "budgetNaam": "ONVZ",
     "budgetType": "periodiek",
     "budgetPeriodiciteit": "maand",
     "bedrag": 135,
@@ -61,5 +61,12 @@
     "budgetType": "continu",
     "budgetPeriodiciteit": "week",
     "bedrag": 100
+  },
+  {
+    "rekeningNaam":  "Andere uitgave",
+    "budgetNaam": "Andere uitgave",
+    "budgetType": "continu",
+    "budgetPeriodiciteit": "week",
+    "bedrag": 25
   }
 ]
