@@ -7,12 +7,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useCustomContext } from "../context/CustomContext";
 
 import { Aflossing } from '../model/Aflossing'
-import { ArrowDropDownIcon, DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import AflossingTabel from "../components/Aflossing/AflossingTabel";
 import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
-import { Min } from "../icons/Min";
+import { MinIcon } from "../icons/Min";
 import { PlusIcon } from "../icons/Plus";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import NieuweAflossingDialoog from "../components/Aflossing/NieuweAflossingDialoog";
 import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
@@ -21,12 +20,22 @@ import { PeriodeSelect } from "../components/PeriodeSelect";
 export default function Aflossingen() {
 
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, gekozenPeriode } = useCustomContext();
 
   const [aflossingen, setAflossingen] = useState<Aflossing[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
+
+  useEffect(() => {
+    if (gekozenPeriode) {
+      if (dayjs().isBefore(dayjs(gekozenPeriode.periodeEindDatum))) {
+        setFormDatum(dayjs());
+      } else {
+        setFormDatum(dayjs(gekozenPeriode.periodeEindDatum));
+      }
+    }
+  }, [gekozenPeriode]);
 
   const fetchAflossingen = useCallback(async () => {
     if (gebruiker) {
@@ -66,13 +75,9 @@ export default function Aflossingen() {
     fetchAflossingen()
   }
 
-  const handleInputChange = (datum: dayjs.Dayjs) => {
-    setFormDatum(datum)
-  }
-
-  const berekenToestandIcoon = (aflossing: Aflossing) => {
+  const berekenToestandIcoon = (aflossing: Aflossing): JSX.Element => {
     if (!aflossing.aflossingSaldiDTO)
-      return <Min color="black" />
+      return <MinIcon color="black" />
     else {
       const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) && parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) >= 21;
       const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8));
@@ -82,7 +87,7 @@ export default function Aflossingen() {
       return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="grey" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <PlusIcon color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <PlusIcon color="lightGreen" /> :
-            heeftBetalingAchtersstand ? <Min color="red" /> : <PlusIcon color="orange" />
+            heeftBetalingAchtersstand ? <MinIcon color="red" /> : <PlusIcon color="orange" />
     }
   }
 
@@ -97,18 +102,6 @@ export default function Aflossingen() {
           <Grid container spacing={2} columns={{ xs: 1, md: 3 }} justifyContent="space-between">
             <Grid size={1} alignItems="start">
               <PeriodeSelect />
-            </Grid>
-            <Grid size={1} alignItems="start">
-              <Box sx={{ my: 2 }}>
-                <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
-                  <DatePicker
-                    slotProps={{ textField: { variant: "standard" } }}
-                    label="Tijdreizen"
-                    value={formDatum}
-                    onChange={(newvalue) => handleInputChange(newvalue ? newvalue : dayjs())}
-                  />
-                </LocalizationProvider>
-              </Box>
             </Grid>
             <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
               <NieuweAflossingDialoog onAflossingBewaardChange={onAflossingBewaardChange} />

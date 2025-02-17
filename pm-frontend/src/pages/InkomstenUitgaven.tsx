@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, BetalingDTO, BetalingsSoort, betalingsSoortFo
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -10,6 +10,7 @@ import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabe
 import BetaalTabel from '../components/Betaling/BetalingTabel';
 import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
 import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
@@ -17,6 +18,7 @@ import { PeriodeSelect } from '../components/PeriodeSelect';
 import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
+import { PlusIcon } from '../icons/Plus';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -29,7 +31,15 @@ export default function InkomstenUitgaven() {
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => inkomstenRekeningSoorten.includes(rekening.rekeningSoort))
   const uitgaveRekeningen: Rekening[] = rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.uitgaven)
   const interneRekeningen: Rekening[] = rekeningen.filter(rekening => interneRekeningSoorten.includes(rekening.rekeningSoort))
-
+  const theme = useTheme();
+  const isMdOrLarger = useMediaQuery(theme.breakpoints.up('md'));
+  
+  const [expanded, setExpanded] = useState<string | false>(isMdOrLarger ? 'tabel' : 'kolommen');
+  const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+  
+  
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
@@ -145,7 +155,7 @@ export default function InkomstenUitgaven() {
         </Grid>
         <Grid size={1}>
           <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>
-            Inkomend ({currencyFormatter.format(Number(berekenInkomstenTotaal()))}) 
+            Inkomend ({currencyFormatter.format(Number(berekenInkomstenTotaal()))})
             - uitgaand ({currencyFormatter.format(Number(berekenUitgavenTotaal()))}) geld
             = {currencyFormatter.format(berekenCashFlowTotaal())}
           </Typography>
@@ -158,23 +168,25 @@ export default function InkomstenUitgaven() {
               onBetalingBewaardChange={onBetalingBewaardChange} />
           </Grid>}
       </Grid>
+      {isMdOrLarger &&
+        <Grid sx={{ mb: '25px' }}>
+          <Accordion expanded={expanded === 'tabel'} onChange={handleChange('tabel')}>
+            <AccordionSummary
+              expandIcon={<ArrowDropDownIcon />}
+              aria-controls={'BetalingTabel'}
+              id={'BetalingTabel'}>
+              <Typography component="span">Weergave als tabel</Typography>
+            </AccordionSummary>
+            <AccordionDetails sx={{ p: 0 }}>
+              <BetaalTabel
+                aflossingsBedrag={aflossingsBedrag}
+                betalingen={betalingen} />
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
+      }
       <Grid sx={{ mb: '25px' }}>
-        <Accordion >
-          <AccordionSummary
-            expandIcon={<ArrowDropDownIcon />}
-            aria-controls={'BetalingTabel'}
-            id={'BetalingTabel'}>
-            <Typography component="span">Weergave als tabel</Typography>
-          </AccordionSummary>
-          <AccordionDetails sx={{ p: 0 }}>
-            <BetaalTabel
-            aflossingsBedrag={aflossingsBedrag}
-              betalingen={betalingen} />
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
-      <Grid sx={{ mb: '25px' }}>
-        <Accordion >
+        <Accordion expanded={expanded === 'kolommen'} onChange={handleChange('kolommen')}>
           <AccordionSummary
             expandIcon={<ArrowDropDownIcon />}
             aria-controls={'BetalingTabel'}
@@ -183,11 +195,15 @@ export default function InkomstenUitgaven() {
           </AccordionSummary>
           <AccordionDetails sx={{ p: 0 }}>
             <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
-              <Grid size={{ xs: 1, lg: 4 }}>
+              <Grid size={{ xs: 1, lg: 4 }} justifyContent={'center'}>
                 {inkomstenRekeningen.length > 0 &&
-                  <div>
-                    <Typography ><InkomstenIcon /> totaal: {currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
-                  </div>
+                  <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
+                    <Box display="flex" alignItems="center" justifyContent="flex-start">
+                      <InkomstenIcon />
+                    </Box>
+                    &nbsp;
+                    <Typography>{currencyFormatter.format(berekenInkomstenTotaal())}</Typography>
+                  </Box>
                 }
                 {inkomstenRekeningen.map(rekening =>
                   <Grid >
@@ -196,7 +212,7 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls={rekening.naam}
                         id={rekening.naam}>
-                        <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                        <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
@@ -210,9 +226,13 @@ export default function InkomstenUitgaven() {
               </Grid>
               <Grid size={{ xs: 1, lg: 4 }}>
                 {uitgaveRekeningen.length > 1 &&
-                  <div>
-                    <Typography ><UitgavenIcon /> totaal: {currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
-                  </div>
+                  <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
+                    <Box display="flex" alignItems="center" justifyContent="flex-start">
+                      <UitgavenIcon />
+                    </Box>
+                    &nbsp;
+                    <Typography>{currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+                  </Box>
                 }
                 {uitgaveRekeningen.map(rekening =>
                   <Grid >
@@ -221,7 +241,15 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls={rekening.naam}
                         id={rekening.naam}>
-                        <Typography component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <PlusIcon color={'green'} height={15} />
+                            {/* {budgetten[bestemming] != 0 && <PlusIcon color={'green'} height={15} />} */}
+                          </Box>
+                          &nbsp;
+                          {/* {budgetten[bestemming] != 0 ? formatter.format(budgetten[bestemming] + totalen.bestemmingen[bestemming]) : ''} */}
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                        </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
@@ -239,7 +267,7 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls='extra'
                         id='extra'>
-                        <Typography component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
+                        <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
@@ -257,7 +285,7 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls='extra'
                         id='extra'>
-                        <Typography component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
+                        <Typography sx={{ fontSize: '15px' }} component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
@@ -271,9 +299,9 @@ export default function InkomstenUitgaven() {
               </Grid>
               <Grid size={{ xs: 1, lg: 4 }}>
                 {interneRekeningen.length > 0 &&
-                  <div>
-                    <Typography ><InternIcon/></Typography>
-                  </div>
+                  <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
+                    <InternIcon />
+                  </Box>
                 }
                 {interneRekeningen.map(rekening =>
                   <Grid >
@@ -282,7 +310,10 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls={rekening.naam}
                         id={rekening.naam}>
-                        <Typography component="span">{betalingsSoortFormatter(rekening.naam)} betalingen</Typography>
+                        {(rekening.rekeningSoort === RekeningSoort.contant || rekening.rekeningSoort === RekeningSoort.spaarrekening) &&
+                          <Typography sx={{ fontSize: '15px' }} component="span">{betalingsSoortFormatter(rekening.naam)} opname/storting</Typography>}
+                        {rekening.rekeningSoort === RekeningSoort.creditcard &&
+                          <Typography sx={{ fontSize: '15px' }} component="span">{betalingsSoortFormatter(rekening.naam)} incasso</Typography>}
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
@@ -301,12 +332,12 @@ export default function InkomstenUitgaven() {
 
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
-          <Accordion >
+          <Accordion expanded={expanded === 'rekening'} onChange={handleChange('rekening')}>
             <AccordionSummary
               expandIcon={<ArrowDropDownIcon />}
               aria-controls="blaat"
               id={"blaat"}>
-              <Typography >Betalingen per rekening
+              <Typography sx={{ fontSize: '15px' }} >Betalingen per rekening
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>

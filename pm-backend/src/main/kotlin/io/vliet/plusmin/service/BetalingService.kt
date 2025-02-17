@@ -36,9 +36,12 @@ class BetalingService {
                     ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
                 val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
                     ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-                val budget = if (!betalingDTO.budgetNaam.isNullOrBlank()) {
-                    budgetRepository.findByRekeningEnBudgetNaam(bestemming, betalingDTO.budgetNaam)
-                        ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                val budget: Budget? = if (!betalingDTO.budgetNaam.isNullOrBlank()) {
+                    budgetRepository.findByRekeningEnBudgetNaam(bestemming, betalingDTO.budgetNaam!!)
+                        ?: run {
+                            logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${bestemming} voor ${gebruiker.bijnaam}.")
+                            null
+                        }
                 } else null
 
                 logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
@@ -64,7 +67,11 @@ class BetalingService {
         val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
             ?: oldBetaling.bestemming
         val budget = if (!newBetalingDTO.budgetNaam.isNullOrBlank()) {
-            budgetRepository.findByRekeningEnBudgetNaam(bestemming, newBetalingDTO.budgetNaam)
+            budgetRepository.findByRekeningEnBudgetNaam(bestemming, newBetalingDTO.budgetNaam!!)
+                ?: run {
+                    logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${bestemming} voor ${gebruiker.bijnaam}.")
+                    null
+                }
         } else null
         logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} met budget ${budget?.id} ?: (${newBetalingDTO.budgetNaam} niet gevonden) ")
         val newBetaling = oldBetaling.fullCopy(

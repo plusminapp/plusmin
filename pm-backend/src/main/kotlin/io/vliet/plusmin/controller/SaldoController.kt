@@ -38,7 +38,7 @@ class SaldoController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET SaldoController.getStandOpDatumVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
         val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
-        val openingPeriode = periodeService.getOpeningPeriode(hulpvrager)
+        val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
         val periodeStartDatum = maxOf(
             openingPeriode.periodeEindDatum.plusDays(1),
             periodeService.berekenPeriodeDatums(hulpvrager.periodeDag, peilDatum).first

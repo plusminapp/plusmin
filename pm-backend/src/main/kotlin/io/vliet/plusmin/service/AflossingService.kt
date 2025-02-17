@@ -69,9 +69,12 @@ class AflossingService {
     fun berekenAflossingenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<AflossingDTO> {
         val aflossingenLijst = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        val periode = periodeService.getOpeningPeriode(gebruiker)
-        val periodeStartDatum = periodeService.berekenPeriodeDatums(periode.gebruiker.periodeDag, peilDatum).first
-        val standDTO = saldoService.getStandOpDatum(periode, periodeStartDatum, peilDatum)
+        val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val gekozenPeriode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, peilDatum) ?: run {
+            logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
+            saldoPeriode
+        }
+        val standDTO = saldoService.getStandOpDatum(saldoPeriode, gekozenPeriode.periodeStartDatum, peilDatum)
 
         return aflossingenLijst
             .sortedBy { it.rekening.sortOrder }
@@ -82,7 +85,7 @@ class AflossingService {
                             peilDatum = peilDatumAsString,
                             werkelijkSaldo = getBalansVanStand(standDTO, aflossing.rekening),
                             berekendSaldo = berekenAflossingBedragOpDatum(aflossing, peilDatum),
-                            betaling = getBetalingVoorAflossingOpPeildatum(aflossing, peilDatum)
+                            betaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
                         )
                     )
             }
@@ -112,15 +115,16 @@ class AflossingService {
         return aflossing.eindBedrag - BigDecimal(aantalMaanden) * aflossing.aflossingsBedrag
     }
 
-    fun getBetalingVoorAflossingOpPeildatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
-        val betalingen = betalingRepository.findAllByGebruikerOpDatum(aflossing.rekening.gebruiker, peilDatum)
-        logger.info("aantal betalingen: ${betalingen.size}")
+    fun getBetalingVoorAflossingInPeriode(aflossing: Aflossing, periode: Periode): BigDecimal {
+        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(
+            aflossing.rekening.gebruiker,
+            periode.periodeStartDatum,
+            periode.periodeEindDatum
+        )
         val filteredBetalingen =
             betalingen.filter { it.bron.id == aflossing.rekening.id || it.bestemming.id == aflossing.rekening.id }
-        logger.info("aantal filteredBetalingen: ${filteredBetalingen.size}")
         val bedrag =
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == aflossing.rekening.id) acc - betaling.bedrag else acc + betaling.bedrag }
-        logger.info("bedrag: ${bedrag}")
         return bedrag
     }
 

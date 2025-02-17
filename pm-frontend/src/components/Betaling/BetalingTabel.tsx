@@ -4,11 +4,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 import dayjs from 'dayjs';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening } from '../../model/Rekening';
+import { Rekening, RekeningSoort } from '../../model/Rekening';
 import { Budget } from '../../model/Budget';
 import { PlusIcon } from '../../icons/Plus';
-import { Min } from '../../icons/Min';
+import { MinIcon } from '../../icons/Min';
 import { ExternalLinkIcon } from '../../icons/ExternalLink';
+import { dagenSindsStartPeriode } from '../../model/Periode';
 
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
@@ -21,7 +22,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
     currency: 'EUR',
   });
 
-  const { rekeningen } = useCustomContext();
+  const { rekeningen, gekozenPeriode } = useCustomContext();
 
   const getFormattedBedrag = (betaling: BetalingDTO) => {
     const bedrag = betaling.betalingsSoort === BetalingsSoort.inkomsten || betaling.betalingsSoort === BetalingsSoort.rente
@@ -30,22 +31,13 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
     return formatter.format(bedrag);
   };
 
-  const bestemmingSortOrderMap = rekeningen.reduce((acc, rekening) => {
-    acc[rekening.naam] = rekening.sortOrder;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const bestemmingen = Array.from(new Set(betalingen
-    .filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)
-    .sort((a, b) => (bestemmingSortOrderMap[a.bestemming!!] || 0) - (bestemmingSortOrderMap[b.bestemming!!] || 0))
-    .map(betaling => betaling.bestemming)
-    .filter(naam => naam !== undefined))) as string[];
+  const bestemmingen = rekeningen.filter(r => r.rekeningSoort === RekeningSoort.uitgaven).map(r => r.naam);
 
   const totalen = {
     inkomsten: 0,
     aflossing: 0,
-    bestemmingen: bestemmingen.reduce((acc, bestemming) => {
-      acc[bestemming] = 0;
+    bestemmingen: rekeningen.reduce((acc, rekening) => {
+      acc[rekening.naam] = 0;
       return acc;
     }, {} as Record<string, number>)
   };
@@ -56,9 +48,9 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
       : -betaling.bedrag;
 
     if (betaling.betalingsSoort === BetalingsSoort.inkomsten || betaling.betalingsSoort === BetalingsSoort.rente) {
-      totalen.inkomsten += bedrag;
+      totalen.inkomsten += Number(bedrag);
     } else if (betaling.betalingsSoort === BetalingsSoort.uitgaven && betaling.bestemming) {
-      totalen.bestemmingen[betaling.bestemming] += bedrag;
+      totalen.bestemmingen[betaling.bestemming] += Number(bedrag);
     } else if (betaling.betalingsSoort === BetalingsSoort.aflossen) {
       totalen.aflossing += bedrag;
     }
@@ -68,8 +60,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
     if (budget.budgetPeriodiciteit.toLowerCase() === 'maand') {
       return budget.bedrag;
     } else {
-      const daysGoneBy = dayjs().diff(dayjs().startOf('month'), 'day') + 1;
-      return budget.bedrag * daysGoneBy / 7;
+      const dagen = dagenSindsStartPeriode(gekozenPeriode);
+      return dagen !== undefined ? budget.bedrag * dagen / 7 : 0;
     }
   };
 
@@ -77,7 +69,6 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
     acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + berekenBudgetBedrag(budget), 0)
     acc["aflossing"] = aflossingsBedrag;
     return acc;
-
   }, {} as Record<string, number>);
 
   const heeftAflossing = aflossingsBedrag > 0;
@@ -93,8 +84,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
             {heeftBudgetten &&
               <TableCell sx={{ padding: '5px' }}>Budget</TableCell>}
             <TableCell sx={{ padding: '5px' }} align="right">Inkomsten</TableCell>
-            {bestemmingen.map(bestemming => (
-              <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">{bestemming}</TableCell>
+            {rekeningen.filter(r => r.rekeningSoort === RekeningSoort.uitgaven).map(uitgaveRekening => (
+              <TableCell key={uitgaveRekening.naam} sx={{ padding: '5px' }} align="right">{uitgaveRekening.naam}</TableCell>
             ))}
             {heeftAflossing &&
               <TableCell sx={{ padding: '5px' }} align="right">Aflossing</TableCell>
@@ -179,7 +170,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
                   <TableCell sx={{ padding: '5px' }} align="right" >
                     <Box display="flex" alignItems="center" justifyContent="flex-end">
                       <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
-                        <Min height={15} color='orange' />
+                        { budgetten["aflossing"] + totalen.aflossing === 0 && <PlusIcon height={15} color='green' />}
+                        { budgetten["aflossing"] + totalen.aflossing !== 0 && <MinIcon height={15} color='orange' />}
                         <ExternalLinkIcon />
                       </Link>
                       &nbsp;

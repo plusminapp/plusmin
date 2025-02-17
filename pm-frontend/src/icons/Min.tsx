@@ -3,7 +3,7 @@ interface MinProps {
   height?: number;
 }
 
-export const Min = ({color= 'red', height= 24}: MinProps) => {
+export const MinIcon = ({color= 'red', height= 24}: MinProps) => {
   return (
     <svg
       height={height}
@@ -22,6 +22,6 @@ export const Min = ({color= 'red', height= 24}: MinProps) => {
         d="M 12,2 C 6.48,2 2,6.48 2,12 2,17.52 6.48,22 12,22 17.52,22 22,17.52 22,12 22,6.48 17.52,2 12,2 Z m 5,11 H 7 v -2 h 10 z"
         fill={color}
         id="path237" />
-    </svg >
+    </svg>
   );
 };
