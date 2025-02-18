@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, BetalingDTO, BetalingsSoort, betalingsSoortFo
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Link, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -11,6 +11,7 @@ import BetaalTabel from '../components/Betaling/BetalingTabel';
 import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
 import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 import { useMediaQuery, useTheme } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
@@ -19,6 +20,8 @@ import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
 import { PlusIcon } from '../icons/Plus';
+import { MinIcon } from '../icons/Min';
+import { ExternalLinkIcon } from '../icons/ExternalLink';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -33,13 +36,13 @@ export default function InkomstenUitgaven() {
   const interneRekeningen: Rekening[] = rekeningen.filter(rekening => interneRekeningSoorten.includes(rekening.rekeningSoort))
   const theme = useTheme();
   const isMdOrLarger = useMediaQuery(theme.breakpoints.up('md'));
-  
+
   const [expanded, setExpanded] = useState<string | false>(isMdOrLarger ? 'tabel' : 'kolommen');
   const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false);
   };
-  
-  
+
+
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
@@ -180,7 +183,8 @@ export default function InkomstenUitgaven() {
             <AccordionDetails sx={{ p: 0 }}>
               <BetaalTabel
                 aflossingsBedrag={aflossingsBedrag}
-                betalingen={betalingen} />
+                betalingen={betalingen}
+                onBetalingBewaardChange={onBetalingBewaardChange} />
             </AccordionDetails>
           </Accordion>
         </Grid>
@@ -212,7 +216,13 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls={rekening.naam}
                         id={rekening.naam}>
-                        <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <PlusIcon color={'green'} height={15} />
+                          </Box>
+                          &nbsp;
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                        </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
@@ -244,10 +254,8 @@ export default function InkomstenUitgaven() {
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
                             <PlusIcon color={'green'} height={15} />
-                            {/* {budgetten[bestemming] != 0 && <PlusIcon color={'green'} height={15} />} */}
                           </Box>
                           &nbsp;
-                          {/* {budgetten[bestemming] != 0 ? formatter.format(budgetten[bestemming] + totalen.bestemmingen[bestemming]) : ''} */}
                           <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
                         </Box>
                       </AccordionSummary>
@@ -267,7 +275,17 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls='extra'
                         id='extra'>
-                        <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
+                          {berekenAflossingTotaal() - aflossingsBedrag === 0 && <PlusIcon height={15} color='green' />}
+                          {berekenAflossingTotaal() - aflossingsBedrag !== 0 && <MinIcon height={15} color='orange' />}
+                          <ExternalLinkIcon />
+                        </Link>
+                          </Box>
+                          &nbsp;
+                          <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
+                        </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
@@ -285,7 +303,13 @@ export default function InkomstenUitgaven() {
                         expandIcon={<ArrowDropDownIcon />}
                         aria-controls='extra'
                         id='extra'>
-                        <Typography sx={{ fontSize: '15px' }} component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <PlusIcon color={'green'} height={15} />
+                          </Box>
+                          &nbsp;
+                          <Typography sx={{ fontSize: '15px' }} component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
+                        </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel

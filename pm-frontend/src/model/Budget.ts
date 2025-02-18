@@ -37,3 +37,6 @@ export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, 
     }
 };
 
+export const berekenBudgetTotaal = (budgetten: Budget[]): number => {
+    return budgetten.reduce((acc, budget) => acc + budget.bedrag, 0)
+}

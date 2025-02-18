@@ -25,3 +25,7 @@ export type AflossingSamenvattingDTO = {
     aflossingNaam: string,
     aflossingsBedrag: number,
 }
+
+export const berekenAflossingTotaal = (aflossingen: Aflossing[]): number => {
+    return aflossingen.reduce((acc, aflossing) => acc + aflossing.aflossingsBedrag, 0)
+}  

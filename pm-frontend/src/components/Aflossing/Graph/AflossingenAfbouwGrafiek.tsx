@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 export const AflossingenAfbouwGrafiek = () => {
 
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, gekozenPeriode } = useCustomContext();
 
   const [aflossingen, setAflossingen] = useState<Aflossing[]>([]);
 
@@ -38,7 +38,7 @@ export const AflossingenAfbouwGrafiek = () => {
     fetchAflossingen();
   }, [fetchAflossingen]);
 
-  const huidigePeriode = dayjs().format("YYYY-MM"); 
+  const getoondePeriode = dayjs(gekozenPeriode?.periodeEindDatum).format("YYYY-MM"); 
 
   const chartOptions: AgChartOptions = {
     data: Object.values(getData(aflossingen)),
@@ -50,9 +50,9 @@ export const AflossingenAfbouwGrafiek = () => {
         crossLines: [
           {
             type: 'line',
-            value: huidigePeriode,
+            value: getoondePeriode,
             label: {
-              text: huidigePeriode,
+              text: getoondePeriode,
               position: 'top',
               fontSize: 12,
             },
