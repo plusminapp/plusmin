@@ -3,6 +3,7 @@ package io.vliet.plusmin.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Aflossing
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Gebruiker.GebruikerDTO
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.repository.AflossingRepository
@@ -45,7 +46,7 @@ class GebruikerController {
     @Operation(summary = "GET alle gebruikers (alleen voor de COORDINATOR)")
     @RolesAllowed("COORDINATOR")
     @GetMapping("")
-    fun getAlleGebruikers(): List<GebruikerDTO> {
+    fun getAlleGebruikers(): List<Gebruiker.GebruikerDTO> {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.getAlleGebruikers() voor gebruiker ${gebruiker.email} met rollen ${gebruiker.roles}.")
         return gebruikerRepository.findAll().map { toDTO(it) }
@@ -54,7 +55,7 @@ class GebruikerController {
     // Iedereen mag de eigen gebruiker (incl. eventueel gekoppelde hulpvragers) opvragen; ADMIN krijgt iedereen terug als hulpvrager
     @Operation(summary = "GET de gebruiker incl. eventuele hulpvragers op basis van de JWT van een gebruiker")
     @GetMapping("/zelf")
-    fun findGebruikerInclusiefHulpvragers(): GebruikerMetHulpvragersDTO {
+    fun findGebruikerInclusiefHulpvragers(): Gebruiker.GebruikerMetHulpvragersDTO {
         val gebruiker = getJwtGebruiker()
         logger.info("GET GebruikerController.findHulpvragersVoorVrijwilliger() voor vrijwilliger ${gebruiker.email}.")
         val hulpvragers = if (gebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
@@ -64,7 +65,7 @@ class GebruikerController {
         }
         periodeService.checkPeriodesVoorGebruiker(gebruiker)
         hulpvragers.forEach { periodeService.checkPeriodesVoorGebruiker(it) }
-        return GebruikerMetHulpvragersDTO(toDTO(gebruiker), hulpvragers.map { toDTO(it) })
+        return Gebruiker.GebruikerMetHulpvragersDTO(toDTO(gebruiker), hulpvragers.map { toDTO(it) })
     }
 
     @Throws(AuthorizationDeniedException::class)
@@ -113,20 +114,6 @@ class GebruikerController {
         }
         return Pair(hulpvrager, vrijwilliger)
     }
-
-
-    data class GebruikerDTO(
-        val id: Long = 0,
-        val email: String,
-        val bijnaam: String = "Gebruiker zonder bijnaam :-)",
-        val periodeDag: Int = 20,
-        val roles: List<String> = emptyList(),
-        val vrijwilligerEmail: String = "",
-        val rekeningen: List<Rekening> = emptyList(),
-        val periodes: List<Periode.PeriodeDTO> = emptyList(),
-        val aflossingen: List<Aflossing.AflossingSamenvattingDTO> = emptyList(),
-    )
-
     fun toDTO(gebruiker: Gebruiker): GebruikerDTO {
         val periodes: List<Periode> = periodeRepository.getPeriodesVoorGebruiker(gebruiker)
         val aflossingen: List<Aflossing> = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
@@ -142,9 +129,4 @@ class GebruikerController {
             aflossingen = aflossingen.map { it.toSamenvattingDTO() }
         )
     }
-
-    data class GebruikerMetHulpvragersDTO(
-        val gebruiker: GebruikerDTO,
-        val hulpvragers: List<GebruikerDTO>
-    )
 }

@@ -1,24 +1,19 @@
 [
   {
     "rekeningSoort": "BETAALREKENING",
-    "nummer": "",
-    "naam": "Betaalrekening",
+    "nummer": "betaalrekeningnummer",
+    "naam": "ASN betaalrekening",
     "afkorting": "btr",
-    "sortOrder": 1
+    "sortOrder": 1,
+    "saldo": 75
   },
   {
     "rekeningSoort": "SPAARREKENING",
-    "nummer": "",
-    "naam": "Spaarrekening",
+    "nummer": "spaarrekeningnummer",
+    "naam": "ASN spaarrekening",
     "afkorting": "spr",
-    "sortOrder": 2
-  },
-  {
-    "rekeningSoort": "CREDITCARD",
-    "nummer": "",
-    "naam": "Credit Card",
-    "afkorting": "",
-    "sortOrder": 3
+    "sortOrder": 2,
+    "saldo": 25
   },
   {
     "rekeningSoort": "CONTANT",
@@ -26,6 +21,13 @@
     "naam": "Contant",
     "afkorting": "cnt",
     "sortOrder": 3
+  },
+  {
+    "rekeningSoort": "CREDITCARD",
+    "nummer": "",
+    "naam": "VISA card",
+    "afkorting": "CC",
+    "sortOrder": 4
   },
   {
     "rekeningSoort": "INKOMSTEN",

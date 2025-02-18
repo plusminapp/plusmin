@@ -51,7 +51,7 @@ class RekeningController {
 
     @PostMapping("/hulpvrager/{hulpvragerId}")
     fun creeerNieuweRekeningVoorHulpvrager(
-        @Valid @RequestBody rekeningList: List<RekeningDTO>,
+        @RequestBody rekeningList: List<RekeningDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any>  {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)

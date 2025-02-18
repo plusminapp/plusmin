@@ -11,6 +11,9 @@ import java.util.*
 interface GebruikerRepository : JpaRepository<Gebruiker, Long> {
     fun findByEmail(email: String): Gebruiker?
 
+    @Query(value = "SELECT g FROM Gebruiker g WHERE g.id = :id")
+    fun selectById(id: Long): Gebruiker?
+
     @Query(value = "SELECT g FROM Gebruiker g WHERE g.vrijwilliger = :vrijwilliger")
     fun findHulpvragersVoorVrijwilliger(vrijwilliger: Gebruiker): List<Gebruiker>
 }

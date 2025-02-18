@@ -1,6 +1,5 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.GebruikerController.GebruikerDTO
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.repository.PeriodeRepository
 import org.slf4j.Logger
@@ -93,7 +92,7 @@ class PeriodeService {
         }
     }
 
-    fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: GebruikerDTO) {
+    fun pasPeriodeDagAan(gebruiker: Gebruiker, gebruikerDTO: Gebruiker.GebruikerDTO) {
         val periodes = periodeRepository.getPeriodesVoorGebruiker(gebruiker).sortedBy { it.periodeStartDatum }
         if (periodes.size == 2 &&
             periodes[0].periodeStartDatum == periodes[0].periodeEindDatum &&

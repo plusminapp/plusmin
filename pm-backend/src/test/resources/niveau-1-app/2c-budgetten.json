@@ -1,5 +1,13 @@
 [
   {
+    "rekeningNaam": "Inkomsten",
+    "budgetNaam": "Inkomsten",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 2335,
+    "betaalDag": 26
+  },
+  {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Huur",
     "budgetType": "periodiek",

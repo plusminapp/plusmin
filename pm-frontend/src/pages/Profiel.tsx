@@ -7,21 +7,53 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { useCustomContext } from '../context/CustomContext';
 import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter } from '../model/Betaling';
 import { PeriodeSelect } from '../components/PeriodeSelect';
-import { Rekening } from '../model/Rekening';
+import { inkomstenRekeningSoorten, Rekening, RekeningSoort, uitgavenRekeningSoorten } from '../model/Rekening';
 import { AflossingSamenvattingDTO } from '../model/Aflossing';
+import { berekenPeriodeBudgetBedrag } from '../model/Budget';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
-  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, gekozenPeriode } = useCustomContext();
 
   useEffect(() => {
     console.log(`actieveHulpvrager.aflossingen: ${actieveHulpvrager?.aflossingen.map(a => a.aflossingNaam).join(', ')}`);
   }, [actieveHulpvrager?.aflossingen]);
 
-  const blaat = (rekening: Rekening): AflossingSamenvattingDTO | undefined =>
+  const aflossingSamenvatting = (rekening: Rekening): AflossingSamenvattingDTO | undefined =>
     actieveHulpvrager?.aflossingen.filter(a => a.aflossingNaam === rekening.naam)[0]
 
+  const gebudgeteerdPerPeriode = (rekeningSoorten: RekeningSoort[]) => {
+    return rekeningen?.
+      filter(rekening => rekeningSoorten.includes(rekening.rekeningSoort)).
+      reduce((uitgavenAcc, rekening) => {
+        const budgetUitgaven = rekening.budgetten.reduce((acc, budget) => {
+          return acc + Number(berekenPeriodeBudgetBedrag(gekozenPeriode, budget));
+        }, 0);
+        const aflossing = aflossingSamenvatting(rekening)
+          ? Number(aflossingSamenvatting(rekening)?.aflossingsBedrag)
+          : 0;
+        return uitgavenAcc + budgetUitgaven + aflossing;
+      }, 0) || 0;
+  };
+
+  const heeftInkomstenBudgetten = () => {
+    return rekeningen?.some(rekening => rekening.budgetten.length > 0 && rekening.rekeningSoort === RekeningSoort.inkomsten);
+  }
+
+  const heeftUitgaveBudgetten = () => {
+    return rekeningen?.some(rekening => rekening.budgetten.length > 0 && rekening.rekeningSoort === RekeningSoort.uitgaven);
+  }
+
+  const creeerBudgetTekst = (): string => {
+    const budgetTekst =
+      (heeftInkomstenBudgetten() ? `Verwachte inkomsten: ${currencyFormatter.format(gebudgeteerdPerPeriode(inkomstenRekeningSoorten))}. ` : "Er zijn Inkomsten budgetten. ") +
+      (heeftUitgaveBudgetten() ? `Verwachte uitgaven: ${currencyFormatter.format(gebudgeteerdPerPeriode(uitgavenRekeningSoorten))}. ` : "Er zijn geen Uitgave budgetten. ") +
+      (heeftInkomstenBudgetten() && heeftUitgaveBudgetten() ?
+        `Verwachte saldo: ${currencyFormatter.format(gebudgeteerdPerPeriode(inkomstenRekeningSoorten) - gebudgeteerdPerPeriode(uitgavenRekeningSoorten))}.` : "");
+
+    return budgetTekst
+  }
 
   return (
     <Container maxWidth="xl">
@@ -46,7 +78,8 @@ const Profiel: React.FC = () => {
               "{hulpvragers.map(x => x.bijnaam).join('", "')}".
             </Typography>
           }
-          <PeriodeSelect />
+          <PeriodeSelect
+            isProfiel={true} />
         </>
       }
       <>
@@ -61,6 +94,8 @@ const Profiel: React.FC = () => {
               De huidige actieve hulpvrager is {actieveHulpvrager ? actieveHulpvrager.bijnaam : "nog niet gekozen"}.<br />
             </Typography>
             <Typography sx={{ my: '25px' }}>De periode wisseldag van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} is {actieveHulpvrager ? actieveHulpvrager.periodeDag : gebruiker?.periodeDag}
+            </Typography>
+            <Typography sx={{ my: '25px' }}>{creeerBudgetTekst()}
             </Typography>
             <Typography sx={{ my: '25px' }}>De rekeningen van {actieveHulpvrager ? actieveHulpvrager.bijnaam : "jou"} zijn:
             </Typography>
@@ -82,10 +117,12 @@ const Profiel: React.FC = () => {
                         <TableCell align="left" size='small' sx={{ p: "6px" }}>
                           <span dangerouslySetInnerHTML={{
                             __html: rekening.budgetten.map(b =>
-                              `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()})`).join('<br />')
+                              `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()}
+                              ${b.budgetPeriodiciteit.toLowerCase() === 'week' ? `= ${currencyFormatter.format(berekenPeriodeBudgetBedrag(gekozenPeriode, b) ?? 0)}/maand` : ''})`)
+                              .join('<br />')
                           }} />
-                          {blaat(rekening) &&
-                            `${blaat(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(blaat(rekening)?.aflossingsBedrag))}/maand)`}
+                          {aflossingSamenvatting(rekening) &&
+                            `${aflossingSamenvatting(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(aflossingSamenvatting(rekening)?.aflossingsBedrag))}/maand)`}
                         </TableCell>
                       </TableRow>
                     </Fragment>

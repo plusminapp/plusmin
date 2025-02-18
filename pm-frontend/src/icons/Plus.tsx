@@ -7,7 +7,6 @@ export const PlusIcon = ({ color = '#222', height = 24 }: PlusIconProps) => {
   return (
     <svg
       height={height}
-      width="auto"
       viewBox="0 0 24 24"
       fill="#008000"
       version="1.1"

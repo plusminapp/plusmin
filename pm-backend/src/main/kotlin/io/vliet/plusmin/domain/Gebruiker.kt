@@ -59,4 +59,21 @@ class Gebruiker(
      enum class Role {
         ROLE_ADMIN, ROLE_COORDINATOR, ROLE_VRIJWILLIGER, ROLE_HULPVRAGER
     }
+    data class GebruikerDTO(
+        val id: Long = 0,
+        val email: String,
+        val bijnaam: String = "Gebruiker zonder bijnaam :-)",
+        val periodeDag: Int = 20,
+        val roles: List<String> = emptyList(),
+        val vrijwilligerEmail: String = "",
+        val rekeningen: List<Rekening>? = emptyList(),
+        val periodes: List<Periode.PeriodeDTO>? = emptyList(),
+        val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),
+    )
+
+    data class GebruikerMetHulpvragersDTO(
+        val gebruiker: GebruikerDTO,
+        val hulpvragers: List<GebruikerDTO>
+    )
+
 }

@@ -45,7 +45,7 @@ class SecurityConfig(
         converter.setJwtGrantedAuthoritiesConverter {
             val username = it.claims["username"] as String
             val user = gebruikerRepository.findByEmail(username)
-                ?: gebruikerService.save(GebruikerController.GebruikerDTO(email = username))
+                ?: gebruikerService.save(Gebruiker.GebruikerDTO(email = username))
             logger.debug("In SecurityConfig.jwtAuthenticationConverter voor ${user.username} met ${user.authorities}")
             user.authorities
         }

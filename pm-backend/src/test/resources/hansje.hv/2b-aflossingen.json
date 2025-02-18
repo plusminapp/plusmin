@@ -4,11 +4,11 @@
       "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "BD Toeslagen",
-      "sortOrder": 10
+        "sortOrder": 10
     },
     "startDatum": "2024-05-01",
     "eindDatum": "2026-10-01",
-    "eindBedrag": 7425,
+    "eindBedrag": 3575,
     "aflossingsBedrag": 259,
     "betaalDag": 26,
     "dossierNummer": "BD Toeslagen dossiernummer",
@@ -19,7 +19,7 @@
       "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Infomedics",
-      "sortOrder": 17
+        "sortOrder": 17
     },
     "startDatum": "2024-05-01",
     "eindDatum": "2025-09-01",
@@ -34,7 +34,7 @@
       "rekeningSoort": "AFLOSSING",
       "nummer": "",
       "naam": "Tribuut",
-      "sortOrder": 15
+        "sortOrder": 15
     },
     "startDatum": "2024-05-01",
     "eindDatum": "2025-09-01",

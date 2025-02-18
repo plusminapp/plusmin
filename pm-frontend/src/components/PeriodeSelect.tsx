@@ -3,7 +3,12 @@ import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
 import { useEffect } from "react";
 
-export function PeriodeSelect() {
+interface PeriodeSelectProps {
+  isProfiel?: boolean;
+}
+
+
+export function PeriodeSelect({isProfiel = false}: PeriodeSelectProps) {
 
     const { periodes, gekozenPeriode, setGekozenPeriode } = useCustomContext();
 
@@ -22,14 +27,14 @@ export function PeriodeSelect() {
 
     return (
         <>
-            {openPeriodes.length === 1 && gekozenPeriode &&
+            {!isProfiel && openPeriodes.length === 1 && gekozenPeriode &&
                 <Box sx={{ mt: '37px', maxWidth: '340px' }}>
                     <Typography >
                         Periode: {gekozenPeriode.periodeStartDatum} - {gekozenPeriode.periodeEindDatum} ({gekozenPeriode.periodeStatus.toLocaleLowerCase()})
                     </Typography>
                 </Box>
             }
-            {openPeriodes.length > 1 && gekozenPeriode &&
+            {!isProfiel && openPeriodes.length > 1 && gekozenPeriode &&
                 <Box sx={{ my: 2, maxWidth: '340px' }}>
                     <FormControl variant="standard" fullWidth>
                         <InputLabel id="demo-simple-select-label">Kies de periode</InputLabel>
@@ -50,6 +55,15 @@ export function PeriodeSelect() {
                         </Select>
                     </FormControl>
                 </Box>}
+                {isProfiel &&
+                <Box sx={{ mt: '37px', maxWidth: '340px' }}>
+                    {periodes.map((periode: Periode) => (
+                        <Typography key={periode.periodeStartDatum}>
+                            Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})
+                        </Typography>
+                    ))}
+                </Box>
+            }
         </>
     )
 }

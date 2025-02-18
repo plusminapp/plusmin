@@ -3,7 +3,6 @@ export const PlusMinLogo = () => {
     <svg
       height="48"
       viewBox="0 0 46 24"
-      width="auto"
       fill="#008000"
       version="1.1"
       id="svg69"

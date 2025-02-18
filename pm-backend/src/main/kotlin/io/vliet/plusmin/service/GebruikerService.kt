@@ -1,6 +1,5 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.GebruikerController.GebruikerDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Gebruiker.Role
 import io.vliet.plusmin.repository.GebruikerRepository
@@ -21,13 +20,13 @@ class GebruikerService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun saveAll(gebruikersLijst: List<GebruikerDTO>): List<Gebruiker> {
+    fun saveAll(gebruikersLijst: List<Gebruiker.GebruikerDTO>): List<Gebruiker> {
         return gebruikersLijst.map { gebruikerDTO ->
             save(gebruikerDTO)
         }
     }
 
-    fun save(gebruikerDTO: GebruikerDTO): Gebruiker {
+    fun save(gebruikerDTO: Gebruiker.GebruikerDTO): Gebruiker {
         val vrijwilliger = if (gebruikerDTO.vrijwilligerEmail.isNotEmpty()) {
             gebruikerRepository.findByEmail(gebruikerDTO.vrijwilligerEmail)
         } else null

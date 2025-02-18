@@ -24,7 +24,6 @@ export function getData(aflossingen: Aflossing[]): Record<string, any>[] {
     month: maand,
     ...saldi,
   }));
-  console.log(result);
   return result;
 }
 

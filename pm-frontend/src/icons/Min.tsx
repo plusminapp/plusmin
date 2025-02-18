@@ -8,7 +8,6 @@ export const MinIcon = ({color= 'red', height= 24}: MinProps) => {
     <svg
       height={height}
       viewBox="0 0 24 24"
-      width="auto"
       fill="#008000"
       version="1.1"
       id="svg69"

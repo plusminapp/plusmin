@@ -134,15 +134,14 @@ class BetalingController {
             logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
             return ResponseEntity(HttpStatus.PAYLOAD_TOO_LARGE)
         }
-        val hulpvragerOpt = gebruikerRepository.findById(hulpvragerId)
-        if (hulpvragerOpt.isEmpty) {
+        val hulpvrager = gebruikerRepository.selectById(hulpvragerId) ?: run {
             logger.error("BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet")
             return ResponseEntity(
                 "BetalingController.verwerkCamt053: gebruiker $hulpvragerId bestaat niet",
                 HttpStatus.NOT_FOUND
             )
         }
-        val hulpvrager = hulpvragerOpt.get()
+
         val jwtGebruiker = gebruikerController.getJwtGebruiker()
         if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id) {
             logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")

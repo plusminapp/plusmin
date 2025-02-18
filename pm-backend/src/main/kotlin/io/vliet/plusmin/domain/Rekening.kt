@@ -50,7 +50,7 @@ class Rekening(
         val naam: String,
         val saldo: BigDecimal = BigDecimal(0),
         val sortOrder: Int,
-        val budgetten: List<Budget>
+        val budgetten: List<Budget>? = emptyList()
     )
 
     fun toDTO(): RekeningDTO {
