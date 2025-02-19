@@ -83,11 +83,13 @@ class Aflossing(
     data class AflossingSamenvattingDTO(
         val aflossingNaam: String,
         val aflossingsBedrag: BigDecimal,
+        val betaalDag: Int
     )
     fun toSamenvattingDTO(): AflossingSamenvattingDTO {
         return AflossingSamenvattingDTO(
             this.rekening.naam,
-            this.aflossingsBedrag
+            this.aflossingsBedrag,
+            this.betaalDag
         )
     }
 }

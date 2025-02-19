@@ -19,6 +19,33 @@ export const dagenSindsStartPeriode = (gekozenPeriode: Periode | undefined): num
     }
 }
 
+export const dagenInPeriode = (gekozenPeriode: Periode | undefined): number | undefined => {
+    if (gekozenPeriode === undefined) {
+        return undefined;
+    }
+    return dayjs(gekozenPeriode.periodeEindDatum).diff(dayjs(gekozenPeriode.periodeStartDatum), 'day') + 1;
+}
+
+export const isDagNaVandaagInPeriode = (dag: number, gekozenPeriode: Periode | undefined): boolean => {
+    if (gekozenPeriode === undefined) {
+        return false;
+    }
+    const startDatum = dayjs(gekozenPeriode.periodeStartDatum);
+    const eindDatum = dayjs(gekozenPeriode.periodeEindDatum);
+    const vandaag = dayjs();
+
+    if (vandaag.isBefore(startDatum) || vandaag.isAfter(eindDatum)) {
+        return false;
+    }
+    const dagVanVandaag = vandaag.date();
+    const dagVanStart = startDatum.date();
+    if ((dagVanVandaag <= dagVanStart && dag <= dagVanStart) || (dagVanVandaag > dagVanStart && dag > dagVanStart)) {
+        return dag > dagVanVandaag;
+    } else {
+        return (dagVanVandaag >= dagVanStart);
+    }
+}
+
 export const formatPeriode = (periode: Periode): string => {
     return `van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum} (${periode.periodeStatus})`;
 }

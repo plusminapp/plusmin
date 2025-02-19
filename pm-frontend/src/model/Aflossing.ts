@@ -24,6 +24,7 @@ export type AflossingSaldi = {
 export type AflossingSamenvattingDTO = {
     aflossingNaam: string,
     aflossingsBedrag: number,
+    betaalDag: number,
 }
 
 export const berekenAflossingTotaal = (aflossingen: Aflossing[]): number => {

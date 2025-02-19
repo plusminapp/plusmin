@@ -22,6 +22,7 @@ import { InternIcon } from '../icons/Intern';
 import { PlusIcon } from '../icons/Plus';
 import { MinIcon } from '../icons/Min';
 import { ExternalLinkIcon } from '../icons/ExternalLink';
+import dayjs from 'dayjs';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -190,7 +191,7 @@ export default function InkomstenUitgaven() {
             <AccordionDetails sx={{ p: 0 }}>
               <BetaalTabel
                 aflossingsBedrag={aflossingsBedrag}
-                betalingen={betalingen}
+                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)}
                 onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
             </AccordionDetails>
@@ -235,7 +236,9 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen
+                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
                       </AccordionDetails>
@@ -301,7 +304,9 @@ export default function InkomstenUitgaven() {
                         <AflossingReserveringTabel
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
-                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen
+                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={true} />
                       </AccordionDetails>
                     </Accordion>
@@ -326,7 +331,9 @@ export default function InkomstenUitgaven() {
                         <AflossingReserveringTabel
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
-                          betalingen={betalingen.filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
+                          betalingen={betalingen
+                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={false} />
                       </AccordionDetails>
                     </Accordion>
@@ -383,7 +390,7 @@ export default function InkomstenUitgaven() {
                 actueleRekening={undefined}
                 onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
-                betalingen={betalingen} />
+                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)} />
             </AccordionDetails>
           </Accordion>
         </Grid>

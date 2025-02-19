@@ -75,11 +75,11 @@ export default function Aflossingen() {
     fetchAflossingen()
   }
 
-  const berekenToestandIcoon = (aflossing: Aflossing): JSX.Element => {
+  const berekenToestandAflossingIcoon = (aflossing: Aflossing): JSX.Element => {
     if (!aflossing.aflossingSaldiDTO)
       return <MinIcon color="black" />
     else {
-      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) && parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) >= 21;
+      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) && gebruiker?.periodeDag && parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) >= gebruiker?.periodeDag;
       const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8));
       const kloptSaldo = aflossing.aflossingSaldiDTO.berekendSaldo == aflossing.aflossingSaldiDTO.werkelijkSaldo;
       const heeftBetalingAchtersstand = aflossing.aflossingSaldiDTO.berekendSaldo < aflossing.aflossingSaldiDTO.werkelijkSaldo
@@ -134,7 +134,7 @@ export default function Aflossingen() {
             aria-controls={aflossing.rekening.naam}
             id={aflossing.rekening.naam}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {berekenToestandIcoon(aflossing)}
+              {berekenToestandAflossingIcoon(aflossing)}
               <Typography
                 sx={{ color: 'FFF', ml: 1, whiteSpace: 'nowrap' }}
                 component="span"
