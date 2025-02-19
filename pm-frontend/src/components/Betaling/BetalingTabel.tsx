@@ -4,19 +4,18 @@ import { Link as RouterLink } from 'react-router-dom';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 import dayjs from 'dayjs';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening, RekeningSoort } from '../../model/Rekening';
-import { Budget } from '../../model/Budget';
-import { PlusIcon } from '../../icons/Plus';
-import { MinIcon } from '../../icons/Min';
+import { RekeningSoort } from '../../model/Rekening';
+import { budgetten, maandBudgetten } from '../../model/Budget';
 import { ExternalLinkIcon } from '../../icons/ExternalLink';
 import EditIcon from '@mui/icons-material/Edit';
-import { dagenInPeriode, dagenSindsStartPeriode, isDagNaVandaagInPeriode, isPeriodeOpen } from '../../model/Periode';
+import { isPeriodeOpen } from '../../model/Periode';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
-import { AflossingSamenvattingDTO } from '../../model/Aflossing';
+import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../../model/Aflossing';
+import { BudgetStatusIcon } from '../../icons/BudgetStatus';
+import { AflossingStatusIcon } from '../../icons/AflossingStatus';
 
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
-  aflossingsBedrag: number;
   onBetalingBewaardChange: (betalingDTO: BetalingDTO) => void;
   onBetalingVerwijderdChange: (betalingDTO: BetalingDTO) => void;
 };
@@ -68,70 +67,17 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
     }
   });
 
-  const berekenBudgetBedrag = (budget: Budget): number => {
-    const factor = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? dagenInPeriode(gekozenPeriode) ?? 30 : 7;
-    if (budget.budgetType.toLowerCase() === 'continu') {
-      const dagen = dagenSindsStartPeriode(gekozenPeriode);
-      return dagen !== undefined ? budget.bedrag * dagen / factor : 0;
-    } else if (budget.betaalDag === undefined) {
-      return budget.bedrag;
-    } else if (isDagNaVandaagInPeriode(budget.betaalDag, gekozenPeriode)) {
-      return 0;
-    } else {
-      return budget.bedrag;
-    }
-  };
-
-  const berekenAflossingsBedrag = (aflossing: AflossingSamenvattingDTO): number => {
-    if (isDagNaVandaagInPeriode(aflossing.betaalDag, gekozenPeriode)) {
-      return 0;
-    } else {
-      return aflossing.aflossingsBedrag;
-    }
-  };
-
-  const maandAflossingsBedrag = actieveHulpvrager?.aflossingen.
-    reduce((acc: number, aflossing: AflossingSamenvattingDTO) => acc + aflossing.aflossingsBedrag, 0) ?? 0;
-  const aflossingsBedrag = actieveHulpvrager?.aflossingen.
-    reduce((acc: number, aflossing: AflossingSamenvattingDTO) => acc + berekenAflossingsBedrag(aflossing), 0) ?? 0;
-  console.log('aflossingsBedrag)', aflossingsBedrag, 'maandAflossingsBedrag', maandAflossingsBedrag);
-
-  const maandBudgetten = rekeningen.reduce((acc: { [x: string]: number; }, rekening: Rekening) => {
-    acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + budget.bedrag, 0)
-    acc["aflossing"] = maandAflossingsBedrag;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const budgetten = rekeningen.reduce((acc: { [x: string]: number; }, rekening: Rekening) => {
-    acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + berekenBudgetBedrag(budget), 0)
-    acc["aflossing"] = aflossingsBedrag;
-    return acc;
-  }, {} as Record<string, number>);
-
+  const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
+  const aflossingsBedrag = berekenAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [], gekozenPeriode);
   const heeftAflossing = maandAflossingsBedrag > 0;
-  const heeftBudgetten = Object.values(maandBudgetten).some(bedrag => bedrag > 0);
+
+  const maandBudget = maandBudgetten(rekeningen, maandAflossingsBedrag);
+  const budget = budgetten(rekeningen, gekozenPeriode, aflossingsBedrag);
+  const heeftBudgetten = Object.values(maandBudget).some(bedrag => bedrag > 0);
+
   const isInkomsten = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.inkomsten || betaling.betalingsSoort === BetalingsSoort.rente;
   const isUitgaven = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.uitgaven;
   const isAflossing = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.aflossen;
-
-  const berekenBudgetStatusIcoon = (verwachtHoog: number, verwachtLaag: number) => {
-    if (Number(verwachtHoog) === 0 && Number(verwachtLaag === 0)) {
-      return <PlusIcon color={'#bdbdbd'} height={15} />;
-    } else if (Number(verwachtHoog) < Number(verwachtLaag)) {
-      return <MinIcon color={'red'} height={15} />;
-    } else {
-      return <PlusIcon color={'green'} height={15} />;
-    }
-  };
-  const berekenAflossingStatusIcoon = (verwachtHoog: number, verwachtLaag: number) => {
-    if (Number(verwachtHoog) === 0 && Number(verwachtLaag === 0)) {
-      return <PlusIcon color={'#bdbdbd'} height={15} />;
-    } else if (Number(verwachtHoog) === Number(verwachtLaag)) {
-      return <PlusIcon color={'green'} height={15} />;
-    } else {
-      return <MinIcon color={'orange'} height={15} />;
-    }
-  };
 
   const afgerondOp2Decimalen = (num: number): number => {
     return Math.round(num * 100) / 100;
@@ -216,15 +162,15 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                       <TableCell sx={{ padding: '5px' }}>Aflossing</TableCell>}
                     <TableCell sx={{ padding: '5px' }} />
                     <TableCell sx={{ padding: '5px' }} align="right" >
-                      {maandBudgetten['Inkomsten'] != 0 ? formatter.format(budgetten['Inkomsten']) : ''}
+                      {maandBudget['Inkomsten'] != 0 ? formatter.format(budget['Inkomsten']) : ''}
                     </TableCell>
                     {bestemmingen.map(bestemming => (
                       <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                        {maandBudgetten[bestemming] != 0 ? formatter.format(budgetten[bestemming]) : ''}
+                        {maandBudget[bestemming] != 0 ? formatter.format(budget[bestemming]) : ''}
                       </TableCell>
                     ))}
                     <TableCell sx={{ padding: '5px' }} align="right" >
-                      {maandBudgetten["aflossing"] != 0 ? formatter.format(budgetten["aflossing"]) : ''}
+                      {maandBudget["aflossing"] != 0 ? formatter.format(budget["aflossing"]) : ''}
                     </TableCell>
                     {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
                       <TableCell sx={{ padding: '5px' }} align="right" />
@@ -235,24 +181,24 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                     <TableCell sx={{ padding: '5px' }}>Overschot/tekort</TableCell>
                     <TableCell sx={{ padding: '5px' }} />
                     <TableCell key={'Inkomsten'} sx={{ padding: '5px' }} align="right">
-                      {maandBudgetten['Inkomsten'] != 0 &&
+                      {maandBudget['Inkomsten'] != 0 &&
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            {berekenBudgetStatusIcoon(totalen['inkomsten'], budgetten['Inkomsten'])}
+                            <BudgetStatusIcon verwachtHoog={totalen['inkomsten']} verwachtLaag={budget['Inkomsten']} />
                           </Box>
                           &nbsp;
-                          {formatter.format(totalen['inkomsten'] - budgetten['Inkomsten'])}
+                          {formatter.format(totalen['inkomsten'] - budget['Inkomsten'])}
                         </Box>}
                     </TableCell>
                     {bestemmingen.map(bestemming => (
                       <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                        {maandBudgetten[bestemming] != 0 &&
+                        {maandBudget[bestemming] != 0 &&
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
                             <Box display="flex" alignItems="center" justifyContent="flex-end">
-                              {berekenBudgetStatusIcoon(budgetten[bestemming], afgerondOp2Decimalen(-totalen.bestemmingen[bestemming]))}
+                              <BudgetStatusIcon verwachtHoog={budget[bestemming]} verwachtLaag={-totalen.bestemmingen[bestemming]} />
                             </Box>
                             &nbsp;
-                            {formatter.format(afgerondOp2Decimalen(budgetten[bestemming] + totalen.bestemmingen[bestemming]))}
+                            {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
                           </Box>}
                       </TableCell>
                     ))}
@@ -260,7 +206,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                       <TableCell sx={{ padding: '5px' }} align="right" >
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
-                            {berekenAflossingStatusIcoon(aflossingsBedrag, afgerondOp2Decimalen(-totalen.aflossing))}
+                            <AflossingStatusIcon verwachtHoog={aflossingsBedrag} verwachtLaag={-totalen.aflossing} />
                             <ExternalLinkIcon />
                           </Link>
                           &nbsp;

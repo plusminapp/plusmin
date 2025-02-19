@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Rekening } from "./Rekening";
-import { Periode } from "./Periode";
+import { dagenInPeriode, dagenSindsStartPeriode, isDagNaVandaagInPeriode, Periode } from "./Periode";
 
 export type Budget = {
     rekening: Rekening;
@@ -11,21 +11,7 @@ export type Budget = {
     betaalDag: number;
 }
 
-export const berekenBudgetBedrag = (budget: Budget): number => {
-    if (budget.budgetPeriodiciteit.toLowerCase() === 'maand') {
-        // TODO: implementeer de berekening van het budget bedrag voor de volgende maand
-        if (budget.betaalDag > dayjs().date()) {
-            return 0;
-        } else {
-            return budget.bedrag;
-        }
-    } else { //budget.budgetPeriodiciteit.toLowerCase() === 'week'
-        const daysGoneBy = dayjs().diff(dayjs().startOf('month'), 'day') + 1;
-        return budget.bedrag * daysGoneBy / 7;
-    }
-};
 export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, budget: Budget): number | undefined => {
-    console.log('budget.naam', budget.budgetNaam);
     if (gekozenPeriode === undefined) {
         return undefined;
     }
@@ -40,3 +26,34 @@ export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, 
 export const berekenBudgetTotaal = (budgetten: Budget[]): number => {
     return budgetten.reduce((acc, budget) => acc + budget.bedrag, 0)
 }
+
+export const berekenBudgetBedrag = (budget: Budget, gekozenPeriode: Periode | undefined): number => {
+    if (gekozenPeriode === undefined) {
+        return 0;
+    }
+    const factor = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? dagenInPeriode(gekozenPeriode) ?? 30 : 7;
+    if (budget.budgetType.toLowerCase() === 'continu') {
+        const dagen = dagenSindsStartPeriode(gekozenPeriode);
+        return dagen !== undefined ? budget.bedrag * dagen / factor : 0;
+    } else if (budget.betaalDag === undefined) {
+        return budget.bedrag;
+    } else if (isDagNaVandaagInPeriode(budget.betaalDag, gekozenPeriode)) {
+        return 0;
+    } else {
+        return budget.bedrag;
+    }
+};
+
+export const maandBudgetten = (rekeningen: Rekening[], maandAflossingsBedrag: number) => rekeningen.reduce((acc: { [x: string]: number; }, rekening: Rekening) => {
+    acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + budget.bedrag, 0)
+    acc["aflossing"] = maandAflossingsBedrag;
+    return acc;
+}, {} as Record<string, number>);
+
+export const budgetten = (rekeningen: Rekening[], gekozenPeriode: Periode | undefined, aflossingsBedrag: number) =>
+    
+    rekeningen.reduce((acc: { [x: string]: number; }, rekening: Rekening) => {
+        acc[rekening.naam] = rekening.budgetten.reduce((acc, budget) => acc + berekenBudgetBedrag(budget, gekozenPeriode), 0)
+        acc["aflossing"] = aflossingsBedrag;
+        return acc;
+    }, {} as Record<string, number>);

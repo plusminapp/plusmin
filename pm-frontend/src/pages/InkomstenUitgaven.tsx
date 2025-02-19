@@ -20,16 +20,18 @@ import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
 import { PlusIcon } from '../icons/Plus';
-import { MinIcon } from '../icons/Min';
 import { ExternalLinkIcon } from '../icons/ExternalLink';
 import dayjs from 'dayjs';
+import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../model/Aflossing';
+import { AflossingStatusIcon } from '../icons/AflossingStatus';
+import { budgetten } from '../model/Budget';
+import { BudgetStatusIcon } from '../icons/BudgetStatus';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager, rekeningen, gekozenPeriode } = useCustomContext();
 
   const [betalingen, setBetalingen] = useState<BetalingDTO[]>([])
-  const [aflossingsBedrag, setAflossingsBedrag] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(false);
 
   const inkomstenRekeningen: Rekening[] = rekeningen.filter(rekening => inkomstenRekeningSoorten.includes(rekening.rekeningSoort))
@@ -69,32 +71,6 @@ export default function InkomstenUitgaven() {
     fetchBetalingen();
   }, [fetchBetalingen]);
 
-  const fetchAflossingsBedrag = useCallback(async () => {
-    if (gebruiker) {
-      setIsLoading(true);
-      const token = await getIDToken();
-      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}/aflossingsbedrag`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      setIsLoading(false);
-      if (response.ok) {
-        const result = await response.json();
-        setAflossingsBedrag(result);
-      } else {
-        console.error("Ophalen van het aflossingsBedrag is mislukt.", response.status);
-      }
-    }
-  }, [getIDToken, actieveHulpvrager, gebruiker]);
-
-  useEffect(() => {
-    fetchAflossingsBedrag();
-  }, [fetchAflossingsBedrag]);
-
   const berekenRekeningTotaal = (rekening: Rekening) => {
     return betalingen.reduce((acc, betaling) => (acc + berekenBedragVoorRekenining(betaling, rekening)), 0)
   }
@@ -128,11 +104,6 @@ export default function InkomstenUitgaven() {
 
   const berekenCashFlowTotaal = (): number => {
     return Number(berekenInkomstenTotaal()) + Number(berekenUitgavenTotaal())
-
-  }
-
-  const heeftAflossenBetalingen = () => {
-    return betalingen.find((betaling) => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))
   }
 
   const heeftReserverenBetalingen = () => {
@@ -152,6 +123,14 @@ export default function InkomstenUitgaven() {
     console.log('in onBetalingVerwijderdChange met betaling', betaling.omschrijving);
     setBetalingen(betalingen.filter(b => b.id !== betaling.id));
   }
+  const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
+  const aflossingsBedrag = berekenAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [], gekozenPeriode);
+  const heeftAflossing = maandAflossingsBedrag > 0;
+  console.log('berekenAflossingTotaal()', berekenAflossingTotaal(), 'aflossingsBedrag', aflossingsBedrag, 'berekenAflossingTotaal() === aflossingsBedrag', berekenAflossingTotaal() === aflossingsBedrag);
+
+  // const maandBudget = maandBudgetten(rekeningen, maandAflossingsBedrag);
+  const budget = budgetten(rekeningen, gekozenPeriode, aflossingsBedrag);
+  // const heeftBudgetten = Object.values(maandBudget).some(bedrag => bedrag > 0);
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
@@ -190,7 +169,6 @@ export default function InkomstenUitgaven() {
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }}>
               <BetaalTabel
-                aflossingsBedrag={aflossingsBedrag}
                 betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)}
                 onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
@@ -227,10 +205,10 @@ export default function InkomstenUitgaven() {
                         id={rekening.naam}>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <PlusIcon color={'green'} height={15} />
+                            <BudgetStatusIcon verwachtHoog={berekenRekeningTotaal(rekening)} verwachtLaag={budget['Inkomsten']} />
                           </Box>
                           &nbsp;
-                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}  (van&nbsp;{currencyFormatter.format(budget['Inkomsten'])})</Typography>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
@@ -265,10 +243,10 @@ export default function InkomstenUitgaven() {
                         id={rekening.naam}>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <PlusIcon color={'green'} height={15} />
+                            <BudgetStatusIcon verwachtHoog={budget[rekening.naam]} verwachtLaag={berekenRekeningTotaal(rekening)} />
                           </Box>
                           &nbsp;
-                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}</Typography>
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}   (van&nbsp;{currencyFormatter.format(budget[rekening.naam])})</Typography>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
@@ -281,7 +259,7 @@ export default function InkomstenUitgaven() {
                     </Accordion>
                   </Grid>
                 )}
-                {heeftAflossenBetalingen() &&
+                {heeftAflossing &&
                   <Grid >
                     <Accordion >
                       <AccordionSummary
@@ -291,13 +269,12 @@ export default function InkomstenUitgaven() {
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
                             <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
-                              {berekenAflossingTotaal() - aflossingsBedrag === 0 && <PlusIcon height={15} color='green' />}
-                              {berekenAflossingTotaal() - aflossingsBedrag !== 0 && <MinIcon height={15} color='orange' />}
+                              <AflossingStatusIcon verwachtHoog={berekenAflossingTotaal()} verwachtLaag={-aflossingsBedrag} />
                               <ExternalLinkIcon />
                             </Link>
                           </Box>
                           &nbsp;
-                          <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
+                          <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van&nbsp;{currencyFormatter.format(-aflossingsBedrag)})</Typography>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
@@ -373,7 +350,6 @@ export default function InkomstenUitgaven() {
           </AccordionDetails>
         </Accordion>
       </Grid>
-
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, lg: 12 }}>
         <Grid size={{ xs: 1, lg: 4 }}>
           <Accordion expanded={expanded === 'rekening'} onChange={handleChange('rekening')}>
