@@ -16,10 +16,11 @@ import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
   aflossingsBedrag: number;
-  onBetalingBewaardChange: () => void;
+  onBetalingBewaardChange: (betalingDTO: BetalingDTO) => void;
+  onBetalingVerwijderdChange: (betalingDTO: BetalingDTO) => void;
 };
 
-const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBedrag, onBetalingBewaardChange }) => {
+const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBedrag, onBetalingBewaardChange, onBetalingVerwijderdChange }) => {
   const formatter = new Intl.NumberFormat('nl-NL', {
     style: 'currency',
     currency: 'EUR',
@@ -27,7 +28,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
 
   const { rekeningen, gekozenPeriode } = useCustomContext();
 
-  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | null>(null);
+  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
 
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
@@ -99,6 +100,9 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
     return Math.round(num * 100) / 100;
   };
 
+  const onUpsertBetalingClose = () => {
+    setSelectedBetaling(undefined);
+  };
 
   return (
     <>
@@ -235,7 +239,9 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, aflossingsBed
       </TableContainer>
       {selectedBetaling &&
         <UpsertBetalingDialoog
-          onBetalingBewaardChange={onBetalingBewaardChange}
+          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
+          onUpsertBetalingClose={onUpsertBetalingClose}
           editMode={true}
           betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
         />

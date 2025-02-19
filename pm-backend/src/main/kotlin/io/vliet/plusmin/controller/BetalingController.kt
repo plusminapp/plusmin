@@ -97,15 +97,40 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingRepository.deleteAll())
     }
 
-    @PostMapping("/hulpvrager/{hulpvragerId}")
-    fun creeerNieuweBetalingVoorHulpvrager(
+    @Operation(summary = "DELETE betaling")
+    @DeleteMapping("/{betalingId}")
+    fun deleteBetaling(
+        @PathVariable("betalingId") betalingId: Long,
+    ): ResponseEntity<Any> {
+        val betaling = betalingRepository.findById2(betalingId) ?: run {
+            logger.warn("Betaling met id $betalingId niet gevonden.")
+            return ResponseEntity("Betaling met id $betalingId niet gevonden.", HttpStatus.NOT_FOUND)
+        }
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
+        logger.info("DELETE BetalingController.deleteBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(betalingRepository.delete(betaling))
+    }
+
+    @PostMapping("/hulpvrager/{hulpvragerId}/list")
+    fun creeerNieuweBetalingenVoorHulpvrager(
         @Valid @RequestBody betalingList: List<BetalingDTO>,
         @PathVariable("hulpvragerId") hulpvragerId: Long,
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        val betalingen = betalingService.creeerAll(hulpvrager, betalingList)
+        val betalingen = betalingService.creeerBetalingLijst(hulpvrager, betalingList)
         return ResponseEntity.ok().body(betalingen)
+    }
+
+  @PostMapping("/hulpvrager/{hulpvragerId}")
+    fun creeerNieuweBetalingVoorHulpvrager(
+      @Valid @RequestBody betalingDTO: BetalingDTO,
+      @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<Any> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("POST BetalingController.creeerNieuweBetalingVoorHulpvrager voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        val betaling = betalingService.creeerBetaling(hulpvrager, betalingDTO)
+        return ResponseEntity.ok().body(betaling)
     }
 
     @PutMapping("/{betalingId}")

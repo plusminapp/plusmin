@@ -8,6 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
@@ -31,7 +32,9 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 }));
 
 type UpsertBetalingDialoogProps = {
-  onBetalingBewaardChange: () => void;
+  onBetalingBewaardChange: (betaling: BetalingDTO) => void;
+  onBetalingVerwijderdChange: (betaling: BetalingDTO) => void;
+  onUpsertBetalingClose: () => void;
   editMode: boolean;
   betaling?: BetalingDTO;
 };
@@ -39,7 +42,7 @@ type UpsertBetalingDialoogProps = {
 export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps) {
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
-    boekingsdatum: dayjs(), 
+    boekingsdatum: dayjs(),
     bedrag: 0,
     omschrijving: ' ',
     betalingsSoort: undefined,
@@ -63,19 +66,21 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     if (!props.editMode) {
       setBetalingDTO({
         ...initialBetalingDTO,
-        boekingsdatum: gekozenPeriode?.periodeEindDatum && dayjs().toISOString().slice(0,10) > gekozenPeriode?.periodeEindDatum  ? dayjs(gekozenPeriode?.periodeEindDatum) : dayjs(),
-        // bron: rekeningPaar?.bron[0].naam,
-        // bestemming: rekeningPaar?.bestemming[0].naam
+        boekingsdatum: gekozenPeriode?.periodeEindDatum && dayjs().toISOString().slice(0, 10) > gekozenPeriode?.periodeEindDatum ? dayjs(gekozenPeriode?.periodeEindDatum) : dayjs(),
       });
     }
   }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling, gekozenPeriode]);
+
 
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
-    props.onBetalingBewaardChange()
-    setOpen(false);
+    if (props.editMode) {
+      props.onUpsertBetalingClose();
+    } else {
+      setOpen(false);
+    }
   };
 
   const validateKeyValue = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]): string | undefined => {
@@ -99,8 +104,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     const error = validateKeyValue(key, value)
     if (error) {
       setErrors({ ...errors, [key]: error });
-    } else {  
-      setErrors({ ...errors, [key]: undefined }); 
+    } else {
+      setErrors({ ...errors, [key]: undefined });
     }
   }
 
@@ -110,16 +115,15 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       const error = validateKeyValue(key, betalingDTO[key]);
       if (error) {
         newErrors[key as keyof BetalingDtoErrors] = error;
-      }  
-    });  
+      }
+    });
     setErrors(newErrors);
     return newErrors;
-  }  
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errorMessages = Object.values(validateBetalingDTO()).filter(error => error !== undefined).join(' ');
-    console.log('errorMessages:', errorMessages)
     if (errorMessages.length == 0) {
       try {
         const token = await getIDToken();
@@ -130,21 +134,26 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           omschrijving: betalingDTO.omschrijving?.trim(),
           boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
         }
-        await fetch(url, {
+        const response = await fetch(url, {
           method: props.editMode ? "PUT" : "POST",
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          body: props.editMode ? JSON.stringify(body) : JSON.stringify([body]),
+          body: JSON.stringify(body),
         })
+        if (!response.ok) {
+          throw new Error(`HTTP fout met status: ${response.status}`);
+        }
         setMessage({
           message: "Betaling is opgeslagen.",
           type: "success"
         })
+        const responseJson = await response.json()
+        console.log('responseJson', JSON.stringify(responseJson))
+        props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
         if (props.editMode) {
-          props.onBetalingBewaardChange()
-          setOpen(false);
+          handleClose()
         } else {
           setBetalingDTO(initialBetalingDTO)
         }
@@ -158,7 +167,39 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       })
     }
   }
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = await getIDToken();
+      const url = `/api/v1/betalingen/${betalingDTO.id}`
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
+      if (!response.ok) {
+        throw new Error(`HTTP fout met status: ${response.status}`);
+      }
+
+      setMessage({
+        message: "Betaling is verwijderd.",
+        type: "success"
+      })
+      props.onBetalingVerwijderdChange(betalingDTO)
+      setBetalingDTO(initialBetalingDTO)
+      handleClose() 
+
+    } catch (error) {
+      setMessage({
+        message: `Betaling is NIET verwijderd. Fout: ${(error as Error).message}`,
+        type: "error"
+      })
+      console.error('Fout bij verwijderen betaling:', error);
+    }
+  }
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select();
   };
@@ -244,14 +285,16 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                 label="Wanneer was de betaling?"
                 value={betalingDTO.boekingsdatum}
                 onChange={(newvalue) => handleInputChange('boekingsdatum', newvalue ? newvalue : dayjs())}
-                />
-                {errors.boekingsdatum && (
-                  <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.boekingsdatum}</Typography>
-                )}
+              />
+              {errors.boekingsdatum && (
+                <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.boekingsdatum}</Typography>
+              )}
             </LocalizationProvider>
           </Stack>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ justifyContent: 'space-between' }}>
+          {props.editMode ?
+            <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Button />}
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>

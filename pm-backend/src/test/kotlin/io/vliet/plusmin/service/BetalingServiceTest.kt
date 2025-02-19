@@ -40,25 +40,25 @@ class BetalingServiceTest {
     }
 
     @Test
-    fun testCreeerAll() {
+    fun testCreeerBetalingLijst() {
         `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Betaalrekening"))
             .thenReturn(testBetaalrekening)
         `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Uitgave"))
             .thenReturn(testUitgave)
         `when`(betalingRepository.save(any(Betaling::class.java))).thenReturn(testBetaling)
 
-        val result = betalingService.creeerAll(testGebruiker, testBetalingenLijst)
+        val result = betalingService.creeerBetalingLijst(testGebruiker, testBetalingenLijst)
 
         assertEquals(1, result.size)
         assertEquals("Test betaling", result[0].omschrijving)
     }
 
     @Test
-    fun testCreeerAllThrowsExceptionWhenRekeningNotFound() {
+    fun testCreeerBetalingLijstThrowsExceptionWhenRekeningNotFound() {
         `when`(rekeningRepository.findRekeningGebruikerEnNaam(testGebruiker, "Rekening1")).thenReturn(null)
 
         assertThrows<Exception> {
-            betalingService.creeerAll(testGebruiker, testBetalingenLijst)
+            betalingService.creeerBetalingLijst(testGebruiker, testBetalingenLijst)
         }
     }
 }

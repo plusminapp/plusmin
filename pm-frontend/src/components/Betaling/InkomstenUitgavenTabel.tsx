@@ -19,7 +19,8 @@ interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
   isFilterSelectable?: boolean;
   betalingen: BetalingDTO[];
-  onBetalingBewaardChange: () => void;
+  onBetalingBewaardChange: (betalingDTO: BetalingDTO) => void;
+  onBetalingVerwijderdChange: (betalingDTO: BetalingDTO) => void;
 }
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
@@ -28,7 +29,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<BetalingDTO[]>([])
-  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | null>(null);
+  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
 
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
@@ -44,6 +45,10 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
   const handleWeergaveChange = (event: SelectChangeEvent) => {
     setActueleRekening(rekeningen.find(r => r.naam === event.target.value))
+  };
+
+  const onUpsertBetalingClose = () => {
+    setSelectedBetaling(undefined);
   };
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
@@ -74,8 +79,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
             <Table sx={{ width: "100%" }} aria-label="simple table">
               <TableHead>
-              <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell sx={{ width: "20%", p: "5px" }}>Datum</TableCell>
+                <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                  <TableCell sx={{ width: "20%", p: "5px" }}>Datum</TableCell>
                   <TableCell sx={{ width: "20%", p: "0 18px 0 5px" }} align="right">Bedrag</TableCell>
                   <TableCell sx={{ width: "50%", p: "5px" }}>Omschrijving</TableCell>
                   {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
@@ -115,7 +120,9 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           </TableContainer>
           {selectedBetaling &&
             <UpsertBetalingDialoog
-              onBetalingBewaardChange={props.onBetalingBewaardChange}
+              onUpsertBetalingClose={onUpsertBetalingClose}
+              onBetalingBewaardChange={(betalingDTO) => props.onBetalingBewaardChange(betalingDTO)}
+              onBetalingVerwijderdChange={(betalingDTO) => props.onBetalingVerwijderdChange(betalingDTO)}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
             />

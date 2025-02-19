@@ -42,7 +42,6 @@ export default function InkomstenUitgaven() {
     setExpanded(isExpanded ? panel : false);
   };
 
-
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
@@ -143,8 +142,14 @@ export default function InkomstenUitgaven() {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
 
-  const onBetalingBewaardChange = (): void => {
-    fetchBetalingen()
+  const onBetalingBewaardChange = (betaling: BetalingDTO): void => {
+    console.log('in onBetalingBewaardChange met betaling', betaling.omschrijving);
+    setBetalingen([...betalingen.filter(b => b.id !== betaling.id), betaling]);
+  }
+
+  const onBetalingVerwijderdChange = (betaling: BetalingDTO): void => {
+    console.log('in onBetalingVerwijderdChange met betaling', betaling.omschrijving);
+    setBetalingen(betalingen.filter(b => b.id !== betaling.id));
   }
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
@@ -168,7 +173,9 @@ export default function InkomstenUitgaven() {
             <UpsertBetalingDialoog
               editMode={false}
               betaling={undefined}
-              onBetalingBewaardChange={onBetalingBewaardChange} />
+              onUpsertBetalingClose={() => { }}
+              onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+              onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
           </Grid>}
       </Grid>
       {isMdOrLarger &&
@@ -184,7 +191,8 @@ export default function InkomstenUitgaven() {
               <BetaalTabel
                 aflossingsBedrag={aflossingsBedrag}
                 betalingen={betalingen}
-                onBetalingBewaardChange={onBetalingBewaardChange} />
+                onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
             </AccordionDetails>
           </Accordion>
         </Grid>
@@ -228,7 +236,8 @@ export default function InkomstenUitgaven() {
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
-                          onBetalingBewaardChange={onBetalingBewaardChange} />
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
                       </AccordionDetails>
                     </Accordion>
                   </Grid>
@@ -262,7 +271,8 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)} />
                       </AccordionDetails>
                     </Accordion>
@@ -277,11 +287,11 @@ export default function InkomstenUitgaven() {
                         id='extra'>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                          <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
-                          {berekenAflossingTotaal() - aflossingsBedrag === 0 && <PlusIcon height={15} color='green' />}
-                          {berekenAflossingTotaal() - aflossingsBedrag !== 0 && <MinIcon height={15} color='orange' />}
-                          <ExternalLinkIcon />
-                        </Link>
+                            <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
+                              {berekenAflossingTotaal() - aflossingsBedrag === 0 && <PlusIcon height={15} color='green' />}
+                              {berekenAflossingTotaal() - aflossingsBedrag !== 0 && <MinIcon height={15} color='orange' />}
+                              <ExternalLinkIcon />
+                            </Link>
                           </Box>
                           &nbsp;
                           <Typography sx={{ fontSize: '15px' }} component="span">Aflossingen: {currencyFormatter.format(berekenAflossingTotaal())} (van {currencyFormatter.format(-aflossingsBedrag)})</Typography>
@@ -289,7 +299,8 @@ export default function InkomstenUitgaven() {
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
-                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={true} />
                       </AccordionDetails>
@@ -313,7 +324,8 @@ export default function InkomstenUitgaven() {
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
-                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={false} />
                       </AccordionDetails>
@@ -342,7 +354,8 @@ export default function InkomstenUitgaven() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          onBetalingBewaardChange={onBetalingBewaardChange}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort && internBetalingsSoorten.includes(betaling.betalingsSoort))} />
                       </AccordionDetails>
                     </Accordion>
@@ -368,7 +381,8 @@ export default function InkomstenUitgaven() {
               <InkomstenUitgavenTabel
                 isFilterSelectable={true}
                 actueleRekening={undefined}
-                onBetalingBewaardChange={onBetalingBewaardChange}
+                onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+                onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                 betalingen={betalingen} />
             </AccordionDetails>
           </Accordion>

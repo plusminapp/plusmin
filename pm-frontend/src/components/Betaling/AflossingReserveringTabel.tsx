@@ -18,7 +18,8 @@ import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 interface AflossingReserveringTabelProps {
   betalingen: BetalingDTO[];
   isAflossing: boolean;
-  onBetalingBewaardChange: () => void;
+  onBetalingBewaardChange: (betalingDTO: BetalingDTO) => void;
+  onBetalingVerwijderdChange: (betalingDTO: BetalingDTO) => void;
 }
 
 export default function AflossingReserveringTabel(props: AflossingReserveringTabelProps) {
@@ -26,7 +27,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
   const { actieveHulpvrager, gebruiker, gekozenPeriode } = useCustomContext();
   const betalingsSoorten = props.isAflossing ? aflossenBetalingsSoorten : reserverenBetalingsSoorten
   const betalingen = props.betalingen.filter(betaling => betaling.betalingsSoort && betalingsSoorten.includes(betaling.betalingsSoort))
-  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | null>(null);
+  const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
 
   const dateFormatter = (date: string) => {
     return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
@@ -35,6 +36,11 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
   };
+
+  const onUpsertBetalingClose = () => {
+    setSelectedBetaling(undefined);
+  };
+
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
@@ -69,7 +75,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                       <TableCell align="left" size='small' sx={{ p: "5px" }}>{betaling["omschrijving"]}</TableCell>
                       {isPeriodeOpen &&
                         <TableCell size='small' sx={{ p: "5px" }}>
-                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', p: "5px" , color: 'grey' }}>
+                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', p: "5px", color: 'grey' }}>
                             <EditIcon fontSize="small" />
                           </Button>
                         </TableCell>
@@ -82,7 +88,9 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
           </TableContainer>
           {selectedBetaling &&
             <UpsertBetalingDialoog
-              onBetalingBewaardChange={props.onBetalingBewaardChange}
+              onUpsertBetalingClose={onUpsertBetalingClose}
+              onBetalingBewaardChange={(betalingDTO) => props.onBetalingBewaardChange(betalingDTO)}
+              onBetalingVerwijderdChange={(betalingDTO) => props.onBetalingVerwijderdChange(betalingDTO)}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
             />
