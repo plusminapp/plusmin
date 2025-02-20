@@ -3,6 +3,7 @@ package io.vliet.plusmin
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Rekening
 import io.vliet.plusmin.domain.Betaling
+import io.vliet.plusmin.domain.Periode
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -44,4 +45,12 @@ object TestFixtures {
             bron = testBetaalrekening,
             bestemming = testUitgave
         )
-} 
+
+    val testPeriode = Periode(
+            id = 1,
+            gebruiker = testGebruiker,
+            periodeStartDatum = LocalDate.MAX,
+            periodeEindDatum = LocalDate.MAX,
+            periodeStatus = Periode.PeriodeStatus.OPEN
+        )
+}

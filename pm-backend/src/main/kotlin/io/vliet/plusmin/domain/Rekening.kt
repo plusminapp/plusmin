@@ -70,6 +70,11 @@ class Rekening(
     }
 }
 
+val resultaatRekeningSoort = arrayOf(
+    Rekening.RekeningSoort.INKOMSTEN,
+    Rekening.RekeningSoort.UITGAVEN,
+)
+
 val balansRekeningSoort = arrayOf(
     Rekening.RekeningSoort.BETAALREKENING,
     Rekening.RekeningSoort.SPAARREKENING,
@@ -77,9 +82,4 @@ val balansRekeningSoort = arrayOf(
     Rekening.RekeningSoort.CREDITCARD,
     Rekening.RekeningSoort.AFLOSSING,
     Rekening.RekeningSoort.RESERVERING
-)
-
-val resultaatRekeningSoort = arrayOf(
-    Rekening.RekeningSoort.INKOMSTEN,
-    Rekening.RekeningSoort.UITGAVEN,
 )

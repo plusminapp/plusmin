@@ -1,3 +1,30 @@
+package io.vliet.plusmin.controller
+
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.ControllerAdvice
+
+
+@ControllerAdvice
+class RestExceptionHandler {
+
+    val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(ex: IllegalStateException): ResponseEntity<String> {
+        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
+            ?: ex.stackTrace.firstOrNull()
+        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
+        val errorMessage = "${ex.message}$locationInfo"
+        logger.error(errorMessage)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
+    }
+}
+
+
 //import org.springframework.http.HttpHeaders
 //import org.springframework.http.HttpStatus
 //import org.springframework.http.ResponseEntity
@@ -17,9 +44,6 @@
 //}
 
 
-
-
-//package io.vliet.plusmin.controller
 //
 //import org.slf4j.Logger
 //import org.slf4j.LoggerFactory

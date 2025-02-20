@@ -4,6 +4,7 @@ import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.BudgetRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 @Service
 class BetalingService {
@@ -23,6 +25,9 @@ class BetalingService {
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
 
+    @Autowired
+    lateinit var periodeRepository: PeriodeRepository
+
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
     fun creeerBetalingLijst(gebruiker: Gebruiker, betalingenLijst: List<BetalingDTO>): List<BetalingDTO> {
@@ -32,22 +37,31 @@ class BetalingService {
     }
 
     fun creeerBetaling(gebruiker: Gebruiker, betalingDTO: BetalingDTO): BetalingDTO {
+        val boekingsDatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val periode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, boekingsDatum)
+        if (periode == null || (periode.periodeStatus != Periode.PeriodeStatus.OPEN && periode.periodeStatus != Periode.PeriodeStatus.HUIDIG)) {
+            throw IllegalStateException("Op $boekingsDatum is er geen OPEN periode voor ${gebruiker.bijnaam}.")
+        }
         val betalingList = this.findMatchingBetaling(gebruiker, betalingDTO)
         val betaling = if (betalingList.isNotEmpty()) {
             logger.info("Betaling bestaat al: ${betalingList[0].omschrijving} met id ${betalingList[0].id} voor ${gebruiker.bijnaam}")
             update(betalingList[0], betalingDTO)
         } else {
             val bron = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bron)
-                ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
             val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, betalingDTO.bestemming)
-                ?: throw Exception("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
-            val budget: Budget? = if (!betalingDTO.budgetNaam.isNullOrBlank()) {
-                budgetRepository.findByRekeningEnBudgetNaam(bestemming, betalingDTO.budgetNaam!!)
-                    ?: run {
-                        logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${bestemming} voor ${gebruiker.bijnaam}.")
-                        null
-                    }
-            } else null
+                ?: throw IllegalStateException("${betalingDTO.bron} bestaat niet voor ${gebruiker.bijnaam}.")
+            val budgetRekening = if (betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
+                betalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString()
+            ) bron else bestemming
+            val budget: Budget? =
+                if (!betalingDTO.budgetNaam.isNullOrBlank()) {
+                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam!!)
+                        ?: run {
+                            logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
+                            null
+                        }
+                } else null
 
             logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
             Betaling(
@@ -61,7 +75,7 @@ class BetalingService {
                 budget = budget
             )
         }
-       return  betalingRepository.save(betaling).toDTO()
+        return betalingRepository.save(betaling).toDTO()
     }
 
     fun update(oldBetaling: Betaling, newBetalingDTO: BetalingDTO): Betaling {
@@ -70,14 +84,17 @@ class BetalingService {
             ?: oldBetaling.bron
         val bestemming = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, newBetalingDTO.bestemming)
             ?: oldBetaling.bestemming
+        val budgetRekening = if (newBetalingDTO.betalingsSoort == Betaling.BetalingsSoort.INKOMSTEN.toString() ||
+            newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString()
+        ) bron else bestemming
         val budget = if (!newBetalingDTO.budgetNaam.isNullOrBlank()) {
-            budgetRepository.findByRekeningEnBudgetNaam(bestemming, newBetalingDTO.budgetNaam!!)
+            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam!!)
                 ?: run {
-                    logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${bestemming} voor ${gebruiker.bijnaam}.")
+                    logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
                     null
                 }
         } else null
-        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} met budget ${budget?.id} ?: (${newBetalingDTO.budgetNaam} niet gevonden) ")
+        logger.info("Update betaling ${oldBetaling.id}/${newBetalingDTO.omschrijving} voor ${gebruiker.bijnaam} met budget ${budget?.id ?: (newBetalingDTO.budgetNaam + "niet gevonden")} ")
         val newBetaling = oldBetaling.fullCopy(
             boekingsdatum = LocalDate.parse(newBetalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             bedrag = newBetalingDTO.bedrag.toBigDecimal(),

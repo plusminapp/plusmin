@@ -55,6 +55,6 @@ class Periode(
         )
     }
     enum class PeriodeStatus {
-        HUIDIG, OPEN, INITIEEL, GESLOTEN, OPGERUIMD
+        HUIDIG, OPEN, GESLOTEN, OPGERUIMD
     }
 }

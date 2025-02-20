@@ -1,11 +1,12 @@
 [
   {
-    "boekingsdatum": "2025-01-21",
+    "boekingsdatum": "2025-01-25",
     "bedrag": 2335,
     "saldo_achteraf": null,
     "omschrijving": "Salaris",
     "betalingsSoort": "INKOMSTEN",
     "bron": "Inkomsten",
+    "budgetNaam": "Inkomsten",
     "bestemming": "ASN betaalrekening"
   },
   {
