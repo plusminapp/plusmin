@@ -20,8 +20,8 @@ import { useCustomContext } from '../context/CustomContext';
 import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 import { Periode } from '../model/Periode';
+import { berekenMaandAflossingenBedrag } from '../model/Aflossing';
 
-const pages = ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'];
 
 export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
     const result = new Map<BetalingsSoort, RekeningPaar>();
@@ -99,7 +99,7 @@ function Header() {
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
         setPeriodes(ahv!.periodes)
-        setGekozenPeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])  
+        setGekozenPeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -122,7 +122,7 @@ function Header() {
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
             setPeriodes(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setGekozenPeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])  
+            setGekozenPeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
@@ -145,6 +145,10 @@ function Header() {
             navigate('/login');
         }
     }, [state.isAuthenticated, navigate]);
+
+    const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
+    const heeftAflossing = maandAflossingsBedrag > 0;
+    const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven']; 
 
     return (
         <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>

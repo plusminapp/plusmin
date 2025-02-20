@@ -4,11 +4,11 @@ import { useCustomContext } from "../context/CustomContext";
 import { useEffect } from "react";
 
 interface PeriodeSelectProps {
-  isProfiel?: boolean;
+    isProfiel?: boolean;
 }
 
 
-export function PeriodeSelect({isProfiel = false}: PeriodeSelectProps) {
+export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
 
     const { periodes, gekozenPeriode, setGekozenPeriode } = useCustomContext();
 
@@ -24,7 +24,7 @@ export function PeriodeSelect({isProfiel = false}: PeriodeSelectProps) {
     }, [periodes, setGekozenPeriode])
 
     const openPeriodes = periodes.filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
-
+    console.log('isProfiel: ', isProfiel)
     return (
         <>
             {!isProfiel && openPeriodes.length === 1 && gekozenPeriode &&
@@ -55,8 +55,8 @@ export function PeriodeSelect({isProfiel = false}: PeriodeSelectProps) {
                         </Select>
                     </FormControl>
                 </Box>}
-                {isProfiel &&
-                <Box sx={{ mt: '37px', maxWidth: '340px' }}>
+            {isProfiel &&
+                <Box sx={{ maxWidth: '340px' }}>
                     {periodes.map((periode: Periode) => (
                         <Typography key={periode.periodeStartDatum}>
                             Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})

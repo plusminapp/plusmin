@@ -201,22 +201,24 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                 )}
 
             {selectedCategorie === 'UITGAVEN' &&
-                countIntersection(uitgavenBetalingsSoorten, Array.from(betalingsSoorten2Rekeningen.keys())) > 1 && (
+                (countIntersection(uitgavenBetalingsSoorten, Array.from(betalingsSoorten2Rekeningen.keys())) > 1 ||
+                    (rekeningPaar && rekeningPaar.bestemming.length > 1) || (rekeningPaar && rekeningPaar.bron.length > 1)) && (
                     <>
                         <Grid container mt={3} spacing={5} justifyContent="center">
-                            {uitgavenBetalingsSoorten.map((betalingsSoort) =>
-                                Array.from(betalingsSoorten2Rekeningen.keys()).includes(betalingsSoort) && (
-                                    <Button
-                                        // style={{ textTransform: 'none' }}
-                                        sx={{ m: '3px' }}
-                                        key={betalingsSoort}
-                                        variant={selectedBetalingsSoort === betalingsSoort ? 'contained' : 'outlined'}
-                                        onClick={() => handleBetalingsSoortChange(betalingsSoort)}
-                                    >
-                                        {betalingsSoortFormatter(betalingsSoort)}
-                                    </Button>
-                                )
-                            )}
+                            {countIntersection(uitgavenBetalingsSoorten, Array.from(betalingsSoorten2Rekeningen.keys())) > 1 &&
+                                uitgavenBetalingsSoorten.map((betalingsSoort) =>
+                                    Array.from(betalingsSoorten2Rekeningen.keys()).includes(betalingsSoort) && (
+                                        <Button
+                                            // style={{ textTransform: 'none' }}
+                                            sx={{ m: '3px' }}
+                                            key={betalingsSoort}
+                                            variant={selectedBetalingsSoort === betalingsSoort ? 'contained' : 'outlined'}
+                                            onClick={() => handleBetalingsSoortChange(betalingsSoort)}
+                                        >
+                                            {betalingsSoortFormatter(betalingsSoort)}
+                                        </Button>
+                                    )
+                                )}
                         </Grid>
                         <Box mt={2}>
                             {uitgavenBetalingsSoorten.map((betalingsSoort) =>

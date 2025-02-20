@@ -19,12 +19,11 @@ import { PeriodeSelect } from '../components/PeriodeSelect';
 import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
-import { PlusIcon } from '../icons/Plus';
 import { ExternalLinkIcon } from '../icons/ExternalLink';
 import dayjs from 'dayjs';
 import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../model/Aflossing';
 import { AflossingStatusIcon } from '../icons/AflossingStatus';
-import { budgetten } from '../model/Budget';
+import { budgetten, maandBudgetten } from '../model/Budget';
 import { BudgetStatusIcon } from '../icons/BudgetStatus';
 
 export default function InkomstenUitgaven() {
@@ -128,9 +127,9 @@ export default function InkomstenUitgaven() {
   const heeftAflossing = maandAflossingsBedrag > 0;
   console.log('berekenAflossingTotaal()', berekenAflossingTotaal(), 'aflossingsBedrag', aflossingsBedrag, 'berekenAflossingTotaal() === aflossingsBedrag', berekenAflossingTotaal() === aflossingsBedrag);
 
-  // const maandBudget = maandBudgetten(rekeningen, maandAflossingsBedrag);
+  const maandBudget = maandBudgetten(rekeningen, maandAflossingsBedrag);
   const budget = budgetten(rekeningen, gekozenPeriode, aflossingsBedrag);
-  // const heeftBudgetten = Object.values(maandBudget).some(bedrag => bedrag > 0);
+  const heeftBudgetten = Object.values(maandBudget).some(bedrag => bedrag > 0);
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
@@ -205,7 +204,9 @@ export default function InkomstenUitgaven() {
                         id={rekening.naam}>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <BudgetStatusIcon verwachtHoog={berekenRekeningTotaal(rekening)} verwachtLaag={budget['Inkomsten']} />
+                            {heeftBudgetten &&
+                              <BudgetStatusIcon verwachtHoog={berekenRekeningTotaal(rekening)} verwachtLaag={budget['Inkomsten']} />
+                            }
                           </Box>
                           &nbsp;
                           <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}  (van&nbsp;{currencyFormatter.format(budget['Inkomsten'])})</Typography>
@@ -243,7 +244,8 @@ export default function InkomstenUitgaven() {
                         id={rekening.naam}>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <BudgetStatusIcon verwachtHoog={budget[rekening.naam]} verwachtLaag={berekenRekeningTotaal(rekening)} />
+                            {heeftBudgetten &&
+                              <BudgetStatusIcon verwachtHoog={budget[rekening.naam]} verwachtLaag={berekenRekeningTotaal(rekening)} />}
                           </Box>
                           &nbsp;
                           <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}   (van&nbsp;{currencyFormatter.format(budget[rekening.naam])})</Typography>
@@ -298,7 +300,6 @@ export default function InkomstenUitgaven() {
                         id='extra'>
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <PlusIcon color={'green'} height={15} />
                           </Box>
                           &nbsp;
                           <Typography sx={{ fontSize: '15px' }} component="span">Reserveringen: {currencyFormatter.format(berekenReserveringTotaal())}</Typography>
