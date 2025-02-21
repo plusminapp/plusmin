@@ -14,7 +14,9 @@ interface PeriodeRepository : JpaRepository<Periode, Long> {
     @Query(
         value = "SELECT * FROM periode p WHERE p.gebruiker_id = :gebruikerId AND p.periode_start_datum = " +
                 "(SELECT MAX(periode_start_datum) FROM periode p " +
-                "WHERE p.gebruiker_id = :gebruikerId AND p.periode_start_datum <= :datum)",
+                "WHERE p.gebruiker_id = :gebruikerId " +
+                "AND p.periode_start_datum <= :datum " +
+                "AND p.periode_eind_datum >= :datum)",
         nativeQuery = true
     )
     fun getPeriodeGebruikerEnDatum(gebruikerId: Long, datum: LocalDate): Periode?

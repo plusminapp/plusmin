@@ -23,6 +23,7 @@ class Betaling(
     val gebruiker: Gebruiker,
     val boekingsdatum: LocalDate,
     val bedrag: BigDecimal,
+    @Column(columnDefinition = "TEXT")
     val omschrijving: String,
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,

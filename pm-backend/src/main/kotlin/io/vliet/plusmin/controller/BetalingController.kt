@@ -4,6 +4,7 @@ package io.vliet.plusmin.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
+import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
@@ -46,6 +47,16 @@ class BetalingController {
     lateinit var camt053Service: Camt053Service
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalState(ex: IllegalStateException): ResponseEntity<String> {
+        val stackTraceElement = ex.stackTrace.firstOrNull { it.className.startsWith("io.vliet") }
+            ?: ex.stackTrace.firstOrNull()
+        val locationInfo = stackTraceElement?.let { " (${it.fileName}:${it.lineNumber})" } ?: ""
+        val errorMessage = "${ex.message}$locationInfo"
+        logger.error(errorMessage)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessage)
+    }
 
     @Operation(summary = "GET alle eigen betalingen (voor alle gebruikers)")
     @GetMapping("")
@@ -168,7 +179,7 @@ class BetalingController {
         }
 
         val jwtGebruiker = gebruikerController.getJwtGebruiker()
-        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id) {
+        if (jwtGebruiker.id != hulpvrager.id && jwtGebruiker.id != hulpvrager.vrijwilliger?.id && !jwtGebruiker.roles.contains(Gebruiker.Role.ROLE_ADMIN)) {
             logger.error("BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}")
             return ResponseEntity(
                 "BetalingController.verwerkCamt053: gebruiker ${jwtGebruiker.email} wil een camt053 bestand uploaden voor ${hulpvrager.email}",

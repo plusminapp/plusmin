@@ -25,8 +25,7 @@ class Camt053Service {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-
-    fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader): String {
+    fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader, debug: Boolean = true): String {
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         val inkomstenRekening = rekeningen.filter { it.rekeningSoort == Rekening.RekeningSoort.INKOMSTEN }[0]
         val uitgavenRekening = rekeningen.filter { it.rekeningSoort == Rekening.RekeningSoort.UITGAVEN }[0]
@@ -48,36 +47,46 @@ class Camt053Service {
                 aantalBetalingen = accountStatement2.ntry.size
                 logger.info("Aantal betalingen : ${aantalBetalingen}")
                 for (reportEntry2 in accountStatement2.ntry) {
-                    if (reportEntry2.ntryDtls[0].btch != null) {
-                        logger.warn("Batch betalingen worden niet verwerkt; Entry reference: " + reportEntry2.ntryRef)
-                        break
+                    if (reportEntry2.ntryDtls.isEmpty()) {
+                        logger.warn("reportEntry2.ntryDtls is leeg ${reportEntry2.acctSvcrRef}  ")
                     }
-                    val entryDetails = reportEntry2.ntryDtls[0].txDtls[0]
                     val isDebit = (reportEntry2.cdtDbtInd == CreditDebitCode.DBIT)
-                    val tegenrekening = if (isDebit)
-                        (entryDetails.rltdPties?.cdtrAcct?.id?.iban ?: "onbekend")
-                    else
-                        (entryDetails.rltdPties?.dbtrAcct?.id?.iban ?: "onbekend")
-                    val naamTegenrekening = if (isDebit)
-                        (entryDetails.rltdPties?.cdtr?.nm ?: "onbekend")
-                    else
-                        (entryDetails.rltdPties?.dbtr?.nm ?: "onbekend")
-                    val omschrijving = "${reportEntry2.addtlNtryInf}\n $tegenrekening, $naamTegenrekening"
-                    try {
-                        betalingRepository.save(
-                            Betaling(
-                                boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
-                                    .toLocalDate(),
-                                bedrag = reportEntry2.amt.value,
-                                gebruiker = gebruiker,
-                                omschrijving = omschrijving,
-                                betalingsSoort = if (isDebit) Betaling.BetalingsSoort.UITGAVEN else Betaling.BetalingsSoort.INKOMSTEN,
-                                bron = if (isDebit) betaalRekening else inkomstenRekening,
-                                bestemming = if (isDebit) uitgavenRekening else betaalRekening
-                                )
+                    val boekingsDatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime().toLocalDate()
+                    val naamTegenrekening =
+                        if (!reportEntry2.ntryDtls.isEmpty() && !reportEntry2.ntryDtls[0].txDtls.isEmpty()) {
+                            val rltdPties = reportEntry2.ntryDtls[0].txDtls[0]?.rltdPties
+                            if (isDebit)
+                                (rltdPties?.cdtr?.nm ?: "")
+                            else
+                                (rltdPties?.dbtr?.nm ?: "")
+                        } else {
+                            ""
+                        }
+                    val omschrijving = naamTegenrekening + reportEntry2.addtlNtryInf
+                    if (debug) {
+                        logger.info(
+                            "${if (isDebit) "Af" else "Bij"}, " +
+                                    "Bedrag: ${reportEntry2.amt.value}, " +
+                                    "Boekingsdatum: ${boekingsDatum}, " +
+                                    "Omschrijving: ${naamTegenrekening}, ${omschrijving}"
                         )
-                        aantalOpgeslagenBetalingen++
-                    } catch (_: DataIntegrityViolationException) {
+                    } else {
+                        try {
+                            betalingRepository.save(
+                                Betaling(
+                                    boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
+                                        .toLocalDate(),
+                                    bedrag = reportEntry2.amt.value,
+                                    gebruiker = gebruiker,
+                                    omschrijving = omschrijving,
+                                    betalingsSoort = if (isDebit) Betaling.BetalingsSoort.UITGAVEN else Betaling.BetalingsSoort.INKOMSTEN,
+                                    bron = if (isDebit) betaalRekening else inkomstenRekening,
+                                    bestemming = if (isDebit) uitgavenRekening else betaalRekening
+                                )
+                            )
+                            aantalOpgeslagenBetalingen++
+                        } catch (_: DataIntegrityViolationException) {
+                        }
                     }
                 }
                 logger.info("Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen}")
@@ -88,4 +97,3 @@ class Camt053Service {
         return "Aantal opgeslagen betalingen: ${aantalOpgeslagenBetalingen} van totaal ${aantalBetalingen} betalingen."
     }
 }
-
