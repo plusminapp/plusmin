@@ -37,6 +37,7 @@ class GebruikerService {
                 gebruikerRepository.save(
                     gebruikerOpt.fullCopy(
                         bijnaam = gebruikerDTO.bijnaam,
+                        periodeDag = gebruikerDTO.periodeDag,
                         roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                         vrijwilliger = vrijwilliger,
                     )

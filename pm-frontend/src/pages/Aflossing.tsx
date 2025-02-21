@@ -13,7 +13,6 @@ import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 import { MinIcon } from "../icons/Min";
 import { PlusIcon } from "../icons/Plus";
 import dayjs from "dayjs";
-import NieuweAflossingDialoog from "../components/Aflossing/NieuweAflossingDialoog";
 import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
 import { PeriodeSelect } from "../components/PeriodeSelect";
 
@@ -71,10 +70,6 @@ export default function Aflossingen() {
     return <Typography sx={{ mb: '25px' }}>De aflossingen worden opgehaald.</Typography>
   }
 
-  const onAflossingBewaardChange = () => {
-    fetchAflossingen()
-  }
-
   const berekenToestandAflossingIcoon = (aflossing: Aflossing): JSX.Element => {
     if (!aflossing.aflossingSaldiDTO)
       return <MinIcon color="black" />
@@ -84,7 +79,7 @@ export default function Aflossingen() {
       const kloptSaldo = aflossing.aflossingSaldiDTO.berekendSaldo == aflossing.aflossingSaldiDTO.werkelijkSaldo;
       const heeftBetalingAchtersstand = aflossing.aflossingSaldiDTO.berekendSaldo < aflossing.aflossingSaldiDTO.werkelijkSaldo
       const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldiDTO.berekendSaldo - aflossing.aflossingSaldiDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
-      return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="grey" /> :
+      return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="#bdbdbd" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <PlusIcon color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <PlusIcon color="lightGreen" /> :
             heeftBetalingAchtersstand ? <MinIcon color="red" /> : <PlusIcon color="orange" />
@@ -102,9 +97,6 @@ export default function Aflossingen() {
           <Grid container spacing={2} columns={{ xs: 1, md: 3 }} justifyContent="space-between">
             <Grid size={1} alignItems="start">
               <PeriodeSelect />
-            </Grid>
-            <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
-              <NieuweAflossingDialoog onAflossingBewaardChange={onAflossingBewaardChange} />
             </Grid>
           </Grid>
           <Accordion
