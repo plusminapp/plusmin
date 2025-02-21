@@ -72,7 +72,7 @@ export const currencyFormatter = new Intl.NumberFormat("nl-NL", {
 export const betalingsSoorten2RekeningenSoorten = new Map<BetalingsSoort, RekeningSoortPaar>([
   // Inkomsten
   [BetalingsSoort.inkomsten, { bron: [RekeningSoort.inkomsten], bestemming: [RekeningSoort.betaalrekening, RekeningSoort.contant] }],
-  [BetalingsSoort.rente, { bron: [RekeningSoort.inkomsten], bestemming: [RekeningSoort.spaarrekening] }],
+  [BetalingsSoort.rente, { bron: [RekeningSoort.rente], bestemming: [RekeningSoort.spaarrekening] }],
   // Uitgaven
   [BetalingsSoort.uitgaven, { bron: [RekeningSoort.betaalrekening, RekeningSoort.contant, RekeningSoort.creditcard], bestemming: [RekeningSoort.uitgaven] }],
   [BetalingsSoort.aflossen, { bron: [RekeningSoort.betaalrekening], bestemming: [RekeningSoort.aflossing] }],

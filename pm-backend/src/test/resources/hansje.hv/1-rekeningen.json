@@ -16,6 +16,12 @@
     "saldo": 25
   },
   {
+    "rekeningSoort": "RENTE",
+    "naam": "Rente",
+    "afkorting": "btr",
+    "sortOrder": 1
+  },
+  {
     "rekeningSoort": "CONTANT",
     "nummer": "",
     "naam": "Contant",

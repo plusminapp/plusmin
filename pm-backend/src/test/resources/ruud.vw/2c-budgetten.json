@@ -1,10 +1,18 @@
 [
   {
     "rekeningNaam": "Inkomsten",
-    "budgetNaam": "Inkomsten",
+    "budgetNaam": "AOW",
     "budgetType": "periodiek",
     "budgetPeriodiciteit": "maand",
-    "bedrag": 2335,
+    "bedrag": 1214,
+    "betaalDag": 26
+  },
+  {
+    "rekeningNaam": "Inkomsten",
+    "budgetNaam": "Pensioen",
+    "budgetType": "periodiek",
+    "budgetPeriodiciteit": "maand",
+    "bedrag": 2554,
     "betaalDag": 26
   },
   {

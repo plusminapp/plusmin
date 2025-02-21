@@ -12,6 +12,7 @@ export type Rekening = {
 
 export enum RekeningSoort {
     inkomsten = 'INKOMSTEN',
+    rente = 'RENTE',
     uitgaven = 'UITGAVEN',
     betaalrekening = 'BETAALREKENING',
     spaarrekening = 'SPAARREKENING',

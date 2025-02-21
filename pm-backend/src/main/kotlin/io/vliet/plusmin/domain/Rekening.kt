@@ -66,12 +66,13 @@ class Rekening(
 
     enum class RekeningSoort {
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
-        INKOMSTEN, UITGAVEN
+        INKOMSTEN, RENTE, UITGAVEN
     }
 }
 
 val resultaatRekeningSoort = arrayOf(
     Rekening.RekeningSoort.INKOMSTEN,
+    Rekening.RekeningSoort.RENTE,
     Rekening.RekeningSoort.UITGAVEN,
 )
 

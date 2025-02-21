@@ -14,6 +14,12 @@
     "sortOrder": 2
   },
   {
+    "rekeningSoort": "RENTE",
+    "naam": "Rente",
+    "afkorting": "btr",
+    "sortOrder": 1
+  },
+  {
     "rekeningSoort": "CREDITCARD",
     "nummer": "",
     "naam": "Credit Card",
