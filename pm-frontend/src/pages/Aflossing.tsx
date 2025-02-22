@@ -141,7 +141,7 @@ export default function Aflossingen() {
           </AccordionDetails>
         </Accordion>
       )}
-      <StyledSnackbar message={message.message} type={message.type} />
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
     </>
   )
 }

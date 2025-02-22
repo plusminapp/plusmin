@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Link, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Link, Button, FormGroup, FormControlLabel, Switch } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import { Link as RouterLink } from 'react-router-dom';
-import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
+import { BetalingDTO, BetalingsSoort, betalingsSoortFormatter, internBetalingsSoorten } from '../../model/Betaling';
 import dayjs from 'dayjs';
 import { useCustomContext } from '../../context/CustomContext';
-import { RekeningSoort } from '../../model/Rekening';
+import { interneRekeningSoorten, RekeningSoort } from '../../model/Rekening';
 import { budgetten, maandBudgetten } from '../../model/Budget';
 import { ExternalLinkIcon } from '../../icons/ExternalLink';
 import EditIcon from '@mui/icons-material/Edit';
@@ -13,6 +14,8 @@ import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../../model/Aflossing';
 import { BudgetStatusIcon } from '../../icons/BudgetStatus';
 import { AflossingStatusIcon } from '../../icons/AflossingStatus';
+import { InfoIcon } from '../../icons/Info';
+import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
@@ -28,7 +31,9 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
 
   const { rekeningen, gekozenPeriode, actieveHulpvrager } = useCustomContext();
 
+  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
+  const [toonIntern, setToonIntern] = useState(false);
 
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
@@ -75,9 +80,12 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
   const budget = budgetten(rekeningen, gekozenPeriode, aflossingsBedrag);
   const heeftBudgetten = Object.values(maandBudget).some(bedrag => bedrag > 0);
 
+  const heeftIntern = rekeningen.some(rekening => rekening.rekeningSoort && interneRekeningSoorten.includes(rekening.rekeningSoort));
+
   const isInkomsten = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.inkomsten || betaling.betalingsSoort === BetalingsSoort.rente;
   const isUitgaven = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.uitgaven;
   const isAflossing = (betaling: BetalingDTO) => betaling.betalingsSoort === BetalingsSoort.aflossen;
+  const isIntern = (betaling: BetalingDTO) => betaling.betalingsSoort && internBetalingsSoorten.includes(betaling.betalingsSoort);
 
   const afgerondOp2Decimalen = (num: number): number => {
     return Math.round(num * 100) / 100;
@@ -86,9 +94,41 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
   const onUpsertBetalingClose = () => {
     setSelectedBetaling(undefined);
   };
+  const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setToonIntern(event.target.checked);
+  };
+const interneRekeningenNamen = rekeningen.filter(r => interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ') 
+const toonInterneBetalingMeassage = `Interne betalingen zijn betalingen tussen eigen rekeningen (${interneRekeningenNamen}), ze maken niets uit voor het beschikbare geld, en worden daarom niet vanzelf getoond.`
+const interneBetalingKopMessage = 'Interne betalingen worden als negatief getal getoond als ze van de betaalrekening af gaan, positief als ze er bij komen.'
+const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tussen eigen rekeningen (${interneRekeningenNamen}), een totaal betekent daarom niks zinvols en daarom worden de betalingen niet opgeteld.`
 
   return (
     <>
+      {heeftIntern &&
+        <>
+          <Grid display="flex" flexDirection="row" alignItems={'center'} >
+            <FormGroup >
+              <FormControlLabel control={
+                <Switch
+                  sx={{ transform: 'scale(0.6)' }}
+                  checked={toonIntern}
+                  onChange={handleToonInternChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />}
+                sx={{ mr: 0 }}
+                label={
+                  <Box display="flex" fontSize={'0.875rem'} >
+                    Toon interne betalingen
+                  </Box>
+                } />
+            </FormGroup>
+            <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
+              onClick={() => setMessage({ message: toonInterneBetalingMeassage, type: 'info' })}>
+              <InfoIcon height='16' />
+            </Box>
+          </Grid>
+        </>
+      }
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -104,6 +144,17 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
               {heeftAflossing &&
                 <TableCell sx={{ padding: '5px' }} align="right">Aflossing</TableCell>
               }
+              {heeftIntern && toonIntern &&
+                <TableCell sx={{ padding: '5px' }} align="right">
+                  <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-end" >
+                    Intern
+                    <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }}
+                      onClick={() => setMessage({ message: interneBetalingKopMessage, type: 'info' })}>
+                      <InfoIcon height='16' />
+                    </Box>
+                  </Grid>
+                </TableCell>
+              }
               {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
                 <TableCell sx={{ padding: '5px' }} align="right" />
               }
@@ -111,10 +162,13 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
           </TableHead>
           <TableBody>
             <>
-              {betalingen.map((betaling) => (isInkomsten(betaling) || isUitgaven(betaling) || isAflossing(betaling)) &&
+              {betalingen.map((betaling) => (!isIntern(betaling) || toonIntern) &&
                 <TableRow key={betaling.id}>
                   <TableCell sx={{ padding: '5px' }}>{dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')}</TableCell>
-                  <TableCell sx={{ padding: '5px' }}>{betaling.omschrijving}</TableCell>
+                  <TableCell sx={{ padding: '5px' }}>
+                    {isIntern(betaling) ? betaling.betalingsSoort && betalingsSoortFormatter(betaling.betalingsSoort) + ': ' : ''}
+                    {betaling.omschrijving}
+                    </TableCell>
                   {heeftBudgetten &&
                     <TableCell sx={{ padding: '5px' }}>{betaling.budgetNaam ? betaling.budgetNaam : ''}</TableCell>}
                   <TableCell sx={{ padding: '5px' }} align="right">{isInkomsten(betaling) ? getFormattedBedrag(betaling) : ''}</TableCell>
@@ -125,6 +179,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                   ))}
                   {heeftAflossing &&
                     <TableCell sx={{ padding: '5px' }} align="right">{isAflossing(betaling) ? getFormattedBedrag(betaling) : ''}</TableCell>}
+                  {heeftIntern && toonIntern &&
+                    <TableCell sx={{ padding: '5px' }} align="right">{isIntern(betaling) ? getFormattedBedrag(betaling) : ''}</TableCell>}
                   {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
                     <TableCell size='small' sx={{ p: "5px" }}>
                       <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
@@ -147,6 +203,13 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                 ))}
                 {heeftAflossing &&
                   <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.aflossing)}</TableCell>}
+                {heeftIntern && toonIntern &&
+                  <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">
+                      <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }} justifyContent="flex-end"
+                        onClick={() => setMessage({ message: interneBetalingTotaalMessage, type: 'info' })}>
+                        <InfoIcon height='16' />
+                      </Box>
+                  </TableCell>}
                 {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
                   <TableCell sx={{ padding: '5px' }} align="right" />
                 }
@@ -191,16 +254,16 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                         </Box>}
                     </TableCell>
                     {bestemmingen.map(bestemming => (
-                        <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                          {maandBudget[bestemming] != 0 &&
+                      <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
+                        {maandBudget[bestemming] != 0 &&
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
                             <Box display="flex" alignItems="center" justifyContent="flex-end">
-                              <Box display="flex" alignItems="center" justifyContent="flex-end">
-                                <BudgetStatusIcon verwachtHoog={budget[bestemming]} verwachtLaag={Math.floor(-totalen.bestemmingen[bestemming])} />
-                              </Box>
-                              &nbsp;
-                              {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
-                            </Box>}
-                        </TableCell>
+                              <BudgetStatusIcon verwachtHoog={budget[bestemming]} verwachtLaag={Math.floor(-totalen.bestemmingen[bestemming])} />
+                            </Box>
+                            &nbsp;
+                            {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
+                          </Box>}
+                      </TableCell>
                     ))}
                     {heeftAflossing &&
                       <TableCell sx={{ padding: '5px' }} align="right" >
@@ -213,6 +276,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                           {maandAflossingsBedrag != 0 ? formatter.format(aflossingsBedrag + totalen.aflossing) : ''}
                         </Box>
                       </TableCell>}
+                    {heeftIntern && toonIntern &&
+                      <TableCell sx={{ padding: '5px' }} align="right" />}
                   </TableRow>
                 </>}
             </>
@@ -228,6 +293,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
           betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
         />
       }
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </>
   );
 };

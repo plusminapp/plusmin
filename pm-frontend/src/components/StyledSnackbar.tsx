@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-
 import Snackbar from '@mui/material/Snackbar';
 import { Alert, AlertColor } from "@mui/material";
 
-const StyledSnackbar = ({ message = '', type = "info" as AlertColor}) => {
+const StyledSnackbar = ({ message = '', type = "info" as AlertColor, onClose }: { message: string | undefined, type: AlertColor | undefined, onClose: () => void }) => {
     const [show, setShow] = useState(false);
     const resetMessage = () => message = '' 
     const close = () => {
         setShow(false);
-        setTimeout(resetMessage, 10);
+        setTimeout(() => {
+            resetMessage();
+            onClose();
+        }, 10);
     };
 
     useEffect(() => {
@@ -22,7 +24,7 @@ const StyledSnackbar = ({ message = '', type = "info" as AlertColor}) => {
     return (
         <Snackbar open={show}
             anchorOrigin={{ 'vertical': 'top', horizontal: 'center' }}
-            autoHideDuration={ type === 'error' ? 21000 : type === 'warning' ? 8000 : 3000 }
+            autoHideDuration={ type === 'error' ? 30000 : type === 'warning' ? 200000 : 10000 }
             onClose={close}>
             <Alert
                 onClose={close}

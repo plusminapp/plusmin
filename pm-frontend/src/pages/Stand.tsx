@@ -49,7 +49,7 @@ export default function Stand() {
           console.error("Failed to fetch data", response.status);
           setMessage({
             message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
-            type: "warning"
+            type: "warning",
           })
         }
       }
@@ -81,6 +81,7 @@ export default function Stand() {
               <FormGroup sx={{ ml: 'auto' }} >
                 <FormControlLabel control={
                   <Switch
+                    sx={{ transform: 'scale(0.6)' }}
                     checked={checked}
                     onChange={handleChange}
                     inputProps={{ 'aria-label': 'controlled' }}
@@ -109,7 +110,7 @@ export default function Stand() {
           </Box>
         </>
       }
-      <StyledSnackbar message={message.message} type={message.type} />
-    </>
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
+      </>
   )
 }

@@ -337,7 +337,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
-      <StyledSnackbar message={message.message} type={message.type} />
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
     </React.Fragment>
   );
 }

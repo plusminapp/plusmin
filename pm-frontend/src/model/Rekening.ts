@@ -68,6 +68,7 @@ export const uitgavenRekeningSoorten = [
 ]
 
 export const interneRekeningSoorten = [ 
+    RekeningSoort.betaalrekening,
     RekeningSoort.spaarrekening,
     RekeningSoort.contant,
     RekeningSoort.creditcard,

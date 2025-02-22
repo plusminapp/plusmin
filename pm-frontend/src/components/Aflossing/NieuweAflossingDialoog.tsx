@@ -148,11 +148,12 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select();
-};
+  };
 
-return (
+
+  return (
     <React.Fragment>
-      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: {md:'auto', xs: 0}, mr: {md:0, xs: 'auto'} }}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
         Nieuwe aflossing
       </Button>
       <BootstrapDialog
@@ -216,7 +217,7 @@ return (
                 value={aflossing.eindBedrag}
                 type="number"
                 onChange={(e) => handleInputAflossingWijziging('eindBedrag', parseFloat(e.target.value))}
-                onFocus={handleFocus} 
+                onFocus={handleFocus}
               />
               {/* {errors.eindBedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.eindBedrag}</Typography>
@@ -231,7 +232,7 @@ return (
                 value={aflossing.aflossingsBedrag}
                 type="number"
                 onChange={(e) => handleInputAflossingWijziging('aflossingsBedrag', parseFloat(e.target.value))}
-                onFocus={handleFocus} 
+                onFocus={handleFocus}
               />
               {/* {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.aflossingsBedrag}</Typography>
@@ -245,7 +246,7 @@ return (
                 value={aflossing.betaalDag}
                 type="number"
                 onChange={(e) => handleInputAflossingWijziging('betaalDag', parseFloat(e.target.value))}
-                onFocus={handleFocus} 
+                onFocus={handleFocus}
               />
               {/* {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.betaalDag}</Typography>
@@ -259,7 +260,7 @@ return (
                 value={aflossing.dossierNummer}
                 type="text"
                 onChange={(e) => handleInputAflossingWijziging('dossierNummer', e.target.value)}
-                />
+              />
               {/* {errors.omschrijving && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.omschrijving}</Typography>
                 )} */}
@@ -281,7 +282,7 @@ return (
           </Button>
         </DialogActions>
       </BootstrapDialog>
-      <StyledSnackbar message={message.message} type={message.type} />
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </React.Fragment>
   );
 }
