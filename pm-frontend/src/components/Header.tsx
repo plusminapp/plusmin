@@ -20,6 +20,7 @@ import { useCustomContext } from '../context/CustomContext';
 import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 import { Periode } from '../model/Periode';
+import { Gebruiker } from '../model/Gebruiker';
 import { berekenMaandAflossingenBedrag } from '../model/Aflossing';
 
 
@@ -90,6 +91,12 @@ function Header() {
         )
     }
 
+    const setOp1stOpenPeriode = (gebruiker: Gebruiker ) => {
+       return (gebruiker.periodes
+            .filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
+            .sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
+    }
+
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker
@@ -99,7 +106,7 @@ function Header() {
         setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
         setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
         setPeriodes(ahv!.periodes)
-        setGekozenPeriode(ahv!.periodes.sort((a, b) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])
+        setGekozenPeriode(setOp1stOpenPeriode(ahv!)) 
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -122,7 +129,7 @@ function Header() {
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
             setPeriodes(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setGekozenPeriode(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])
+            setGekozenPeriode(setOp1stOpenPeriode(data.hulpvragers[0]))
         } else {
             setActieveHulpvrager(data.gebruiker)
             setRekeningen(data.gebruiker.rekeningen)
@@ -130,7 +137,7 @@ function Header() {
             setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
             setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
             setPeriodes(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setGekozenPeriode(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum < b.periodeStartDatum ? 1 : -1)[0])
+            setGekozenPeriode(setOp1stOpenPeriode(data.gebruiker))
         }
     }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes])
 

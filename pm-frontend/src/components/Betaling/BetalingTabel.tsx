@@ -97,7 +97,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
   const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setToonIntern(event.target.checked);
   };
-const interneRekeningenNamen = rekeningen.filter(r => interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ') 
+const interneRekeningenNamen = rekeningen.filter(r => r.rekeningSoort === RekeningSoort.betaalrekening || interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ') 
 const toonInterneBetalingMeassage = `Interne betalingen zijn betalingen tussen eigen rekeningen (${interneRekeningenNamen}), ze maken niets uit voor het beschikbare geld, en worden daarom niet vanzelf getoond.`
 const interneBetalingKopMessage = 'Interne betalingen worden als negatief getal getoond als ze van de betaalrekening af gaan, positief als ze er bij komen.'
 const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tussen eigen rekeningen (${interneRekeningenNamen}), een totaal betekent daarom niks zinvols en daarom worden de betalingen niet opgeteld.`

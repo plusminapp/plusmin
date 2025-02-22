@@ -56,7 +56,9 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
                 </Box>}
             {isProfiel &&
                 <Box sx={{ maxWidth: '340px' }}>
-                    {periodes.map((periode: Periode) => (
+                    {periodes
+                    .filter(periode => periode.periodeStartDatum !== periode.periodeEindDatum)
+                    .map((periode: Periode) => (
                         <Typography key={periode.periodeStartDatum}>
                             Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})
                         </Typography>
