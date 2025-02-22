@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -56,10 +57,11 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   const [open, setOpen] = useState(props.editMode);
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
   const [errors, setErrors] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
+  const [warnings, setWarnings] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, gekozenPeriode } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, periodes, gekozenPeriode } = useCustomContext();
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
@@ -83,6 +85,12 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     }
   };
 
+  const eersteOpenPeriode = periodes
+    .filter(p => p.periodeStatus.toLowerCase() === 'open' || p.periodeStatus.toLowerCase() === 'huidig')
+    .sort((a, b) => a.periodeStartDatum.localeCompare(b.periodeStartDatum))[0];
+  const laatstePeriode = periodes
+    .sort((a, b) => a.periodeStartDatum.localeCompare(b.periodeStartDatum))[periodes.length - 1];
+
   const validateKeyValue = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]): string | undefined => {
     if (key === 'betalingsSoort' && !value) {
       return 'Kies een betalingscategorie.';
@@ -93,33 +101,58 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     if (key === 'bedrag' && (isNaN(value as number) || value as number == 0)) {
       return 'Bedrag moet een positief getal zijn.';
     }
-    if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(gekozenPeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(gekozenPeriode?.periodeEindDatum))) {
-      return `De boekingsdatum moet in de gekozen periode liggen (van ${gekozenPeriode?.periodeStartDatum} t/m ${gekozenPeriode?.periodeEindDatum}).`;
+    if (key === 'boekingsdatum') {
+      const startDatum = eersteOpenPeriode?.periodeStartDatum;
+      const eindDatum = laatstePeriode.periodeEindDatum;
+      if (dayjs(value as dayjs.Dayjs).isBefore(startDatum) || dayjs(value as dayjs.Dayjs).isAfter(eindDatum)) {
+        return `De boekingsdatum moet in een open periode, tussen ${startDatum} en ${eindDatum}, liggen.`;
+      }
     }
     return undefined;
   };
 
+  const validateKeyValueWarning = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]): string | undefined => {
+    if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(gekozenPeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(gekozenPeriode?.periodeEindDatum))) {
+      return `De boekingsdatum valt buiten de gekozen periode (van ${gekozenPeriode?.periodeStartDatum} t/m ${gekozenPeriode?.periodeEindDatum}).`;
+    }
+    return undefined;
+  };
+
+  const normalizeDecimal = (value: string): string => {
+    return value.replace(/[^0-9,\.]/g, '').replace(',', '.');
+  };
+
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
-    setBetalingDTO({ ...betalingDTO, [key]: value })
-    const error = validateKeyValue(key, value)
+    if (key === 'bedrag') {
+      value = normalizeDecimal(value as unknown as string) as BetalingDTO[K];
+    }
+    setBetalingDTO({ ...betalingDTO, [key]: value });
+    const error = validateKeyValue(key, value);
+    const warning = validateKeyValueWarning(key, value);
     if (error) {
       setErrors({ ...errors, [key]: error });
+      setWarnings({ ...warnings, [key]: undefined });
     } else {
       setErrors({ ...errors, [key]: undefined });
+      setWarnings({ ...warnings, [key]: warning });
     }
-  }
-
+  };
   const validateBetalingDTO = () => {
     const newErrors: BetalingDtoErrors = initialBetalingDtoErrors;
+    const newWarnings: BetalingDtoErrors = initialBetalingDtoErrors;
     (Object.keys(initialBetalingDtoErrors) as (keyof BetalingDtoErrors)[]).forEach((key) => {
       const error = validateKeyValue(key, betalingDTO[key]);
+      const warning = validateKeyValueWarning(key, betalingDTO[key]);
       if (error) {
         newErrors[key as keyof BetalingDtoErrors] = error;
+      } else {
+        newWarnings[key as keyof BetalingDtoErrors] = warning;
       }
     });
     setErrors(newErrors);
+    setWarnings(newWarnings);
     return newErrors;
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,7 +183,6 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           type: "success"
         })
         const responseJson = await response.json()
-        console.log('responseJson', JSON.stringify(responseJson))
         props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
         if (props.editMode) {
           handleClose()
@@ -190,7 +222,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       })
       props.onBetalingVerwijderdChange(betalingDTO)
       setBetalingDTO(initialBetalingDTO)
-      handleClose() 
+      handleClose()
 
     } catch (error) {
       setMessage({
@@ -202,6 +234,12 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   }
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
     event.target.select();
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === "NumpadEnter") {
+      handleSubmit(event as unknown as React.FormEvent);
+    }
   };
 
   return (
@@ -233,9 +271,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           <CloseIcon />
         </IconButton>
         <DialogContent dividers>
-          <Stack spacing={2}>
-            {/* <Typography variant="subtitle1">Kies een betalingscategorie</Typography>
-            <Typography variant="subtitle1">{betalingDTO.betalingsSoort ? `De keuze is nu een '${betalingsSoortFormatter(betalingDTO.betalingsSoort)}' betaling van '${betalingDTO.bron}' naar '${betalingDTO.bestemming}'` : "Er is nog niet gekozen."}</Typography> */}
+          <Stack spacing={2} onKeyDown={handleKeyPress}>
             <BetalingsSoortSelect
               betalingsSoort={betalingDTO.betalingsSoort}
               bron={betalingDTO.bron}
@@ -256,8 +292,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                 error={!!errors.bedrag}
                 startAdornment={<InputAdornment position="start">€</InputAdornment>}
                 value={betalingDTO.bedrag}
-                type="number"
-                onChange={(e) => handleInputChange('bedrag', parseFloat(e.target.value))}
+                type="text"
+                onChange={(e) => handleInputChange('bedrag', e.target.value as unknown as BetalingDTO['bedrag'])}
                 onFocus={handleFocus}
               />
               {errors.bedrag && (
@@ -279,8 +315,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
             </FormControl>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
-                maxDate={dayjs(gekozenPeriode?.periodeEindDatum)}
-                minDate={dayjs(gekozenPeriode?.periodeStartDatum)}
+                minDate={dayjs(eersteOpenPeriode.periodeStartDatum)}
+                maxDate={dayjs(laatstePeriode.periodeEindDatum)}
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wanneer was de betaling?"
                 value={betalingDTO.boekingsdatum}
@@ -289,12 +325,15 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
               {errors.boekingsdatum && (
                 <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.boekingsdatum}</Typography>
               )}
+              {!errors.boekingsdatum && warnings.boekingsdatum && (
+                <Typography style={{ marginTop: '0px', color: '#FF8C00', fontSize: '0.75rem' }}>{warnings.boekingsdatum}</Typography>
+              )}
             </LocalizationProvider>
           </Stack>
         </DialogContent>
         <DialogActions sx={{ justifyContent: 'space-between' }}>
           {props.editMode ?
-            <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Button />}
+            <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Box />}
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>

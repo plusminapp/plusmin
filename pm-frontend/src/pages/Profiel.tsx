@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment } from 'react';
 
 import { Accordion, AccordionDetails, AccordionSummary, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
@@ -20,10 +20,6 @@ const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
   const { gebruiker, actieveHulpvrager, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, gekozenPeriode } = useCustomContext();
-
-  useEffect(() => {
-    console.log(`actieveHulpvrager.aflossingen: ${actieveHulpvrager?.aflossingen.map(a => a.aflossingNaam).join(', ')}`);
-  }, [actieveHulpvrager?.aflossingen]);
 
   const aflossingSamenvatting = (rekening: Rekening): AflossingSamenvattingDTO | undefined =>
     actieveHulpvrager?.aflossingen.filter(a => a.aflossingNaam === rekening.naam)[0]

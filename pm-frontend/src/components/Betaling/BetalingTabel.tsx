@@ -190,9 +190,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                           {formatter.format(totalen['inkomsten'] - budget['Inkomsten'])}
                         </Box>}
                     </TableCell>
-                    {bestemmingen.map(bestemming => {
-                      console.log('bestemming: ', budget[bestemming], 'totaal: ', totalen.bestemmingen[bestemming]);
-                      return (
+                    {bestemmingen.map(bestemming => (
                         <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
                           {maandBudget[bestemming] != 0 &&
                             <Box display="flex" alignItems="center" justifyContent="flex-end">
@@ -203,8 +201,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                               {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
                             </Box>}
                         </TableCell>
-                      );
-                    })}
+                    ))}
                     {heeftAflossing &&
                       <TableCell sx={{ padding: '5px' }} align="right" >
                         <Box display="flex" alignItems="center" justifyContent="flex-end">

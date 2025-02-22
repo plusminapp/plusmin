@@ -56,7 +56,7 @@ class BetalingService {
             ) bron else bestemming
             val budget: Budget? =
                 if (!betalingDTO.budgetNaam.isNullOrBlank()) {
-                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam!!)
+                    budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, betalingDTO.budgetNaam)
                         ?: run {
                             logger.warn("Budget ${betalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
                             null
@@ -88,7 +88,7 @@ class BetalingService {
             newBetalingDTO.betalingsSoort.uppercase(Locale.getDefault()) == Betaling.BetalingsSoort.INKOMSTEN.toString()
         ) bron else bestemming
         val budget = if (!newBetalingDTO.budgetNaam.isNullOrBlank()) {
-            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam!!)
+            budgetRepository.findByRekeningEnBudgetNaam(budgetRekening, newBetalingDTO.budgetNaam)
                 ?: run {
                     logger.warn("Budget ${newBetalingDTO.budgetNaam} niet gevonden bij rekening ${budgetRekening.naam} voor ${gebruiker.bijnaam}.")
                     null

@@ -114,18 +114,15 @@ export default function InkomstenUitgaven() {
   }
 
   const onBetalingBewaardChange = (betaling: BetalingDTO): void => {
-    console.log('in onBetalingBewaardChange met betaling', betaling.omschrijving);
     setBetalingen([...betalingen.filter(b => b.id !== betaling.id), betaling]);
   }
 
   const onBetalingVerwijderdChange = (betaling: BetalingDTO): void => {
-    console.log('in onBetalingVerwijderdChange met betaling', betaling.omschrijving);
     setBetalingen(betalingen.filter(b => b.id !== betaling.id));
   }
   const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
   const aflossingsBedrag = berekenAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [], gekozenPeriode);
   const heeftAflossing = maandAflossingsBedrag > 0;
-  console.log('berekenAflossingTotaal()', berekenAflossingTotaal(), 'aflossingsBedrag', aflossingsBedrag, 'berekenAflossingTotaal() === aflossingsBedrag', berekenAflossingTotaal() === aflossingsBedrag);
 
   const maandBudget = maandBudgetten(rekeningen, maandAflossingsBedrag);
   const budget = budgetten(rekeningen, gekozenPeriode, aflossingsBedrag);

@@ -18,23 +18,22 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Vaste lasten",
-    "budgetType": "periodiek",
+    "budgetType": "continu",
     "budgetPeriodiciteit": "maand",
-    "bedrag": 1500,
-    "betaalDag": 26
+    "bedrag": 1675,
   },
   {
     "rekeningNaam":  "Boodschappen",
     "budgetNaam": "Boodschappen",
     "budgetType": "continu",
     "budgetPeriodiciteit": "week",
-    "bedrag": 100
+    "bedrag": 55
   },
   {
     "rekeningNaam":  "Andere uitgave",
     "budgetNaam": "Andere uitgave",
     "budgetType": "continu",
     "budgetPeriodiciteit": "week",
-    "bedrag": 25
+    "bedrag": 125
   }
 ]

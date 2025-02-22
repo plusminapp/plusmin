@@ -24,7 +24,6 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
     }, [periodes, setGekozenPeriode])
 
     const openPeriodes = periodes.filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
-    console.log('isProfiel: ', isProfiel)
     return (
         <>
             {!isProfiel && openPeriodes.length === 1 && gekozenPeriode &&

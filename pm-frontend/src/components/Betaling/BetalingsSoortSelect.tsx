@@ -96,7 +96,6 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
         const nieuweBudgetNaam = selectedBetalingsSoort ? betalingsSoorten2Rekeningen.get(selectedBetalingsSoort)?.bron.find(rekening => rekening.naam === rekeningNaam)?.budgetten[0]?.budgetNaam : undefined;
         setSelectedBudget(nieuweBudgetNaam);
         setSelectedBronRekening(rekeningNaam);
-        console.log('newBudgetNaam: ', nieuweBudgetNaam, 'selectedBetalingsSoort: ', selectedBetalingsSoort, 'rekeningNaam: ', rekeningNaam);
         props.onBetalingsSoortChange(selectedBetalingsSoort, rekeningNaam, selectedBestemmingRekening, selectedBudget);
     };
 
@@ -104,7 +103,6 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
         const nieuweBudgetNaam = selectedBetalingsSoort ? betalingsSoorten2Rekeningen.get(selectedBetalingsSoort)?.bestemming.find(rekening => rekening.naam === rekeningNaam)?.budgetten[0]?.budgetNaam : undefined;
         setSelectedBudget(nieuweBudgetNaam);
         setSelectedBestemmingRekening(rekeningNaam);
-        console.log('newBudgetNaam: ', nieuweBudgetNaam, 'selectedBetalingsSoort: ', selectedBetalingsSoort, 'rekeningNaam: ', rekeningNaam);
         props.onBetalingsSoortChange(selectedBetalingsSoort, selectedBronRekening, rekeningNaam, nieuweBudgetNaam);
     };
 
