@@ -45,7 +45,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     id: 0,
     boekingsdatum: dayjs(),
     bedrag: 0,
-    omschrijving: ' ',
+    omschrijving: '',
     betalingsSoort: undefined,
     bron: undefined,
     bestemming: undefined,

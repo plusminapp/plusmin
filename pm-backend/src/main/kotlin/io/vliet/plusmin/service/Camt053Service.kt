@@ -14,11 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
+import java.math.BigDecimal
 
 @Service
 class Camt053Service {
     @Autowired
-    lateinit var betalingRepository: BetalingRepository
+    lateinit var betalingService: BetalingService
 
     @Autowired
     lateinit var rekeningRepository: RekeningRepository
@@ -28,7 +29,11 @@ class Camt053Service {
     fun loadCamt053File(gebruiker: Gebruiker, reader: BufferedReader, debug: Boolean = true): String {
         val rekeningen = rekeningRepository.findRekeningenVoorGebruiker(gebruiker)
         val inkomstenRekening = rekeningen.filter { it.rekeningSoort == Rekening.RekeningSoort.INKOMSTEN }[0]
+        val inkomstenBudget = if (inkomstenRekening.budgetten.size > 0) inkomstenRekening.budgetten[0] else null
+
         val uitgavenRekening = rekeningen.filter { it.rekeningSoort == Rekening.RekeningSoort.UITGAVEN }[0]
+        val uitgaveBudget = if (uitgavenRekening.budgetten.size > 0) uitgavenRekening.budgetten[0] else null
+
         val betaalRekening = rekeningen.filter { it.rekeningSoort == Rekening.RekeningSoort.BETAALREKENING }[0]
 
         val camt053Parser = Camt053Parser()
@@ -68,20 +73,20 @@ class Camt053Service {
                             "${if (isDebit) "Af" else "Bij"}, " +
                                     "Bedrag: ${reportEntry2.amt.value}, " +
                                     "Boekingsdatum: ${boekingsDatum}, " +
-                                    "Omschrijving: ${naamTegenrekening}, ${omschrijving}"
+                                    "Omschrijving: ${naamTegenrekening}, ${omschrijving}" +
+                                    "Budget: ${if (isDebit) uitgaveBudget?.budgetNaam else inkomstenBudget?.budgetNaam ?: "geen budget"}"
                         )
                     } else {
                         try {
-                            betalingRepository.save(
-                                Betaling(
-                                    boekingsdatum = reportEntry2.bookgDt.dt.toGregorianCalendar().toZonedDateTime()
-                                        .toLocalDate(),
-                                    bedrag = reportEntry2.amt.value,
-                                    gebruiker = gebruiker,
+                            betalingService.creeerBetaling(gebruiker,
+                                Betaling.BetalingDTO(
+                                    boekingsdatum = boekingsDatum.toString(),
+                                    bedrag = (reportEntry2.amt.value.toString()),
                                     omschrijving = omschrijving,
-                                    betalingsSoort = if (isDebit) Betaling.BetalingsSoort.UITGAVEN else Betaling.BetalingsSoort.INKOMSTEN,
-                                    bron = if (isDebit) betaalRekening else inkomstenRekening,
-                                    bestemming = if (isDebit) uitgavenRekening else betaalRekening
+                                    betalingsSoort = if (isDebit) Betaling.BetalingsSoort.UITGAVEN.toString() else Betaling.BetalingsSoort.INKOMSTEN.toString(),
+                                    bron = if (isDebit) betaalRekening.naam else inkomstenRekening.naam,
+                                    bestemming = if (isDebit) uitgavenRekening.naam else betaalRekening.naam,
+                                    budgetNaam = if (isDebit) uitgaveBudget?.budgetNaam else inkomstenBudget?.budgetNaam
                                 )
                             )
                             aantalOpgeslagenBetalingen++

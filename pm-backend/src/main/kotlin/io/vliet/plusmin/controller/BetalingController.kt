@@ -164,7 +164,8 @@ class BetalingController {
     @PostMapping("/camt053/{hulpvragerId}", consumes = ["multipart/form-data"])
     fun verwerkCamt053(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @RequestParam("file") file: MultipartFile
+        @RequestParam("file") file: MultipartFile,
+        @RequestParam("debug") debug: Boolean
     ): ResponseEntity<Any> {
         if (file.size > 4000000) {
             logger.warn("BetalingController.verwerkCamt053 bestand te groot voor gebruiker $hulpvragerId")
@@ -195,7 +196,8 @@ class BetalingController {
                         .setInputStream(file.inputStream)
                         .get()
                 )
-            )
+            ),
+            debug
         )
         return ResponseEntity.ok().body(result)
     }

@@ -223,7 +223,6 @@ export default function InkomstenUitgaven() {
                 )}
               </Grid>
               <Grid size={{ xs: 1, lg: 4 }}>
-                {uitgaveRekeningen.length > 1 &&
                   <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
                     <Box display="flex" alignItems="center" justifyContent="flex-start">
                       <UitgavenIcon />
@@ -231,7 +230,6 @@ export default function InkomstenUitgaven() {
                     &nbsp;
                     <Typography>{currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
                   </Box>
-                }
                 {uitgaveRekeningen.map(rekening =>
                   <Grid >
                     <Accordion >

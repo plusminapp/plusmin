@@ -134,7 +134,7 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
           <TableHead>
             <TableRow>
               <TableCell sx={{ padding: '5px' }}>Datum</TableCell>
-              <TableCell sx={{ padding: '5px' }}>Omschrijving</TableCell>
+              <TableCell sx={{ padding: '5px', maxWidth: '300px' }}>Omschrijving</TableCell>
               {heeftBudgetten &&
                 <TableCell sx={{ padding: '5px' }}>Budget</TableCell>}
               <TableCell sx={{ padding: '5px' }} align="right">Inkomsten</TableCell>
@@ -165,7 +165,7 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
               {betalingen.map((betaling) => (!isIntern(betaling) || toonIntern) &&
                 <TableRow key={betaling.id}>
                   <TableCell sx={{ padding: '5px' }}>{dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')}</TableCell>
-                  <TableCell sx={{ padding: '5px' }}>
+                  <TableCell sx={{ padding: '5px', maxWidth: '300px'}}>
                     {isIntern(betaling) ? betaling.betalingsSoort && betalingsSoortFormatter(betaling.betalingsSoort) + ': ' : ''}
                     {betaling.omschrijving}
                     </TableCell>
@@ -192,7 +192,7 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
               )}
               <TableRow sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey' }}>
                 <TableCell sx={{ padding: '5px' }}></TableCell>
-                <TableCell sx={{ padding: '5px', fontWeight: 'bold' }}>Totalen</TableCell>
+                <TableCell sx={{ padding: '5px', fontWeight: 'bold', maxWidth: '300px' }}>Totalen</TableCell>
                 {(heeftAflossing || heeftBudgetten) &&
                   <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} />}
                 <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.inkomsten)}</TableCell>
