@@ -28,6 +28,7 @@
   {
     "email": "hans@lsta.nl",
     "bijnaam": "Hans VW",
+    "periodeDag": 22,
     "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
   },
   {
