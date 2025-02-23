@@ -23,6 +23,10 @@ import { Periode } from '../model/Periode';
 import { Gebruiker } from '../model/Gebruiker';
 import { berekenMaandAflossingenBedrag } from '../model/Aflossing';
 
+export const saveToLocalStorage = (key: string, value: string) => {
+    localStorage.setItem(key, value);
+};
+
 
 export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
     const result = new Map<BetalingsSoort, RekeningPaar>();
@@ -91,22 +95,35 @@ function Header() {
         )
     }
 
-    const setOp1stOpenPeriode = (gebruiker: Gebruiker ) => {
-       return (gebruiker.periodes
+    const setOp1stOpenPeriode = (gebruiker: Gebruiker) => {
+        return (gebruiker.periodes
             .filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
             .sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
+    }
+
+    const setActieveHulpvragerData = (gebruiker: Gebruiker | undefined, periode: Periode | undefined) => {
+        if (!gebruiker) return;
+        setActieveHulpvrager(gebruiker);
+        saveToLocalStorage('actieveHulpvrager', gebruiker.id + '');
+        setRekeningen(gebruiker.rekeningen.sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1));
+        setBetalingsSoorten(transformRekeningen2BetalingsSoorten(gebruiker.rekeningen));
+        setBetaalMethoden(transformRekeningen2Betaalmethoden(gebruiker.rekeningen));
+        setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(gebruiker.rekeningen));
+        setPeriodes(gebruiker.periodes);
+        if (periode) {
+            setGekozenPeriode(periode);
+            saveToLocalStorage('gekozenPeriode', periode.id + '');
+        } else {
+            const eersteOpenPeriode = setOp1stOpenPeriode(gebruiker);
+            setGekozenPeriode(eersteOpenPeriode);
+            saveToLocalStorage('gekozenPeriode', eersteOpenPeriode.id + '');
+        }
     }
 
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
         ahv = ahv ? ahv : gebruiker
-        setActieveHulpvrager(ahv);
-        setRekeningen(ahv!.rekeningen.sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1))
-        setBetalingsSoorten(transformRekeningen2BetalingsSoorten(ahv!.rekeningen))
-        setBetaalMethoden(transformRekeningen2Betaalmethoden(ahv!.rekeningen))
-        setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(ahv!.rekeningen))
-        setPeriodes(ahv!.periodes)
-        setGekozenPeriode(setOp1stOpenPeriode(ahv!)) 
+        setActieveHulpvragerData(ahv, undefined);
         setAnchorElGebruiker(null);
         navigate('/profiel')
     };
@@ -120,24 +137,24 @@ function Header() {
             }
         })
         const data = await response.json();
-        setGebruiker(data.gebruiker);
-        setHulpvragers(data.hulpvragers);
-        if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
-            setActieveHulpvrager(data.hulpvragers[0])
-            setRekeningen(data.hulpvragers[0].rekeningen)
-            setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.hulpvragers[0].rekeningen))
-            setBetaalMethoden(transformRekeningen2Betaalmethoden(data.hulpvragers[0].rekeningen))
-            setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.hulpvragers[0].rekeningen))
-            setPeriodes(data.hulpvragers[0].periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setGekozenPeriode(setOp1stOpenPeriode(data.hulpvragers[0]))
+        setGebruiker(data.gebruiker as Gebruiker);
+        setHulpvragers(data.hulpvragers as Gebruiker[]);
+
+        const opgeslagenActieveHulpvragerId = localStorage.getItem('actieveHulpvrager');
+        const opgeslagenGekozenPeriodeId = localStorage.getItem('gekozenPeriode');
+        console.log('1: opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvragerId, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriodeId)
+
+        const opgeslagenActieveHulpvrager = Number(data.gebruiker?.id) === Number(opgeslagenActieveHulpvragerId) ?
+            data.gebruiker : (data.hulpvragers as Gebruiker[]).find(hv => Number(hv.id) === Number(opgeslagenActieveHulpvragerId))
+        const opgeslagenGekozenPeriode = (opgeslagenActieveHulpvrager?.periodes as Periode[]).find(p => p.id === Number(opgeslagenGekozenPeriodeId))
+        console.log('2: opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvrager?.id, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriode?.id)
+
+        if (opgeslagenActieveHulpvrager) {
+            setActieveHulpvragerData(opgeslagenActieveHulpvrager, opgeslagenGekozenPeriode)
+        } else if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {
+            setActieveHulpvragerData(data.hulpvragers[0], undefined)
         } else {
-            setActieveHulpvrager(data.gebruiker)
-            setRekeningen(data.gebruiker.rekeningen)
-            setBetalingsSoorten(transformRekeningen2BetalingsSoorten(data.gebruiker.rekeningen))
-            setBetaalMethoden(transformRekeningen2Betaalmethoden(data.gebruiker.rekeningen))
-            setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(data.gebruiker.rekeningen))
-            setPeriodes(data.gebruiker.periodes.sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1))
-            setGekozenPeriode(setOp1stOpenPeriode(data.gebruiker))
+            setActieveHulpvragerData(data.gebruiker, undefined)
         }
     }, [getIDToken, setGebruiker, setHulpvragers, setActieveHulpvrager, setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes])
 
@@ -155,7 +172,7 @@ function Header() {
 
     const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
     const heeftAflossing = maandAflossingsBedrag > 0;
-    const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven']; 
+    const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven'];
 
     return (
         <AppBar sx={{ position: 'sticky', top: 0, zIndex: 2, bgcolor: "white", color: '#333', boxShadow: 0 }}>

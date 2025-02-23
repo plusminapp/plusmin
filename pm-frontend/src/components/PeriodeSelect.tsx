@@ -2,6 +2,7 @@ import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typo
 import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
 import { useEffect } from "react";
+import { saveToLocalStorage } from "./Header";
 
 interface PeriodeSelectProps {
     isProfiel?: boolean;
@@ -15,11 +16,14 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
     const handlegekozenPeriodeChange = (event: SelectChangeEvent<string>) => {
         const periode = periodes.find(periode => periode.periodeStartDatum.toString() === event.target.value)
         setGekozenPeriode(periode);
+        saveToLocalStorage('gekozenPeriode', periode?.id + '');
+
     };
 
     useEffect(() => {
         if (periodes.length === 1) {
             setGekozenPeriode(periodes[0])
+            console.log('nu wordt periode gezet op ', periodes[0])
         }
     }, [periodes, setGekozenPeriode])
 

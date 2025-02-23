@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { Saldo } from "./Saldo";
 
 export type Periode = {
+    id: number;
     periodeStartDatum: string;
     periodeEindDatum: string;
     periodeStatus: string;

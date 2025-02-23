@@ -33,7 +33,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
 
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
-  const [toonIntern, setToonIntern] = useState(false);
+  const [toonIntern, setToonIntern] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
 
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
@@ -95,8 +95,10 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
     setSelectedBetaling(undefined);
   };
   const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonIntern', event.target.checked.toString());
     setToonIntern(event.target.checked);
   };
+  
   const interneRekeningenNamen = rekeningen.filter(r => r.rekeningSoort === RekeningSoort.betaalrekening || interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ')
   const toonInterneBetalingMeassage = `Interne betalingen zijn betalingen tussen eigen rekeningen (${interneRekeningenNamen}), ze maken niets uit voor het beschikbare geld, en worden daarom niet vanzelf getoond.`
   const interneBetalingKopMessage = 'Interne betalingen worden als negatief getal getoond als ze van de betaalrekening af gaan, positief als ze er bij komen.'
