@@ -139,9 +139,7 @@ export default function InkomstenUitgaven() {
         </Grid>
         <Grid size={1}>
           <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>
-            Inkomend ({currencyFormatter.format(Number(berekenInkomstenTotaal()))})
-            - uitgaand ({currencyFormatter.format(Number(berekenUitgavenTotaal()))}) geld
-            = {currencyFormatter.format(berekenCashFlowTotaal())}
+            IN ({currencyFormatter.format(Number(berekenInkomstenTotaal()))}) - UIT ({currencyFormatter.format(Number(berekenUitgavenTotaal()))}) = {currencyFormatter.format(berekenCashFlowTotaal())}
           </Typography>
         </Grid>
         {isPeriodeOpen &&
@@ -155,22 +153,12 @@ export default function InkomstenUitgaven() {
           </Grid>}
       </Grid>
       {isMdOrLarger &&
-        <Grid sx={{ mb: '25px' }}>
-          <Accordion expanded={expanded === 'tabel'} onChange={handleChange('tabel')}>
-            <AccordionSummary
-              expandIcon={<ArrowDropDownIcon />}
-              aria-controls={'BetalingTabel'}
-              id={'BetalingTabel'}>
-              <Typography component="span">Weergave als tabel</Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ p: 0 }}>
-              <BetaalTabel
-                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)}
-                onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
-                onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+        // <Grid sx={{ mb: '25px' }}>
+        <BetaalTabel
+          betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)}
+          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+          onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
+        // </Grid>
       }
       <Grid sx={{ mb: '25px' }}>
         <Accordion expanded={expanded === 'kolommen'} onChange={handleChange('kolommen')}>
@@ -223,13 +211,13 @@ export default function InkomstenUitgaven() {
                 )}
               </Grid>
               <Grid size={{ xs: 1, lg: 4 }}>
-                  <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
-                    <Box display="flex" alignItems="center" justifyContent="flex-start">
-                      <UitgavenIcon />
-                    </Box>
-                    &nbsp;
-                    <Typography>{currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+                <Box display="flex" alignItems="center" justifyContent="flex-start" ml={2}>
+                  <Box display="flex" alignItems="center" justifyContent="flex-start">
+                    <UitgavenIcon />
                   </Box>
+                  &nbsp;
+                  <Typography>{currencyFormatter.format(berekenUitgavenTotaal())}</Typography>
+                </Box>
                 {uitgaveRekeningen.map(rekening =>
                   <Grid >
                     <Accordion >

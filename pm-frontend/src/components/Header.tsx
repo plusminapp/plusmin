@@ -158,7 +158,7 @@ function Header() {
     const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven']; 
 
     return (
-        <AppBar position="static" sx={{ bgcolor: "white", color: '#333', boxShadow: 0 }}>
+        <AppBar sx={{ position: 'sticky', top: 0, zIndex: 2, bgcolor: "white", color: '#333', boxShadow: 0 }}>
             <Toolbar disableGutters>
                 <IconButton onClick={() => handleNavigation("/")}>
                     <PlusMinLogo />
