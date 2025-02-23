@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Box, Link, Button, FormGroup, FormControlLabel, Switch } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Box, Link, Button, FormGroup, FormControlLabel, Switch } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import { Link as RouterLink } from 'react-router-dom';
 import { BetalingDTO, BetalingsSoort, betalingsSoortFormatter, internBetalingsSoorten } from '../../model/Betaling';
@@ -33,7 +33,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
 
   const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
-  const [toonIntern, setToonIntern] = useState(false);
+  const [toonIntern, setToonIntern] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
 
   const handleEditClick = (betaling: BetalingDTO) => {
     setSelectedBetaling(betaling);
@@ -95,12 +95,14 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
     setSelectedBetaling(undefined);
   };
   const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonIntern', event.target.checked.toString());
     setToonIntern(event.target.checked);
   };
-const interneRekeningenNamen = rekeningen.filter(r => r.rekeningSoort === RekeningSoort.betaalrekening || interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ') 
-const toonInterneBetalingMeassage = `Interne betalingen zijn betalingen tussen eigen rekeningen (${interneRekeningenNamen}), ze maken niets uit voor het beschikbare geld, en worden daarom niet vanzelf getoond.`
-const interneBetalingKopMessage = 'Interne betalingen worden als negatief getal getoond als ze van de betaalrekening af gaan, positief als ze er bij komen.'
-const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tussen eigen rekeningen (${interneRekeningenNamen}), een totaal betekent daarom niks zinvols en daarom worden de betalingen niet opgeteld.`
+  
+  const interneRekeningenNamen = rekeningen.filter(r => r.rekeningSoort === RekeningSoort.betaalrekening || interneRekeningSoorten.includes(r.rekeningSoort)).map(r => r.naam).join(', ')
+  const toonInterneBetalingMeassage = `Interne betalingen zijn betalingen tussen eigen rekeningen (${interneRekeningenNamen}), ze maken niets uit voor het beschikbare geld, en worden daarom niet vanzelf getoond.`
+  const interneBetalingKopMessage = 'Interne betalingen worden als negatief getal getoond als ze van de betaalrekening af gaan, positief als ze er bij komen.'
+  const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tussen eigen rekeningen (${interneRekeningenNamen}), een totaal betekent daarom niks zinvols en daarom worden de betalingen niet opgeteld.`
 
   return (
     <>
@@ -129,23 +131,115 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
           </Grid>
         </>
       }
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell sx={{ padding: '5px' }}>Datum</TableCell>
-              <TableCell sx={{ padding: '5px', maxWidth: '300px' }}>Omschrijving</TableCell>
-              {heeftBudgetten &&
-                <TableCell sx={{ padding: '5px' }}>Budget</TableCell>}
-              <TableCell sx={{ padding: '5px' }} align="right">Inkomsten</TableCell>
-              {rekeningen.filter(r => r.rekeningSoort === RekeningSoort.uitgaven).map(uitgaveRekening => (
-                <TableCell key={uitgaveRekening.naam} sx={{ padding: '5px' }} align="right">{uitgaveRekening.naam}</TableCell>
+      <TableContainer sx={{ maxHeight: '80vh', overflow: 'auto' }}>
+        <Table stickyHeader>
+          <TableHead sx={{ position: 'sticky', top: 0, zIndex: 1 }}>
+            <TableRow sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey' }}>
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }}></TableCell>
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold', maxWidth: '300px' }}>Totalen</TableCell>
+              {(heeftAflossing || heeftBudgetten) &&
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} />}
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.inkomsten)}</TableCell>
+              {bestemmingen.map(bestemming => (
+                <TableCell key={bestemming} sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} align="right">
+                  {formatter.format(totalen.bestemmingen[bestemming])}
+                </TableCell>
               ))}
               {heeftAflossing &&
-                <TableCell sx={{ padding: '5px' }} align="right">Aflossing</TableCell>
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.aflossing)}</TableCell>}
+              {heeftIntern && toonIntern &&
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} align="right">
+                  <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }} justifyContent="flex-end"
+                    onClick={() => setMessage({ message: interneBetalingTotaalMessage, type: 'info' })}>
+                    <InfoIcon height='16' />
+                  </Box>
+                </TableCell>}
+              {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right" />
+              }
+            </TableRow>
+            {(heeftBudgetten || heeftAflossing) &&
+              <>
+                <TableRow sx={{ borderBottom: '1px' }}>
+                  <TableCell sx={{ padding: '5px' }}></TableCell>
+                  {heeftBudgetten &&
+                    <TableCell sx={{ padding: '5px' }}>Budgetten</TableCell>}
+                  {!heeftBudgetten && heeftAflossing &&
+                    <TableCell sx={{ padding: '5px' }}>Aflossing</TableCell>}
+                  <TableCell sx={{ padding: '5px' }} />
+                  <TableCell sx={{ padding: '5px' }} align="right" >
+                    {maandBudget['Inkomsten'] != 0 ? formatter.format(budget['Inkomsten']) : ''}
+                  </TableCell>
+                  {bestemmingen.map(bestemming => (
+                    <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
+                      {maandBudget[bestemming] != 0 ? formatter.format(budget[bestemming]) : ''}
+                    </TableCell>
+                  ))}
+                  <TableCell sx={{ padding: '5px' }} align="right" >
+                    {maandBudget["aflossing"] != 0 ? formatter.format(budget["aflossing"]) : ''}
+                  </TableCell>
+                  {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
+                    <TableCell sx={{ padding: '5px' }} align="right" />
+                  }
+                </TableRow>
+                <TableRow sx={{ borderBottom: '1px' }}>
+                  <TableCell sx={{ padding: '5px' }}></TableCell>
+                  <TableCell sx={{ padding: '5px' }}>Overschot/tekort</TableCell>
+                  <TableCell sx={{ padding: '5px' }} />
+                  <TableCell key={'Inkomsten'} sx={{ padding: '5px' }} align="right">
+                    {maandBudget['Inkomsten'] != 0 &&
+                      <Box display="flex" alignItems="center" justifyContent="flex-end">
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <BudgetStatusIcon verwachtHoog={totalen['inkomsten']} verwachtLaag={budget['Inkomsten']} />
+                        </Box>
+                        &nbsp;
+                        {formatter.format(totalen['inkomsten'] - budget['Inkomsten'])}
+                      </Box>}
+                  </TableCell>
+                  {bestemmingen.map(bestemming => (
+                    <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
+                      {maandBudget[bestemming] != 0 &&
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                          <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <BudgetStatusIcon verwachtHoog={budget[bestemming]} verwachtLaag={Math.floor(-totalen.bestemmingen[bestemming])} />
+                          </Box>
+                          &nbsp;
+                          {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
+                        </Box>}
+                    </TableCell>
+                  ))}
+                  {heeftAflossing &&
+                    <TableCell sx={{ padding: '5px' }} align="right" >
+                      <Box display="flex" alignItems="center" justifyContent="flex-end">
+                        <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
+                          <AflossingStatusIcon verwachtHoog={aflossingsBedrag} verwachtLaag={-totalen.aflossing} />
+                          <ExternalLinkIcon />
+                        </Link>
+                        &nbsp;
+                        {maandAflossingsBedrag != 0 ? formatter.format(aflossingsBedrag + totalen.aflossing) : ''}
+                      </Box>
+                    </TableCell>}
+                  {heeftIntern && toonIntern &&
+                    <TableCell sx={{ padding: '5px' }} align="right" />}
+                  {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
+                    <TableCell sx={{ padding: '5px' }} align="right" />}
+                </TableRow>
+              </>}
+
+            <TableRow sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey' }}>
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }}>Datum</TableCell>
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', maxWidth: '300px' }}>Omschrijving</TableCell>
+              {heeftBudgetten &&
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }}>Budget</TableCell>}
+              <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right">Inkomsten</TableCell>
+              {rekeningen.filter(r => r.rekeningSoort === RekeningSoort.uitgaven).map(uitgaveRekening => (
+                <TableCell key={uitgaveRekening.naam} sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right">{uitgaveRekening.naam}</TableCell>
+              ))}
+              {heeftAflossing &&
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right">Aflossing</TableCell>
               }
               {heeftIntern && toonIntern &&
-                <TableCell sx={{ padding: '5px' }} align="right">
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right">
                   <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-end" >
                     Intern
                     <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }}
@@ -156,19 +250,19 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
                 </TableCell>
               }
               {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
-                <TableCell sx={{ padding: '5px' }} align="right" />
+                <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px' }} align="right" />
               }
             </TableRow>
           </TableHead>
           <TableBody>
             <>
-              {betalingen.map((betaling) => (!isIntern(betaling) || toonIntern) &&
+              {betalingen.sort((a, b) => a.boekingsdatum < b.boekingsdatum ? 1 : -1).map((betaling) => (!isIntern(betaling) || toonIntern) &&
                 <TableRow key={betaling.id}>
                   <TableCell sx={{ padding: '5px' }}>{dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')}</TableCell>
-                  <TableCell sx={{ padding: '5px', maxWidth: '300px'}}>
+                  <TableCell sx={{ padding: '5px', maxWidth: '300px' }}>
                     {isIntern(betaling) ? betaling.betalingsSoort && betalingsSoortFormatter(betaling.betalingsSoort) + ': ' : ''}
                     {betaling.omschrijving}
-                    </TableCell>
+                  </TableCell>
                   {heeftBudgetten &&
                     <TableCell sx={{ padding: '5px' }}>{betaling.budgetNaam ? betaling.budgetNaam : ''}</TableCell>}
                   <TableCell sx={{ padding: '5px' }} align="right">{isInkomsten(betaling) ? getFormattedBedrag(betaling) : ''}</TableCell>
@@ -190,100 +284,11 @@ const interneBetalingTotaalMessage = `Interne betalingen schuiven met geld tusse
                   }
                 </TableRow>
               )}
-              <TableRow sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey' }}>
-                <TableCell sx={{ padding: '5px' }}></TableCell>
-                <TableCell sx={{ padding: '5px', fontWeight: 'bold', maxWidth: '300px' }}>Totalen</TableCell>
-                {(heeftAflossing || heeftBudgetten) &&
-                  <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} />}
-                <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.inkomsten)}</TableCell>
-                {bestemmingen.map(bestemming => (
-                  <TableCell key={bestemming} sx={{ padding: '5px', fontWeight: 'bold' }} align="right">
-                    {formatter.format(totalen.bestemmingen[bestemming])}
-                  </TableCell>
-                ))}
-                {heeftAflossing &&
-                  <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">{formatter.format(totalen.aflossing)}</TableCell>}
-                {heeftIntern && toonIntern &&
-                  <TableCell sx={{ padding: '5px', fontWeight: 'bold' }} align="right">
-                      <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }} justifyContent="flex-end"
-                        onClick={() => setMessage({ message: interneBetalingTotaalMessage, type: 'info' })}>
-                        <InfoIcon height='16' />
-                      </Box>
-                  </TableCell>}
-                {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
-                  <TableCell sx={{ padding: '5px' }} align="right" />
-                }
-              </TableRow>
 
-              {(heeftBudgetten || heeftAflossing) &&
-                <>
-                  <TableRow sx={{ borderBottom: '1px' }}>
-                    <TableCell sx={{ padding: '5px' }}></TableCell>
-                    {heeftBudgetten &&
-                      <TableCell sx={{ padding: '5px' }}>Budgetten</TableCell>}
-                    {!heeftBudgetten && heeftAflossing &&
-                      <TableCell sx={{ padding: '5px' }}>Aflossing</TableCell>}
-                    <TableCell sx={{ padding: '5px' }} />
-                    <TableCell sx={{ padding: '5px' }} align="right" >
-                      {maandBudget['Inkomsten'] != 0 ? formatter.format(budget['Inkomsten']) : ''}
-                    </TableCell>
-                    {bestemmingen.map(bestemming => (
-                      <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                        {maandBudget[bestemming] != 0 ? formatter.format(budget[bestemming]) : ''}
-                      </TableCell>
-                    ))}
-                    <TableCell sx={{ padding: '5px' }} align="right" >
-                      {maandBudget["aflossing"] != 0 ? formatter.format(budget["aflossing"]) : ''}
-                    </TableCell>
-                    {gekozenPeriode && isPeriodeOpen(gekozenPeriode) &&
-                      <TableCell sx={{ padding: '5px' }} align="right" />
-                    }
-                  </TableRow>
-                  <TableRow sx={{ borderBottom: '1px' }}>
-                    <TableCell sx={{ padding: '5px' }}></TableCell>
-                    <TableCell sx={{ padding: '5px' }}>Overschot/tekort</TableCell>
-                    <TableCell sx={{ padding: '5px' }} />
-                    <TableCell key={'Inkomsten'} sx={{ padding: '5px' }} align="right">
-                      {maandBudget['Inkomsten'] != 0 &&
-                        <Box display="flex" alignItems="center" justifyContent="flex-end">
-                          <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <BudgetStatusIcon verwachtHoog={totalen['inkomsten']} verwachtLaag={budget['Inkomsten']} />
-                          </Box>
-                          &nbsp;
-                          {formatter.format(totalen['inkomsten'] - budget['Inkomsten'])}
-                        </Box>}
-                    </TableCell>
-                    {bestemmingen.map(bestemming => (
-                      <TableCell key={bestemming} sx={{ padding: '5px' }} align="right">
-                        {maandBudget[bestemming] != 0 &&
-                          <Box display="flex" alignItems="center" justifyContent="flex-end">
-                            <Box display="flex" alignItems="center" justifyContent="flex-end">
-                              <BudgetStatusIcon verwachtHoog={budget[bestemming]} verwachtLaag={Math.floor(-totalen.bestemmingen[bestemming])} />
-                            </Box>
-                            &nbsp;
-                            {formatter.format(afgerondOp2Decimalen(budget[bestemming] + totalen.bestemmingen[bestemming]))}
-                          </Box>}
-                      </TableCell>
-                    ))}
-                    {heeftAflossing &&
-                      <TableCell sx={{ padding: '5px' }} align="right" >
-                        <Box display="flex" alignItems="center" justifyContent="flex-end">
-                          <Link component={RouterLink} to="/schuld-aflossingen" display={'flex'} alignItems={'center'} justifyContent={'flex-end'}>
-                            <AflossingStatusIcon verwachtHoog={aflossingsBedrag} verwachtLaag={-totalen.aflossing} />
-                            <ExternalLinkIcon />
-                          </Link>
-                          &nbsp;
-                          {maandAflossingsBedrag != 0 ? formatter.format(aflossingsBedrag + totalen.aflossing) : ''}
-                        </Box>
-                      </TableCell>}
-                    {heeftIntern && toonIntern &&
-                      <TableCell sx={{ padding: '5px' }} align="right" />}
-                  </TableRow>
-                </>}
             </>
           </TableBody>
         </Table>
-      </TableContainer>
+      </TableContainer >
       {selectedBetaling &&
         <UpsertBetalingDialoog
           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}

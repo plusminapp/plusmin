@@ -8,6 +8,7 @@ import TableRow from '@mui/material/TableRow';
 
 import { Aflossing } from '../../model/Aflossing';
 import { currencyFormatter } from '../../model/Betaling'
+import { Box } from '@mui/material';
 
 
 interface AflossingProps {
@@ -33,25 +34,33 @@ export default function AflossingTabel(props: AflossingProps) {
             </TableRow>
           </TableHead>
           <TableBody>
-              <TableRow>
-                  <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
-                  <TableCell align="left" size='small'>{props.aflossing.eindDatum.toString()}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
-                  <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
-                  <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.berekendSaldo)}</TableCell>
-                  <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.werkelijkSaldo)}</TableCell>
-              </TableRow>
-              <TableRow>
-                  <TableCell align="left" size='small' colSpan={8}>Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.betaling)}</TableCell>
-              </TableRow>
-              <TableRow>
-                  <TableCell align="left" size='small' colSpan={8}>Notities<br/>{props.aflossing.notities}</TableCell>
-              </TableRow>
+            <TableRow>
+              <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
+              <TableCell align="left" size='small'>{props.aflossing.eindDatum.toString()}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
+              <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
+              <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.berekendSaldo)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.werkelijkSaldo)}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell align="left" size='small' colSpan={4} >
+                <Box sx={{ fontSize: '0.875rem' }}>
+                  Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.betaling)}
+                </Box>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell align="left" size='small' colSpan={8}>
+                <Box sx={{ fontSize: '0.875rem' }}>
+                  Notities<br />{props.aflossing.notities}
+                </Box>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
-      </TableContainer >
+      </TableContainer>
     </>
   );
 }

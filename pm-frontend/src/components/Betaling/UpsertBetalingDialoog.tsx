@@ -283,7 +283,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
               }}
             />
             {errors.betalingsSoort && (
-              <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem' }}>{errors.betalingsSoort}</Typography>
+              <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem', textAlign:'center' }}>{errors.betalingsSoort}</Typography>
             )}
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
