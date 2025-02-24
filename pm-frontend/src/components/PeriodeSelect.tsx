@@ -1,7 +1,6 @@
 import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 import { Periode } from "../model/Periode";
 import { useCustomContext } from "../context/CustomContext";
-import { useEffect } from "react";
 import { saveToLocalStorage } from "./Header";
 
 interface PeriodeSelectProps {
@@ -20,12 +19,11 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
 
     };
 
-    useEffect(() => {
-        if (periodes.length === 1) {
-            setGekozenPeriode(periodes[0])
-            console.log('nu wordt periode gezet op ', periodes[0])
-        }
-    }, [periodes, setGekozenPeriode])
+    // useEffect(() => {
+    //     if (periodes.length === 1) {
+    //         setGekozenPeriode(periodes[0])
+    //     }
+    // }, [periodes, setGekozenPeriode])
 
     const openPeriodes = periodes.filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
     return (

@@ -6,6 +6,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { useCustomContext } from "../../../context/CustomContext";
 import { Aflossing } from "../../../model/Aflossing";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 export const AflossingenAfbouwGrafiek = () => {
 
@@ -14,9 +15,16 @@ export const AflossingenAfbouwGrafiek = () => {
 
   const [aflossingen, setAflossingen] = useState<Aflossing[]>([]);
 
+  const navigate = useNavigate();
   const fetchAflossingen = useCallback(async () => {
-    if (gebruiker) {  
-      const token = await getIDToken();
+    if (gebruiker) {
+      let token
+      try {
+        token = await getIDToken();
+      } catch (error) {
+        navigate('/login');
+      }
+
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
       const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
         method: "GET",
@@ -38,7 +46,7 @@ export const AflossingenAfbouwGrafiek = () => {
     fetchAflossingen();
   }, [fetchAflossingen]);
 
-  const getoondePeriode = dayjs(gekozenPeriode?.periodeEindDatum).format("YYYY-MM"); 
+  const getoondePeriode = dayjs(gekozenPeriode?.periodeEindDatum).format("YYYY-MM");
 
   const chartOptions: AgChartOptions = {
     data: Object.values(getData(aflossingen)),

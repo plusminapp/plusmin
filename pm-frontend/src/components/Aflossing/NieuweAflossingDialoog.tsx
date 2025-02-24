@@ -20,6 +20,7 @@ import { useAuthContext } from '@asgardeo/auth-react';
 import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
 import { transformRekeningenToBetalingsSoorten } from '../Header';
+import { useNavigate } from 'react-router-dom';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -98,12 +99,19 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
   const handleInputRekeningWijziging = <K extends keyof Rekening>(key: K, value: Rekening[K]) => {
     setRekening({ ...rekening, [key]: value })
   };
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isValid) {
       try {
-        const token = await getIDToken();
+        let token
+        try {
+          token = await getIDToken();
+        } catch (error) {
+          navigate('/login');
+        }
+
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
         const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
           method: "PUT",

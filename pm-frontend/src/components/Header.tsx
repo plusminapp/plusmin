@@ -129,7 +129,13 @@ function Header() {
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
-        const token = await getIDToken();
+              let token
+      try {
+        token = await getIDToken();
+      } catch (error) {
+        navigate('/login');
+      }
+
         const response = await fetch('/api/v1/gebruiker/zelf', {
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -141,14 +147,15 @@ function Header() {
         setHulpvragers(data.hulpvragers as Gebruiker[]);
 
         const opgeslagenActieveHulpvragerId = localStorage.getItem('actieveHulpvrager');
-        const opgeslagenGekozenPeriodeId = localStorage.getItem('gekozenPeriode');
-        console.log('1: opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvragerId, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriodeId)
-
         const opgeslagenActieveHulpvrager = Number(data.gebruiker?.id) === Number(opgeslagenActieveHulpvragerId) ?
             data.gebruiker : (data.hulpvragers as Gebruiker[]).find(hv => Number(hv.id) === Number(opgeslagenActieveHulpvragerId))
-        const opgeslagenGekozenPeriode = (opgeslagenActieveHulpvrager?.periodes as Periode[]).find(p => p.id === Number(opgeslagenGekozenPeriodeId))
-        console.log('2: opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvrager?.id, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriode?.id)
 
+        const opgeslagenGekozenPeriodeId = localStorage.getItem('gekozenPeriode');
+        const opgeslagenGekozenPeriode = opgeslagenGekozenPeriodeId ?
+            (opgeslagenActieveHulpvrager.periodes as Periode[])
+            .find(periode => periode.id === Number(opgeslagenGekozenPeriodeId)) : undefined;
+
+        console.log('opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvrager?.id, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriode?.id)
         if (opgeslagenActieveHulpvrager) {
             setActieveHulpvragerData(opgeslagenActieveHulpvrager, opgeslagenGekozenPeriode)
         } else if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {

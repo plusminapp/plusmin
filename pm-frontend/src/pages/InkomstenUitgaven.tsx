@@ -11,7 +11,7 @@ import BetaalTabel from '../components/Betaling/BetalingTabel';
 import { berekenBedragVoorRekenining, Rekening, RekeningSoort } from '../model/Rekening';
 import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 import { useMediaQuery, useTheme } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
@@ -25,6 +25,7 @@ import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../mode
 import { AflossingStatusIcon } from '../icons/AflossingStatus';
 import { budgetten, maandBudgetten } from '../model/Budget';
 import { BudgetStatusIcon } from '../icons/BudgetStatus';
+// import UpsertCamt053Dialoog from '../components/Betaling/UpsertCamt053Dialoog';
 
 export default function InkomstenUitgaven() {
   const { getIDToken } = useAuthContext();
@@ -38,6 +39,7 @@ export default function InkomstenUitgaven() {
   const interneRekeningen: Rekening[] = rekeningen.filter(rekening => interneRekeningSoorten.includes(rekening.rekeningSoort))
   const theme = useTheme();
   const isMdOrLarger = useMediaQuery(theme.breakpoints.up('md'));
+  const navigate = useNavigate();
 
   const [expanded, setExpanded] = useState<string | false>(isMdOrLarger ? 'tabel' : 'kolommen');
   const handleChange = (panel: string) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
@@ -47,7 +49,13 @@ export default function InkomstenUitgaven() {
   const fetchBetalingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
-      const token = await getIDToken();
+      let token
+      try {
+        token = await getIDToken();
+      } catch (error) {
+        setIsLoading(false);
+        navigate('/login');
+      }
       const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
       const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}?fromDate=${gekozenPeriode?.periodeStartDatum}&toDate=${gekozenPeriode?.periodeEindDatum}&size=-1`, {
         method: "GET",
@@ -58,10 +66,10 @@ export default function InkomstenUitgaven() {
       });
       setIsLoading(false);
       if (response.ok) {
-        const result = await response.json();
-        setBetalingen(result.data.content);
+        const result = await response.json() as { data: { content: BetalingDTO[] } };
+        setBetalingen(result.data.content.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1));
       } else {
-        console.error("Failed to fetch data", response.status);
+        console.error("Failed to fetch betalingen", response.status);
       }
     }
   }, [getIDToken, actieveHulpvrager, gebruiker, gekozenPeriode]);
@@ -114,7 +122,8 @@ export default function InkomstenUitgaven() {
   }
 
   const onBetalingBewaardChange = (betaling: BetalingDTO): void => {
-    setBetalingen([...betalingen.filter(b => b.id !== betaling.id), betaling]);
+    const nieuweBetalingen = [...betalingen.filter(b => b.id !== betaling.id), betaling]
+    setBetalingen(nieuweBetalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1));
   }
 
   const onBetalingVerwijderdChange = (betaling: BetalingDTO): void => {
@@ -144,6 +153,7 @@ export default function InkomstenUitgaven() {
         </Grid>
         {isPeriodeOpen &&
           <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
+            {/* <UpsertCamt053Dialoog /> */}
             <UpsertBetalingDialoog
               editMode={false}
               betaling={undefined}
@@ -155,7 +165,7 @@ export default function InkomstenUitgaven() {
       {isMdOrLarger &&
         // <Grid sx={{ mb: '25px' }}>
         <BetaalTabel
-          betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)}
+          betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)}
           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
         // </Grid>
@@ -201,7 +211,7 @@ export default function InkomstenUitgaven() {
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
@@ -267,7 +277,7 @@ export default function InkomstenUitgaven() {
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={true} />
                       </AccordionDetails>
@@ -293,7 +303,7 @@ export default function InkomstenUitgaven() {
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)
+                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={false} />
                       </AccordionDetails>
@@ -350,7 +360,7 @@ export default function InkomstenUitgaven() {
                 actueleRekening={undefined}
                 onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
-                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isBefore(dayjs(b.boekingsdatum)) ? -1 : 1)} />
+                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)} />
             </AccordionDetails>
           </Accordion>
         </Grid>

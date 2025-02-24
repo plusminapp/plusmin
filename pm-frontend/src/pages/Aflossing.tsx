@@ -15,6 +15,7 @@ import { PlusIcon } from "../icons/Plus";
 import dayjs from "dayjs";
 import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
 import { PeriodeSelect } from "../components/PeriodeSelect";
+import { useNavigate } from "react-router-dom";
 
 export default function Aflossingen() {
 
@@ -36,11 +37,19 @@ export default function Aflossingen() {
     }
   }, [gekozenPeriode]);
 
+  const navigate = useNavigate();
   const fetchAflossingen = useCallback(async () => {
     if (gebruiker) {
       setIsLoading(true);
       const id = actieveHulpvrager!.id
-      const token = await getIDToken();
+      let token
+      try {
+        token = await getIDToken();
+      } catch (error) {
+        setIsLoading(false);
+        navigate('/login');
+      }
+
       const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}/datum/${formDatum.toISOString().slice(0, 10)}`, {
         method: "GET",
         headers: {
@@ -141,7 +150,7 @@ export default function Aflossingen() {
           </AccordionDetails>
         </Accordion>
       )}
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
+      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </>
   )
 }
