@@ -20,6 +20,13 @@
     "sortOrder": 1
   },
   {
+    "rekeningSoort": "CONTANT",
+    "nummer": "",
+    "naam": "Contant",
+    "afkorting": "cnt",
+    "sortOrder": 3
+  },
+  {
     "rekeningSoort": "CREDITCARD",
     "nummer": "",
     "naam": "Credit Card",
