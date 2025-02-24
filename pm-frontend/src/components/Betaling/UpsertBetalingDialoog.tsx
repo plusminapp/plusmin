@@ -20,7 +20,6 @@ import 'dayjs/locale/nl';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
-import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 import BetalingsSoortSelect from '../Betaling/BetalingsSoortSelect';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -41,9 +40,13 @@ type UpsertBetalingDialoogProps = {
 };
 
 export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps) {
+  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, periodes, gekozenPeriode, setSnackbarMessage } = useCustomContext();
+
+  const boekingsDatum = gekozenPeriode?.periodeEindDatum && dayjs().toISOString().slice(0, 10) > gekozenPeriode?.periodeEindDatum ? dayjs(gekozenPeriode?.periodeEindDatum) : dayjs()
+
   const initialBetalingDTO = useMemo(() => ({
     id: 0,
-    boekingsdatum: dayjs(),
+    boekingsdatum: boekingsDatum,
     bedrag: 0,
     omschrijving: '',
     betalingsSoort: undefined,
@@ -53,15 +56,17 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   }), []);
 
   type BetalingDtoErrors = { betalingsSoort?: String, omschrijving?: string; bedrag?: string; boekingsdatum?: string }
+  type BetalingDtoWarnings = { boekingsdatum?: string }
+
   const initialBetalingDtoErrors = { betalingsSoort: undefined, omschrijving: undefined, bedrag: undefined, boekingsdatum: undefined }
+  const initialBetalingDtoWarnings = { boekingsdatum: undefined }
+
   const [open, setOpen] = useState(props.editMode);
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
   const [errors, setErrors] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
-  const [warnings, setWarnings] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
-  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
+  const [warnings, setWarnings] = useState<BetalingDtoWarnings>(initialBetalingDtoWarnings);
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, betalingsSoorten2Rekeningen, periodes, gekozenPeriode } = useCustomContext();
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
   useEffect(() => {
@@ -78,6 +83,9 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     setOpen(true);
   };
   const handleClose = () => {
+    setBetalingDTO(initialBetalingDTO);
+    setErrors(initialBetalingDtoErrors);
+    setWarnings(initialBetalingDtoWarnings);
     if (props.editMode) {
       props.onUpsertBetalingClose();
     } else {
@@ -113,7 +121,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
 
   const validateKeyValueWarning = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]): string | undefined => {
     if (key === 'boekingsdatum' && (dayjs(value as dayjs.Dayjs).isBefore(gekozenPeriode?.periodeStartDatum) || dayjs(value as dayjs.Dayjs).isAfter(gekozenPeriode?.periodeEindDatum))) {
-      return `De boekingsdatum valt buiten de gekozen periode (van ${gekozenPeriode?.periodeStartDatum} t/m ${gekozenPeriode?.periodeEindDatum}).`;
+      return `De boekingsdatum valt buiten de gekozen periode (van ${gekozenPeriode?.periodeStartDatum} t/m ${gekozenPeriode?.periodeEindDatum}) en wordt dus niet meteen getoond.`;
     }
     return undefined;
   };
@@ -129,28 +137,18 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     setBetalingDTO({ ...betalingDTO, [key]: value });
     const error = validateKeyValue(key, value);
     const warning = validateKeyValueWarning(key, value);
-    if (error) {
-      setErrors({ ...errors, [key]: error });
-      setWarnings({ ...warnings, [key]: undefined });
-    } else {
-      setErrors({ ...errors, [key]: undefined });
-      setWarnings({ ...warnings, [key]: warning });
-    }
+    setErrors({ ...errors, [key]: error });
+    setWarnings({ ...warnings, [key]: warning });
   };
   const validateBetalingDTO = () => {
     const newErrors: BetalingDtoErrors = initialBetalingDtoErrors;
-    const newWarnings: BetalingDtoErrors = initialBetalingDtoErrors;
     (Object.keys(initialBetalingDtoErrors) as (keyof BetalingDtoErrors)[]).forEach((key) => {
       const error = validateKeyValue(key, betalingDTO[key]);
-      const warning = validateKeyValueWarning(key, betalingDTO[key]);
       if (error) {
         newErrors[key as keyof BetalingDtoErrors] = error;
-      } else {
-        newWarnings[key as keyof BetalingDtoErrors] = warning;
       }
     });
     setErrors(newErrors);
-    setWarnings(newWarnings);
     return newErrors;
   };
 
@@ -178,22 +176,30 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         if (!response.ok) {
           throw new Error(`HTTP fout met status: ${response.status}`);
         }
-        setMessage({
+        setSnackbarMessage({
           message: "Betaling is opgeslagen.",
           type: "success"
         })
         const responseJson = await response.json()
-        props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
+        const isBoekingsInGekozenPeriode =
+        dayjs(responseJson.boekingsdatum).isAfter(dayjs(gekozenPeriode?.periodeStartDatum).subtract(1, 'day')) &&
+        dayjs(responseJson.boekingsdatum).isBefore(dayjs(gekozenPeriode?.periodeEindDatum).add(1, 'day'));
+        console.log('isBoekingsInGekozenPeriode', isBoekingsInGekozenPeriode, 'boekingsdatum', responseJson.boekingsdatum, 'periodeStartDatum', gekozenPeriode?.periodeStartDatum, '', gekozenPeriode?.periodeEindDatum)
+        if (isBoekingsInGekozenPeriode) {
+          props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
+        }
         if (props.editMode) {
           handleClose()
         } else {
           setBetalingDTO(initialBetalingDTO)
+          setErrors(initialBetalingDtoErrors)
+          setWarnings(initialBetalingDtoWarnings)
         }
       } catch (error) {
         console.error('Fout bij opslaan betaling:', error);
       }
     } else {
-      setMessage({
+      setSnackbarMessage({
         message: `Betaling is niet geldig, herstel de fouten en probeer het opnieuw. ${errorMessages}`,
         type: "error"
       })
@@ -211,21 +217,19 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           "Content-Type": "application/json",
         },
       });
-
       if (!response.ok) {
         throw new Error(`HTTP fout met status: ${response.status}`);
       }
-
-      setMessage({
-        message: "Betaling is verwijderd.",
+      props.onBetalingVerwijderdChange(betalingDTO)
+      setSnackbarMessage({
+        message: 'Betaling is verwijderd.',
         type: "success"
       })
-      props.onBetalingVerwijderdChange(betalingDTO)
       setBetalingDTO(initialBetalingDTO)
       handleClose()
 
     } catch (error) {
-      setMessage({
+      setSnackbarMessage({
         message: `Betaling is NIET verwijderd. Fout: ${(error as Error).message}`,
         type: "error"
       })
@@ -260,7 +264,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         </DialogTitle>
         <IconButton
           aria-label="close"
-          onClick={handleClose}
+          onClick={() => handleClose()}
           sx={(theme) => ({
             position: 'absolute',
             right: 8,
@@ -283,7 +287,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
               }}
             />
             {errors.betalingsSoort && (
-              <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem', textAlign:'center' }}>{errors.betalingsSoort}</Typography>
+              <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem', textAlign: 'center' }}>{errors.betalingsSoort}</Typography>
             )}
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
@@ -337,7 +341,6 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
     </React.Fragment>
   );
 }

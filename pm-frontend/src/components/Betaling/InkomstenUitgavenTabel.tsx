@@ -14,6 +14,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
 import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
+import dayjs from 'dayjs';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -88,33 +89,35 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredBetalingen.map((betaling) => (
-                  <Fragment key={betaling.id}>
-                    <TableRow
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      aria-haspopup="true"
-                    >
-                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
-                      <TableCell align="left" size='small' sx={{
-                        p: "5px", whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        maxWidth: "50px"
-                      }}>{betaling["omschrijving"]}</TableCell>
-                      {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                {filteredBetalingen
+                  .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
+                  .map((betaling) => (
+                    <Fragment key={betaling.id}>
+                      <TableRow
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        aria-haspopup="true"
+                      >
+                        <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
+                        <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
+                        <TableCell align="left" size='small' sx={{
+                          p: "5px", whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          maxWidth: "50px"
+                        }}>{betaling["omschrijving"]}</TableCell>
+                        {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
                       </TableCell> */}
-                      {isPeriodeOpen &&
-                        <TableCell size='small' sx={{ p: "5px" }}>
-                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
-                            <EditIcon fontSize="small" />
-                          </Button>
-                        </TableCell>
-                      }
-                    </TableRow>
-                  </Fragment>
-                ))}
+                        {isPeriodeOpen &&
+                          <TableCell size='small' sx={{ p: "5px" }}>
+                            <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
+                              <EditIcon fontSize="small" />
+                            </Button>
+                          </TableCell>
+                        }
+                      </TableRow>
+                    </Fragment>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>

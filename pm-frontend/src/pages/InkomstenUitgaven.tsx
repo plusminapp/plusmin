@@ -20,7 +20,6 @@ import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
 import { ExternalLinkIcon } from '../icons/ExternalLink';
-import dayjs from 'dayjs';
 import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../model/Aflossing';
 import { AflossingStatusIcon } from '../icons/AflossingStatus';
 import { budgetten, maandBudgetten } from '../model/Budget';
@@ -67,7 +66,7 @@ export default function InkomstenUitgaven() {
       setIsLoading(false);
       if (response.ok) {
         const result = await response.json() as { data: { content: BetalingDTO[] } };
-        setBetalingen(result.data.content.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1));
+        setBetalingen(result.data.content);
       } else {
         console.error("Failed to fetch betalingen", response.status);
       }
@@ -122,8 +121,7 @@ export default function InkomstenUitgaven() {
   }
 
   const onBetalingBewaardChange = (betaling: BetalingDTO): void => {
-    const nieuweBetalingen = [...betalingen.filter(b => b.id !== betaling.id), betaling]
-    setBetalingen(nieuweBetalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1));
+    setBetalingen([...betalingen.filter(b => b.id !== betaling.id), betaling]);
   }
 
   const onBetalingVerwijderdChange = (betaling: BetalingDTO): void => {
@@ -165,7 +163,7 @@ export default function InkomstenUitgaven() {
       {isMdOrLarger &&
         // <Grid sx={{ mb: '25px' }}>
         <BetaalTabel
-          betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)}
+          betalingen={betalingen}
           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
         // </Grid>
@@ -211,7 +209,6 @@ export default function InkomstenUitgaven() {
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)} />
@@ -277,7 +274,6 @@ export default function InkomstenUitgaven() {
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={true} />
                       </AccordionDetails>
@@ -303,7 +299,6 @@ export default function InkomstenUitgaven() {
                           onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
                           betalingen={betalingen
-                            .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)
                             .filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
                           isAflossing={false} />
                       </AccordionDetails>
@@ -360,7 +355,7 @@ export default function InkomstenUitgaven() {
                 actueleRekening={undefined}
                 onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
-                betalingen={betalingen.sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) || a.bedrag < b.bedrag ? -1 : 1)} />
+                betalingen={betalingen} />
             </AccordionDetails>
           </Accordion>
         </Grid>

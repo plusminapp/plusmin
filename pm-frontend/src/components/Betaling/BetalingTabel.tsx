@@ -15,7 +15,6 @@ import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../../m
 import { BudgetStatusIcon } from '../../icons/BudgetStatus';
 import { AflossingStatusIcon } from '../../icons/AflossingStatus';
 import { InfoIcon } from '../../icons/Info';
-import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 
 type BetalingTabelProps = {
   betalingen: BetalingDTO[];
@@ -29,9 +28,8 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
     currency: 'EUR',
   });
 
-  const { rekeningen, gekozenPeriode, actieveHulpvrager } = useCustomContext();
+  const { rekeningen, gekozenPeriode, actieveHulpvrager, setSnackbarMessage } = useCustomContext();
 
-  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
   const [toonIntern, setToonIntern] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
 
@@ -125,7 +123,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                 } />
             </FormGroup>
             <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
-              onClick={() => setMessage({ message: toonInterneBetalingMeassage, type: 'info' })}>
+              onClick={() => setSnackbarMessage({ message: toonInterneBetalingMeassage, type: 'info' })}>
               <InfoIcon height='16' />
             </Box>
           </Grid>
@@ -150,7 +148,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
               {heeftIntern && toonIntern &&
                 <TableCell sx={{ borderTop: '2px solid grey', borderBottom: '2px solid grey', padding: '5px', fontWeight: 'bold' }} align="right">
                   <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }} justifyContent="flex-end"
-                    onClick={() => setMessage({ message: interneBetalingTotaalMessage, type: 'info' })}>
+                    onClick={() => setSnackbarMessage({ message: interneBetalingTotaalMessage, type: 'info' })}>
                     <InfoIcon height='16' />
                   </Box>
                 </TableCell>}
@@ -243,7 +241,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                   <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-end" >
                     Intern
                     <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }}
-                      onClick={() => setMessage({ message: interneBetalingKopMessage, type: 'info' })}>
+                      onClick={() => setSnackbarMessage({ message: interneBetalingKopMessage, type: 'info' })}>
                       <InfoIcon height='16' />
                     </Box>
                   </Grid>
@@ -256,7 +254,9 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
           </TableHead>
           <TableBody>
             <>
-              {betalingen.sort((a, b) => a.boekingsdatum < b.boekingsdatum ? 1 : -1).map((betaling) => (!isIntern(betaling) || toonIntern) &&
+              {betalingen
+              .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
+              .map((betaling) => (!isIntern(betaling) || toonIntern) &&
                 <TableRow key={betaling.id}>
                   <TableCell sx={{ padding: '5px' }}>{dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')}</TableCell>
                   <TableCell sx={{ padding: '5px', maxWidth: '300px' }}>
@@ -298,7 +298,6 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
           betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
         />
       }
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </>
   );
 };

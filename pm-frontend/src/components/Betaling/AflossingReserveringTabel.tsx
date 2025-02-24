@@ -14,6 +14,7 @@ import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
 import { Button, Typography } from '@mui/material';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
+import dayjs from 'dayjs';
 
 interface AflossingReserveringTabelProps {
   betalingen: BetalingDTO[];
@@ -41,7 +42,6 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
     setSelectedBetaling(undefined);
   };
 
-
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
   return (
@@ -62,27 +62,29 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
                 </TableRow>
               </TableHead>
               <TableBody>
-                {betalingen.map((betaling) => (
-                  <Fragment key={betaling.id}>
-                    <TableRow
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      aria-haspopup="true"
-                    >
-                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                      <TableCell align="right" size='small' sx={{ p: "5px" }}>
-                        {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
-                      </TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "5px" }}>{betaling["omschrijving"]}</TableCell>
-                      {isPeriodeOpen &&
-                        <TableCell size='small' sx={{ p: "5px" }}>
-                          <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', p: "5px", color: 'grey' }}>
-                            <EditIcon fontSize="small" />
-                          </Button>
+                {betalingen
+                  .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
+                  .map((betaling) => (
+                    <Fragment key={betaling.id}>
+                      <TableRow
+                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        aria-haspopup="true"
+                      >
+                        <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
+                        <TableCell align="right" size='small' sx={{ p: "5px" }}>
+                          {betaling.betalingsSoort === BetalingsSoort.toevoegen_reservering ? currencyFormatter.format(betaling.bedrag) : currencyFormatter.format(-betaling.bedrag)}
                         </TableCell>
-                      }
-                    </TableRow>
-                  </Fragment>
-                ))}
+                        <TableCell align="left" size='small' sx={{ p: "5px" }}>{betaling["omschrijving"]}</TableCell>
+                        {isPeriodeOpen &&
+                          <TableCell size='small' sx={{ p: "5px" }}>
+                            <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', p: "5px", color: 'grey' }}>
+                              <EditIcon fontSize="small" />
+                            </Button>
+                          </TableCell>
+                        }
+                      </TableRow>
+                    </Fragment>
+                  ))}
               </TableBody>
             </Table>
           </TableContainer>

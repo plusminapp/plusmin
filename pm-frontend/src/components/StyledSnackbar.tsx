@@ -41,6 +41,6 @@ const StyledSnackbar = ({ message = '', type = "info" as AlertColor, onClose }: 
 export default StyledSnackbar;
 
 export type SnackbarMessage = {
-    message: string | undefined,
-    type: AlertColor | undefined
+    message?: string | undefined,
+    type?: AlertColor | undefined
 }

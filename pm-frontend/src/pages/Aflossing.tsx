@@ -9,7 +9,6 @@ import { useCustomContext } from "../context/CustomContext";
 import { Aflossing } from '../model/Aflossing'
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import AflossingTabel from "../components/Aflossing/AflossingTabel";
-import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 import { MinIcon } from "../icons/Min";
 import { PlusIcon } from "../icons/Plus";
 import dayjs from "dayjs";
@@ -20,12 +19,11 @@ import { useNavigate } from "react-router-dom";
 export default function Aflossingen() {
 
   const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager, gekozenPeriode } = useCustomContext();
+  const { gebruiker, actieveHulpvrager, gekozenPeriode, setSnackbarMessage } = useCustomContext();
 
   const [aflossingen, setAflossingen] = useState<Aflossing[]>([])
   const [isLoading, setIsLoading] = useState(false);
   const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
-  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
   useEffect(() => {
     if (gekozenPeriode) {
@@ -63,7 +61,7 @@ export default function Aflossingen() {
         setAflossingen(result);
       } else {
         console.error("Failed to fetch data", response.status);
-        setMessage({
+        setSnackbarMessage({
           message: `De configuratie voor ${actieveHulpvrager!.bijnaam} is niet correct.`,
           type: "warning"
         })
@@ -150,7 +148,6 @@ export default function Aflossingen() {
           </AccordionDetails>
         </Accordion>
       )}
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </>
   )
 }

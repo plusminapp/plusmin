@@ -17,7 +17,6 @@ import 'dayjs/locale/nl';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
-import StyledSnackbar, { SnackbarMessage } from '../StyledSnackbar';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
 import { transformRekeningenToBetalingsSoorten } from '../Header';
 import { useNavigate } from 'react-router-dom';
@@ -59,20 +58,14 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     aflossingSaldiDTO: undefined,
   }), [initialRekening]);
 
-  const initialMessage = {
-    message: undefined,
-    type: undefined
-  }
-
   const [open, setOpen] = useState(false);
   const [rekening, setRekening] = useState<Rekening>(initialRekening);
   const [aflossing, setAflossing] = useState<Aflossing>(initialAflossing);
   // const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
-  const [message, setMessage] = useState<SnackbarMessage>(initialMessage);
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, rekeningen, setRekeningen, setBetalingsSoorten2Rekeningen } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen, setRekeningen, setBetalingsSoorten2Rekeningen, setSnackbarMessage } = useCustomContext();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -136,7 +129,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
             rekening: initialRekening,
           })
           setIsValid(false)
-          setMessage({
+          setSnackbarMessage({
             message: "Aflossing is opgeslagen.",
             type: "success"
           })
@@ -147,7 +140,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
         console.error('Fout bij opslaan aflossing:', error);
       }
     } else {
-      setMessage({
+      setSnackbarMessage({
         message: "Aflossing is niet geldig, herstel de fouten en probeer het opnieuw.",
         type: "warning"
       })
@@ -290,7 +283,6 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
           </Button>
         </DialogActions>
       </BootstrapDialog>
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })} />
     </React.Fragment>
   );
 }

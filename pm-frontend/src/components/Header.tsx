@@ -22,6 +22,7 @@ import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Bet
 import { Periode } from '../model/Periode';
 import { Gebruiker } from '../model/Gebruiker';
 import { berekenMaandAflossingenBedrag } from '../model/Aflossing';
+import StyledSnackbar from './StyledSnackbar';
 
 export const saveToLocalStorage = (key: string, value: string) => {
     localStorage.setItem(key, value);
@@ -61,6 +62,7 @@ function Header() {
     const { gebruiker, setGebruiker,
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
+        snackBarMessage: snackbarMessage, setSnackbarMessage,
         setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setGekozenPeriode } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
@@ -129,12 +131,12 @@ function Header() {
     };
 
     const fetchGebruikerMetHulpvragers = useCallback(async () => {
-              let token
-      try {
-        token = await getIDToken();
-      } catch (error) {
-        navigate('/login');
-      }
+        let token
+        try {
+            token = await getIDToken();
+        } catch (error) {
+            navigate('/login');
+        }
 
         const response = await fetch('/api/v1/gebruiker/zelf', {
             headers: {
@@ -151,9 +153,9 @@ function Header() {
             data.gebruiker : (data.hulpvragers as Gebruiker[]).find(hv => Number(hv.id) === Number(opgeslagenActieveHulpvragerId))
 
         const opgeslagenGekozenPeriodeId = localStorage.getItem('gekozenPeriode');
-        const opgeslagenGekozenPeriode = opgeslagenGekozenPeriodeId ?
+        const opgeslagenGekozenPeriode = await opgeslagenGekozenPeriodeId ?
             (opgeslagenActieveHulpvrager.periodes as Periode[])
-            .find(periode => periode.id === Number(opgeslagenGekozenPeriodeId)) : undefined;
+                .find(periode => periode.id === Number(opgeslagenGekozenPeriodeId)) : undefined;
 
         console.log('opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvrager?.id, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriode?.id)
         if (opgeslagenActieveHulpvrager) {
@@ -182,117 +184,119 @@ function Header() {
     const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven'];
 
     return (
-        <AppBar sx={{ position: 'sticky', top: 0, zIndex: 2, bgcolor: "white", color: '#333', boxShadow: 0 }}>
-            <Toolbar disableGutters>
-                <IconButton onClick={() => handleNavigation("/")}>
-                    <PlusMinLogo />
-                </IconButton>
+        <>
+            <AppBar sx={{ position: 'sticky', top: 0, zIndex: 2, bgcolor: "white", color: '#333', boxShadow: 0 }}>
+                <Toolbar disableGutters>
+                    <IconButton onClick={() => handleNavigation("/")}>
+                        <PlusMinLogo />
+                    </IconButton>
 
 
-                {state.isAuthenticated &&
-                    <>
-                        {/* menuitems bij md+ */}
-                        <Box sx={{ my: 2, display: { xs: 'none', md: 'flex' } }}>
-                            {pages.map((page) => (
-                                <Button
-                                    key={page}
-                                    onClick={() => handleNavigation(formatRoute(page))}
-                                    sx={{ mx: 2, color: '#222', display: 'block' }}
-                                >
-                                    {page}
-                                </Button>
-                            ))}
-                        </Box>
+                    {state.isAuthenticated &&
+                        <>
+                            {/* menuitems bij md+ */}
+                            <Box sx={{ my: 2, display: { xs: 'none', md: 'flex' } }}>
+                                {pages.map((page) => (
+                                    <Button
+                                        key={page}
+                                        onClick={() => handleNavigation(formatRoute(page))}
+                                        sx={{ mx: 2, color: '#222', display: 'block' }}
+                                    >
+                                        {page}
+                                    </Button>
+                                ))}
+                            </Box>
 
-                        {/* profiel & settings */}
-                        <Box sx={{ ml: 'auto', display: 'flex' }}>
-                            <Typography sx={{ my: 'auto', mr: { xs: '3px', md: '10px' } }}>{actieveHulpvrager?.bijnaam}</Typography>
-                            <Box sx={{ flexDirection: 'row' }}>
-                                <Tooltip title="Open settings">
-                                    <IconButton onClick={handleOpenGebruikerMenu} sx={{ p: 0 }}>
-                                        <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
-                                    </IconButton>
-                                </Tooltip>
-                                <Menu
-                                    sx={{ mt: '45px' }}
-                                    id="menu-appbar"
-                                    anchorEl={anchorElGebruiker}
-                                    anchorOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'right',
-                                    }}
-                                    keepMounted
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'right',
-                                    }}
-                                    open={Boolean(anchorElGebruiker)}
-                                    onClose={handleCloseGebruikerMenu}
-                                >
-                                    <MenuItem key={'profile'} onClick={() => handleActieveHulpvrager(gebruiker!.id)}>
-                                        <Typography sx={{ textAlign: 'center' }}>
-                                            {actieveHulpvrager?.id === gebruiker?.id ? '> ' : ''}
-                                            {gebruiker?.bijnaam}</Typography>
-                                    </MenuItem>
-                                    {hulpvragers.sort((a, b) => a.bijnaam.localeCompare(b.bijnaam)).map(hulpvrager =>
-                                        <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
+                            {/* profiel & settings */}
+                            <Box sx={{ ml: 'auto', display: 'flex' }}>
+                                <Typography sx={{ my: 'auto', mr: { xs: '3px', md: '10px' } }}>{actieveHulpvrager?.bijnaam}</Typography>
+                                <Box sx={{ flexDirection: 'row' }}>
+                                    <Tooltip title="Open settings">
+                                        <IconButton onClick={handleOpenGebruikerMenu} sx={{ p: 0 }}>
+                                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                        </IconButton>
+                                    </Tooltip>
+                                    <Menu
+                                        sx={{ mt: '45px' }}
+                                        id="menu-appbar"
+                                        anchorEl={anchorElGebruiker}
+                                        anchorOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'right',
+                                        }}
+                                        open={Boolean(anchorElGebruiker)}
+                                        onClose={handleCloseGebruikerMenu}
+                                    >
+                                        <MenuItem key={'profile'} onClick={() => handleActieveHulpvrager(gebruiker!.id)}>
                                             <Typography sx={{ textAlign: 'center' }}>
-                                                {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
-                                                {hulpvrager.bijnaam}</Typography>
-                                        </MenuItem>)}
-                                    <MenuItem key={'logout'} onClick={() => signOut()}>
-                                        <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
-                                    </MenuItem>
-                                </Menu>
-                            </Box>
-
-                            {/* Hambuger menu */}
-                            <Box sx={{ flexGrow: 1, ml: 0, display: { xs: 'flex', md: 'none' } }}>
-                                <IconButton
-                                    size="large"
-                                    aria-label="account of current gebruiker"
-                                    aria-controls="menu-appbar"
-                                    aria-haspopup="true"
-                                    onClick={handleOpenNavMenu}
-                                    color="inherit"
-                                >
-                                    <MenuIcon />
-                                </IconButton>
-                                <Menu
-                                    id="menu-appbar"
-                                    anchorEl={anchorElNav}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                    keepMounted
-                                    transformOrigin={{
-                                        vertical: 'top',
-                                        horizontal: 'left',
-                                    }}
-                                    open={Boolean(anchorElNav)}
-                                    onClose={handleCloseNavMenu}
-                                    sx={{ display: { xs: 'block', md: 'none' } }}
-                                >
-                                    {pages.map((page) => (
-                                        <MenuItem key={page}
-                                            onClick={() => handleNavigation(formatRoute(page))}>
-                                            <Typography sx={{ textAlign: 'center', color: '#222' }}>{page}</Typography>
+                                                {actieveHulpvrager?.id === gebruiker?.id ? '> ' : ''}
+                                                {gebruiker?.bijnaam}</Typography>
                                         </MenuItem>
-                                    ))}
-                                </Menu>
+                                        {hulpvragers.sort((a, b) => a.bijnaam.localeCompare(b.bijnaam)).map(hulpvrager =>
+                                            <MenuItem key={hulpvrager.id} onClick={() => handleActieveHulpvrager(hulpvrager.id)}>
+                                                <Typography sx={{ textAlign: 'center' }}>
+                                                    {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
+                                                    {hulpvrager.bijnaam}</Typography>
+                                            </MenuItem>)}
+                                        <MenuItem key={'logout'} onClick={() => signOut()}>
+                                            <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </Box>
 
+                                {/* Hambuger menu */}
+                                <Box sx={{ flexGrow: 1, ml: 0, display: { xs: 'flex', md: 'none' } }}>
+                                    <IconButton
+                                        size="large"
+                                        aria-label="account of current gebruiker"
+                                        aria-controls="menu-appbar"
+                                        aria-haspopup="true"
+                                        onClick={handleOpenNavMenu}
+                                        color="inherit"
+                                    >
+                                        <MenuIcon />
+                                    </IconButton>
+                                    <Menu
+                                        id="menu-appbar"
+                                        anchorEl={anchorElNav}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'left',
+                                        }}
+                                        keepMounted
+                                        transformOrigin={{
+                                            vertical: 'top',
+                                            horizontal: 'left',
+                                        }}
+                                        open={Boolean(anchorElNav)}
+                                        onClose={handleCloseNavMenu}
+                                        sx={{ display: { xs: 'block', md: 'none' } }}
+                                    >
+                                        {pages.map((page) => (
+                                            <MenuItem key={page}
+                                                onClick={() => handleNavigation(formatRoute(page))}>
+                                                <Typography sx={{ textAlign: 'center', color: '#222' }}>{page}</Typography>
+                                            </MenuItem>
+                                        ))}
+                                    </Menu>
+
+                                </Box>
                             </Box>
-                        </Box>
-                    </>
-                }
+                        </>
+                    }
 
-                {!state.isAuthenticated &&
-                    <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => signIn()}>Login</Button>
-                }
-            </Toolbar>
-
-        </AppBar>
+                    {!state.isAuthenticated &&
+                        <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => signIn()}>Login</Button>
+                    }
+                </Toolbar>
+            </AppBar>
+            <StyledSnackbar message={snackbarMessage.message} type={snackbarMessage.type} onClose={() => setSnackbarMessage({ message: undefined, type: undefined })} />
+        </>
     );
 }
 export default Header;

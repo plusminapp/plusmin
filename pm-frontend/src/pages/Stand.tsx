@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomContext } from "../context/CustomContext";
 import { useAuthContext } from "@asgardeo/auth-react";
 import Resultaat from "../components/Resultaat";
-import StyledSnackbar, { SnackbarMessage } from "../components/StyledSnackbar";
 import type { Stand } from "../model/Stand";
 import dayjs from "dayjs";
 import { PeriodeSelect } from "../components/PeriodeSelect";
@@ -16,10 +15,9 @@ export default function Stand() {
   const [stand, setStand] = useState<Stand | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(true);
-  const [message, setMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gekozenPeriode } = useCustomContext();
+  const { actieveHulpvrager, gekozenPeriode, setSnackbarMessage } = useCustomContext();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,7 +45,7 @@ export default function Stand() {
           setStand(result)
         } else {
           console.error("Failed to fetch data", response.status);
-          setMessage({
+          setSnackbarMessage({
             message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
             type: "warning",
           })
@@ -110,7 +108,6 @@ export default function Stand() {
           </Box>
         </>
       }
-      <StyledSnackbar message={message.message} type={message.type} onClose={() => setMessage({ message: undefined, type: undefined })}/>
       </>
   )
 }

@@ -3,6 +3,7 @@ import { Gebruiker } from '../model/Gebruiker';
 import { Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort } from '../model/Betaling';
 import { Periode } from '../model/Periode';
+import { SnackbarMessage } from '../components/StyledSnackbar';
 
 interface CustomContextType {
     gebruiker: Gebruiker | undefined;
@@ -23,6 +24,8 @@ interface CustomContextType {
     setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
     betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>;
     setBetalingsSoorten2Rekeningen: (betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>) => void;
+    snackBarMessage: SnackbarMessage;
+    setSnackbarMessage: (snackbarMessage: SnackbarMessage) => void;
 }
 
 const CustomContext = createContext<CustomContextType | undefined>(undefined);
@@ -50,6 +53,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
     const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
+    const [snackBarMessage, setSnackbarMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
     return (
         <CustomContext.Provider value={{
@@ -61,7 +65,8 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             rekeningen, setRekeningen,
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,
-            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen}}>
+            betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen,
+            snackBarMessage, setSnackbarMessage}}>
             {children}
         </CustomContext.Provider>
     );
