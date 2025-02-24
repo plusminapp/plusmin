@@ -51,7 +51,7 @@ const Profiel: React.FC = () => {
       (heeftInkomstenBudgetten() ? `Verwachte inkomsten: ${currencyFormatter.format(gebudgeteerdPerPeriode(inkomstenRekeningSoorten))}. ` : "Er zijn geen Inkomsten budgetten. ") +
       (heeftUitgaveBudgetten() ? `Verwachte uitgaven: ${currencyFormatter.format(gebudgeteerdPerPeriode(uitgavenRekeningSoorten))}. ` : "Er zijn geen Uitgave budgetten. ") +
       (heeftInkomstenBudgetten() && heeftUitgaveBudgetten() ?
-        `Verwachte saldo: ${currencyFormatter.format(gebudgeteerdPerPeriode(inkomstenRekeningSoorten) - gebudgeteerdPerPeriode(uitgavenRekeningSoorten))}.` : "");
+        `Verwacht over aan t einde van de maand: ${currencyFormatter.format(gebudgeteerdPerPeriode(inkomstenRekeningSoorten) - gebudgeteerdPerPeriode(uitgavenRekeningSoorten))}.` : "");
     return budgetTekst
   }
 

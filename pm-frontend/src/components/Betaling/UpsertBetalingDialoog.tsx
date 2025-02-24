@@ -127,7 +127,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   };
 
   const normalizeDecimal = (value: string): string => {
-    return value.replace(/[^0-9,\.]/g, '').replace(',', '.');
+    return value.replace(/[^0-9,\-\.]/g, '').replace(',', '.');
   };
 
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
