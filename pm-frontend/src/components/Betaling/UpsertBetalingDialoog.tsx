@@ -8,7 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import SaveIcon from '@mui/icons-material/Save';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -338,7 +338,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         <DialogActions sx={{ justifyContent: 'space-between' }}>
           {props.editMode ?
             <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Box />}
-          <Button autoFocus onClick={handleSubmit} startIcon={<SaveIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
+          <Button autoFocus onClick={handleSubmit} startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
     </React.Fragment>

@@ -53,3 +53,22 @@ export const formatPeriode = (periode: Periode): string => {
 
 export const isPeriodeOpen = (gekozenPeriode: Periode) => gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
+export const eersteOpenPeriode = (periodes: Periode[]): Periode | undefined => {
+    const openPeriodes = periodes
+        .filter(p => p.periodeStatus === 'OPEN')
+        .sort((a, b) => dayjs(a.periodeStartDatum).diff(dayjs(b.periodeStartDatum)));
+    
+    return openPeriodes.length > 0 ? openPeriodes[0] : undefined;
+}
+
+export const laatsteGeslotenPeriode= (periodes: Periode[]): Periode | undefined => {
+    const geslotenPeriodes = periodes
+        .filter(p => p.periodeStatus === 'GESLOTEN')
+        .sort((a, b) => dayjs(b.periodeStartDatum).diff(dayjs(a.periodeStartDatum)));
+    
+    return geslotenPeriodes.length > 0 ? geslotenPeriodes[0] : undefined;
+}
+
+export const formateerNlDatum = (datum: string): string => {
+    return new Date(datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
+}

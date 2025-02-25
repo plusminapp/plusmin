@@ -13,7 +13,7 @@ import { MinIcon } from "../icons/Min";
 import { PlusIcon } from "../icons/Plus";
 import dayjs from "dayjs";
 import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
-import { PeriodeSelect } from "../components/PeriodeSelect";
+import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 import { useNavigate } from "react-router-dom";
 
 export default function Aflossingen() {

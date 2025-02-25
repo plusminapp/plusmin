@@ -35,9 +35,8 @@ class GebruikerService {
         val gebruiker =
             if (gebruikerOpt != null) {
                 gebruikerRepository.save(
-                    gebruikerOpt.fullCopy(
+                    gebruikerOpt.fullCopy( // periodeDag nog: kan nog gewijzigd moeten worden (zie verderop)
                         bijnaam = gebruikerDTO.bijnaam,
-                        periodeDag = gebruikerDTO.periodeDag,
                         roles = gebruikerDTO.roles.map { enumValueOf<Role>(it) }.toMutableSet(),
                         vrijwilliger = vrijwilliger,
                     )

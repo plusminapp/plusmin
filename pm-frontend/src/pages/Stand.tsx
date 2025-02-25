@@ -8,7 +8,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import Resultaat from "../components/Resultaat";
 import type { Stand } from "../model/Stand";
 import dayjs from "dayjs";
-import { PeriodeSelect } from "../components/PeriodeSelect";
+import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 
 export default function Stand() {
 

@@ -15,7 +15,7 @@ import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import { inkomstenRekeningSoorten, interneRekeningSoorten } from '../model/Rekening';
 import AflossingReserveringTabel from '../components/Betaling/AflossingReserveringTabel';
-import { PeriodeSelect } from '../components/PeriodeSelect';
+import { PeriodeSelect } from '../components/Periode/PeriodeSelect';
 import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';

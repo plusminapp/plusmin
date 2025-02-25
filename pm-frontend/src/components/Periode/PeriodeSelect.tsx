@@ -1,12 +1,15 @@
-import { Box, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
-import { Periode } from "../model/Periode";
-import { useCustomContext } from "../context/CustomContext";
-import { saveToLocalStorage } from "./Header";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
+import Grid from '@mui/material/Grid2';
+import { eersteOpenPeriode, Periode } from "../../model/Periode";
+import { useCustomContext } from "../../context/CustomContext";
+import { saveToLocalStorage } from "../Header";
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+
+import { useNavigate } from "react-router-dom";
 
 interface PeriodeSelectProps {
     isProfiel?: boolean;
 }
-
 
 export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
 
@@ -18,14 +21,10 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
         saveToLocalStorage('gekozenPeriode', periode?.id + '');
 
     };
-
-    // useEffect(() => {
-    //     if (periodes.length === 1) {
-    //         setGekozenPeriode(periodes[0])
-    //     }
-    // }, [periodes, setGekozenPeriode])
+    const navigate = useNavigate();
 
     const openPeriodes = periodes.filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
+
     return (
         <>
             {!isProfiel && openPeriodes.length === 1 && gekozenPeriode &&
@@ -33,8 +32,8 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
                     <Typography >
                         Periode: {gekozenPeriode.periodeStartDatum} - {gekozenPeriode.periodeEindDatum} ({gekozenPeriode.periodeStatus.toLocaleLowerCase()})
                     </Typography>
-                </Box>
-            }
+                </Box>}
+
             {!isProfiel && openPeriodes.length > 1 && gekozenPeriode &&
                 <Box sx={{ my: 2, maxWidth: '340px' }}>
                     <FormControl variant="standard" fullWidth>
@@ -44,29 +43,34 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
                             id="demo-simple-select"
                             value={gekozenPeriode.periodeStartDatum.toString()}
                             label="Periode"
-                            onChange={handlegekozenPeriodeChange}
-                        >
+                            onChange={handlegekozenPeriodeChange}>
                             {openPeriodes
                                 .map((periode: Periode) => (
                                     <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
                                         {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
-                                    </MenuItem>
-                                )
-                                )}
+                                    </MenuItem>))}
                         </Select>
                     </FormControl>
                 </Box>}
+
             {isProfiel &&
                 <Box sx={{ maxWidth: '340px' }}>
                     {periodes
-                    .filter(periode => periode.periodeStartDatum !== periode.periodeEindDatum)
-                    .map((periode: Periode) => (
-                        <Typography key={periode.periodeStartDatum}>
-                            Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})
-                        </Typography>
-                    ))}
-                </Box>
-            }
-        </>
-    )
+                        .filter(periode => periode.periodeStartDatum !== periode.periodeEindDatum)
+                        .map((periode: Periode) => (
+                            <>
+                                <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-start" >
+                                    <Typography key={periode.periodeStartDatum}>
+                                        Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})
+                                    </Typography>
+                                    <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }}>
+                                        {periode === eersteOpenPeriode(periodes) &&
+                                            <Button onClick={() => navigate('/periode-sluiten')} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
+                                                <LockOutlinedIcon fontSize="small" />
+                                            </Button>}
+                                    </Box>
+                                </Grid>
+                            </>))}
+                </Box>}
+        </>)
 }

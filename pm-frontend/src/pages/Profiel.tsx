@@ -6,7 +6,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
 import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter } from '../model/Betaling';
-import { PeriodeSelect } from '../components/PeriodeSelect';
+import { PeriodeSelect } from '../components/Periode/PeriodeSelect';
 import { inkomstenRekeningSoorten, Rekening, RekeningSoort, uitgavenRekeningSoorten } from '../model/Rekening';
 import { AflossingSamenvattingDTO } from '../model/Aflossing';
 import { berekenPeriodeBudgetBedrag } from '../model/Budget';

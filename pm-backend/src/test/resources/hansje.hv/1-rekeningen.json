@@ -31,7 +31,7 @@
   {
     "rekeningSoort": "CREDITCARD",
     "nummer": "",
-    "naam": "VISA card",
+    "naam": "Creditcard",
     "afkorting": "CC",
     "sortOrder": 4
   },

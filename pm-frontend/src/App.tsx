@@ -13,6 +13,7 @@ import LoginPagina from './pages/LoginPagina';
 
 import Container from '@mui/material/Container';
 import NotFound from './pages/NotFound';
+import PeriodeSluiten from './pages/PeriodeSluiten';
 
 const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
   const { state } = useAuthContext();
@@ -35,6 +36,7 @@ const App: React.FC = () => {
             <Route path="/schuld-aflossingen" element={<ProtectedRoute element={<Aflossing />} />} />
             <Route path="/budget" element={<ProtectedRoute element={<Budget />} />} />
             <Route path="/profiel" element={<ProtectedRoute element={<Profiel />} />} />
+            <Route path="/periode-sluiten" element={<ProtectedRoute element={<PeriodeSluiten />} />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
