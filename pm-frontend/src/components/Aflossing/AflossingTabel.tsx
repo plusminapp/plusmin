@@ -36,7 +36,7 @@ export default function AflossingTabel(props: AflossingProps) {
           <TableBody>
             <TableRow>
               <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
-              <TableCell align="left" size='small'>{props.aflossing.eindDatum.toString()}</TableCell>
+              <TableCell align="left" size='small'>{props.aflossing.eindDatum?.toString()}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
               <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>

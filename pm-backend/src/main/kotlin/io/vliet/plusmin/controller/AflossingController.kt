@@ -3,13 +3,16 @@ package io.vliet.plusmin.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
 import io.vliet.plusmin.repository.AflossingRepository
+import io.vliet.plusmin.repository.SaldoRepository
 import io.vliet.plusmin.service.AflossingGrafiekService
 import io.vliet.plusmin.service.AflossingService
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
@@ -27,6 +30,9 @@ class AflossingController {
 
     @Autowired
     lateinit var gebruikerController: GebruikerController
+
+    @Autowired
+    lateinit var saldoRepository: SaldoRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -105,9 +111,26 @@ class AflossingController {
             AflossingGrafiekService.AflossingGrafiekDTO(
                 aflossingGrafiekSerie = aflossingGrafiekService.genereerAflossingGrafiekSeries(hulpvrager),
                 aflossingGrafiekData = aflossingGrafiekService.genereerAflossingGrafiekData(hulpvrager),
-            ),
-
             )
+        )
+    }
+
+    @Operation(summary = "DELETE Aflossing op id")
+    @DeleteMapping("/{aflossingId}")
+    @Transactional
+    fun verwijderAflossing(
+        @PathVariable("aflossingId") aflossingId: Long
+    ): ResponseEntity<Any> {
+        val aflossingOpt = aflossingRepository.findById(aflossingId)
+        if (aflossingOpt.isEmpty) return ResponseEntity(
+            "Aflossing met id $aflossingId niet gevonden.",
+            HttpStatus.NOT_FOUND
+        )
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(aflossingOpt.get().rekening.gebruiker.id)
+        logger.info("DELETE AflossingController.verwijderAflossing voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        saldoRepository.deleteByRekening(aflossingOpt.get().rekening)
+        aflossingRepository.deleteById(aflossingId)
+        return ResponseEntity.ok().body("Aflossing met id $aflossingId verwijderd")
     }
 }
 

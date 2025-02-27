@@ -18,7 +18,7 @@ class Aflossing(
         allocationSize = 1
     )
     val id: Long = 0,
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     @JoinColumn(name = "rekening_id", nullable = false)
     val rekening: Rekening,
     val startDatum: LocalDate,

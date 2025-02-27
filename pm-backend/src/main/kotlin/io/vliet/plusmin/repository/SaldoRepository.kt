@@ -11,4 +11,5 @@ import java.util.*
 interface SaldoRepository : JpaRepository<Saldo, Long> {
     fun findAllByPeriode(periode: Periode): List<Saldo>
     fun findOneByPeriodeAndRekening(periode: Periode, rekening: Rekening): Saldo?
+    fun deleteByRekening(rekening: Rekening)
 }

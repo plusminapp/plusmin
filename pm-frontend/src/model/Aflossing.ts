@@ -6,7 +6,7 @@ export type Aflossing = {
 
     rekening: Rekening,
     startDatum: dayjs.Dayjs,
-    eindDatum: dayjs.Dayjs,
+    eindDatum: dayjs.Dayjs | undefined,
     eindBedrag: number,
     aflossingsBedrag: number,
     betaalDag: number,

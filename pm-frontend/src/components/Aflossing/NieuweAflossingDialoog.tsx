@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
@@ -7,14 +7,11 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import { FormControl, Input, InputAdornment, InputLabel, Stack, TextField } from '@mui/material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { FormControl, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from '@mui/material';
 import { Aflossing } from '../../model/Aflossing';
 
-import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nl';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useCustomContext } from '../../context/CustomContext';
 import { useAuthContext } from '@asgardeo/auth-react';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
@@ -49,7 +46,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     id: 0,
     rekening: initialRekening,
     startDatum: dayjs(),
-    eindDatum: dayjs(),
+    eindDatum: undefined,
     eindBedrag: 0,
     aflossingsBedrag: 0,
     betaalDag: 1,
@@ -74,6 +71,17 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     props.onAflossingBewaardChange()
     setOpen(false);
   };
+
+  useEffect(() => {
+    const eindDatum = berekenEindDatum(aflossing.startDatum, aflossing.eindBedrag, aflossing.aflossingsBedrag, aflossing.betaalDag)
+    setAflossing({ ...aflossing, eindDatum: eindDatum } as Aflossing)
+  }, [aflossing.startDatum, aflossing.eindBedrag, aflossing.aflossingsBedrag, aflossing.betaalDag])
+
+  const berekenEindDatum = (startDatum: dayjs.Dayjs | undefined, eindBedrag: number | undefined, aflossingsBedrag: number | undefined, betaalDag: number) => {
+    if (!startDatum || !eindBedrag || !aflossingsBedrag) return undefined
+    const eindDatum = startDatum.add(Math.ceil(eindBedrag / aflossingsBedrag), 'month').date(betaalDag);
+    return dayjs().date() <= betaalDag ? eindDatum.subtract(1, 'month') : eindDatum
+  }
 
   const handleInputAflossingWijziging = <K extends keyof Aflossing>(key: K, value: Aflossing[K]) => {
     setAflossing({ ...aflossing, [key]: value })
@@ -117,7 +125,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
               ...aflossing,
               rekening: rekening,
               startDatum: aflossing.startDatum.format('YYYY-MM-DD'),
-              eindDatum: aflossing.eindDatum.format('YYYY-MM-DD'),
+              eindDatum: aflossing.eindDatum!.format('YYYY-MM-DD'),
             }]),
         })
         if (response.ok) {
@@ -191,26 +199,9 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.omschrijving}</Typography>
               )} */}
             </FormControl>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
-              <DatePicker
-                disableFuture
-                slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer is de schuld/aflossing gestart?"
-                value={aflossing.startDatum}
-                onChange={(newvalue) => handleInputAflossingWijziging('startDatum', newvalue ? newvalue : dayjs())}
-              />
-            </LocalizationProvider>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
-              <DatePicker
-                minDate={dayjs()}
-                slotProps={{ textField: { variant: "standard" } }}
-                label="Wanneer is de schuld/aflossing afgelost?"
-                value={aflossing.eindDatum}
-                onChange={(newvalue) => handleInputAflossingWijziging('eindDatum', newvalue ? newvalue : dayjs())}
-              />
-            </LocalizationProvider>
+
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Hoe groot is de schuld/aflossing?</InputLabel>
+              <InputLabel htmlFor="standard-adornment-amount">Hoe groot is de schuld/aflossing op dit moment?</InputLabel>
               <Input
                 id="standard-adornment-amount"
                 // error={!!errors.bedrag}
@@ -251,8 +242,11 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
               />
               {/* {errors.bedrag && (
                 <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.betaalDag}</Typography>
-              )} */}
+                )} */}
             </FormControl>
+            <Typography variant="body1" style={{ marginTop: '25px' }}>
+              De verwachte einddatum van de schuld/aflossing {aflossing.eindDatum ? `is ${aflossing.eindDatum?.format('DD-MM-YYYY')}.` : 'kan nog niet worden berekend.'}
+            </Typography>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="standard-adornment-amount">Wat is het dossiernummer?</InputLabel>
               <Input

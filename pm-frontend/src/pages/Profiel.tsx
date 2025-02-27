@@ -144,14 +144,14 @@ const Profiel: React.FC = () => {
         <Typography sx={{ mb: 1 }}>
           {actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
             "Hieronder staat nu de inrichting voor jezelf (heb je zelf gedaan natuurlijk), dan kun je oefenen met de app zonder dat je de gegevens van een hulpvrager gebruikt. Eigenlijk ben je nu je eigen hulpvrager. Dus: experimenteer er op los!"}
-          {actieveHulpvrager !== gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") && `Samen met ${actieveHulpvrager?.bijnaam} is het als volgt ingericht.`}
+          {actieveHulpvrager !== gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") && `Samen met ${actieveHulpvrager?.bijnaam} is de app als volgt ingericht.`}
         </Typography>
 
         {/* periodes */}
         <Accordion>
           <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-            <Typography >We werken met <strong>periodes</strong>. De periode wisseldag (die je zelf kunt kiezen, bij voorkeur vlak voor de inkomsten van de periode), is de {actieveHulpvrager?.periodeDag}e.
-              Periodes worden vanzelf aangemaakt als de tijd voortschrijdt. Ze worden na afloop samen (door {actieveHulpvrager?.bijnaam} en {actieveHulpvrager?.vrijwilligerBijnaam}) afgesloten.
+            <Typography >We werken met <strong>periodes</strong>. De periode wisseldag (die je zelf kunt kiezen, bij voorkeur vlak voor de inkomsten van de periode), is voor {actieveHulpvrager?.bijnaam} de {actieveHulpvrager?.periodeDag}e.
+              Periodes worden vanzelf aangemaakt als de tijd voortschrijdt. Ze worden na afloop samen (door {actieveHulpvrager?.bijnaam} en {actieveHulpvrager?.vrijwilligerBijnaam} dus) afgesloten. Dat afsluiten zit nu nog niet in de app.
               De periodes voor {actieveHulpvrager?.bijnaam} zijn:
             </Typography>
           </AccordionSummary>
@@ -263,13 +263,13 @@ const Profiel: React.FC = () => {
           <AccordionSummary sx={{ mb: 0 }} expandIcon={<></>}>
             <Box display="flex" alignItems="flex-start" justifyContent="space-between" flexDirection='row'>
               {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length === 0 &&
-                <Typography sx={{ maxWidth: `calc(100% - 170px)` }} >
+                <Typography sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }} >
                   {actieveHulpvrager?.bijnaam} heeft geen <strong>Schulden/Aflossingen ingericht</strong>.
                   Je kunt de aflossingen dan nog steeds uitsplitsen op basis van potjes bij een Uitgaverekening.
                   De schulden komen dan niet op de balans te staan.
                 </Typography>}
               {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length > 0 &&
-                <Typography sx={{ maxWidth: `calc(100% - 170px)` }} >
+                <Typography sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }} >
                   {actieveHulpvrager?.bijnaam} heeft apart de <strong>Schulden/Aflossingen</strong> ingericht.
                   Dat heeft een aantal voordelen. Allereerst komen de schulden op de balans te staan en is de berekening van het 'eigen vermogen' daardoor veel beter.
                   Door het 'eigen vermogen' in de tijd uit te zetten, inclusief een ge-extrapolleerde toekomst, geef je inzicht in de vorderingen ten aanzien van het schuldenvrij worden inclusief een verwachte datum dat dat zal zijn bereikt.

@@ -27,7 +27,7 @@ class Rekening(
     val rekeningSoort: RekeningSoort,
     val nummer: String? = null,
     val sortOrder: Int,
-    @OneToMany(mappedBy = "rekening", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "rekening", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     var budgetten: List<Budget> = emptyList()
 ) {
     companion object {
