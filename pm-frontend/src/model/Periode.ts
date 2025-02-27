@@ -72,3 +72,14 @@ export const laatsteGeslotenPeriode= (periodes: Periode[]): Periode | undefined 
 export const formateerNlDatum = (datum: string): string => {
     return new Date(datum).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' })
 }
+export const formateerNlVolgendeDag = (datum: string): string => {
+    const date = new Date(datum);
+    date.setDate(date.getDate() + 1); 
+    return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' });
+}
+
+export const voegEenDagToe = (datum: string): string => {
+    const date = new Date(datum);
+    date.setDate(date.getDate() + 1); 
+    return date.toISOString().split('T')[0];
+}

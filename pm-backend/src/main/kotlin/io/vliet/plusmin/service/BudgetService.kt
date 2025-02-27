@@ -3,6 +3,8 @@ package io.vliet.plusmin.service
 import io.vliet.plusmin.domain.Budget
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Budget.BudgetDTO
+import io.vliet.plusmin.domain.Periode
+import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.BudgetRepository
 import io.vliet.plusmin.repository.RekeningRepository
 import io.vliet.plusmin.repository.SaldoRepository
@@ -11,6 +13,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.webjars.NotFoundException
+import java.math.BigDecimal
+import java.time.LocalDate
 
 @Service
 class BudgetService {
@@ -21,7 +25,10 @@ class BudgetService {
     lateinit var rekeningRepository: RekeningRepository
 
     @Autowired
-    lateinit var saldoRepository: SaldoRepository
+    lateinit var betalingRepository: BetalingRepository
+
+    @Autowired
+    lateinit var saldoService: SaldoService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -60,5 +67,18 @@ class BudgetService {
             )
         }
         return newBudget.toDTO()
+    }
+
+    fun berekenBudgetRestVoorPeriode(budget: Budget, periode: Periode, peilDatum: LocalDate): BigDecimal {
+        val betalingenInPeriode = betalingRepository
+            .findAllByGebruikerTussenDatums(budget.rekening.gebruiker, periode.periodeStartDatum, peilDatum)
+            .filter { it.budget?.id == budget.id }
+            .fold(BigDecimal(0)) { acc, betaling -> acc + betaling.bedrag }
+        val dagenInPeriode = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+        val budgetMaandBedrag = when (budget.budgetPeriodiciteit) {
+            Budget.BudgetPeriodiciteit.WEEK -> BigDecimal(budget.bedrag.longValueExact() * dagenInPeriode / 7)
+            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+        }
+        return budgetMaandBedrag - betalingenInPeriode
     }
 }

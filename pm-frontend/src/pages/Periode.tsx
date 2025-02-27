@@ -1,4 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+
 import { Box, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
@@ -7,14 +9,22 @@ import { Stand } from '../model/Stand';
 import { useCustomContext } from '../context/CustomContext';
 import { useNavigate } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 
 import Button from '@mui/material/Button';
-import dayjs from 'dayjs';
-import { eersteOpenPeriode, formateerNlDatum } from '../model/Periode';
+
+import { eersteOpenPeriode, formateerNlDatum, formateerNlVolgendeDag, laatsteGeslotenPeriode, voegEenDagToe } from '../model/Periode';
 import Resultaat from '../components/Resultaat';
-const PeriodeSluiten = () => {
+
+const Periode = () => {
     const { actieveHulpvrager, setSnackbarMessage, periodes } = useCustomContext();
-    const periode = eersteOpenPeriode(periodes);
+
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const parameterWaarde = queryParams.get('actie');
+    const actie = parameterWaarde === 'wijzigen' ? 'wijzigen' : 'sluiten';
+    const periode = actie === 'wijzigen' ?
+        laatsteGeslotenPeriode(periodes) : eersteOpenPeriode(periodes);
 
     if (!periode) {
         return <Typography variant='h4' sx={{ mb: '25px' }}>Er is geen periode die kan worden afgesloten...</Typography>
@@ -26,10 +36,10 @@ const PeriodeSluiten = () => {
     const navigate = useNavigate();
     useEffect(() => {
         const fetchSaldi = async () => {
+            setIsLoading(true);
             if (actieveHulpvrager && periode) {
                 setIsLoading(true);
-                const vandaag = dayjs().format('YYYY-MM-DD');
-                const datum = periode.periodeEindDatum > vandaag ? vandaag : periode.periodeEindDatum;
+                const datum = periode.periodeEindDatum;
                 const id = actieveHulpvrager.id
                 let token = '';
                 try { token = await getIDToken() }
@@ -66,10 +76,12 @@ const PeriodeSluiten = () => {
     return (
         <Fragment>
             <Grid>
-                <Typography variant='h4'>Periode sluiten</Typography>
-                <Typography fontSize={'0.875rem'}>
+                <Typography variant='h4'>Periode {actie === 'wijzigen' ? 'wijzigen' : 'sluiten'}.</Typography>
+                {periode.periodeStartDatum === periode.periodeEindDatum ?
+                    <Typography fontSize={'0.875rem'}>Opening op {formateerNlVolgendeDag(periode.periodeEindDatum)}</Typography> :
+                    <Typography fontSize={'0.875rem'}>
                     van {formateerNlDatum(periode.periodeStartDatum)} t/m {formateerNlDatum(periode.periodeEindDatum)}
-                </Typography>
+                </Typography>}
             </Grid>
 
             <Grid>
@@ -77,19 +89,23 @@ const PeriodeSluiten = () => {
                     <Box sx={{ flexGrow: 1 }}>
                         <Grid container spacing={2} columns={1}>
                             <Grid size={2}>
-                                <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
+                                <Resultaat title={'Stand'} datum={voegEenDagToe(stand.peilDatum)} saldi={stand.balansOpDatum!} />
                             </Grid>
+                        {periode.periodeStartDatum !== periode.periodeEindDatum &&
                             <Grid size={2}>
-                                <Resultaat title={'Stand'} datum={stand.peilDatum} saldi={stand.balansOpDatum!} />
-                            </Grid>
+                                <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
+                            </Grid>}
                         </Grid>
                     </Box>
                 }
             </Grid >
             <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-end" >
-                <Button startIcon={<LockOutlinedIcon sx={{ fontSize: '35px' }} />} >Sluit periode</Button>
+                {actie === 'wijzigen' &&
+                    <Button startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px' }} />} >Bewaar periode</Button>}
+                {actie === 'sluiten' &&
+                    <Button startIcon={<LockOutlinedIcon sx={{ fontSize: '35px' }} />} >Sluit periode</Button>}
             </Grid>
         </Fragment>
     );
 }
-export default PeriodeSluiten;
+export default Periode;

@@ -1,9 +1,10 @@
 import { Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
-import { eersteOpenPeriode, Periode } from "../../model/Periode";
+import { eersteOpenPeriode, formateerNlDatum, formateerNlVolgendeDag, laatsteGeslotenPeriode, Periode } from "../../model/Periode";
 import { useCustomContext } from "../../context/CustomContext";
 import { saveToLocalStorage } from "../Header";
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { useNavigate } from "react-router-dom";
 
@@ -56,16 +57,25 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
             {isProfiel &&
                 <Box sx={{ maxWidth: '340px' }}>
                     {periodes
-                        .filter(periode => periode.periodeStartDatum !== periode.periodeEindDatum)
+                        .sort((a, b) => a.periodeStartDatum.localeCompare(b.periodeStartDatum))
                         .map((periode: Periode) => (
                             <>
                                 <Grid display="flex" flexDirection="row" alignItems={'center'} justifyContent="flex-start" >
-                                    <Typography key={periode.periodeStartDatum}>
-                                        Periode: {periode.periodeStartDatum} - {periode.periodeEindDatum} ({periode.periodeStatus.toLocaleLowerCase()})
-                                    </Typography>
+                                    {periode.periodeStartDatum === periode.periodeEindDatum &&
+                                        <Typography key={periode.periodeStartDatum}>
+                                            Opening op {formateerNlVolgendeDag(periode.periodeEindDatum)}
+                                        </Typography>}
+                                    {periode.periodeStartDatum !== periode.periodeEindDatum &&
+                                        <Typography key={periode.periodeStartDatum}>
+                                            Periode: {formateerNlDatum(periode.periodeStartDatum)} - {formateerNlDatum(periode.periodeEindDatum)} ({periode.periodeStatus.toLocaleLowerCase()})
+                                        </Typography>}
                                     <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer', mr: 0, pr: 0 }}>
+                                        {periode === laatsteGeslotenPeriode(periodes) &&
+                                            <Button onClick={() => navigate('/periode?actie=wijzigen')} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
+                                                <EditIcon fontSize="small" />
+                                            </Button>}
                                         {periode === eersteOpenPeriode(periodes) &&
-                                            <Button onClick={() => navigate('/periode-sluiten')} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
+                                            <Button onClick={() => navigate('/periode?actie=sluiten')} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
                                                 <LockOutlinedIcon fontSize="small" />
                                             </Button>}
                                     </Box>

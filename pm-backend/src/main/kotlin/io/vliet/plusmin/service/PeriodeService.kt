@@ -22,7 +22,6 @@ class PeriodeService {
 
     fun getLaatstGeslotenOfOpgeruimdePeriode(gebruiker: Gebruiker): Periode {
         return periodeRepository.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
-//            ?: periodeRepository.getInitielePeriode(gebruiker)
             ?: throw IllegalStateException("Geen initiële periode voor gebruiker ${gebruiker.email}")
     }
 

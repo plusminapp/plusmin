@@ -34,7 +34,7 @@ class SaldoService {
         val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
         val mutatiePeildatumLijst =
             berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periodeStartDatum, peilDatum)
-        val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening  , mutatiePeildatumLijst)
+        val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening, mutatiePeildatumLijst)
 
         val openingsBalans =
             balansSaldiBijOpening
@@ -85,7 +85,7 @@ class SaldoService {
                 betalingen.fold(BigDecimal(0)) { acc, betaling -> acc + this.berekenMutaties(betaling, rekening) }
             Saldo(0, rekening, mutatie)
         }
-        logger.debug("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
+        logger.info("mutaties van ${vanDatum} tot ${totDatum} #betalingen: ${betalingen.size}: ${saldoLijst.joinToString { "${it.rekening.naam} -> ${it.bedrag}" }}")
         return saldoLijst
     }
 
