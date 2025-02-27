@@ -9,6 +9,7 @@ export type Gebruiker = {
     periodeDag: number;
     roles: string[];
     vrijwilligerEmail: string | undefined;
+    vrijwilligerBijnaam: string | undefined;
     rekeningen: Rekening[];
     periodes: Periode[];
     aflossingen: AflossingSamenvattingDTO[];

@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Gebruiker } from '../model/Gebruiker';
-import { Rekening, RekeningPaar } from '../model/Rekening';
+import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort } from '../model/Betaling';
 import { Periode } from '../model/Periode';
 import { SnackbarMessage } from '../components/StyledSnackbar';
+import { saveToLocalStorage, transformRekeningenToBetalingsSoorten } from '../components/Header';
 
 interface CustomContextType {
     gebruiker: Gebruiker | undefined;
     setGebruiker: (gebruiker: Gebruiker | undefined) => void;
     actieveHulpvrager: Gebruiker | undefined;
     setActieveHulpvrager: (actieveHulpvrager: Gebruiker | undefined) => void;
+    setActieveHulpvragerData: (gebruiker: Gebruiker | undefined, periode: Periode | undefined) => void;
     hulpvragers: Array<Gebruiker>;
     setHulpvragers: (hulpvragers: Array<Gebruiker>) => void;
     periodes: Array<Periode>;
@@ -55,10 +57,53 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
     const [snackBarMessage, setSnackbarMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
+    const setActieveHulpvragerData = (gebruiker: Gebruiker | undefined, periode: Periode | undefined) => {
+        if (!gebruiker) return;
+        setActieveHulpvrager(gebruiker);
+        saveToLocalStorage('actieveHulpvrager', gebruiker.id + '');
+        setRekeningen(gebruiker.rekeningen.sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1));
+        setBetalingsSoorten(transformRekeningen2BetalingsSoorten(gebruiker.rekeningen));
+        setBetaalMethoden(transformRekeningen2Betaalmethoden(gebruiker.rekeningen));
+        setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(gebruiker.rekeningen));
+        setPeriodes(gebruiker.periodes);
+        if (periode) {
+            setGekozenPeriode(periode);
+            saveToLocalStorage('gekozenPeriode', periode.id + '');
+        } else {
+            const eersteOpenPeriode = setOp1stOpenPeriode(gebruiker);
+            setGekozenPeriode(eersteOpenPeriode);
+            saveToLocalStorage('gekozenPeriode', eersteOpenPeriode.id + '');
+        }
+    }
+        const transformRekeningen2BetalingsSoorten = (rekeningen: Rekening[]) => {
+            const betalingsSoortValues = Object.values(BetalingsSoort);
+            const rekeningSoortValues = rekeningen.map((rekening: Rekening) => rekening.rekeningSoort.toLowerCase())
+            const filteredBetalingsSoorten = rekeningSoortValues.flatMap((rekeningSoort) =>
+                betalingsSoortValues.filter((betalingsSoort) =>
+                    betalingsSoort.toLowerCase().includes(rekeningSoort.toLowerCase())
+                )
+            );
+            return filteredBetalingsSoorten.filter((value, index, self) => self.indexOf(value) === index); //deduplication ...
+        }
+    
+        const transformRekeningen2Betaalmethoden = (rekeningen: Rekening[]) => {
+            return rekeningen.filter((rekening) =>
+                betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)
+            )
+        }
+    
+        const setOp1stOpenPeriode = (gebruiker: Gebruiker) => {
+            return (gebruiker.periodes
+                .filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
+                .sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
+        }
+    
+    
+
     return (
         <CustomContext.Provider value={{
             gebruiker, setGebruiker,
-            actieveHulpvrager, setActieveHulpvrager,
+            actieveHulpvrager, setActieveHulpvrager, setActieveHulpvragerData,
             hulpvragers, setHulpvragers,
             periodes, setPeriodes,
             gekozenPeriode, setGekozenPeriode,
@@ -66,7 +111,8 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,
             betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen,
-            snackBarMessage, setSnackbarMessage}}>
+            snackBarMessage, setSnackbarMessage
+        }}>
             {children}
         </CustomContext.Provider>
     );

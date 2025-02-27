@@ -5,7 +5,7 @@ import { useAuthContext } from '@asgardeo/auth-react';
 import Home from './pages/Home';
 import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
-import InkomstenUitgaven from './pages/InkomstenUitgaven';
+import Kasboek from './pages/Kasboek';
 import Aflossing from './pages/Aflossing';
 import Header from './components/Header';
 import Budget from './pages/Budget';
@@ -32,7 +32,7 @@ const App: React.FC = () => {
             <Route path="/login" element={<LoginPagina />} />
             {/* Beschermde routes */}
             <Route path="/stand" element={<ProtectedRoute element={<Stand />} />} />
-            <Route path="/inkomsten-uitgaven" element={<ProtectedRoute element={<InkomstenUitgaven />} />} />
+            <Route path="/kasboek" element={<ProtectedRoute element={<Kasboek />} />} />
             <Route path="/schuld-aflossingen" element={<ProtectedRoute element={<Aflossing />} />} />
             <Route path="/budget" element={<ProtectedRoute element={<Budget />} />} />
             <Route path="/profiel" element={<ProtectedRoute element={<Profiel />} />} />

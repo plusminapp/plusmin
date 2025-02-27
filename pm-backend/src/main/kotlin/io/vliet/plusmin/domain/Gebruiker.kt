@@ -66,6 +66,7 @@ class Gebruiker(
         val periodeDag: Int = 20,
         val roles: List<String> = emptyList(),
         val vrijwilligerEmail: String = "",
+        val vrijwilligerBijnaam: String = "",
         val rekeningen: List<Rekening>? = emptyList(),
         val periodes: List<Periode.PeriodeDTO>? = emptyList(),
         val aflossingen: List<Aflossing.AflossingSamenvattingDTO>? = emptyList(),

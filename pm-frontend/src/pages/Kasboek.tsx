@@ -26,7 +26,7 @@ import { budgetten, maandBudgetten } from '../model/Budget';
 import { BudgetStatusIcon } from '../icons/BudgetStatus';
 // import UpsertCamt053Dialoog from '../components/Betaling/UpsertCamt053Dialoog';
 
-export default function InkomstenUitgaven() {
+export default function Kasboek() {
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager, rekeningen, gekozenPeriode } = useCustomContext();
 

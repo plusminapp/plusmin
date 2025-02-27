@@ -17,7 +17,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 
 import { PlusMinLogo } from "../assets/PlusMinLogo";
 import { useCustomContext } from '../context/CustomContext';
-import { betaalmethodeRekeningSoorten, Rekening, RekeningPaar } from '../model/Rekening';
+import { Rekening, RekeningPaar } from '../model/Rekening';
 import { BetalingsSoort, betalingsSoorten2RekeningenSoorten } from '../model/Betaling';
 import { Periode } from '../model/Periode';
 import { Gebruiker } from '../model/Gebruiker';
@@ -63,7 +63,7 @@ function Header() {
         hulpvragers, setHulpvragers,
         actieveHulpvrager, setActieveHulpvrager,
         snackBarMessage: snackbarMessage, setSnackbarMessage,
-        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setGekozenPeriode } = useCustomContext();
+        setRekeningen, setBetalingsSoorten, setBetaalMethoden, setBetalingsSoorten2Rekeningen, setPeriodes, setActieveHulpvragerData } = useCustomContext();
 
     const formatRoute = (page: string): string => { return page.toLowerCase().replace('/', '-') }
 
@@ -79,48 +79,6 @@ function Header() {
     const handleCloseGebruikerMenu = () => {
         setAnchorElGebruiker(null);
     };
-
-    const transformRekeningen2BetalingsSoorten = (rekeningen: Rekening[]) => {
-        const betalingsSoortValues = Object.values(BetalingsSoort);
-        const rekeningSoortValues = rekeningen.map((rekening: Rekening) => rekening.rekeningSoort.toLowerCase())
-        const filteredBetalingsSoorten = rekeningSoortValues.flatMap((rekeningSoort) =>
-            betalingsSoortValues.filter((betalingsSoort) =>
-                betalingsSoort.toLowerCase().includes(rekeningSoort.toLowerCase())
-            )
-        );
-        return filteredBetalingsSoorten.filter((value, index, self) => self.indexOf(value) === index); //deduplication ...
-    }
-
-    const transformRekeningen2Betaalmethoden = (rekeningen: Rekening[]) => {
-        return rekeningen.filter((rekening) =>
-            betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)
-        )
-    }
-
-    const setOp1stOpenPeriode = (gebruiker: Gebruiker) => {
-        return (gebruiker.periodes
-            .filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
-            .sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
-    }
-
-    const setActieveHulpvragerData = (gebruiker: Gebruiker | undefined, periode: Periode | undefined) => {
-        if (!gebruiker) return;
-        setActieveHulpvrager(gebruiker);
-        saveToLocalStorage('actieveHulpvrager', gebruiker.id + '');
-        setRekeningen(gebruiker.rekeningen.sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1));
-        setBetalingsSoorten(transformRekeningen2BetalingsSoorten(gebruiker.rekeningen));
-        setBetaalMethoden(transformRekeningen2Betaalmethoden(gebruiker.rekeningen));
-        setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten(gebruiker.rekeningen));
-        setPeriodes(gebruiker.periodes);
-        if (periode) {
-            setGekozenPeriode(periode);
-            saveToLocalStorage('gekozenPeriode', periode.id + '');
-        } else {
-            const eersteOpenPeriode = setOp1stOpenPeriode(gebruiker);
-            setGekozenPeriode(eersteOpenPeriode);
-            saveToLocalStorage('gekozenPeriode', eersteOpenPeriode.id + '');
-        }
-    }
 
     const handleActieveHulpvrager = (id: number) => {
         let ahv = hulpvragers.find(hv => hv.id === id)
@@ -181,7 +139,7 @@ function Header() {
 
     const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
     const heeftAflossing = maandAflossingsBedrag > 0;
-    const pages = heeftAflossing ? ['Stand', 'Inkomsten/uitgaven', 'Schuld/Aflossingen'] : ['Stand', 'Inkomsten/uitgaven'];
+    const pages = heeftAflossing ? ['Stand', 'Kasboek', 'Schuld/Aflossingen'] : ['Stand', 'Kasboek'];
 
     return (
         <>

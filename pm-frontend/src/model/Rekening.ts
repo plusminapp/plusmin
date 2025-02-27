@@ -53,6 +53,7 @@ export const reserverenRekeningSoorten = [
 
 export const betaalmethodeRekeningSoorten = [
     RekeningSoort.betaalrekening,
+    RekeningSoort.spaarrekening,
     RekeningSoort.contant,
     RekeningSoort.creditcard,
 ]

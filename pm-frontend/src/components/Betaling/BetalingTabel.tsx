@@ -161,7 +161,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
                 <TableRow sx={{ borderBottom: '1px' }}>
                   <TableCell sx={{ padding: '5px' }}></TableCell>
                   {heeftBudgetten &&
-                    <TableCell sx={{ padding: '5px' }}>Budgetten</TableCell>}
+                    <TableCell sx={{ padding: '5px' }}>Potjes</TableCell>}
                   {!heeftBudgetten && heeftAflossing &&
                     <TableCell sx={{ padding: '5px' }}>Aflossing</TableCell>}
                   <TableCell sx={{ padding: '5px' }} />
