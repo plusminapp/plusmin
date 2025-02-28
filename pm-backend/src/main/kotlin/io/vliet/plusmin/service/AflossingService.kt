@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -39,9 +40,50 @@ class AflossingService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
+    @Transactional
     fun creeerAflossingen(gebruiker: Gebruiker, aflossingenLijst: List<AflossingDTO>) {
         aflossingenLijst.map { aflossingDTO ->
-            val aflossing = fromDTO(gebruiker, aflossingDTO)
+            val maxSortOrderOpt = rekeningRepository.findMaxSortOrder()
+            val maxSortOrder =
+                if (maxSortOrderOpt != null)
+                    maxSortOrderOpt.sortOrder + 100
+                else 10
+            val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, aflossingDTO.rekening.naam)
+                ?: rekeningRepository.save(
+                    Rekening(
+                        gebruiker = gebruiker,
+                        rekeningSoort = Rekening.RekeningSoort.AFLOSSING,
+                        naam = aflossingDTO.rekening.naam,
+                        sortOrder = maxSortOrder
+                    )
+                )
+            if (rekening.rekeningSoort != Rekening.RekeningSoort.AFLOSSING) {
+                val message =
+                    "Rekening ${aflossingDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningSoort} en kan dus geen aflossing koppelen."
+                logger.error(message)
+                throw DataIntegrityViolationException(message)
+            }
+            val aflossing = aflossingRepository.findAflossingVoorRekeningNaam(gebruiker, aflossingDTO.rekening.naam)
+                ?.fullCopy(
+                    rekening = rekening,
+                    startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                    eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                    eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
+                    aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
+                    betaalDag = aflossingDTO.betaalDag,
+                    dossierNummer = aflossingDTO.dossierNummer,
+                    notities = aflossingDTO.notities,
+                )
+                ?: Aflossing(
+                    rekening = rekening,
+                    startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                    eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
+                    eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
+                    aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
+                    betaalDag = aflossingDTO.betaalDag,
+                    dossierNummer = aflossingDTO.dossierNummer,
+                    notities = aflossingDTO.notities,
+                )
             val verwachteEindBedrag = berekenAflossingBedragOpDatum(aflossing, aflossing.eindDatum)
             if (verwachteEindBedrag != aflossing.eindBedrag) {
                 logger.warn("Aflossing ${aflossing.rekening.naam} verwachte ${verwachteEindBedrag} maar in Aflossing ${aflossing.eindBedrag}")
@@ -54,9 +96,8 @@ class AflossingService {
                     Saldo(
                         rekening = aflossing.rekening,
                         bedrag = -berekenAflossingBedragOpDatum(
-                            gebruiker,
-                            aflossingDTO,
-                            periode.periodeStartDatum.toString()
+                            aflossing,
+                            periode.periodeStartDatum
                         ),
                         periode = periode
                     )
@@ -96,18 +137,19 @@ class AflossingService {
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
     }
 
-    fun berekenAflossingBedragOpDatum(
-        gebruiker: Gebruiker,
-        aflossingDTO: AflossingDTO,
-        peilDatumAsString: String
-    ): BigDecimal {
-        val aflossing = fromDTO(gebruiker, aflossingDTO)
-        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-        return berekenAflossingBedragOpDatum(aflossing, peilDatum)
-    }
+//    fun berekenAflossingBedragOpDatum(
+//        gebruiker: Gebruiker,
+//        aflossingDTO: AflossingDTO,
+//        peilDatumAsString: String
+//    ): BigDecimal {
+//        val aflossing = fromDTO(gebruiker, aflossingDTO)
+//        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
+//        return berekenAflossingBedragOpDatum(aflossing, peilDatum)
+//    }
 
     fun berekenAflossingBedragOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
-        if (peilDatum < aflossing.startDatum) return aflossing.eindBedrag
+        if (peilDatum < aflossing.startDatum || peilDatum.withDayOfMonth(aflossing.betaalDag) < aflossing.startDatum)
+            return aflossing.eindBedrag
         if (peilDatum > aflossing.eindDatum) return BigDecimal(0)
         val isHetAlAfgeschreven = if (peilDatum.dayOfMonth <= aflossing.betaalDag) 0 else 1
         val aantalMaanden = ChronoUnit.MONTHS.between(aflossing.startDatum, peilDatum) + isHetAlAfgeschreven
@@ -126,50 +168,5 @@ class AflossingService {
         val bedrag =
             filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == aflossing.rekening.id) acc - betaling.bedrag else acc + betaling.bedrag }
         return bedrag
-    }
-
-    fun fromDTO(gebruiker: Gebruiker, aflossingDTO: AflossingDTO): Aflossing {
-        val maxSortOrderOpt = rekeningRepository.findMaxSortOrder()
-        val maxSortOrder =
-            if (maxSortOrderOpt != null)
-                maxSortOrderOpt.sortOrder + 1
-            else 1
-        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(gebruiker, aflossingDTO.rekening.naam)
-            ?: rekeningRepository.save(
-                Rekening(
-                    gebruiker = gebruiker,
-                    rekeningSoort = Rekening.RekeningSoort.AFLOSSING,
-                    naam = aflossingDTO.rekening.naam,
-                    sortOrder = maxSortOrder
-                )
-            )
-        if (rekening.rekeningSoort != Rekening.RekeningSoort.AFLOSSING) {
-            val message =
-                "Rekening ${aflossingDTO.rekening} voor ${gebruiker.bijnaam} heeft rekeningsoort ${rekening.rekeningSoort} en kan dus geen aflossing koppelen."
-            logger.error(message)
-            throw DataIntegrityViolationException(message)
-        }
-        val aflossing = aflossingRepository.findAflossingVoorRekeningNaam(gebruiker, aflossingDTO.rekening.naam)
-            ?.fullCopy(
-                rekening = rekening,
-                startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
-                aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
-                betaalDag = aflossingDTO.betaalDag,
-                dossierNummer = aflossingDTO.dossierNummer,
-                notities = aflossingDTO.notities,
-            )
-            ?: Aflossing(
-                rekening = rekening,
-                startDatum = LocalDate.parse(aflossingDTO.startDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                eindDatum = LocalDate.parse(aflossingDTO.eindDatum, DateTimeFormatter.ISO_LOCAL_DATE),
-                eindBedrag = aflossingDTO.eindBedrag.toBigDecimal(),
-                aflossingsBedrag = aflossingDTO.aflossingsBedrag.toBigDecimal(),
-                betaalDag = aflossingDTO.betaalDag,
-                dossierNummer = aflossingDTO.dossierNummer,
-                notities = aflossingDTO.notities,
-            )
-        return aflossing
     }
 }

@@ -28,6 +28,7 @@ object TestFixtures {
         boekingsdatum = "2023-01-01",
         bedrag = "100.00",
         omschrijving = "Test betaling",
+        ocrOmschrijving = "Test betaling ocrOmschrijving",
         betalingsSoort = "UITGAVEN",
         bron = "Betaalrekening",
         bestemming = "Uitgave"
@@ -41,6 +42,7 @@ object TestFixtures {
             boekingsdatum = LocalDate.parse("2023-01-01"),
             bedrag = BigDecimal(100.00),
             omschrijving = "Test betaling",
+            ocrOmschrijving = "Test betaling ocrOmschrijving",
             betalingsSoort = Betaling.BetalingsSoort.UITGAVEN,
             bron = testBetaalrekening,
             bestemming = testUitgave

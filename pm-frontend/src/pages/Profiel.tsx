@@ -197,8 +197,6 @@ const Profiel: React.FC = () => {
                                     .join('<br />') +
                                     (rekening.budgetten.length > 1 ? `<br />Totaal: ${currencyFormatter.format(rekening.budgetten.reduce((acc, b) => acc + Number(b.bedrag), 0))}/maand` : '')
                                 }} />}
-                              {aflossingSamenvattingBijRekening(rekening) &&
-                                `${aflossingSamenvattingBijRekening(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(aflossingSamenvattingBijRekening(rekening)?.aflossingsBedrag))}/maand)`}
                             </TableCell>
                           </TableRow>
                         </Fragment>
@@ -213,7 +211,7 @@ const Profiel: React.FC = () => {
                                 __html: Array.from(rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.aflossing)).map(rekening =>
                                   `${aflossingSamenvattingBijRekening(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(aflossingSamenvattingBijRekening(rekening)?.aflossingsBedrag))}/maand op de ${aflossingSamenvattingBijRekening(rekening)?.betaalDag}e)`)
                                   .join('<br />') +
-                                  `<br/>Totaal per periode: ${currencyFormatter.format(actieveHulpvrager?.aflossingen.reduce((acc, aflossing) => acc + Number(aflossing.aflossingsBedrag), 0) ?? 0)}`
+                                  `<br/>Totaal per periode: ${currencyFormatter.format(actieveHulpvrager?.aflossingen?.reduce((acc, aflossing) => acc + Number(aflossing.aflossingsBedrag), 0) ?? 0)}`
                               }} />
                             </TableCell>
                           </TableRow>
@@ -272,8 +270,8 @@ const Profiel: React.FC = () => {
                 <Typography sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }} >
                   {actieveHulpvrager?.bijnaam} heeft apart de <strong>Schulden/Aflossingen</strong> ingericht.
                   Dat heeft een aantal voordelen. Allereerst komen de schulden op de balans te staan en is de berekening van het 'eigen vermogen' daardoor veel beter.
-                  Door het 'eigen vermogen' in de tijd uit te zetten, inclusief een ge-extrapolleerde toekomst, geef je inzicht in de vorderingen ten aanzien van het schuldenvrij worden inclusief een verwachte datum dat dat zal zijn bereikt.
-                  <Link to={'/schuld-leningen'} style={{ textDecoration: 'none', color: 'inherit' }}>'SCHULD/AFLOSSING'</Link>pagina zijn de aflossingen uitsplitst en wordt aanvullende informatie, zoals dossiernummer en contactinformatie, gegeven.
+                  Door het 'eigen vermogen' in de tijd uit te zetten, inclusief een ge&euml;xtrapolleerde toekomst, geef je inzicht in de vorderingen ten aanzien van het schuldenvrij worden (inclusief een verwachte datum dat dat zal zijn bereikt).
+                  Op de <Link to={'/schuld-leningen'} style={{ textDecoration: 'none' }}>'SCHULD/AFLOSSING'</Link> pagina zijn de aflossingen uitsplitst en wordt aanvullende informatie, zoals dossiernummer en contactinformatie, gegeven.
                   Ook wordt een grafische weergave van de (gerealiseerde en verwacht) afbouw van de schuld gegeven.
                 </Typography>}
               <Box sx={{ minWidth: '170px' }}>

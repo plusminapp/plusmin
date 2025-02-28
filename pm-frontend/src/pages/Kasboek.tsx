@@ -139,7 +139,7 @@ export default function Kasboek() {
 
   return (
     <>
-      <Typography variant='h4'>Inkomsten & uitgaven</Typography>
+      <Typography variant='h4'>Kasboek</Typography>
       <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, md: 3 }}>
         <Grid size={1}>
           <PeriodeSelect />

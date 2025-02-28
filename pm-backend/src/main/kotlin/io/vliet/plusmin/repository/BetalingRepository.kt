@@ -51,4 +51,23 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         omschrijving: String,
         betalingsSoort: BetalingsSoort
     ): List<Betaling>
+
+    @Query(
+        value = "SELECT b FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum = :boekingsdatum AND " +
+                "b.bedrag = :bedrag"
+    )
+    fun findVergelijkbareBetalingen(
+        gebruiker: Gebruiker,
+        boekingsdatum: LocalDate,
+        bedrag: BigDecimal,
+        ): List<Betaling>
+
+    @Query(
+        value = "SELECT b FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum = (SELECT MAX(b2.boekingsdatum) FROM Betaling b2 WHERE b2.gebruiker = :gebruiker)"
+    )
+    fun findLaatsteBetaling(gebruiker: Gebruiker): List<Betaling>
 }

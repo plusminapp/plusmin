@@ -3,11 +3,13 @@ package io.vliet.plusmin.controller
 //import io.vliet.plusmin.service.Camt053Service
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingDTO
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
+import io.vliet.plusmin.service.BetalingOcrValidatieService
 import io.vliet.plusmin.service.BetalingService
 import io.vliet.plusmin.service.Camt053Service
 import io.vliet.plusmin.service.PagingService
@@ -45,6 +47,9 @@ class BetalingController {
 
     @Autowired
     lateinit var camt053Service: Camt053Service
+
+    @Autowired
+    lateinit var betalingOcrValidatieService: BetalingOcrValidatieService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -158,6 +163,16 @@ class BetalingController {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(betaling.gebruiker.id)
         logger.info("PUT BetalingController.wijzigBetaling met id $betalingId voor ${hulpvrager.email} door ${vrijwilliger.email}")
         return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
+    }
+
+    @PutMapping("/hulpvrager/{hulpvragerId}/betalingocrvalidatie")
+    fun valideerOcrBetalingen(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+        @Valid @RequestBody betalingOcrValidatieWrapper: Betaling.BetalingOcrValidatieWrapper,
+    ): ResponseEntity<Betaling.BetalingOcrValidatieWrapper> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("PUT BetalingController.valideerOcrBetalingen voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(betalingOcrValidatieService.valideerOcrBetalingen(hulpvrager, betalingOcrValidatieWrapper))
     }
 
     @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")

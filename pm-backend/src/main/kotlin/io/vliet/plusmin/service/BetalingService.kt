@@ -69,6 +69,7 @@ class BetalingService {
                 boekingsdatum = LocalDate.parse(betalingDTO.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
                 bedrag = betalingDTO.bedrag.toBigDecimal(),
                 omschrijving = betalingDTO.omschrijving,
+                ocrOmschrijving = betalingDTO.ocrOmschrijving,
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                 bron = bron,
                 bestemming = bestemming,

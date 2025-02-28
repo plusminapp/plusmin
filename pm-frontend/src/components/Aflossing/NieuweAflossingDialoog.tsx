@@ -62,7 +62,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
   const [isValid, setIsValid] = useState<boolean>(false);
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gebruiker, rekeningen, setRekeningen, setBetalingsSoorten2Rekeningen, setSnackbarMessage } = useCustomContext();
+  const { actieveHulpvrager, setActieveHulpvrager, gebruiker, rekeningen, setRekeningen, setBetalingsSoorten2Rekeningen, setSnackbarMessage } = useCustomContext();
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -112,7 +112,6 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
         } catch (error) {
           navigate('/login');
         }
-
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
         const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
           method: "PUT",
@@ -129,14 +128,17 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
             }]),
         })
         if (response.ok) {
-          setRekening({ ...initialRekening })
+          setRekening({ ...rekening })
           setRekeningen([...rekeningen, rekening])
           setBetalingsSoorten2Rekeningen(transformRekeningenToBetalingsSoorten([...rekeningen, rekening]))
-          setAflossing({
-            ...initialAflossing,
-            rekening: initialRekening,
-          })
+          setAflossing({...aflossing, rekening: rekening,})
+          if (actieveHulpvrager && actieveHulpvrager.id !== undefined) {
+            setActieveHulpvrager({...actieveHulpvrager, aflossingen: [...actieveHulpvrager.aflossingen, {...aflossing, aflossingNaam: rekening.naam}]})
+          }
+
           setIsValid(false)
+          setRekening(initialRekening)
+          setAflossing(initialAflossing)
           setSnackbarMessage({
             message: "Aflossing is opgeslagen.",
             type: "success"

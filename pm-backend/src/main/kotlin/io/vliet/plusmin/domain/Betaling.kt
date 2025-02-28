@@ -25,6 +25,9 @@ class Betaling(
     val bedrag: BigDecimal,
     @Column(columnDefinition = "TEXT")
     val omschrijving: String,
+    @Column(columnDefinition = "TEXT")
+    val ocrOmschrijving: String,
+    val isGevalideerd: Boolean = false,
     @Enumerated(EnumType.STRING)
     val betalingsSoort: BetalingsSoort,
     @ManyToOne
@@ -46,17 +49,21 @@ class Betaling(
         boekingsdatum: LocalDate = this.boekingsdatum,
         bedrag: BigDecimal = this.bedrag,
         omschrijving: String = this.omschrijving,
+        ocrOmschrijving: String = this.ocrOmschrijving,
+        isGevalideerd: Boolean = this.isGevalideerd,
         betalingsSoort: BetalingsSoort = this.betalingsSoort,
         bron: Rekening = this.bron,
         bestemming: Rekening = this.bestemming,
         budget: Budget? = this.budget
-    ) = Betaling(this.id, gebruiker, boekingsdatum, bedrag, omschrijving, betalingsSoort, bron, bestemming, budget)
+    ) = Betaling(this.id, gebruiker, boekingsdatum, bedrag, omschrijving, ocrOmschrijving, isGevalideerd, betalingsSoort, bron, bestemming, budget)
 
     data class BetalingDTO(
         val id: Long = 0,
         val boekingsdatum: String,
         val bedrag: String,
         val omschrijving: String,
+        val ocrOmschrijving: String,
+        val isGevalideerd: Boolean = false,
         val betalingsSoort: String,
         val bron: String,
         val bestemming: String,
@@ -69,6 +76,8 @@ class Betaling(
             this.boekingsdatum.format(DateTimeFormatter.ISO_LOCAL_DATE),
             this.bedrag.toString(),
             this.omschrijving,
+            this.ocrOmschrijving,
+            this.isGevalideerd,
             this.betalingsSoort.toString(),
             this.bron.naam,
             this.bestemming.naam,
@@ -76,20 +85,42 @@ class Betaling(
         )
     }
 
+    data class BetalingOcrValidatie(
+        val boekingsdatum: String,
+        val bedrag: BigDecimal,
+        val ocrOmschrijving: String?,
+        val bestaatAl: Boolean? = false,
+    ) {
+        fun fullCopy(
+            boekingsdatum: String = this.boekingsdatum,
+            bedrag: BigDecimal = this.bedrag,
+            ocrOmschrijving: String? = this.ocrOmschrijving,
+            bestaatAl: Boolean? = this.bestaatAl
+        ) = BetalingOcrValidatie(boekingsdatum, bedrag, ocrOmschrijving, bestaatAl)
+    }
+
+
+    data class BetalingOcrValidatieWrapper(
+        val laatsteBetalingDatum: LocalDate?,
+        val saldoOpLaatsteBetalingDatum: Saldo.SaldoDTO,
+        val betalingen: List<BetalingOcrValidatie>,
+    )
+
     enum class BetalingsSoort(
         val omschrijving: String
     ) {
         INKOMSTEN("Inkomsten"),
         RENTE("Rente"),
         UITGAVEN("Uitgaven"),
-        INCASSO_CREDITCARD("incasso_creditcard"),
         LENEN("lenen"),
         AFLOSSEN("aflossen"),
         TOEVOEGEN_RESERVERING("toevoegen_reservering"),
         BESTEDEN_RESERVERING("besteden_reservering"),
+        INCASSO_CREDITCARD("incasso_creditcard"),
         OPNEMEN_SPAARREKENING("opnemen_spaarrekening"),
         STORTEN_SPAARREKENING("storten_spaarrekening"),
         OPNEMEN_CONTANT("opnemen_contant"),
         STORTEN_CONTANT("storten_contant")
     }
+
 }
