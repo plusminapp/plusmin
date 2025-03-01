@@ -2,7 +2,7 @@ import { aflossenBetalingsSoorten, BetalingDTO, BetalingsSoort, betalingsSoortFo
 import { useEffect, useState, useCallback } from 'react';
 
 import { useAuthContext } from "@asgardeo/auth-react";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Link, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Link, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useCustomContext } from '../context/CustomContext';
@@ -20,6 +20,7 @@ import { InkomstenIcon } from '../icons/Inkomsten';
 import { UitgavenIcon } from '../icons/Uitgaven';
 import { InternIcon } from '../icons/Intern';
 import { ExternalLinkIcon } from '../icons/ExternalLink';
+import PhotoCameraOutlinedIcon from '@mui/icons-material/PhotoCameraOutlined';
 import { berekenAflossingenBedrag, berekenMaandAflossingenBedrag } from '../model/Aflossing';
 import { AflossingStatusIcon } from '../icons/AflossingStatus';
 import { budgetten, maandBudgetten } from '../model/Budget';
@@ -150,8 +151,10 @@ export default function Kasboek() {
           </Typography>
         </Grid>
         {isPeriodeOpen &&
-          <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
-            {/* <UpsertCamt053Dialoog /> */}
+          <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+            <Button variant="contained" color="success" onClick={() => navigate('/ocr')} sx={{ mt: '10px', ml: 0 }}>
+              <PhotoCameraOutlinedIcon />
+            </Button>
             <UpsertBetalingDialoog
               editMode={false}
               betaling={undefined}

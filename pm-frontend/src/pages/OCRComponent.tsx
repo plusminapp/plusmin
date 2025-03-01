@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Grid, Fab } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme } from '@mui/material';
+import Grid from '@mui/material/Grid2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
@@ -20,7 +21,14 @@ const OCRComponent: React.FC = () => {
   const [editData, setEditData] = useState<{ date: string, text: string, amount: string }>({ date: '', text: '', amount: '' });
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
 
+  const theme = useTheme();
+  const isXs = useMediaQuery(theme.breakpoints.only('xs'));
+  const isSm = useMediaQuery(theme.breakpoints.only('sm'));
+  const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setParsedData([]); // Clear parsed data
+    setConfidence(null); // Clear confidence value 
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setImageSrc(URL.createObjectURL(file)); // Set image source
@@ -37,6 +45,7 @@ const OCRComponent: React.FC = () => {
         logger: (m) => console.log(m),
         tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Set page segmentation mode
         tessedit_char_whitelist: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-,.', // Whitelist characters
+        tessedit_char_blacklist: '€', // Blacklist characters
         tessedit_preserve_interword_spaces: 1 as any, // Preserve interword spaces
       } as Partial<Tesseract.WorkerOptions> // Typecast the entire options object
     ).then(({ data: { text, confidence } }) => { // Get confidence value
@@ -61,6 +70,12 @@ const OCRComponent: React.FC = () => {
   const parseText = (text: string) => {
     const dateRegex = /((vandaag|gisteren)?( - )?\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)( \d{4})?|(vandaag|gisteren)( - )?)/i;
     const amountRegex = /([+-]?\d{1,3}(?:\.\d{3})*,\d{2})/g;
+
+    // Verwijder alle tekst vóór de eerste datum
+    const firstDateMatch = text.match(dateRegex);
+    if (firstDateMatch && firstDateMatch.index !== undefined) {
+      text = text.substring(firstDateMatch.index);
+    }
 
     let currentDate = '';
     const parsed = text.split(amountRegex).reduce((acc, line, index, array) => {
@@ -101,7 +116,6 @@ const OCRComponent: React.FC = () => {
       }
       return acc;
     }, [] as { date: string, text: string, amount: string }[]);
-
     setParsedData(parsed);
   };
 
@@ -156,50 +170,54 @@ const OCRComponent: React.FC = () => {
 
   return (
     <Box>
-      <Button
-        variant="contained"
-        component="label"
-        disabled={isLoading}
-      >
-        {isLoading ? 'Verwerken...' : 'Selecteer afbeelding'}
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleFileChange}
-          hidden
-        />
-      </Button>
+      <Typography variant="h4" sx={{ mb: 2 }}>Bank app afbeelding</Typography>
+      <Grid container flexDirection='row' justifyContent="flex-end">
+        <Button
+          color='success'
+          variant="contained"
+          component="label"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Verwerken...' : 'Selecteer afbeelding'}
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            hidden
+          />
+        </Button>
+      </Grid>
       {confidence !== null && (
         <Typography variant="body2" sx={{ mt: 1 }}>
           Vertrouwen: {confidence.toFixed(2)}%
         </Typography>
       )}
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        {imageSrc && (
-          <Grid item xs={12} md={6}>
-            <Box sx={{ height: { xs: '33vh', md: '67vh' }, overflow: 'auto',  border: '1px solid grey', borderRadius: '5px' }}>
-              <img src={imageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} />
-            </Box>
-          </Grid>
-        )}
-        <Grid item xs={12} md={imageSrc ? 6 : 12}>
-          <Box sx={{ height: { xs: '33vh', md: '67vh' }, overflow: 'auto', border: '1px solid grey', borderRadius: '5px' }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
+            {imageSrc ?
+              <img src={imageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} /> :
+              <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
+                Hier komt de afbeelding zodra je die hebt gekozen
+              </Typography>}
+          </Box>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }} >
+          <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
+            {parsedData.length === 0 && (
+              <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
+                Hier komen de voorgestelde betalingen zodra de afbeelding is verwerkt
+              </Typography>
+            )}
             {Object.keys(groupedData).length > 0 && (
               <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ padding: '5px' }}>Tekst</TableCell>
-                      <TableCell sx={{ padding: '5px' }}>Bedrag</TableCell>
-                      <TableCell sx={{ padding: '5px' }}>Acties</TableCell>
-                    </TableRow>
-                  </TableHead>
+                <Table >
                   <TableBody>
                     {Object.keys(groupedData).map((date) => (
                       <React.Fragment key={date}>
                         <TableRow>
-                          <TableCell colSpan={3} sx={{ backgroundColor: '#f0f0f0', fontWeight: 'bold' }}>
-                            {dayjs(date).format('D MMMM')}
+                          <TableCell colSpan={3} sx={{ fontWeight: '900', padding: '5px' }}>
+                            {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
                           </TableCell>
                         </TableRow>
                         {groupedData[date].map((item, index) => (
@@ -227,24 +245,25 @@ const OCRComponent: React.FC = () => {
           </Box>
         </Grid>
       </Grid>
-      <Fab
-        color="primary"
-        aria-label="add"
-        sx={{ position: 'fixed', bottom: 16, right: 16 }}
-        onClick={handleAdd}
-      >
-        <AddIcon />
-      </Fab>
+      {parsedData.length > 0 &&
+        <Fab
+          color="success"
+          aria-label="add"
+          sx={{ position: 'fixed', bottom: 16, right: 16 }}
+          onClick={handleAdd}
+        >
+          <AddIcon />
+        </Fab>}
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>Nieuwe gegevens</DialogTitle>
         <DialogContent>
-            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
             <DatePicker
               label="Datum"
               value={editData.date ? dayjs(editData.date) : null}
               onChange={handleDateChange}
               slotProps={{ textField: { variant: "standard" } }}
-              />
+            />
           </LocalizationProvider>
           <TextField
             margin="dense"

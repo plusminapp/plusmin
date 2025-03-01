@@ -249,7 +249,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   return (
     <React.Fragment>
       {!props.editMode &&
-        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
+        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: '10px' }}>
           Nieuwe betaling
         </Button>
       }
@@ -338,7 +338,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         <DialogActions sx={{ justifyContent: 'space-between' }}>
           {props.editMode ?
             <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Box />}
-          <Button autoFocus onClick={handleSubmit} startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px' }} />} >BEWAAR</Button>
+            <Button autoFocus onClick={handleSubmit} sx={{ color: 'success.main' }} startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px', color: 'success.main' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
     </React.Fragment>

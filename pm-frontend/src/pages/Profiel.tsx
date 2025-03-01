@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 
-import { Accordion, AccordionDetails, AccordionSummary, Container, FormControlLabel, FormGroup, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, FormControlLabel, FormGroup, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 import { useAuthContext } from "@asgardeo/auth-react";
@@ -93,7 +93,7 @@ const Profiel: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="xl">
+    <>
       {!state.isAuthenticated &&
         <Typography variant='h4' sx={{ mb: '25px' }}>Je moet eerst inloggen ...</Typography>
       }
@@ -107,7 +107,7 @@ const Profiel: React.FC = () => {
               </Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography sx={{ my: '25px' }}>Je bent ingelogd met email "{state.username}".<br />
+              <Typography sx={{ my: '5px' }}>Je bent ingelogd met email "{state.username}".<br />
                 Je hebt "{gebruiker?.bijnaam}" als bijnaam gekozen.<br />
                 Je {gebruiker?.roles.length && gebruiker?.roles.length > 1 ? " rollen zijn " : " rol is "}
                 "{gebruiker?.roles.map(x => x.split('_')[1].toLowerCase()).join('", "')}".
@@ -266,8 +266,8 @@ const Profiel: React.FC = () => {
             {/* aflossen  */}
             <Accordion expanded={false}>
               <AccordionSummary sx={{ mb: 0 }} expandIcon={<></>}>
-                <Grid display="flex" alignItems="center" alignContent='center' justifyContent="space-between" flexDirection='row' width={'100%' }>
-                  <Grid sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }}>
+                <Grid container display="flex" alignItems="center" alignContent='center' justifyContent={{xs: "flex-start", sm: "space-between"}} flexDirection={{ xs: 'column', sm: 'row' }} width={'100%'}>
+                  <Grid sx={{ maxWidth: { xs: '100%', sm: `calc(100% - 200px)`}, mr: 'auto', mb:{xs: '10px', sm: 0} }}>
                     <Typography >
                       <strong>Schulden/Aflossingen</strong> zijn voor {actieveHulpvrager?.bijnaam}
                       {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length === 0 ? " niet ingericht." : " ingericht. Bij het kasboek kun je ze zien."}
@@ -286,7 +286,7 @@ const Profiel: React.FC = () => {
               <Accordion>
                 <AccordionSummary sx={{ mb: 0 }} expandIcon={<ArrowDropDownIcon />}>
                   <Typography >
-                    Voor de boekhouders onder ons.
+                    Voor de <strong>boekhouders</strong> onder ons.
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails sx={{ mt: 0 }}>
@@ -324,7 +324,7 @@ const Profiel: React.FC = () => {
               </Accordion>}
           </>}
       </>
-    </Container >
+    </>
   );
 };
 

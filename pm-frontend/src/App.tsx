@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthContext } from '@asgardeo/auth-react';
 
-import Home from './pages/Home';
 import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
 import Kasboek from './pages/Kasboek';
@@ -24,12 +23,12 @@ const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
 const App: React.FC = () => {
   return (
     <>
-      <Container maxWidth="xl">
-        <Router>
+      <Container maxWidth="xl" sx={{ p: { xs: 2, sm: 3, md: 4 }, mx: { xs: 0, sm: 2, md: 'auto' } }}>
+      <Router>
         <Header />
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Profiel />} />
+            <Route path="/home" element={<Profiel />} />
             <Route path="/login" element={<LoginPagina />} />
             <Route path="/ocr" element={<OCRComponent />} />
 

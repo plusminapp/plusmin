@@ -116,28 +116,31 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
             <Grid container spacing={5} justifyContent="center">
                 <Tooltip title="Inkomsten" placement={"top"}>
                     <Button
+                        color='success'
                         variant={selectedCategorie === 'INKOMSTEN' ? 'contained' : 'outlined'}
                         onClick={() => handleCategorieChange('INKOMSTEN')}
                     >
-                        <InkomstenIcon color={selectedCategorie === 'INKOMSTEN' ? 'white' : '#444'} />
+                        <InkomstenIcon color={selectedCategorie === 'INKOMSTEN' ? 'white' : 'success'} />
                     </Button>
                 </Tooltip>
                 {countIntersection(internBetalingsSoorten, Array.from(betalingsSoorten2Rekeningen.keys())) > 0 &&
                     <Tooltip title="Intern" placement={"top"}>
                         <Button
+                            color='success'
                             variant={selectedCategorie === 'INTERN' ? 'contained' : 'outlined'}
                             onClick={() => handleCategorieChange('INTERN')}
                         >
-                            <InternIcon color={selectedCategorie === 'INTERN' ? 'white' : '#444'} />
+                            <InternIcon color={selectedCategorie === 'INTERN' ? 'white' : 'success'} />
                         </Button>
                     </Tooltip>
                 }
                 <Tooltip title="Uitgaven" placement={"top"}>
                     <Button
+                        color='success'
                         variant={selectedCategorie === 'UITGAVEN' ? 'contained' : 'outlined'}
                         onClick={() => handleCategorieChange('UITGAVEN')}
                     >
-                        <UitgavenIcon color={selectedCategorie === 'UITGAVEN' ? 'white' : '#444'} />
+                        <UitgavenIcon color={selectedCategorie === 'UITGAVEN' ? 'white' : 'success'} />
                     </Button>
                 </Tooltip>
             </Grid>
@@ -277,7 +280,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                     {rekeningPaar?.bestemming.map((rekening) => (
                                                         <>
                                                             {selectedBestemmingRekening !== undefined && selectedBestemmingRekening === rekening.naam && rekening.budgetten.length > 1 &&
-                                                               <Grid container spacing={1} justifyContent={"center"} direction={"column"} >
+                                                                <Grid container spacing={1} justifyContent={"center"} direction={"column"} >
                                                                     <Grid >
                                                                         <Typography sx={{ mt: '3px', fontSize: 12, textAlign: 'center', color: 'grey' }}>Budget: </Typography>
                                                                     </Grid>
