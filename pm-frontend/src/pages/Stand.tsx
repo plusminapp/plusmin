@@ -14,7 +14,12 @@ export default function Stand() {
 
   const [stand, setStand] = useState<Stand | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
-  const [checked, setChecked] = useState(true);
+  const [toonMutaties, setToonMutaties] = useState(localStorage.getItem('toonMutaties') === 'true');
+
+  const handleToonMutatiesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonMutaties', event.target.checked.toString());
+    setToonMutaties(event.target.checked);
+  };
 
   const { getIDToken } = useAuthContext();
   const { actieveHulpvrager, gekozenPeriode, setSnackbarMessage } = useCustomContext();
@@ -61,10 +66,6 @@ export default function Stand() {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setChecked(event.target.checked);
-  };
-
   return (
     <>
       {stand !== undefined &&
@@ -80,34 +81,33 @@ export default function Stand() {
                 <FormControlLabel control={
                   <Switch
                     sx={{ transform: 'scale(0.6)' }}
-                    checked={checked}
-                    onChange={handleChange}
+                    checked={toonMutaties}
+                    onChange={handleToonMutatiesChange}
                     inputProps={{ 'aria-label': 'controlled' }}
                   />}
-                  label="Toon opening & mutaties" />
+                  label="Toon mutaties" />
               </FormGroup>
             </Grid>
           </Grid>
           <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={{ xs: 2, md: 3 }} columns={{ xs: 1, sm: 4, md: 12 }}>
-              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
+            <Grid container spacing={{ xs: 2, md: 3 }} columns={toonMutaties ? { xs: 1, sm: 2, md: 4 } : { xs: 1, sm: 3, md: 3 }}>
+              <Grid size={1}>
+                <Resultaat title={'Opening'} datum={stand.periodeStartDatum} saldi={stand.openingsBalans!} />
+              </Grid>
+              <Grid size={1}>
                 <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
               </Grid>
-              {checked &&
-                <Grid size={{ xs: 1, sm: 2, md: 3 }}>
-                  <Resultaat title={'Opening'} datum={stand.periodeStartDatum} saldi={stand.openingsBalans!} />
-                </Grid>}
-              {checked &&
-                <Grid size={{ xs: 1, sm: 2, md: 3 }}>
+              {toonMutaties &&
+                <Grid size={1}>
                   <Resultaat title={'Mutaties per'} datum={stand.peilDatum} saldi={stand.mutatiesOpDatum!} />
                 </Grid>}
-              <Grid size={checked ? { xs: 1, sm: 2, md: 3 } : { xs: 2, sm: 4, md: 6 }}>
+              <Grid size={1}>
                 <Resultaat title={'Stand'} datum={stand.peilDatum} saldi={stand.balansOpDatum!} />
               </Grid>
             </Grid>
           </Box>
         </>
       }
-      </>
+    </>
   )
 }

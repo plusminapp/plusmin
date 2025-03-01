@@ -1,12 +1,12 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 
-import { Accordion, AccordionDetails, AccordionSummary, Box, Container, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Accordion, AccordionDetails, AccordionSummary, Container, FormControlLabel, FormGroup, Paper, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 
 import { useAuthContext } from "@asgardeo/auth-react";
 
 import { useCustomContext } from '../context/CustomContext';
-import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter, internBetalingsSoorten } from '../model/Betaling';
+import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter } from '../model/Betaling';
 import { PeriodeSelect } from '../components/Periode/PeriodeSelect';
 import { betaalmethodeRekeningSoorten, inkomstenRekeningSoorten, Rekening, RekeningSoort, resultaatRekeningSoorten, uitgavenRekeningSoorten } from '../model/Rekening';
 import { AflossingSamenvattingDTO } from '../model/Aflossing';
@@ -18,12 +18,16 @@ import { InternIcon } from '../icons/Intern';
 import NieuweAflossingDialoog from '../components/Aflossing/NieuweAflossingDialoog';
 import { NaamPlaatje } from '../components/NaamPlaatje';
 import { Gebruiker } from '../model/Gebruiker';
-import { Link } from 'react-router-dom';
 
 const Profiel: React.FC = () => {
   const { state } = useAuthContext();
 
   const { gebruiker, actieveHulpvrager, setActieveHulpvrager, setActieveHulpvragerData, hulpvragers, rekeningen, betaalMethoden, betalingsSoorten2Rekeningen, gekozenPeriode } = useCustomContext();
+
+  const [checked, setChecked] = useState(actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER"));
+  useEffect(() => {
+    setChecked(actieveHulpvrager !== gebruiker || !gebruiker?.roles.includes("ROLE_VRIJWILLIGER"));
+  }, [actieveHulpvrager, gebruiker]);
 
   const aflossingSamenvattingBijRekening = (rekening: Rekening): AflossingSamenvattingDTO | undefined =>
     actieveHulpvrager?.aflossingen.filter(a => a.aflossingNaam === rekening.naam)[0]
@@ -62,17 +66,6 @@ const Profiel: React.FC = () => {
     return budgetTekst
   }
 
-  const berekenBetaalSoortenPerRekeningSoort = (rekeningSoort: RekeningSoort, bronOfBestemming: 'bron' | 'bestemming') => {
-    const blaat = Array.from(betalingsSoorten2Rekeningen.entries())
-      .filter(entry => entry[1][bronOfBestemming].some(rekening => rekening.rekeningSoort === rekeningSoort))
-      .map(entry => entry[0])
-      .filter(betaalSoort => !internBetalingsSoorten.includes(betaalSoort))
-      .map(betalingsSoortFormatter)
-      .join(', ');
-
-    return blaat
-  }
-
   const berekenCategorieIcon = (categorie: string) => {
     switch (categorie) {
       case 'INKOMSTEN':
@@ -94,6 +87,10 @@ const Profiel: React.FC = () => {
       setActieveHulpvragerData(gebruiker, undefined);
     }
   }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked);
+  };
 
   return (
     <Container maxWidth="xl">
@@ -137,189 +134,195 @@ const Profiel: React.FC = () => {
         </>
       }
       <>
-        <Typography variant='h4' sx={{ my: '25px' }}>
-          {actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") && 'Je hebt nog geen hulpvrager gekozen.'}
-          {actieveHulpvrager !== gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") && `De gekozen hulpvrager is ${actieveHulpvrager?.bijnaam}.`}
-        </Typography>
-        <Typography sx={{ mb: 1 }}>
-          {actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
-            "Hieronder staat nu de inrichting voor jezelf (heb je zelf gedaan natuurlijk), dan kun je oefenen met de app zonder dat je de gegevens van een hulpvrager gebruikt. Eigenlijk ben je nu je eigen hulpvrager. Dus: experimenteer er op los!"}
-          {actieveHulpvrager !== gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") && `Samen met ${actieveHulpvrager?.bijnaam} is de app als volgt ingericht.`}
-        </Typography>
-
-        {/* periodes */}
-        <Accordion>
-          <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-            <Typography >We werken met <strong>periodes</strong>. De periode wisseldag (die je zelf kunt kiezen, bij voorkeur vlak voor de inkomsten van de periode), is voor {actieveHulpvrager?.bijnaam} de {actieveHulpvrager?.periodeDag}e.
-              Periodes worden vanzelf aangemaakt als de tijd voortschrijdt. Ze worden na afloop samen (door {actieveHulpvrager?.bijnaam} en {actieveHulpvrager?.vrijwilligerBijnaam} dus) afgesloten. Dat afsluiten zit nu nog niet in de app.
-              De periodes voor {actieveHulpvrager?.bijnaam} zijn:
+        {actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
+          <>
+            <Typography variant='h4' sx={{ my: '25px' }}>
+              Je hebt nog geen hulpvrager gekozen.
             </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <PeriodeSelect isProfiel={true} />
-          </AccordionDetails>
-        </Accordion>
+            <FormGroup sx={{ ml: 'auto' }} >
+              <FormControlLabel control={
+                <Switch
+                  sx={{ transform: 'scale(0.6)' }}
+                  checked={checked}
+                  onChange={handleChange}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                />}
+                label={`Toon de inrichting van ${gebruiker.bijnaam}`} />
+            </FormGroup>
+          </>
+        }
+        {actieveHulpvrager !== gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
+          <>
+            <Typography variant='h4' sx={{ my: '25px' }}>
+              De gekozen hulpvrager is {actieveHulpvrager?.bijnaam}.
+            </Typography>
+            <Typography sx={{ mb: 1 }}>
+              Samen met {actieveHulpvrager?.bijnaam} is de app als volgt ingericht.
+            </Typography>
+          </>}
+        {checked &&
+          <>
+            {actieveHulpvrager && actieveHulpvrager === gebruiker && gebruiker?.roles.includes("ROLE_VRIJWILLIGER") &&
+              <Typography sx={{ mb: 1 }}>
+                Hieronder staat nu de inrichting voor jezelf (heb je zelf gedaan natuurlijk), dan kun je oefenen met de app zonder dat je de gegevens van een hulpvrager gebruikt. Eigenlijk ben je nu je eigen hulpvrager. Dus: experimenteer er op los!
+              </Typography>}
 
-        {/* de kolommen van het kasboek en potjes*/}
-        {rekeningen && rekeningen.length > 0 &&
-          <Accordion>
-            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-              <Typography >In het <strong>kasboek</strong> kunnen we de inkomsten en uitgaven uitsplitsen. Deze worden dan gebruikt als kolomkoppen.
-                Als er daarnaast <strong>potjes</strong> zijn ingericht, kunnen we de hulpvrager, per potje, inzicht geven hoeveel er nog in zit.
-                Bovendien kunnen we iets zeggen over verwachte inkomsten en/of uitgaven per periode.
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography sx={{ my: '25px' }}>{creeerBudgetTekst()}</Typography>
-              <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
-                <Table sx={{ width: "100%" }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Kolomkop</TableCell>
-                      <TableCell>Soort kolom</TableCell>
-                      <TableCell>Gekoppelde potjes</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <>
-                      {Array.from(rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort)).map((rekening) => (
-                        <Fragment key={rekening.naam}>
-                          <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.rekeningSoort.toLocaleLowerCase()}</TableCell>
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>
-                              {rekening.budgetten.length > 0 &&
-                                <span dangerouslySetInnerHTML={{
-                                  __html: rekening.budgetten.map(b =>
-                                    `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()}
+            {/* periodes */}
+            <Accordion>
+              <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+                <Typography ><strong>Periodes</strong>. De periode wisseldag voor {actieveHulpvrager?.bijnaam} is de {actieveHulpvrager?.periodeDag}e.
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <PeriodeSelect isProfiel={true} />
+              </AccordionDetails>
+            </Accordion>
+
+            {/* de kolommen van het kasboek en potjes*/}
+            {rekeningen && rekeningen.length > 0 &&
+              <Accordion>
+                <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+                  <Typography ><strong>Kasboek</strong> kolommen en <strong>Potjes</strong>.
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography sx={{ my: '25px' }}>{creeerBudgetTekst()}</Typography>
+                  <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
+                    <Table sx={{ width: "100%" }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Kolomkop</TableCell>
+                          <TableCell>Gekoppelde potjes</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        <>
+                          {Array.from(rekeningen.filter(rekening => resultaatRekeningSoorten.includes(rekening.rekeningSoort)).map((rekening) => (
+                            <Fragment key={rekening.naam}>
+                              <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                                <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
+                                <TableCell align="left" size='small' sx={{ p: "6px" }}>
+                                  {rekening.budgetten.length > 0 &&
+                                    <span dangerouslySetInnerHTML={{
+                                      __html: rekening.budgetten.map(b =>
+                                        `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()}
                                  ${b.budgetPeriodiciteit.toLowerCase() === 'week' ? `= ${currencyFormatter.format(berekenPeriodeBudgetBedrag(gekozenPeriode, b) ?? 0)}/maand` : ''}
                                  ${b.budgetType.toLowerCase() === 'continu' ? 'doorlopend' : 'op de ' + b.betaalDag + 'e'})`)
-                                    .join('<br />') +
-                                    (rekening.budgetten.length > 1 ? `<br />Totaal: ${currencyFormatter.format(rekening.budgetten.reduce((acc, b) => acc + Number(b.bedrag), 0))}/maand` : '')
-                                }} />}
-                            </TableCell>
-                          </TableRow>
-                        </Fragment>
-                      )))}
-                      {Array.from(rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.aflossing)).length > 0 && (
-                        <Fragment key={'aflossing'}>
-                          <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>Aflossing</TableCell>
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>aflossingen</TableCell>
-                            <TableCell align="left" size='small' sx={{ p: "6px" }}>
-                              <span dangerouslySetInnerHTML={{
-                                __html: Array.from(rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.aflossing)).map(rekening =>
-                                  `${aflossingSamenvattingBijRekening(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(aflossingSamenvattingBijRekening(rekening)?.aflossingsBedrag))}/maand op de ${aflossingSamenvattingBijRekening(rekening)?.betaalDag}e)`)
-                                  .join('<br />') +
-                                  `<br/>Totaal per periode: ${currencyFormatter.format(actieveHulpvrager?.aflossingen?.reduce((acc, aflossing) => acc + Number(aflossing.aflossingsBedrag), 0) ?? 0)}`
-                              }} />
-                            </TableCell>
-                          </TableRow>
-                        </Fragment>
-                      )}
-                    </>
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </Accordion>
-        }
+                                        .join('<br />') +
+                                        (rekening.budgetten.length > 1 ? `<br />Totaal: ${currencyFormatter.format(rekening.budgetten.reduce((acc, b) => acc + Number(b.bedrag), 0))}/maand` : '')
+                                    }} />}
+                                </TableCell>
+                              </TableRow>
+                            </Fragment>
+                          )))}
+                          {Array.from(rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.aflossing)).length > 0 && (
+                            <Fragment key={'aflossing'}>
+                              <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                                <TableCell align="left" size='small' sx={{ p: "6px" }}>Aflossing</TableCell>
+                                <TableCell align="left" size='small' sx={{ p: "6px" }}>
+                                  <span dangerouslySetInnerHTML={{
+                                    __html: Array.from(rekeningen.filter(rekening => rekening.rekeningSoort === RekeningSoort.aflossing)).map(rekening =>
+                                      `${aflossingSamenvattingBijRekening(rekening)?.aflossingNaam} (${currencyFormatter.format(Number(aflossingSamenvattingBijRekening(rekening)?.aflossingsBedrag))}/maand op de ${aflossingSamenvattingBijRekening(rekening)?.betaalDag}e)`)
+                                      .join('<br />') +
+                                      `<br/>Totaal per periode: ${currencyFormatter.format(actieveHulpvrager?.aflossingen?.reduce((acc, aflossing) => acc + Number(aflossing.aflossingsBedrag), 0) ?? 0)}`
+                                  }} />
+                                </TableCell>
+                              </TableRow>
+                            </Fragment>
+                          )}
+                        </>
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </AccordionDetails>
+              </Accordion>
+            }
 
-        {/* betaalMethoden */}
-        {betaalMethoden && betaalMethoden.length > 0 &&
-          <Accordion>
-            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-              <Typography >Om te kunnen betalen (en geld te ontvangen) heb je <strong>betaalmethoden</strong> nodig.  Je kunt dan kiezen uit betaalrekeningen, spaarrekeningen, credit cards en/of contant geld. Je kunt zo'n rekening een eigen naam geven.</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Table sx={{ width: "100%" }} aria-label="simple table">
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Betaalmethode</TableCell>
-                    <TableCell>Soort </TableCell>
-                    <TableCell>Ontvangen</TableCell>
-                    <TableCell>Betalen</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rekeningen.filter(rekening => betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)).map(rekening => (
-                    <TableRow key={rekening.naam} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.rekeningSoort.toLocaleLowerCase()}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{berekenBetaalSoortenPerRekeningSoort(rekening.rekeningSoort, 'bestemming')}</TableCell>
-                      <TableCell align="left" size='small' sx={{ p: "6px" }}>{berekenBetaalSoortenPerRekeningSoort(rekening.rekeningSoort, 'bron')}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </AccordionDetails>
-          </Accordion>
-        }
-
-        {/* aflossen  */}
-        <Accordion expanded={false}>
-          <AccordionSummary sx={{ mb: 0 }} expandIcon={<></>}>
-            <Box display="flex" alignItems="flex-start" justifyContent="space-between" flexDirection='row'>
-              {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length === 0 &&
-                <Typography sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }} >
-                  {actieveHulpvrager?.bijnaam} heeft geen <strong>Schulden/Aflossingen ingericht</strong>.
-                  Je kunt de aflossingen dan nog steeds uitsplitsen op basis van potjes bij een Uitgaverekening.
-                  De schulden komen dan niet op de balans te staan.
-                </Typography>}
-              {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length > 0 &&
-                <Typography sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }} >
-                  {actieveHulpvrager?.bijnaam} heeft apart de <strong>Schulden/Aflossingen</strong> ingericht.
-                  Dat heeft een aantal voordelen. Allereerst komen de schulden op de balans te staan en is de berekening van het 'eigen vermogen' daardoor veel beter.
-                  Door het 'eigen vermogen' in de tijd uit te zetten, inclusief een ge&euml;xtrapolleerde toekomst, geef je inzicht in de vorderingen ten aanzien van het schuldenvrij worden (inclusief een verwachte datum dat dat zal zijn bereikt).
-                  Op de <Link to={'/schuld-leningen'} style={{ textDecoration: 'none' }}>'SCHULD/AFLOSSING'</Link> pagina zijn de aflossingen uitsplitst en wordt aanvullende informatie, zoals dossiernummer en contactinformatie, gegeven.
-                  Ook wordt een grafische weergave van de (gerealiseerde en verwacht) afbouw van de schuld gegeven.
-                </Typography>}
-              <Box sx={{ minWidth: '170px' }}>
-                <NieuweAflossingDialoog
-                  onAflossingBewaardChange={() => { }} />
-              </Box>
-            </Box>
-          </AccordionSummary>
-        </Accordion>
-
-        {/* voor de boekhouders onder ons: betalingsSoorten2Rekeningen */}
-        {betalingsSoorten2Rekeningen && (Array.from(betalingsSoorten2Rekeningen.entries())).length > 0 &&
-          <Accordion>
-            <AccordionSummary sx={{ mb: 0 }} expandIcon={<ArrowDropDownIcon />}>
-              <Typography >
-                Voor de boekhouders onder ons: PlusMin is een boekhoudpakket, gebaseerd op dubbel boekhouden. Bij een betaling moet dus worden bepaald <strong>op welke rekeningen de betaling moet worden geboekt</strong>.
-                We delen betalingen in eerste instantie in in drie categorieën: <InkomstenIcon height={16} />&nbsp;Inkomsten, <UitgavenIcon height={16} />&nbsp;Uitgaven en <InternIcon height={16} />&nbsp;Intern.
-                Vervolgens vragen we, indien er meerdere mogelijkheden zijn, de rekeningen uit die bij de betaling horen.
-                Hieronder staat de inrichting van de betalingen voor {actieveHulpvrager?.bijnaam}:
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails sx={{ mt: 0 }}>
-              <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
-                <Table sx={{ width: "100%" }} aria-label="simple table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Betaling categorie</TableCell>
-                      <TableCell>Soort betaling</TableCell>
-                      <TableCell>Bron (debet)</TableCell>
-                      <TableCell>Bestemming (credit)</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
-                      <Fragment key={entry[0]}>
-                        <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
-                          <TableCell align="left" size='small' sx={{ p: "6px", pl: '16px' }}>{berekenCategorieIcon(betalingsSoort2Categorie(entry[0]) ?? '')}</TableCell>
-                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(entry[0])}</TableCell>
-                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bron.map(c => c.naam).join(', ')}</TableCell>
-                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bestemming.map(c => c.naam).join(', ')}</TableCell>
+            {/* betaalMethoden */}
+            {betaalMethoden && betaalMethoden.length > 0 &&
+              <Accordion>
+                <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+                  <Typography ><strong>Betaalmethoden.</strong></Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Table sx={{ width: "100%" }} aria-label="simple table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Betaalmethode</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {rekeningen.filter(rekening => betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)).map(rekening => (
+                        <TableRow key={rekening.naam} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
                         </TableRow>
-                      </Fragment>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </Accordion>}
+                      ))}
+                    </TableBody>
+                  </Table>
+                </AccordionDetails>
+              </Accordion>
+            }
+
+            {/* aflossen  */}
+            <Accordion expanded={false}>
+              <AccordionSummary sx={{ mb: 0 }} expandIcon={<></>}>
+                <Grid display="flex" alignItems="center" alignContent='center' justifyContent="space-between" flexDirection='row' width={'100%' }>
+                  <Grid sx={{ maxWidth: `calc(100% - 170px)`, mr: '30px' }}>
+                    <Typography >
+                      <strong>Schulden/Aflossingen</strong> zijn voor {actieveHulpvrager?.bijnaam}
+                      {actieveHulpvrager?.aflossingen && actieveHulpvrager?.aflossingen?.length === 0 ? " niet ingericht." : " ingericht. Bij het kasboek kun je ze zien."}
+                    </Typography>
+                  </Grid>
+                  <Grid sx={{ minWidth: '170px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <NieuweAflossingDialoog
+                      onAflossingBewaardChange={() => { }} />
+                  </Grid>
+                </Grid>
+              </AccordionSummary>
+            </Accordion>
+
+            {/* voor de boekhouders onder ons: betalingsSoorten2Rekeningen */}
+            {betalingsSoorten2Rekeningen && (Array.from(betalingsSoorten2Rekeningen.entries())).length > 0 &&
+              <Accordion>
+                <AccordionSummary sx={{ mb: 0 }} expandIcon={<ArrowDropDownIcon />}>
+                  <Typography >
+                    Voor de boekhouders onder ons.
+                  </Typography>
+                </AccordionSummary>
+                <AccordionDetails sx={{ mt: 0 }}>
+                  <Typography>
+                    PlusMin is een boekhoudpakket, gebaseerd op dubbel boekhouden. Bij een betaling moet dus worden bepaald <strong>op welke rekeningen de betaling moet worden geboekt</strong>.
+                    We delen betalingen in eerste instantie in in drie categorieën: <InkomstenIcon height={16} />&nbsp;Inkomsten, <UitgavenIcon height={16} />&nbsp;Uitgaven en <InternIcon height={16} />&nbsp;Intern.
+                    Vervolgens vragen we, indien er meerdere mogelijkheden zijn, de rekeningen uit die bij de betaling horen.
+                    Hieronder staat de inrichting van de betalingen voor {actieveHulpvrager?.bijnaam}:
+                  </Typography>
+                  <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
+                    <Table sx={{ width: "100%" }} aria-label="simple table">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Betaling categorie</TableCell>
+                          <TableCell>Soort betaling</TableCell>
+                          <TableCell>Bron (debet)</TableCell>
+                          <TableCell>Bestemming (credit)</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {Array.from(betalingsSoorten2Rekeningen.entries()).map((entry) => (
+                          <Fragment key={entry[0]}>
+                            <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
+                              <TableCell align="left" size='small' sx={{ p: "6px", pl: '16px' }}>{berekenCategorieIcon(betalingsSoort2Categorie(entry[0]) ?? '')}</TableCell>
+                              <TableCell align="left" size='small' sx={{ p: "6px" }}>{betalingsSoortFormatter(entry[0])}</TableCell>
+                              <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bron.map(c => c.naam).join(', ')}</TableCell>
+                              <TableCell align="left" size='small' sx={{ p: "6px" }}>{entry[1].bestemming.map(c => c.naam).join(', ')}</TableCell>
+                            </TableRow>
+                          </Fragment>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </AccordionDetails>
+              </Accordion>}
+          </>}
       </>
     </Container >
   );

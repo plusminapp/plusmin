@@ -6,34 +6,41 @@
   },
   {
     "email": "hulpvrager-basis@vliet.io",
-    "bijnaam": "Hulpvrager Basis",
+    "bijnaam": "Bernhard",
     "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "hulpvrager-niveau-1@vliet.io",
-    "bijnaam": "Hulpvrager Niv-1",
+    "bijnaam": "Ursula",
     "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER"]
   },
   {
     "email": "ruud.van.vliet@ett-twello.nl",
-    "bijnaam": "Hulpvrager Niv-1-app",
+    "bijnaam": "Alex",
     "periodeDag": 20,
     "vrijwilligerEmail": "ruud@vliet.io",
     "roles": ["ROLE_HULPVRAGER", "ROLE_ADMIN"]
   },
   {
     "email": "hans@lsta.nl",
-    "bijnaam": "Hans VW",
+    "bijnaam": "Hans",
     "periodeDag": 22,
     "roles": ["ROLE_VRIJWILLIGER", "ROLE_COORDINATOR"]
   },
   {
+    "email": "sarah@vliet.io",
+    "bijnaam": "Sarah",
+    "periodeDag": 22,
+    "vrijwilligerEmail": "hans@lsta.nl",
+    "roles": ["ROLE_HULPVRAGER"]
+  },
+  {
     "email": "hkoning.gzn@gmail.com",
-    "bijnaam": "Hansje HV",
+    "bijnaam": "Hansje",
     "periodeDag": 22,
     "vrijwilligerEmail": "hans@lsta.nl",
     "roles": ["ROLE_HULPVRAGER"]

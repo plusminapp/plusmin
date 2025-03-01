@@ -164,7 +164,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
 
   return (
     <React.Fragment>
-      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ ml: { md: 'auto', xs: 0 }, mr: { md: 0, xs: 'auto' } }}>
         Nieuwe aflossing
       </Button>
       <BootstrapDialog

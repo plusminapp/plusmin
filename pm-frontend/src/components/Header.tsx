@@ -8,7 +8,6 @@ import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import Menu from '@mui/material/Menu';
 import MenuIcon from '@mui/icons-material/Menu';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
@@ -27,7 +26,6 @@ import StyledSnackbar from './StyledSnackbar';
 export const saveToLocalStorage = (key: string, value: string) => {
     localStorage.setItem(key, value);
 };
-
 
 export const transformRekeningenToBetalingsSoorten = (rekeningen: Rekening[]): Map<BetalingsSoort, RekeningPaar> => {
     const result = new Map<BetalingsSoort, RekeningPaar>();
@@ -167,11 +165,26 @@ function Header() {
 
                             {/* profiel & settings */}
                             <Box sx={{ ml: 'auto', display: 'flex' }}>
-                                <Typography sx={{ my: 'auto', mr: { xs: '3px', md: '10px' } }}>{actieveHulpvrager?.bijnaam}</Typography>
+                                <Box onClick={() => navigate('/profiel')} sx={{ cursor: 'pointer', display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                    <Typography sx={{ my: 'auto', mr: { xs: '3px', md: '10px' } }}>{actieveHulpvrager?.bijnaam}</Typography>
+                                </Box>
                                 <Box sx={{ flexDirection: 'row' }}>
                                     <Tooltip title="Open settings">
                                         <IconButton onClick={handleOpenGebruikerMenu} sx={{ p: 0 }}>
-                                            <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                                            <Box sx={{
+                                                width: 40,
+                                                height: 40,
+                                                borderRadius: '50%',
+                                                backgroundColor: 'lightgrey',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                fontSize: 18,
+                                                fontWeight: 'bold',
+                                            }}>
+                                                {gebruiker?.bijnaam.charAt(0).toUpperCase()}
+                                            </Box>
                                         </IconButton>
                                     </Tooltip>
                                     <Menu
