@@ -143,7 +143,7 @@ const OCRComponent: React.FC = () => {
       const originalDatePart = originalSortOrder.split('.')[0];
       const newSortPart = (Number(originalSortOrder.split('.')[1]) + 1).toString();
       const newDatePart = dayjs(editData.date).format('YYYYMMDD');
-      
+
       if (originalDatePart !== newDatePart) {
         const newSortOrder = `${newDatePart}.${newSortPart}`;
         console.log(`Oorspronkelijke sortOrder: ${originalSortOrder}, Gewijzigde sortOrder: ${newSortOrder}`);
@@ -153,12 +153,15 @@ const OCRComponent: React.FC = () => {
         const index = newData.findIndex(item => item.sortOrder === originalSortOrder);
         newData[index] = { ...editData, sortOrder: originalSortOrder };
       }
-      
+
       newData.sort((a, b) => b.sortOrder.localeCompare(a.sortOrder)); // Sort data by sortOrder descending
       setParsedData(newData);
       setOpen(false);
     } else {
-      const newSortOrder = `${dayjs(editData.date).format('YYYYMMDD')}.900`;
+      const newDatePart = dayjs(editData.date).format('YYYYMMDD');
+      const sameDateItems = parsedData.filter(item => item.sortOrder.startsWith(newDatePart));
+      const smallestSortOrder = sameDateItems.length > 0 ? Math.min(...sameDateItems.map(item => parseInt(item.sortOrder.split('.')[1]))) : 900;
+      const newSortOrder = `${newDatePart}.${smallestSortOrder - 10}`;
       console.log(`Nieuwe sortOrder: ${newSortOrder}`);
       const newData = [...parsedData, { ...editData, sortOrder: newSortOrder }];
       newData.sort((a, b) => b.sortOrder.localeCompare(a.sortOrder)); // Sort data by sortOrder descending
