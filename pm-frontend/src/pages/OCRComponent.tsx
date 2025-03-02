@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import Tesseract from 'tesseract.js';
-import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker, ArrowDropDownIcon } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/nl'; // Import the Dutch locale
 import dayjs from 'dayjs';
@@ -14,11 +14,11 @@ dayjs.locale('nl'); // Set the locale to Dutch
 
 const OCRComponent: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [parsedData, setParsedData] = useState<{ date: string, text: string, amount: string }[]>([]);
+  const [ocrData, setOcdData] = useState<string>('');
+  const [parsedData, setParsedData] = useState<{ date: string, text: string, amount: string, sortOrder: string }[]>([]);
   const [confidence, setConfidence] = useState<number | null>(null); // Add state for confidence
   const [open, setOpen] = useState<boolean>(false);
-  const [editIndex, setEditIndex] = useState<number | null>(null);
-  const [editData, setEditData] = useState<{ date: string, text: string, amount: string }>({ date: '', text: '', amount: '' });
+  const [editData, setEditData] = useState<{ date: string, text: string, amount: string, sortOrder: string }>({ date: '', text: '', amount: '', sortOrder: '' });
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
 
   const theme = useTheme();
@@ -28,7 +28,7 @@ const OCRComponent: React.FC = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setParsedData([]); // Clear parsed data
-    setConfidence(null); // Clear confidence value 
+    setConfidence(null); // Clear confidence value
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setImageSrc(URL.createObjectURL(file)); // Set image source
@@ -49,7 +49,7 @@ const OCRComponent: React.FC = () => {
         tessedit_preserve_interword_spaces: 1 as any, // Preserve interword spaces
       } as Partial<Tesseract.WorkerOptions> // Typecast the entire options object
     ).then(({ data: { text, confidence } }) => { // Get confidence value
-      // Filter the OCR text to remove unwanted information
+      setOcdData(text);
       const filteredText = text.replace(/^\d{2}:\d{2}.*\n/, '').trim();
       setConfidence(confidence); // Set confidence value
       parseText(filteredText);
@@ -78,6 +78,7 @@ const OCRComponent: React.FC = () => {
     }
 
     let currentDate = '';
+    let sortOrderBase = 900;
     const parsed = text.split(amountRegex).reduce((acc, line, index, array) => {
       if (index % 2 === 0) {
         const dateMatch = line.match(dateRegex);
@@ -105,42 +106,62 @@ const OCRComponent: React.FC = () => {
           } else {
             currentDate = dateStr;
           }
+          sortOrderBase = 900; // Reset sortOrderBase for a new date
         }
         if (amountMatch) {
           acc.push({
             date: currentDate,
             text: line.replace(dateRegex, '').trim(),
-            amount: amountMatch[0]
+            amount: amountMatch[0],
+            sortOrder: `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`
           });
+          sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
         }
       }
       return acc;
-    }, [] as { date: string, text: string, amount: string }[]);
+    }, [] as { date: string, text: string, amount: string, sortOrder: string }[]);
+
     setParsedData(parsed);
   };
-
-  const handleEdit = (index: number) => {
-    setEditIndex(index);
-    setEditData(parsedData[index]);
-    setOpen(true);
+  const handleEdit = (sortOrder: string) => {
+    const recordToEdit = parsedData.find(item => item.sortOrder === sortOrder);
+    if (recordToEdit) {
+      setEditData(recordToEdit);
+      setOpen(true);
+    }
   };
 
-  const handleDelete = (index: number) => {
-    const newData = [...parsedData];
-    newData.splice(index, 1);
+  const handleDelete = (sortOrder: string) => {
+    const newData = parsedData.filter(item => item.sortOrder !== sortOrder);
     setParsedData(newData);
   };
 
   const handleSave = () => {
-    if (editIndex !== null) {
+    if (editData.sortOrder) {
       const newData = [...parsedData];
-      newData[editIndex] = editData;
-      newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort data by date
+      const originalSortOrder = editData.sortOrder;
+      const originalDatePart = originalSortOrder.split('.')[0];
+      const newSortPart = (Number(originalSortOrder.split('.')[1]) + 1).toString();
+      const newDatePart = dayjs(editData.date).format('YYYYMMDD');
+      
+      if (originalDatePart !== newDatePart) {
+        const newSortOrder = `${newDatePart}.${newSortPart}`;
+        console.log(`Oorspronkelijke sortOrder: ${originalSortOrder}, Gewijzigde sortOrder: ${newSortOrder}`);
+        const index = newData.findIndex(item => item.sortOrder === originalSortOrder);
+        newData[index] = { ...editData, sortOrder: newSortOrder };
+      } else {
+        const index = newData.findIndex(item => item.sortOrder === originalSortOrder);
+        newData[index] = { ...editData, sortOrder: originalSortOrder };
+      }
+      
+      newData.sort((a, b) => b.sortOrder.localeCompare(a.sortOrder)); // Sort data by sortOrder descending
       setParsedData(newData);
       setOpen(false);
     } else {
-      const newData = [...parsedData, editData];
-      newData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()); // Sort data by date
+      const newSortOrder = `${dayjs(editData.date).format('YYYYMMDD')}.900`;
+      console.log(`Nieuwe sortOrder: ${newSortOrder}`);
+      const newData = [...parsedData, { ...editData, sortOrder: newSortOrder }];
+      newData.sort((a, b) => b.sortOrder.localeCompare(a.sortOrder)); // Sort data by sortOrder descending
       setParsedData(newData);
       setOpen(false);
     }
@@ -155,8 +176,7 @@ const OCRComponent: React.FC = () => {
   };
 
   const handleAdd = () => {
-    setEditData({ date: '', text: '', amount: '' });
-    setEditIndex(null);
+    setEditData({ date: '', text: '', amount: '', sortOrder: '' });
     setOpen(true);
   };
 
@@ -166,7 +186,7 @@ const OCRComponent: React.FC = () => {
     }
     acc[item.date].push(item);
     return acc;
-  }, {} as { [key: string]: { date: string, text: string, amount: string }[] });
+  }, {} as { [key: string]: { date: string, text: string, amount: string, sortOrder: string }[] });
 
   return (
     <Box>
@@ -178,7 +198,7 @@ const OCRComponent: React.FC = () => {
           component="label"
           disabled={isLoading}
         >
-          {isLoading ? 'Verwerken...' : 'Selecteer afbeelding'}
+          {isLoading ? 'Verwerken...' : ocrData ? 'Bewaar Betalingen' : 'Selecteer afbeelding'}
           <input
             type="file"
             accept="image/*"
@@ -211,25 +231,26 @@ const OCRComponent: React.FC = () => {
             )}
             {Object.keys(groupedData).length > 0 && (
               <TableContainer component={Paper}>
-                <Table >
+                <Table>
                   <TableBody>
                     {Object.keys(groupedData).map((date) => (
                       <React.Fragment key={date}>
                         <TableRow>
-                          <TableCell colSpan={3} sx={{ fontWeight: '900', padding: '5px' }}>
+                          <TableCell colSpan={4} sx={{ fontWeight: '900', padding: '5px' }}>
                             {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
                           </TableCell>
                         </TableRow>
-                        {groupedData[date].map((item, index) => (
-                          <TableRow key={index}>
+                        {groupedData[date].map((item) => (
+                          <TableRow key={item.sortOrder}>
                             <TableCell sx={{ padding: '5px' }}>{item.text}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>{formatAmount(item.amount)}</TableCell>
+                            <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <IconButton onClick={() => handleEdit(index)}>
+                                <IconButton onClick={() => handleEdit(item.sortOrder)}>
                                   <EditIcon />
                                 </IconButton>
-                                <IconButton onClick={() => handleDelete(index)}>
+                                <IconButton onClick={() => handleDelete(item.sortOrder)}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Box>
@@ -240,8 +261,7 @@ const OCRComponent: React.FC = () => {
                     ))}
                   </TableBody>
                 </Table>
-              </TableContainer>
-            )}
+              </TableContainer>)}
           </Box>
         </Grid>
       </Grid>
@@ -291,6 +311,17 @@ const OCRComponent: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      {ocrData &&
+        <Accordion >
+          <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+            <Typography variant="caption">OCR ruwe data</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography variant="caption">
+              {ocrData}
+            </Typography>
+          </AccordionDetails>
+        </Accordion>}
     </Box>
   );
 };
