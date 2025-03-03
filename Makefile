@@ -1,6 +1,7 @@
 include .env
 export
 
+# dev
 dev-pm-frontend-build: export VERSION=${PM_DEV_VERSION}
 dev-pm-frontend-build: export PLATFORM=linux/amd64
 dev-pm-frontend-build:
@@ -18,43 +19,24 @@ dev-pm-database-build:
 
 dev-build-all: dev-pm-frontend-build dev-pm-backend-build dev-pm-database-build
 
-up-all:
-	docker network inspect npm_default >/dev/null 2>&1 || docker network create npm_default
-	docker compose up -d
-
-down-all:
-	docker compose down
-
-# Box
-box-push:
-	docker image push rimvanvliet/pm-frontend:${PM_DEV_VERSION}
-	docker image push rimvanvliet/pm-backend:${PM_DEV_VERSION}
-	docker image push rimvanvliet/pm-database:${PM_DEV_VERSION}
-
-box-copy:
-	./docker-cp.sh frontend
-	./docker-cp.sh backend
+dev-copy-database:
 	./docker-cp.sh database
+dev-copy-frontend:
+	./docker-cp.sh frontend DEV
+dev-copy-backend:
+	./docker-cp.sh backend DEV
+dev-copy-all: dev-copy-database dev-copy-frontend dev-copy-backend
 
-box-copy-frontend:
-	./docker-cp.sh frontend
-
-box-copy-backend:
-	./docker-cp.sh backend
-
-box-deploy-all:
-	scp .env box:~/pm
-	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy.sh" - ruud'
-
-box-deploy-frontend:
+dev-deploy-frontend:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_frontend.sh" - ruud'
-
-box-deploy-backend:
+dev-deploy-backend:
 	scp .env box:~/pm
 	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy_backend.sh" - ruud'
+dev-deploy-all:
+	scp .env box:~/pm
+	ssh box 'sudo su -c "cd ~/pm && ~/pm/pm_deploy.sh DEV" - ruud'
 
-box-frontend: dev-pm-frontend-build box-copy-frontend box-deploy-frontend
-box-backend: dev-pm-backend-build box-copy-backend box-deploy-backend
-
-box-all: dev-build-all box-copy box-deploy-all
+dev-frontend: dev-pm-frontend-build box-copy-frontend box-deploy-frontend
+dev-backend: dev-pm-backend-build box-copy-backend box-deploy-backend
+dev-all: dev-build-all box-copy box-deploy-all

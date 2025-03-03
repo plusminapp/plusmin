@@ -49,7 +49,9 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     boekingsdatum: boekingsDatum,
     bedrag: 0,
     omschrijving: '',
+    ocrOmschrijving: '',
     betalingsSoort: undefined,
+    sortOrder: '',
     bron: undefined,
     bestemming: undefined,
     budgetNaam: undefined
@@ -174,6 +176,10 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           body: JSON.stringify(body),
         })
         if (!response.ok) {
+          setSnackbarMessage({
+            message: `Betaling is niet opgeslagen: HTTP fout met status: ${response.status}`,
+            type: "error"
+          })
           throw new Error(`HTTP fout met status: ${response.status}`);
         }
         setSnackbarMessage({
@@ -182,8 +188,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         })
         const responseJson = await response.json()
         const isBoekingsInGekozenPeriode =
-        dayjs(responseJson.boekingsdatum).isAfter(dayjs(gekozenPeriode?.periodeStartDatum).subtract(1, 'day')) &&
-        dayjs(responseJson.boekingsdatum).isBefore(dayjs(gekozenPeriode?.periodeEindDatum).add(1, 'day'));
+          dayjs(responseJson.boekingsdatum).isAfter(dayjs(gekozenPeriode?.periodeStartDatum).subtract(1, 'day')) &&
+          dayjs(responseJson.boekingsdatum).isBefore(dayjs(gekozenPeriode?.periodeEindDatum).add(1, 'day'));
         console.log('isBoekingsInGekozenPeriode', isBoekingsInGekozenPeriode, 'boekingsdatum', responseJson.boekingsdatum, 'periodeStartDatum', gekozenPeriode?.periodeStartDatum, '', gekozenPeriode?.periodeEindDatum)
         if (isBoekingsInGekozenPeriode) {
           props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
@@ -338,7 +344,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         <DialogActions sx={{ justifyContent: 'space-between' }}>
           {props.editMode ?
             <Button autoFocus onClick={handleDelete} startIcon={<DeleteIcon sx={{ fontSize: '35px', color: 'grey' }} />} ></Button> : <Box />}
-            <Button autoFocus onClick={handleSubmit} sx={{ color: 'success.main' }} startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px', color: 'success.main' }} />} >BEWAAR</Button>
+          <Button autoFocus onClick={handleSubmit} sx={{ color: 'success.main' }} startIcon={<SaveOutlinedIcon sx={{ fontSize: '35px', color: 'success.main' }} />} >BEWAAR</Button>
         </DialogActions>
       </BootstrapDialog>
     </React.Fragment>

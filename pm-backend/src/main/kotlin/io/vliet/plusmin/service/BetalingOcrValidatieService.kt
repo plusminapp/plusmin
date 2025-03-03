@@ -74,6 +74,8 @@ class BetalingOcrValidatieService {
             LocalDate.parse(betalingOcrValidatie.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
             betalingOcrValidatie.bedrag,
         )
-        return betalingOcrValidatie.fullCopy(bestaatAl = vergelijkbareBetalingen.isNotEmpty())
+        return betalingOcrValidatie.fullCopy(
+            bestaatAl = vergelijkbareBetalingen.isNotEmpty(),
+            omschrijving = vergelijkbareBetalingen.map { it.omschrijving }.joinToString(", "))
     }
 }

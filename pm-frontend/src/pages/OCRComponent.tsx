@@ -9,16 +9,37 @@ import { LocalizationProvider, DatePicker, ArrowDropDownIcon } from '@mui/x-date
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import 'dayjs/locale/nl'; // Import the Dutch locale
 import dayjs from 'dayjs';
+import { BetalingDTO } from '../model/Betaling';
 
 dayjs.locale('nl'); // Set the locale to Dutch
+
+// type BetalingDTO = {
+//   boekingsdatum: string;
+//   omschrijving: string;
+//   bedrag: string;
+//   sortOrder: string;
+// };
+
+const initialBetalingDTO = {
+  id: 0,
+  boekingsdatum: dayjs(),
+  omschrijving: '',
+  ocrOmschrijving: '',
+  bedrag: 0,
+  sortOrder: '',
+  betalingsSoort: undefined,
+  bron: undefined,
+  bestemming: undefined,
+  budgetNaam: undefined
+}
 
 const OCRComponent: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [ocrData, setOcdData] = useState<string>('');
-  const [parsedData, setParsedData] = useState<{ date: string, text: string, amount: string, sortOrder: string }[]>([]);
+  const [parsedData, setParsedData] = useState<BetalingDTO[]>([]);
   const [confidence, setConfidence] = useState<number | null>(null); // Add state for confidence
   const [open, setOpen] = useState<boolean>(false);
-  const [editData, setEditData] = useState<{ date: string, text: string, amount: string, sortOrder: string }>({ date: '', text: '', amount: '', sortOrder: '' });
+  const [editData, setEditData] = useState<BetalingDTO>(initialBetalingDTO);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
 
   const theme = useTheme();
@@ -77,7 +98,7 @@ const OCRComponent: React.FC = () => {
       text = text.substring(firstDateMatch.index);
     }
 
-    let currentDate = '';
+    let currentDate = dayjs();
     let sortOrderBase = 900;
     const parsed = text.split(amountRegex).reduce((acc, line, index, array) => {
       if (index % 2 === 0) {
@@ -94,35 +115,42 @@ const OCRComponent: React.FC = () => {
           const yearMatch = dateStr.match(/\d{4}/);
           const year = yearMatch ? '' : dayjs().year();
           if (dateStr === 'vandaag') {
-            currentDate = dayjs().format('YYYY-MM-DD');
+            currentDate = dayjs();
           } else if (dateStr === 'gisteren') {
-            currentDate = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+            currentDate = dayjs().subtract(1, 'day');
           } else if (/\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)/.test(dateStr)) {
-            currentDate = dayjs(`${dateStr} ${year}`, 'D MMMM YYYY', 'nl').format('YYYY-MM-DD');
+            currentDate = dayjs(`${dateStr} ${year}`, 'D MMMM YYYY', 'nl');
           } else if (/\d{1,2} (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)/.test(dateStr)) {
-            currentDate = dayjs(`${dateStr} ${year}`, 'D MMM YYYY', 'nl').format('YYYY-MM-DD');
+            currentDate = dayjs(`${dateStr} ${year}`, 'D MMM YYYY', 'nl');
           } else if (/\d{1,2}-\d{1,2}/.test(dateStr)) {
-            currentDate = dayjs(`${dateStr}-${year}`, 'D-MM-YYYY').format('YYYY-MM-DD');
+            currentDate = dayjs(`${dateStr}-${year}`, 'D-MM-YYYY');
           } else {
-            currentDate = dateStr;
+            currentDate = dayjs();
           }
           sortOrderBase = 900; // Reset sortOrderBase for a new date
         }
         if (amountMatch) {
           acc.push({
-            date: currentDate,
-            text: line.replace(dateRegex, '').trim(),
-            amount: amountMatch[0],
-            sortOrder: `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`
+            id: 0,
+            boekingsdatum: currentDate,
+            omschrijving: '',
+            ocrOmschrijving: line.replace(dateRegex, '').trim(),
+            bedrag: Number(amountMatch[0]),
+            sortOrder: `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`,
+            betalingsSoort: undefined,
+            bron: undefined,
+            bestemming: undefined,
+            budgetNaam: undefined
           });
           sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
         }
       }
       return acc;
-    }, [] as { date: string, text: string, amount: string, sortOrder: string }[]);
+    }, [] as BetalingDTO[]);
 
     setParsedData(parsed);
   };
+
   const handleEdit = (sortOrder: string) => {
     const recordToEdit = parsedData.find(item => item.sortOrder === sortOrder);
     if (recordToEdit) {
@@ -142,7 +170,7 @@ const OCRComponent: React.FC = () => {
       const originalSortOrder = editData.sortOrder;
       const originalDatePart = originalSortOrder.split('.')[0];
       const newSortPart = (Number(originalSortOrder.split('.')[1]) + 1).toString();
-      const newDatePart = dayjs(editData.date).format('YYYYMMDD');
+      const newDatePart = dayjs(editData.boekingsdatum).format('YYYYMMDD');
 
       if (originalDatePart !== newDatePart) {
         const newSortOrder = `${newDatePart}.${newSortPart}`;
@@ -158,7 +186,7 @@ const OCRComponent: React.FC = () => {
       setParsedData(newData);
       setOpen(false);
     } else {
-      const newDatePart = dayjs(editData.date).format('YYYYMMDD');
+      const newDatePart = dayjs(editData.boekingsdatum).format('YYYYMMDD');
       const sameDateItems = parsedData.filter(item => item.sortOrder.startsWith(newDatePart));
       const smallestSortOrder = sameDateItems.length > 0 ? Math.min(...sameDateItems.map(item => parseInt(item.sortOrder.split('.')[1]))) : 900;
       const newSortOrder = `${newDatePart}.${smallestSortOrder - 10}`;
@@ -175,21 +203,21 @@ const OCRComponent: React.FC = () => {
   };
 
   const handleDateChange = (date: dayjs.Dayjs | null) => {
-    setEditData({ ...editData, date: date ? date.format('YYYY-MM-DD') : '' });
+    setEditData({ ...editData, boekingsdatum: date ? date : dayjs() });
   };
 
   const handleAdd = () => {
-    setEditData({ date: '', text: '', amount: '', sortOrder: '' });
+    setEditData(initialBetalingDTO);
     setOpen(true);
   };
 
   const groupedData = parsedData.reduce((acc, item) => {
-    if (!acc[item.date]) {
-      acc[item.date] = [];
+    if (!acc[item.boekingsdatum.format('YYYY-MM-DD')]) {
+      acc[item.boekingsdatum.format('YYY-MM-DD')] = [];
     }
-    acc[item.date].push(item);
+    acc[item.boekingsdatum.format('YYY-MM-DD')].push(item);
     return acc;
-  }, {} as { [key: string]: { date: string, text: string, amount: string, sortOrder: string }[] });
+  }, {} as { [key: string]: BetalingDTO[] });
 
   return (
     <Box>
@@ -245,8 +273,8 @@ const OCRComponent: React.FC = () => {
                         </TableRow>
                         {groupedData[date].map((item) => (
                           <TableRow key={item.sortOrder}>
-                            <TableCell sx={{ padding: '5px' }}>{item.text}</TableCell>
-                            <TableCell sx={{ padding: '5px' }}>{formatAmount(item.amount)}</TableCell>
+                            <TableCell sx={{ padding: '5px' }}>{item.omschrijving}</TableCell>
+                            <TableCell sx={{ padding: '5px' }}>{formatAmount((item.bedrag.toString()))}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -264,7 +292,8 @@ const OCRComponent: React.FC = () => {
                     ))}
                   </TableBody>
                 </Table>
-              </TableContainer>)}
+              </TableContainer>
+            )}
           </Box>
         </Grid>
       </Grid>
@@ -283,26 +312,26 @@ const OCRComponent: React.FC = () => {
           <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
             <DatePicker
               label="Datum"
-              value={editData.date ? dayjs(editData.date) : null}
+              value={editData.boekingsdatum ? dayjs(editData.boekingsdatum) : null}
               onChange={handleDateChange}
               slotProps={{ textField: { variant: "standard" } }}
             />
           </LocalizationProvider>
           <TextField
             margin="dense"
-            label="Tekst"
+            label="Omschrijving"
             type="text"
             fullWidth
-            value={editData.text}
-            onChange={(e) => handleChange('text', e.target.value)}
+            value={editData.omschrijving}
+            onChange={(e) => handleChange('omschrijving', e.target.value)}
           />
           <TextField
             margin="dense"
             label="Bedrag"
             type="text"
             fullWidth
-            value={editData.amount}
-            onChange={(e) => handleChange('amount', e.target.value)}
+            value={editData.bedrag}
+            onChange={(e) => handleChange('bedrag', e.target.value)}
           />
         </DialogContent>
         <DialogActions>

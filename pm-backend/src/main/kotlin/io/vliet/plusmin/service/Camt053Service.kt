@@ -83,10 +83,11 @@ class Camt053Service {
                                     boekingsdatum = boekingsDatum.toString(),
                                     bedrag = (reportEntry2.amt.value.toString()),
                                     omschrijving = "",
-                                    ocrOmschrijving = omschrijving,
                                     betalingsSoort = if (isDebit) Betaling.BetalingsSoort.UITGAVEN.toString() else Betaling.BetalingsSoort.INKOMSTEN.toString(),
                                     bron = if (isDebit) betaalRekening.naam else inkomstenRekening.naam,
                                     bestemming = if (isDebit) uitgavenRekening.naam else betaalRekening.naam,
+                                    // TODO sortOrder
+                                    sortOrder = "",
                                     budgetNaam = if (isDebit) uitgaveBudget?.budgetNaam else inkomstenBudget?.budgetNaam
                                 )
                             )
