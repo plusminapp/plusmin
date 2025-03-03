@@ -13,7 +13,7 @@
     <artifactId>pm-backend</artifactId>
     <version>${env.VERSION}</version>
     <name>pm-backend</name>
-    <description>PlusMin is Inkomsten en uitgaven, Overschot/buffer en tekort, Wiskunde voor iedereen, Niet digi en niet
+    <description>PlusMin is Inkomsten en uitgaven, Overschot/buffer en tekort, Boekhouden voor iedereen, Niet digi en niet
         theoretisch
     </description>
     <url/>

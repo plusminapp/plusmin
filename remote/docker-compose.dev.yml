@@ -1,51 +1,55 @@
 services:
 
-  pm-frontend:
+  pm-frontend-dev:
     image: rimvanvliet/pm-frontend:${PM_DEV_VERSION}
-    container_name: pm-frontend
+    container_name: pm-frontend-dev
     environment:
       - TZ=Europe/Amsterdam
+      - VITE_ASGARDEO_CLIENT_ID=ahVUPaBf3D1mE5xrZIM2aAmIRVYa
+      - VITE_ASGARDEO_BASE_URL=https://api.eu.asgardeo.io/t/plusmin
+      - VITE_ASGARDEO_SIGNIN_REDIRECT_URL=https://dev.plusminapp.nl
+      - VITE_ASGARDEO_SIGNOUT_REDIRECT_URL=https://dev.plusminapp.nl/login
     ports:
-      - "3030:3030"
+      - "3035:3035"
     networks:
       - npm_default
     depends_on:
-      - pm-backend
+      - pm-backend-dev
     restart: always
 
-  pm-backend:
+  pm-backend-dev:
     image: rimvanvliet/pm-backend:${PM_DEV_VERSION}
-    container_name: pm-backend
+    container_name: pm-backend-dev
     environment:
       - TZ=Europe/Amsterdam
       - SPRING_PROFILES_ACTIVE=dev
     networks:
       - npm_default
     ports:
-      - "3040:3040"
+      - "3045:3045"
       - "8889:8888"
     depends_on:
-      - pm-database
+      - pm-database-dev
     restart: always
 
-  pm-database:
+  pm-database-dev:
     image: rimvanvliet/pm-database:${PM_DEV_VERSION}
-    container_name: pm-database
+    container_name: pm-database-dev
     environment:
       - TZ=Europe/Amsterdam
       - POSTGRES_USER=pm
       - POSTGRES_PASSWORD=pm
       - POSTGRES_DB=pm
     volumes:
-      - pm-database:/bitnami/postgresql/data
+      - pm-database-dev:/bitnami/postgresql/data
     networks:
       - npm_default
     ports:
-      - "5434:5432"
+      - "5435:5432"
     restart: always
 
 volumes:
-  pm-database:
+  pm-database-dev:
 
 networks:
    npm_default:

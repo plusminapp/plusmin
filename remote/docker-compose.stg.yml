@@ -1,0 +1,55 @@
+services:
+
+  pm-frontend:
+    image: rimvanvliet/pm-frontend:${PM_STG_VERSION}
+    container_name: pm-frontend
+    environment:
+      - TZ=Europe/Amsterdam 
+      - VITE_ASGARDEO_CLIENT_ID=wnvfL9kJtnIf0ziF3oK2QUkgaWIa
+      - VITE_ASGARDEO_BASE_URL=https://api.eu.asgardeo.io/t/plusmin
+      - VITE_ASGARDEO_SIGNIN_REDIRECT_URL=https://plusminapp.nl
+      - VITE_ASGARDEO_SIGNOUT_REDIRECT_URL=https://plusminapp.nl/login
+    ports:
+      - "3030:3030"
+    networks:
+      - npm_default
+    depends_on:
+      - pm-backend
+    restart: always
+
+  pm-backend:
+    image: rimvanvliet/pm-backend:${PM_STG_VERSION}
+    container_name: pm-backend
+    environment:
+      - TZ=Europe/Amsterdam
+      - SPRING_PROFILES_ACTIVE=stg
+    networks:
+      - npm_default
+    ports:
+      - "3040:3040"
+    depends_on:
+      - pm-database
+    restart: always
+
+  pm-database:
+    image: rimvanvliet/pm-database:${PM_STG_VERSION}
+    container_name: pm-database
+    environment:
+      - TZ=Europe/Amsterdam
+      - POSTGRES_USER=pm
+      - POSTGRES_PASSWORD=pm
+      - POSTGRES_DB=pm
+    volumes:
+      - pm-database:/bitnami/postgresql/data
+    networks:
+      - npm_default
+    ports:
+      - "5434:5432"
+    restart: always
+
+volumes:
+  pm-database:
+
+networks:
+  npm_default:
+    external: true
