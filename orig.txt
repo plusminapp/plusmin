@@ -89,55 +89,62 @@ const OCRComponent: React.FC = () => {
 
   const parseText = (text: string) => {
     const dateRegex = /((vandaag|gisteren)?( - )?\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)( \d{4})?|(vandaag|gisteren)( - )?)/i;
-    const currentYear = dayjs().year();
-    const previousYear = currentYear - 1;
-    const amountRegex = new RegExp(`[+-]?[0-9.,]+(?<!${currentYear}|${previousYear})$`);
-      
+    const amountRegex = /([+-]?\d{1,3}(?:\.\d{3})*,\d{2})/g;
+
+    // Verwijder alle tekst vóór de eerste datum
+    const firstDateMatch = text.match(dateRegex);
+    if (firstDateMatch && firstDateMatch.index !== undefined) {
+      text = text.substring(firstDateMatch.index);
+    }
+
     let currentDate = dayjs();
     let sortOrderBase = 900;
-    const parsed = text.split('\n').reduce((acc, line) => {
+    const parsed = text.split(amountRegex).reduce((acc, line, index, array) => {
       console.log('line', line);
-      const dateMatch = line.match(dateRegex);
-      const amountMatch = line.match(amountRegex);
-  
-      if (amountMatch) {
-        const amount = amountMatch[0].replace('.', '').replace(',', '.');
-        const ocrOmschrijving = line.replace(amountRegex, '').trim();
-        const sortOrder = `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`;
-        acc.push({
-          id: Number(sortOrder),
-          boekingsdatum: currentDate,
-          omschrijving: '',
-          ocrOmschrijving: ocrOmschrijving,
-          bedrag: Number(amount),
-          sortOrder: sortOrder,
-          betalingsSoort: undefined,
-          bron: undefined,
-          bestemming: undefined,
-          budgetNaam: undefined
-        });
-        sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
-      } else if (dateMatch) {
-        let dateStr = dateMatch[0].toLowerCase();
-        if (dateStr.includes('-')) {
-          dateStr = dateStr.split('-')[1].trim();
+      if (index % 2 === 0) {
+        const dateMatch = line.match(dateRegex);
+        const amountMatch = array[index + 1] ? array[index + 1].match(amountRegex) : null;
+
+        if (dateMatch) {
+          let dateStr = dateMatch[0].toLowerCase();
+          if (dateStr.includes('-')) {
+            dateStr = dateStr.split('-')[1].trim();
+          }
+          const yearMatch = dateStr.match(/\d{4}/);
+          const year = yearMatch ? '' : dayjs().year();
+          if (dateStr === 'vandaag') {
+            currentDate = dayjs();
+          } else if (dateStr === 'gisteren') {
+            currentDate = dayjs().subtract(1, 'day');
+          } else if (/\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)/.test(dateStr)) {
+            currentDate = dayjs(`${dateStr} ${year}`, 'D MMMM YYYY', 'nl');
+          } else if (/\d{1,2} (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)/.test(dateStr)) {
+            currentDate = dayjs(`${dateStr} ${year}`, 'D MMM YYYY', 'nl');
+          } else if (/\d{1,2}-\d{1,2}/.test(dateStr)) {
+            currentDate = dayjs(`${dateStr}-${year}`, 'D-MM-YYYY');
+          } else {
+            currentDate = dayjs();
+          }
+
+          sortOrderBase = 900; // Reset sortOrderBase for a new date
         }
-        const yearMatch = dateStr.match(/\d{4}/);
-        const year = yearMatch ? '' : dayjs().year();
-        if (dateStr === 'vandaag') {
-          currentDate = dayjs();
-        } else if (dateStr === 'gisteren') {
-          currentDate = dayjs().subtract(1, 'day');
-        } else if (/\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr} ${year}`, 'D MMMM YYYY', 'nl');
-        } else if (/\d{1,2} (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr} ${year}`, 'D MMM YYYY', 'nl');
-        } else if (/\d{1,2}-\d{1,2}/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr}-${year}`, 'D-MM-YYYY');
-        } else {
-          currentDate = dayjs();
+        if (amountMatch) {
+          const sortOrder = `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`
+          const amount = amountMatch[0].replace('.', '').replace(',', '.');
+          acc.push({
+            id: Number(sortOrder),
+            boekingsdatum: currentDate,
+            omschrijving: '',
+            ocrOmschrijving: line.replace(dateRegex, '').trim(),
+            bedrag: Number(amount),
+            sortOrder: sortOrder,
+            betalingsSoort: undefined,
+            bron: undefined,
+            bestemming: undefined,
+            budgetNaam: undefined
+          });
+          sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
         }
-        sortOrderBase = 900; // Reset sortOrderBase for a new date
       }
       return acc;
     }, [] as BetalingDTO[]);

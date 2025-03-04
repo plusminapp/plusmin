@@ -89,17 +89,15 @@ const OCRComponent: React.FC = () => {
 
   const parseText = (text: string) => {
     const dateRegex = /((vandaag|gisteren)?( - )?\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)( \d{4})?|(vandaag|gisteren)( - )?)/i;
-    const currentYear = dayjs().year();
-    const previousYear = currentYear - 1;
-    const amountRegex = new RegExp(`[+-]?[0-9.,]+(?<!${currentYear}|${previousYear})$`);
-      
+    const amountRegex = /([+-]?\d{1,3}(?:\.\d{3})*,\d{2})$/;
+
     let currentDate = dayjs();
     let sortOrderBase = 900;
     const parsed = text.split('\n').reduce((acc, line) => {
       console.log('line', line);
       const dateMatch = line.match(dateRegex);
       const amountMatch = line.match(amountRegex);
-  
+
       if (amountMatch) {
         const amount = amountMatch[0].replace('.', '').replace(',', '.');
         const ocrOmschrijving = line.replace(amountRegex, '').trim();
