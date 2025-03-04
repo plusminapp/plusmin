@@ -63,7 +63,7 @@ const OCRComponent: React.FC = () => {
       file,
       'nld', // Change language to Dutch
       {
-        logger: (m) => console.log(m),
+        // logger: (m) => console.log(m),
         tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Set page segmentation mode
         tessedit_char_whitelist: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-,.', // Whitelist characters
         tessedit_char_blacklist: '€', // Blacklist characters
@@ -101,6 +101,7 @@ const OCRComponent: React.FC = () => {
     let currentDate = dayjs();
     let sortOrderBase = 900;
     const parsed = text.split(amountRegex).reduce((acc, line, index, array) => {
+      console.log('line', line);
       if (index % 2 === 0) {
         const dateMatch = line.match(dateRegex);
         const amountMatch = array[index + 1] ? array[index + 1].match(amountRegex) : null;
@@ -114,6 +115,7 @@ const OCRComponent: React.FC = () => {
           console.log('dateStr2', dateStr);
           const yearMatch = dateStr.match(/\d{4}/);
           const year = yearMatch ? '' : dayjs().year();
+          console.log('year', yearMatch, year);
           if (dateStr === 'vandaag') {
             currentDate = dayjs();
           } else if (dateStr === 'gisteren') {
@@ -127,6 +129,8 @@ const OCRComponent: React.FC = () => {
           } else {
             currentDate = dayjs();
           }
+          console.log('currentDate', currentDate.format('YYYY-MM-DD'));
+
           sortOrderBase = 900; // Reset sortOrderBase for a new date
         }
         if (amountMatch) {
@@ -143,6 +147,8 @@ const OCRComponent: React.FC = () => {
             budgetNaam: undefined
           });
           sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
+        } else {
+          console.log('Geen bedrag gevonden voor regel:', line);
         }
       }
       return acc;
@@ -354,6 +360,16 @@ const OCRComponent: React.FC = () => {
             </Typography>
           </AccordionDetails>
         </Accordion>}
+        <Accordion>
+    <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+      <Typography variant="caption">Grouped Data Debug</Typography>
+    </AccordionSummary>
+    <AccordionDetails>
+      <Typography variant="caption">
+        {JSON.stringify(groupedData, null, 2)}
+      </Typography>
+    </AccordionDetails>
+  </Accordion>
     </Box>
   );
 };
