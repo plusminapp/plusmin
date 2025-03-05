@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails, FormGroup, FormControlLabel, Switch } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -11,16 +11,11 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/nl'; // Import the Dutch locale
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { BetalingDTO } from '../model/Betaling';
+import { updateAfbeelding } from '../components/Ocr/UpdateAfbeelding'; // Import the updateAfbeelding function
+import { parseText } from '../components/Ocr/ParseTekst';
 
 dayjs.extend(customParseFormat); // Extend dayjs with the customParseFormat plugin
 dayjs.locale('nl'); // Set the locale to Dutch
-
-// type BetalingDTO = {
-//   boekingsdatum: string;
-//   omschrijving: string;
-//   bedrag: string;
-//   sortOrder: string;
-// };
 
 const initialBetalingDTO = {
   id: 0,
@@ -43,19 +38,33 @@ const OCRComponent: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editData, setEditData] = useState<BetalingDTO>(initialBetalingDTO);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
+  const [toonUpdatedAfbeelding, setToonUpdatedAfbeelding] = useState<boolean>(false); // Add state for image source
+  const [updatedImageSrc, setUpdatedImageSrc] = useState<string | null>(null); // Add state for image source
 
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
   const isSm = useMediaQuery(theme.breakpoints.only('sm'));
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleToonUpdatedAfbeelding = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonMutaties', event.target.checked.toString());
+    setToonUpdatedAfbeelding(event.target.checked);
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     setParsedData([]); // Clear parsed data
     setConfidence(null); // Clear confidence value
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setImageSrc(URL.createObjectURL(file)); // Set image source
-      handleFileUpload(file);
+
+      try {
+        const updatedFile = await updateAfbeelding(file); // Update the image
+        setUpdatedImageSrc(URL.createObjectURL(updatedFile)); // Set image source
+        handleFileUpload(updatedFile); // Use the updated image for OCR
+      } catch (error) {
+        console.error('Error updating image:', error);
+      }
     }
   };
 
@@ -75,7 +84,8 @@ const OCRComponent: React.FC = () => {
       setOcdData(text);
       const filteredText = text.replace(/^\d{2}:\d{2}.*\n/, '').trim();
       setConfidence(confidence); // Set confidence value
-      parseText(filteredText);
+      const parsedData = parseText(filteredText); // Use the pure function
+      setParsedData(parsedData); // Set the parsed data
       setIsLoading(false);
     }).catch((error) => {
       console.error('OCR error:', error);
@@ -85,63 +95,6 @@ const OCRComponent: React.FC = () => {
 
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
-  };
-
-  const parseText = (text: string) => {
-    const dateRegex = /((vandaag|gisteren)?( - )?\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)( \d{4})?|(vandaag|gisteren)( - )?)/i;
-    const currentYear = dayjs().year();
-    const previousYear = currentYear - 1;
-    const amountRegex = new RegExp(`[+-]?[0-9.,]+(?<!${currentYear}|${previousYear})$`);
-      
-    let currentDate = dayjs();
-    let sortOrderBase = 900;
-    const parsed = text.split('\n').reduce((acc, line) => {
-      console.log('line', line);
-      const dateMatch = line.match(dateRegex);
-      const amountMatch = line.match(amountRegex);
-  
-      if (amountMatch) {
-        const amount = amountMatch[0].replace('.', '').replace(',', '.');
-        const ocrOmschrijving = line.replace(amountRegex, '').trim();
-        const sortOrder = `${dayjs(currentDate).format('YYYYMMDD')}.${sortOrderBase}`;
-        acc.push({
-          id: Number(sortOrder),
-          boekingsdatum: currentDate,
-          omschrijving: '',
-          ocrOmschrijving: ocrOmschrijving,
-          bedrag: Number(amount),
-          sortOrder: sortOrder,
-          betalingsSoort: undefined,
-          bron: undefined,
-          bestemming: undefined,
-          budgetNaam: undefined
-        });
-        sortOrderBase -= 10; // Decrease sortOrderBase for the next entry
-      } else if (dateMatch) {
-        let dateStr = dateMatch[0].toLowerCase();
-        if (dateStr.includes('-')) {
-          dateStr = dateStr.split('-')[1].trim();
-        }
-        const yearMatch = dateStr.match(/\d{4}/);
-        const year = yearMatch ? '' : dayjs().year();
-        if (dateStr === 'vandaag') {
-          currentDate = dayjs();
-        } else if (dateStr === 'gisteren') {
-          currentDate = dayjs().subtract(1, 'day');
-        } else if (/\d{1,2} (januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr} ${year}`, 'D MMMM YYYY', 'nl');
-        } else if (/\d{1,2} (jan|feb|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr} ${year}`, 'D MMM YYYY', 'nl');
-        } else if (/\d{1,2}-\d{1,2}/.test(dateStr)) {
-          currentDate = dayjs(`${dateStr}-${year}`, 'D-MM-YYYY');
-        } else {
-          currentDate = dayjs();
-        }
-        sortOrderBase = 900; // Reset sortOrderBase for a new date
-      }
-      return acc;
-    }, [] as BetalingDTO[]);
-    setParsedData(parsed);
   };
 
   const handleEdit = (sortOrder: string) => {
@@ -214,6 +167,17 @@ const OCRComponent: React.FC = () => {
     <Box>
       <Typography variant="h4" sx={{ mb: 2 }}>Bank app afbeelding</Typography>
       <Grid container flexDirection='row' justifyContent="flex-end">
+        <FormGroup sx={{ ml: 'auto' }} >
+          <FormControlLabel control={
+            <Switch
+              sx={{ transform: 'scale(0.6)' }}
+              checked={toonUpdatedAfbeelding}
+              onChange={handleToonUpdatedAfbeelding}
+              inputProps={{ 'aria-label': 'controlled' }}
+            />}
+            label="Toon aangepaste afbeelding" />
+        </FormGroup>
+
         <Button
           color='success'
           variant="contained"
@@ -235,7 +199,7 @@ const OCRComponent: React.FC = () => {
         </Typography>
       )}
       <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid size={{ xs: 12, md: 6 }}>
+        <Grid size={{ xs: 12, md: toonUpdatedAfbeelding ? 4 : 6 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
             {imageSrc ?
               <img src={imageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} /> :
@@ -244,7 +208,17 @@ const OCRComponent: React.FC = () => {
               </Typography>}
           </Box>
         </Grid>
-        <Grid size={{ xs: 12, md: 6 }} >
+        { toonUpdatedAfbeelding &&
+        <Grid size={{ xs: 12, md:  4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
+            {updatedImageSrc ?
+              <img src={updatedImageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} /> :
+              <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
+                Hier komt de aangepaste afbeelding zodra is verwerkt
+              </Typography>}
+          </Box>
+        </Grid>}
+        <Grid size={{ xs: 12, md: toonUpdatedAfbeelding ? 4 : 6 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
             {parsedData.length === 0 && (
               <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
@@ -258,7 +232,7 @@ const OCRComponent: React.FC = () => {
                     {Object.keys(groupedData).map((date) => (
                       <React.Fragment key={date}>
                         <TableRow>
-                          <TableCell colSpan={4} sx={{ fontWeight: '900', padding: '5px' }}>
+                          <TableCell colSpan={3} sx={{ fontWeight: '900', padding: '5px' }}>
                             {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
                           </TableCell>
                         </TableRow>
@@ -266,7 +240,6 @@ const OCRComponent: React.FC = () => {
                           <TableRow key={item.sortOrder}>
                             <TableCell sx={{ padding: '5px' }}>{item.ocrOmschrijving}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>{formatAmount((item.bedrag.toString()))}</TableCell>
-                            <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <IconButton onClick={() => handleEdit(item.sortOrder)}>
@@ -345,16 +318,16 @@ const OCRComponent: React.FC = () => {
             </Typography>
           </AccordionDetails>
         </Accordion>}
-        <Accordion>
-    <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-      <Typography variant="caption">Grouped Data Debug</Typography>
-    </AccordionSummary>
-    <AccordionDetails>
-      <Typography variant="caption">
-        {JSON.stringify(groupedData, null, 2)}
-      </Typography>
-    </AccordionDetails>
-  </Accordion>
+      <Accordion>
+        <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+          <Typography variant="caption">Grouped Data Debug</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography variant="caption">
+            {JSON.stringify(groupedData, null, 2)}
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 };
