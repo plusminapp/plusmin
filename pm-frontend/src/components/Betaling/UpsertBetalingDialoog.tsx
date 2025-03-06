@@ -52,6 +52,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     ocrOmschrijving: '',
     betalingsSoort: undefined,
     sortOrder: '',
+    bestaatAl: false,
     bron: undefined,
     bestemming: undefined,
     budgetNaam: undefined

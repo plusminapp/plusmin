@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableBody, TableCell, TableContainer, TableRow, Paper, TextField, Dialog, DialogActions, DialogContent, DialogTitle, Button, IconButton, Box, Typography, Fab, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails, FormGroup, FormControlLabel, Switch } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,9 +10,16 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import 'dayjs/locale/nl'; // Import the Dutch locale
 import customParseFormat from 'dayjs/plugin/customParseFormat';
-import { BetalingDTO } from '../model/Betaling';
+
+import { BetalingDTO, BetalingOcrValidatieWrapper } from '../model/Betaling';
 import { updateAfbeelding } from '../components/Ocr/UpdateAfbeelding'; // Import the updateAfbeelding function
 import { parseText } from '../components/Ocr/ParseTekst';
+import { RekeningSelect } from '../components/Rekening/RekeningSelect';
+import { useAuthContext } from '@asgardeo/auth-react';
+import { useCustomContext } from '../context/CustomContext';
+import { useNavigate } from 'react-router-dom';
+import { Saldo } from '../model/Saldo';
+import { Rekening } from '../model/Rekening';
 
 dayjs.extend(customParseFormat); // Extend dayjs with the customParseFormat plugin
 dayjs.locale('nl'); // Set the locale to Dutch
@@ -24,6 +31,7 @@ const initialBetalingDTO = {
   ocrOmschrijving: '',
   bedrag: 0,
   sortOrder: '',
+  bestaatAl: false,
   betalingsSoort: undefined,
   bron: undefined,
   bestemming: undefined,
@@ -34,12 +42,18 @@ const OCRComponent: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [ocrData, setOcdData] = useState<string>('');
   const [parsedData, setParsedData] = useState<BetalingDTO[]>([]);
+  const [validatedData, setValidatedData] = useState<BetalingOcrValidatieWrapper>({ betalingen: [] });
   const [confidence, setConfidence] = useState<number | null>(null); // Add state for confidence
   const [open, setOpen] = useState<boolean>(false);
   const [editData, setEditData] = useState<BetalingDTO>(initialBetalingDTO);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
   const [toonUpdatedAfbeelding, setToonUpdatedAfbeelding] = useState<boolean>(localStorage.getItem('toonUpdatedAfbeelding') === 'true'); // Add state for image source
-  const [updatedImageSrc, setUpdatedImageSrc] = useState<string | null>(null); // Add state for image source
+  const [updatedImageSrc, setUpdatedImageSrc] = useState<string | null>(null);
+  const [ocrBankRekening, setOcrBankRekening] = useState<Rekening | undefined>(undefined);
+
+  const { getIDToken } = useAuthContext();
+  const { actieveHulpvrager, setSnackbarMessage } = useCustomContext();
+  const navigate = useNavigate();
 
   const theme = useTheme();
   const isXs = useMediaQuery(theme.breakpoints.only('xs'));
@@ -59,7 +73,7 @@ const OCRComponent: React.FC = () => {
       setImageSrc(URL.createObjectURL(file)); // Set image source
 
       try {
-        const updatedFile = await updateAfbeelding(file); // Update the image
+        const updatedFile = await updateAfbeelding(file, ocrBankRekening?.bankNaam); // Update the image
         setUpdatedImageSrc(URL.createObjectURL(updatedFile)); // Set image source
         handleFileUpload(updatedFile); // Use the updated image for OCR
       } catch (error) {
@@ -82,7 +96,7 @@ const OCRComponent: React.FC = () => {
       } as Partial<Tesseract.WorkerOptions> // Typecast the entire options object
     ).then(({ data: { text, confidence } }) => { // Get confidence value
       const filteredText = text.replace(/^\d{2}:\d{2}.*\n/, '').trim();
-      setOcdData(text + '\n\n' + filteredText); 
+      setOcdData(text + ' <<>> ' + filteredText);
       setConfidence(confidence); // Set confidence value
       const parsedData = parseText(filteredText); // Use the pure function
       setParsedData(parsedData); // Set the parsed data
@@ -93,8 +107,61 @@ const OCRComponent: React.FC = () => {
     });
   };
 
+  useEffect(() => {
+    const valideerBetalingen = async () => {
+      if (actieveHulpvrager && ocrBankRekening && parsedData.length > 0) {
+        setIsLoading(true);
+        const id = actieveHulpvrager.id
+        let token = '';
+        try { token = await getIDToken() }
+        catch (error) {
+          navigate('/login');
+        }
+        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}/betalingocrvalidatie`, {
+          method: "PUT",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            'saldoOpLaatsteBetalingDatum': { 'id': 0, 'rekeningNaam': ocrBankRekening?.naam, 'bedrag': 0 } as Saldo,
+            'betalingen': parsedData.map(betaling => ({
+              ...betaling,
+              boekingsdatum: dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')
+            }))
+          })
+        });
+        setIsLoading(false);
+        if (response.ok) {
+          const result = await response.json();
+          setValidatedData({
+            'laatsteBetalingDatum': result.laatsteBetalingDatum,
+            'saldoOpLaatsteBetalingDatum': result.saldoOpLaatsteBetalingDatum,
+            'betalingen': result.betalingen.map((betaling: BetalingDTO) => ({
+              ...betaling,
+              boekingsdatum: dayjs(betaling.boekingsdatum)
+            }))
+          })
+        } else {
+          console.error("Failed to fetch data", response.status);
+          setSnackbarMessage({
+            message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
+            type: "warning",
+          })
+        }
+      }
+    };
+    valideerBetalingen();
+
+  }, [ocrBankRekening, parsedData, actieveHulpvrager, getIDToken]);
+
+
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
+  };
+
+  const wijzigOcrBankRekening = (bankRekening: Rekening | undefined) => {
+    setOcrBankRekening(bankRekening);
   };
 
   const handleEdit = (sortOrder: string) => {
@@ -155,7 +222,7 @@ const OCRComponent: React.FC = () => {
     setOpen(true);
   };
 
-  const groupedData = parsedData.reduce((acc, item) => {
+  const groupedData = validatedData.betalingen.reduce((acc, item) => {
     if (!acc[item.boekingsdatum.format('YYYY-MM-DD')]) {
       acc[item.boekingsdatum.format('YYYY-MM-DD')] = [];
     }
@@ -166,18 +233,9 @@ const OCRComponent: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" sx={{ mb: 2 }}>Bank app afbeelding</Typography>
-      <Grid container flexDirection='row' justifyContent="flex-end">
-        <FormGroup sx={{ ml: 'auto' }} >
-          <FormControlLabel control={
-            <Switch
-              sx={{ transform: 'scale(0.6)' }}
-              checked={toonUpdatedAfbeelding}
-              onChange={handleToonUpdatedAfbeelding}
-              inputProps={{ 'aria-label': 'controlled' }}
-            />}
-            label="Toon aangepaste afbeelding" />
-        </FormGroup>
-
+      <Grid container flexDirection='row' justifyContent="space-between" alignItems="center">
+        <RekeningSelect
+          wijzigOcrBankNaam={wijzigOcrBankRekening} />
         <Button
           color='success'
           variant="contained"
@@ -193,11 +251,21 @@ const OCRComponent: React.FC = () => {
           />
         </Button>
       </Grid>
-      {confidence !== null && (
+      <Grid container flexDirection='row' justifyContent="flex-end">
         <Typography variant="body2" sx={{ mt: 1 }}>
-          Vertrouwen: {confidence.toFixed(2)}%
+          {ocrBankRekening ? `Bank: ${ocrBankRekening}` : ''} {confidence ? `Vertrouwen: ${confidence.toFixed(2)}%` : ''}
         </Typography>
-      )}
+        <FormGroup sx={{ ml: 'auto' }} >
+          <FormControlLabel control={
+            <Switch
+              sx={{ transform: 'scale(0.6)' }}
+              checked={toonUpdatedAfbeelding}
+              onChange={handleToonUpdatedAfbeelding}
+              inputProps={{ 'aria-label': 'controlled' }}
+            />}
+            label="Toon aangepaste afbeelding" />
+        </FormGroup>
+      </Grid>
       <Grid container spacing={2} sx={{ mt: 2 }}>
         <Grid size={{ xs: 12, md: toonUpdatedAfbeelding ? 4 : 6 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
@@ -208,19 +276,19 @@ const OCRComponent: React.FC = () => {
               </Typography>}
           </Box>
         </Grid>
-        { toonUpdatedAfbeelding &&
-        <Grid size={{ xs: 12, md:  4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
-            {updatedImageSrc ?
-              <img src={updatedImageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} /> :
-              <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
-                Hier komt de aangepaste afbeelding zodra is verwerkt
-              </Typography>}
-          </Box>
-        </Grid>}
+        {toonUpdatedAfbeelding &&
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
+              {updatedImageSrc ?
+                <img src={updatedImageSrc} alt="OCR" style={{ width: '100%', height: 'auto' }} /> :
+                <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
+                  Hier komt de aangepaste afbeelding zodra is verwerkt
+                </Typography>}
+            </Box>
+          </Grid>}
         <Grid size={{ xs: 12, md: toonUpdatedAfbeelding ? 4 : 6 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center', height: { xs: '33vh', md: '67vh' }, overflow: 'auto', alignItems: 'flex-start', border: '1px solid grey', borderRadius: '5px' }}>
-            {parsedData.length === 0 && (
+            {validatedData.betalingen.length === 0 && (
               <Typography variant={isXs ? "h5" : isSm ? "h4" : isMdUp ? "h3" : "body1"} width={'50%'} textAlign={'center'} margin='auto' fontWeight={'bold'} color='lightgrey'>
                 Hier komen de voorgestelde betalingen zodra de afbeelding is verwerkt
               </Typography>
@@ -238,14 +306,21 @@ const OCRComponent: React.FC = () => {
                         </TableRow>
                         {groupedData[date].map((item) => (
                           <TableRow key={item.sortOrder}>
-                            <TableCell sx={{ padding: '5px' }}>{item.ocrOmschrijving}</TableCell>
+                            <TableCell sx={{ padding: '5px' }}>
+                              {item.ocrOmschrijving}
+                              {item.bestaatAl &&
+                                <>
+                                  <br />
+                                  <Typography variant="caption" color="error">Bestaat al met omschrijving {item.omschrijving}</Typography>
+                                </>}
+                            </TableCell>
                             <TableCell sx={{ padding: '5px' }}>{formatAmount((item.bedrag.toString()))}</TableCell>
                             <TableCell sx={{ padding: '5px' }}>
                               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                 <IconButton onClick={() => handleEdit(item.sortOrder)}>
                                   <EditIcon />
                                 </IconButton>
-                                <IconButton onClick={() => handleDelete(item.sortOrder)}>
+                                <IconButton onClick={() => handleDelete(item.sortOrder)} color={item.bestaatAl ? 'error' : 'default'}>
                                   <DeleteIcon />
                                 </IconButton>
                               </Box>
@@ -261,7 +336,7 @@ const OCRComponent: React.FC = () => {
           </Box>
         </Grid>
       </Grid>
-      {parsedData.length > 0 &&
+      {validatedData.betalingen.length > 0 &&
         <Fab
           color="success"
           aria-label="add"
@@ -318,16 +393,19 @@ const OCRComponent: React.FC = () => {
             </Typography>
           </AccordionDetails>
         </Accordion>}
-      <Accordion>
-        <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-          <Typography variant="caption">Grouped Data Debug</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Typography variant="caption">
-            {JSON.stringify(groupedData, null, 2)}
-          </Typography>
-        </AccordionDetails>
-      </Accordion>
+      {validatedData &&
+        <Accordion >
+          <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+            <Typography variant="caption">OCR ruwe data</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            {validatedData.betalingen.map((betaling, index) => (
+              <Box key={index} sx={{ mb: 2 }}>
+                <Typography variant="caption">{betaling.boekingsdatum.format('D MMMM')} {betaling.ocrOmschrijving} {betaling.bedrag} {betaling.bestaatAl ? `bestaat al met omschrijving ${betaling.omschrijving}` : 'bestaat nog niet'}  </Typography>
+              </Box>
+            ))}
+          </AccordionDetails>
+        </Accordion>}
     </Box>
   );
 };

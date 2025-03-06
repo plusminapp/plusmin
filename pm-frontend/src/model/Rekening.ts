@@ -59,6 +59,12 @@ export const betaalmethodeRekeningSoorten = [
     RekeningSoort.creditcard,
 ]
 
+export const bankRekeningSoorten = [
+    RekeningSoort.betaalrekening,
+    RekeningSoort.spaarrekening,
+    RekeningSoort.creditcard,
+]
+
 export const inkomstenRekeningSoorten = [
     RekeningSoort.inkomsten,
 ]

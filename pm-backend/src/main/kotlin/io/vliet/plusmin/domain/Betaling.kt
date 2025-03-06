@@ -99,7 +99,7 @@ class Betaling(
     }
 
     data class BetalingOcrValidatieWrapper(
-        val laatsteBetalingDatum: LocalDate?,
+        val laatsteBetalingDatum: LocalDate? = null,
         val saldoOpLaatsteBetalingDatum: Saldo.SaldoDTO,
         val betalingen: List<BetalingOcrValidatie>,
     )

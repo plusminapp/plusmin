@@ -26,7 +26,7 @@ interface CustomContextType {
     setBetaalMethoden: (betaalMethoden: Array<Rekening>) => void;
     betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>;
     setBetalingsSoorten2Rekeningen: (betalingsSoorten2Rekeningen: Map<BetalingsSoort, RekeningPaar>) => void;
-    snackBarMessage: SnackbarMessage;
+    snackbarMessage: SnackbarMessage;
     setSnackbarMessage: (snackbarMessage: SnackbarMessage) => void;
 }
 
@@ -55,7 +55,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
     const [betalingsSoorten, setBetalingsSoorten] = useState<Array<BetalingsSoort>>([]);
     const [betaalMethoden, setBetaalMethoden] = useState<Array<Rekening>>([]);
     const [betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen] = useState<Map<BetalingsSoort, RekeningPaar>>(new Map())
-    const [snackBarMessage, setSnackbarMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
+    const [snackbarMessage, setSnackbarMessage] = useState<SnackbarMessage>({ message: undefined, type: undefined });
 
     const setActieveHulpvragerData = (gebruiker: Gebruiker | undefined, periode: Periode | undefined) => {
         if (!gebruiker) return;
@@ -111,7 +111,7 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             betalingsSoorten, setBetalingsSoorten,
             betaalMethoden, setBetaalMethoden,
             betalingsSoorten2Rekeningen, setBetalingsSoorten2Rekeningen,
-            snackBarMessage, setSnackbarMessage
+            snackbarMessage, setSnackbarMessage
         }}>
             {children}
         </CustomContext.Provider>

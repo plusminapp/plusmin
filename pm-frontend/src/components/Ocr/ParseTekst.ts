@@ -10,7 +10,6 @@ import { BetalingDTO } from "../../model/Betaling";
     let currentDate = dayjs();
     let sortOrderBase = 900;
     const parsed = text.split('\n').reduce((acc, line) => {
-      console.log('line', line);
       const dateMatch = line.match(dateRegex);
       const amountMatch = line.match(amountRegex);
   
@@ -25,6 +24,7 @@ import { BetalingDTO } from "../../model/Betaling";
           ocrOmschrijving: ocrOmschrijving,
           bedrag: Number(amount),
           sortOrder: sortOrder,
+          bestaatAl: false,
           betalingsSoort: undefined,
           bron: undefined,
           bestemming: undefined,

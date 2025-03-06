@@ -1,6 +1,7 @@
 // import { Gebruiker } from "./Gebruiker";
 import dayjs from "dayjs";
 import { Rekening, RekeningSoort, RekeningSoortPaar } from "./Rekening";
+import { Saldo } from "./Saldo";
 
 export type Betaling = {
   id: number;
@@ -21,9 +22,16 @@ export type BetalingDTO = {
   ocrOmschrijving: string;
   betalingsSoort: BetalingsSoort | undefined;
   sortOrder: string;
+  bestaatAl: boolean;
   bron: string | undefined;
   bestemming: string | undefined;
   budgetNaam: string | undefined;
+}
+
+export type BetalingOcrValidatieWrapper = {
+  laatsteBetalingDatum?: string,
+  saldoOpLaatsteBetalingDatum?: Saldo,
+  betalingen: BetalingDTO[],
 }
 
 export enum BetalingsCategorie {
