@@ -40,7 +40,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         value = "SELECT b FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
-                "b.bedrag = :bedrag AND " +
+                "ABS(b.bedrag) = ABS(:bedrag) AND " +
                 "b.omschrijving = :omschrijving AND " +
                 "b.betalingsSoort = :betalingsSoort"
     )
@@ -56,7 +56,7 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         value = "SELECT b FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker AND " +
                 "b.boekingsdatum = :boekingsdatum AND " +
-                "b.bedrag = :bedrag"
+                "ABS(b.bedrag) = ABS(:bedrag)"
     )
     fun findVergelijkbareBetalingen(
         gebruiker: Gebruiker,

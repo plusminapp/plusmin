@@ -2,23 +2,25 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import { BetalingDTO, currencyFormatter } from '../../model/Betaling';
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState } from 'react';
 
-import { Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import { Box, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
-import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
+import { Rekening } from '../../model/Rekening';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 import dayjs from 'dayjs';
+import React from 'react';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
   isFilterSelectable?: boolean;
+  isOcr?: boolean;
   betalingen: BetalingDTO[];
   onBetalingBewaardChange: (betalingDTO: BetalingDTO) => void;
   onBetalingVerwijderdChange: (betalingDTO: BetalingDTO) => void;
@@ -29,19 +31,27 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const { actieveHulpvrager, gebruiker, rekeningen, gekozenPeriode } = useCustomContext();
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
-  const [filteredBetalingen, setFilteredBetalingen] = useState<BetalingDTO[]>([])
+  const [filteredBetalingen, setFilteredBetalingen] = useState<{ [key: string]: BetalingDTO[] }>({})
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
 
-  const handleEditClick = (betaling: BetalingDTO) => {
+  const handleEditClick = (sortOrder: string) => {
+    const betaling = betalingen.find(b => b.sortOrder === sortOrder);
     setSelectedBetaling(betaling);
   };
 
-  const dateFormatter = (date: string) => {
-    return new Intl.DateTimeFormat('nl-NL', { month: "short", day: "numeric" }).format(Date.parse(date))
-  }
   useEffect(() => {
-    const filterBetalingenOpBronBestemming = betalingen.filter((betaling) => betaling.bron === actueleRekening?.naam || betaling.bestemming === actueleRekening?.naam || actueleRekening === undefined)
-    setFilteredBetalingen(filterBetalingenOpBronBestemming)
+    if (betalingen.length > 0) {
+      const filterBetalingenOpBronBestemming = betalingen
+        .filter((betaling) => betaling.bron === actueleRekening?.naam || betaling.bestemming === actueleRekening?.naam || actueleRekening === undefined)
+        .reduce((acc, item) => {
+          if (!acc[item.boekingsdatum.toString()]) {
+            acc[item.boekingsdatum.toString()] = [];
+          }
+          acc[item.boekingsdatum.toString()].push(item);
+          return acc;
+        }, {} as { [key: string]: BetalingDTO[] });
+      setFilteredBetalingen(filterBetalingenOpBronBestemming)
+    }
   }, [actueleRekening, betalingen, setFilteredBetalingen]);
 
   const handleWeergaveChange = (event: SelectChangeEvent) => {
@@ -50,6 +60,10 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
   const onUpsertBetalingClose = () => {
     setSelectedBetaling(undefined);
+  };
+
+  const formatAmount = (amount: string): string => {
+    return currencyFormatter.format(parseFloat(amount))
   };
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
@@ -72,52 +86,55 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           </Select>
         </FormControl>
       }
-      {filteredBetalingen.length === 0 &&
-        <Typography sx={{ mx: '25px', fontSize: '12px' }}>{actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd{actueleRekening ? ` voor ${actueleRekening.naam}` : ''}.</Typography>
+      {Object.keys(filteredBetalingen).length === 0 &&
+        <Typography sx={{ mx: '25px', fontSize: '12px' }}>
+          {actieveHulpvrager?.id !== gebruiker?.id ? `${actieveHulpvrager!.bijnaam} heeft` : "Je hebt"} nog geen betalingen geregistreerd{actueleRekening ? ` voor ${actueleRekening.naam}` : ''}.
+        </Typography>
       }
-      {filteredBetalingen.length > 0 &&
+      {Object.keys(filteredBetalingen).length > 0 &&
         <>
-          <TableContainer component={Paper} sx={{ maxWidth: "xl", m: 'auto', mt: '10px' }}>
-            <Table sx={{ width: "100%" }} aria-label="simple table">
-              <TableHead>
-                <TableRow sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                  <TableCell sx={{ width: "20%", p: "5px" }}>Datum</TableCell>
-                  <TableCell sx={{ width: "20%", p: "0 18px 0 5px" }} align="right">Bedrag</TableCell>
-                  <TableCell sx={{ width: "50%", p: "5px" }}>Omschrijving</TableCell>
-                  {/* <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Betaalmethode</TableCell> */}
-                  <TableCell sx={{ width: "10%", p: "5px" }}>&nbsp;</TableCell>
-                </TableRow>
-              </TableHead>
+          <TableContainer component={Paper}>
+            <Table>
               <TableBody>
-                {filteredBetalingen
-                  .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
-                  .map((betaling) => (
-                    <Fragment key={betaling.id}>
-                      <TableRow
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        aria-haspopup="true"
-                      >
-                        <TableCell align="left" size='small' sx={{ p: "5px" }}>{dateFormatter(betaling["boekingsdatum"]?.toString())}</TableCell>
-                        <TableCell align="right" size='small' sx={{ p: "0 18px 0 0" }}>{currencyFormatter.format(berekenBedragVoorRekenining(betaling, actueleRekening))}</TableCell>
-                        <TableCell align="left" size='small' sx={{
-                          p: "5px", whiteSpace: "nowrap",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          maxWidth: "50px"
-                        }}>{betaling["omschrijving"]}</TableCell>
-                        {/* <TableCell align="left" size='small' sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                        {betaling["betalingsSoort"] === 'INKOMSTEN' ? betaling["bestemming"]?.naam : betaling["bron"]?.naam}
-                      </TableCell> */}
-                        {isPeriodeOpen &&
-                          <TableCell size='small' sx={{ p: "5px" }}>
-                            <Button onClick={() => handleEditClick(betaling)} sx={{ minWidth: '24px', color: 'grey', p: "5px" }}>
-                              <EditIcon fontSize="small" />
-                            </Button>
-                          </TableCell>
-                        }
+                {Object.keys(filteredBetalingen).map((date) => (
+                  <React.Fragment key={date}>
+                    {props.isOcr &&
+                      <TableRow>
+                        <TableCell colSpan={3} sx={{ fontWeight: '900', padding: '5px' }}>
+                          {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
+                        </TableCell>
+                      </TableRow>}
+                    {filteredBetalingen[date].map((item) => (
+                      <TableRow key={item.sortOrder}>
+                        {!props.isOcr && <TableCell sx={{ padding: '5px' }}>
+                          {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
+                        </TableCell>}
+                        <TableCell sx={{ padding: '5px' }}>
+                          {props.isOcr ? item.ocrOmschrijving : item.omschrijving}
+                          {item.bestaatAl &&
+                            <>
+                              <br />
+                              <Typography variant="caption" color="error">Bestaat al met omschrijving {item.omschrijving}</Typography>
+                            </>}
+                        </TableCell>
+                        <TableCell sx={{ padding: '5px' }}>{formatAmount((item.bedrag.toString()))}</TableCell>
+                        <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
+                        <TableCell sx={{ padding: '5px' }}>
+                          {isPeriodeOpen &&
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <IconButton onClick={() => handleEditClick(item.sortOrder)}>
+                                <EditIcon />
+                              </IconButton>
+                              {props.isOcr &&
+                                <IconButton onClick={() => props.onBetalingVerwijderdChange(item)} color={item.bestaatAl ? 'error' : 'default'}>
+                                  <DeleteIcon />
+                                </IconButton> }
+                            </Box> }
+                        </TableCell>
                       </TableRow>
-                    </Fragment>
-                  ))}
+                    ))}
+                  </React.Fragment>
+                ))}
               </TableBody>
             </Table>
           </TableContainer>
@@ -126,6 +143,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
               onUpsertBetalingClose={onUpsertBetalingClose}
               onBetalingBewaardChange={(betalingDTO) => props.onBetalingBewaardChange(betalingDTO)}
               onBetalingVerwijderdChange={(betalingDTO) => props.onBetalingVerwijderdChange(betalingDTO)}
+              isOcr={props.isOcr}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}
             />

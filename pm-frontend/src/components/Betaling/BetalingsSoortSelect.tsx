@@ -154,7 +154,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                 inkomstenBetalingsSoorten.map((betalingsSoort) =>
                                     Array.from(betalingsSoorten2Rekeningen.keys()).includes(betalingsSoort) && (
                                         <Button
-                                            // style={{ textTransform: 'none' }}
+                                            color='success'
                                             sx={{ m: '3px' }}
                                             key={betalingsSoort}
                                             variant={selectedBetalingsSoort === betalingsSoort ? 'contained' : 'outlined'}
@@ -175,6 +175,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                 <>
                                                     {rekeningPaar && rekeningPaar.bron.length > 1 && rekeningPaar?.bron.map((rekening) => (
                                                         <Button
+                                                            color='success'
                                                             style={{ textTransform: 'none' }}
                                                             sx={{ m: '3px' }}
                                                             key={rekening.id}
@@ -194,6 +195,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                                     <Grid container direction={"row"}>
                                                                         {rekening.budgetten.map(budget => (
                                                                             <Button
+                                                                                color='success'
                                                                                 style={{ textTransform: 'none' }}
                                                                                 sx={{ p: '3px', fontSize: 11 }}
                                                                                 size="small"
@@ -219,6 +221,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                 <Grid container direction={"row"}>
                                                     {rekeningPaar?.bestemming.map((rekening) => (
                                                         <Button
+                                                            color='success'
                                                             style={{ textTransform: 'none' }}
                                                             sx={{ m: '3px' }}
                                                             key={rekening.id}
@@ -247,7 +250,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                 uitgavenBetalingsSoorten.map((betalingsSoort) =>
                                     Array.from(betalingsSoorten2Rekeningen.keys()).includes(betalingsSoort) && (
                                         <Button
-                                            // style={{ textTransform: 'none' }}
+                                            color='success'
                                             sx={{ m: '3px' }}
                                             key={betalingsSoort}
                                             variant={selectedBetalingsSoort === betalingsSoort ? 'contained' : 'outlined'}
@@ -268,6 +271,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                 <>
                                                     {rekeningPaar?.bestemming.map((rekening) => (
                                                         <Button
+                                                            color='success'
                                                             style={{ textTransform: 'none' }}
                                                             sx={{ m: '3px' }}
                                                             key={rekening.id}
@@ -287,6 +291,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                                     <Grid container direction={"row"}>
                                                                         {rekening.budgetten.map(budget => (
                                                                             <Button
+                                                                                color='success'
                                                                                 style={{ textTransform: 'none' }}
                                                                                 sx={{ p: '3px', fontSize: 11 }}
                                                                                 size="small"
@@ -312,6 +317,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                                                 <Grid container direction={"row"}>
                                                     {rekeningPaar?.bron.map((rekening) => (
                                                         <Button
+                                                            color='success'
                                                             style={{ textTransform: 'none' }}
                                                             sx={{ m: '3px' }}
                                                             key={rekening.id}
@@ -336,6 +342,7 @@ const BetalingSoortSelect = (props: BetalingSoortSelectProps) => {
                     {internBetalingsSoorten.map((betalingsSoort) =>
                         Array.from(betalingsSoorten2Rekeningen.keys()).includes(betalingsSoort) && (
                             <Button
+                                color='success'
                                 style={{ textTransform: 'none' }}
                                 sx={{ m: '3px' }}
                                 key={betalingsSoort}

@@ -30,11 +30,12 @@ class BetalingOcrValidatieService {
         gebruiker: Gebruiker,
         betalingOcrValidatieWrapper: Betaling.BetalingOcrValidatieWrapper
     ): Betaling.BetalingOcrValidatieWrapper {
-        val rekening = rekeningRepository.findRekeningGebruikerEnNaam(
-            gebruiker,
-            betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam
-        )
-            ?: throw IllegalStateException("${betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam} bestaat niet voor ${gebruiker.email}.")
+        val rekening = betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.let {
+            rekeningRepository.findRekeningGebruikerEnNaam(
+                gebruiker,
+                it.rekeningNaam
+            )
+        } ?: throw IllegalStateException("betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is leeg")
         val openingsSaldo = saldoRepository.findLastSaldoByRekening(rekening).getOrNull()
             ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}  voor ${gebruiker.email}.")
         val betalingen = if (openingsSaldo.periode == null) {
@@ -72,7 +73,7 @@ class BetalingOcrValidatieService {
         val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
             gebruiker,
             LocalDate.parse(betalingOcrValidatie.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-            betalingOcrValidatie.bedrag,
+            betalingOcrValidatie.bedrag.abs(),
         )
         return betalingOcrValidatie.fullCopy(
             bestaatAl = vergelijkbareBetalingen.isNotEmpty(),

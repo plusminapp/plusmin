@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid2';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
@@ -10,7 +11,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { FormControl, Input, InputAdornment, InputLabel, Stack, Typography } from '@mui/material';
+import { FormControl, FormControlLabel, Input, InputAdornment, InputLabel, Stack, Switch, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
 
@@ -35,6 +36,7 @@ type UpsertBetalingDialoogProps = {
   onBetalingBewaardChange: (betaling: BetalingDTO) => void;
   onBetalingVerwijderdChange: (betaling: BetalingDTO) => void;
   onUpsertBetalingClose: () => void;
+  isOcr?: boolean;
   editMode: boolean;
   betaling?: BetalingDTO;
 };
@@ -68,7 +70,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   const [betalingDTO, setBetalingDTO] = useState<BetalingDTO>(props.betaling ? { ...props.betaling, boekingsdatum: dayjs(props.betaling.boekingsdatum) } : initialBetalingDTO);
   const [errors, setErrors] = useState<BetalingDtoErrors>(initialBetalingDtoErrors);
   const [warnings, setWarnings] = useState<BetalingDtoWarnings>(initialBetalingDtoWarnings);
-
+  const [isOntvangst, setIsOntvangst] = useState(false);
   const { getIDToken } = useAuthContext();
 
   const rekeningPaar = betalingsSoorten2Rekeningen.get(BetalingsSoort.uitgaven)
@@ -106,7 +108,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     if (key === 'betalingsSoort' && !value) {
       return 'Kies een betalingscategorie.';
     }
-    if (key === 'omschrijving' && (value as string).trim() === '') {
+    if (props.isOcr && key === 'ocrOmschrijving' && (value as string).trim() === '') {
       return 'Omschrijving mag niet leeg zijn.';
     }
     if (key === 'bedrag' && (isNaN(value as number) || value as number == 0)) {
@@ -134,10 +136,32 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   };
 
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
-    if (key === 'bedrag') {
-      value = normalizeDecimal(value as unknown as string) as BetalingDTO[K];
+    console.log('handleInputChange: ', key, ', ', value)
+    let newBetalingsDTO = betalingDTO;
+    if (key === 'omschrijving') {
+      if (props.isOcr) {
+        newBetalingsDTO = {
+          ...newBetalingsDTO,
+          'ocrOmschrijving': value as string,
+          // 'omschrijving': value as string
+        }
+      } else {
+        newBetalingsDTO = {
+          ...newBetalingsDTO,
+          'omschrijving': value as string
+        }
+      }
+      setBetalingDTO({ ...newBetalingsDTO, [key]: value });
+    } else if (key === 'bedrag') {
+      newBetalingsDTO = {
+        ...newBetalingsDTO,
+        'bedrag': normalizeDecimal(value as unknown as string) as unknown as number
+      }
+    } else {
+      newBetalingsDTO = { ...newBetalingsDTO, [key]: value };
     }
-    setBetalingDTO({ ...betalingDTO, [key]: value });
+    setBetalingDTO(newBetalingsDTO);
+
     const error = validateKeyValue(key, value);
     const warning = validateKeyValueWarning(key, value);
     setErrors({ ...errors, [key]: error });
@@ -162,14 +186,15 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       try {
         const token = await getIDToken();
         const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-        const url = props.editMode ? `/api/v1/betalingen/${betalingDTO.id}` : `/api/v1/betalingen/hulpvrager/${id}`
+        const url = betalingDTO.id ? `/api/v1/betalingen/${betalingDTO.id}` : `/api/v1/betalingen/hulpvrager/${id}`
         const body = {
           ...betalingDTO,
-          omschrijving: betalingDTO.omschrijving?.trim(),
+          omschrijving: (props.isOcr ? betalingDTO.ocrOmschrijving : betalingDTO.omschrijving)?.trim(),
           boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
+          bedrag: isOntvangst ? -betalingDTO.bedrag : betalingDTO.bedrag,
         }
         const response = await fetch(url, {
-          method: props.editMode ? "PUT" : "POST",
+          method: betalingDTO.id ? "PUT" : "POST",
           headers: {
             "Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -188,13 +213,8 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           type: "success"
         })
         const responseJson = await response.json()
-        const isBoekingsInGekozenPeriode =
-          dayjs(responseJson.boekingsdatum).isAfter(dayjs(gekozenPeriode?.periodeStartDatum).subtract(1, 'day')) &&
-          dayjs(responseJson.boekingsdatum).isBefore(dayjs(gekozenPeriode?.periodeEindDatum).add(1, 'day'));
-        console.log('isBoekingsInGekozenPeriode', isBoekingsInGekozenPeriode, 'boekingsdatum', responseJson.boekingsdatum, 'periodeStartDatum', gekozenPeriode?.periodeStartDatum, '', gekozenPeriode?.periodeEindDatum)
-        if (isBoekingsInGekozenPeriode) {
-          props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
-        }
+        console.log('responseJson: ', responseJson)
+        props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
         if (props.editMode) {
           handleClose()
         } else {
@@ -212,6 +232,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
       })
     }
   }
+
   const handleDelete = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -251,6 +272,10 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     if (event.key === 'Enter' || event.key === "NumpadEnter") {
       handleSubmit(event as unknown as React.FormEvent);
     }
+  };
+
+  const handleIsOntvangstChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsOntvangst(event.target.checked);
   };
 
   return (
@@ -296,27 +321,44 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
             {errors.betalingsSoort && (
               <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem', textAlign: 'center' }}>{errors.betalingsSoort}</Typography>
             )}
-            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Bedrag</InputLabel>
-              <Input
-                id="standard-adornment-amount"
-                error={!!errors.bedrag}
-                startAdornment={<InputAdornment position="start">€</InputAdornment>}
-                value={betalingDTO.bedrag}
-                type="text"
-                onChange={(e) => handleInputChange('bedrag', e.target.value as unknown as BetalingDTO['bedrag'])}
-                onFocus={handleFocus}
-              />
-              {errors.bedrag && (
-                <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
-              )}
+            <FormControl >
+              <Grid container columns={12} spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
+                <Grid size={{ xs: 12, sm: 3 }} marginTop={{ xs: 0, sm: 1 }}>
+                  <InputLabel htmlFor="betaling-bedrag">Bedrag</InputLabel>
+                  <Input
+                    id="betaling-bedrag"
+                    error={!!errors.bedrag}
+                    startAdornment={<InputAdornment position="start">€</InputAdornment>}
+                    value={betalingDTO.bedrag}
+                    type="text"
+                    onChange={(e) => handleInputChange('bedrag', e.target.value as unknown as BetalingDTO['bedrag'])}
+                    onFocus={handleFocus}
+                  />
+                  {errors.bedrag && (
+                    <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
+                  )}
+                </Grid>
+                <Grid size={{ xs: 12, sm: 9 }} marginBottom={{ xs: 0, sm: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        sx={{ transform: 'scale(0.6)' }}
+                        checked={isOntvangst}
+                        onChange={handleIsOntvangstChange}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                      />
+                    }
+                    label={<Typography variant='caption' fontWeight={isOntvangst ? '800' : 500} color={isOntvangst ? 'success' : 'lightgrey'}>Ik heb dit teruggekregen ipv betaald.</Typography>}
+                  />
+                </Grid>
+              </Grid>
             </FormControl>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-              <InputLabel htmlFor="standard-adornment-amount">Geef een korte omschrijving *</InputLabel>
+              <InputLabel htmlFor="betaling-omschrijving">Geef een korte omschrijving *</InputLabel>
               <Input
-                id="omschrijfing"
+                id="betaling-omschrijving"
                 error={!!errors.omschrijving}
-                value={betalingDTO.omschrijving}
+                value={props.isOcr ? betalingDTO.ocrOmschrijving : betalingDTO.omschrijving}
                 type="text"
                 onChange={(e) => handleInputChange('omschrijving', e.target.value)}
               />

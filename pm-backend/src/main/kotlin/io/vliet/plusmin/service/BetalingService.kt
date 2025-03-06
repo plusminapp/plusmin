@@ -72,7 +72,7 @@ class BetalingService {
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                 bron = bron,
                 bestemming = bestemming,
-                sortOrder = "",
+                sortOrder = betalingDTO.sortOrder,
                 budget = budget
             )
         }
