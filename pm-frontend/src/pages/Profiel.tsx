@@ -254,7 +254,7 @@ const Profiel: React.FC = () => {
                     <TableBody>
                       {rekeningen.filter(rekening => betaalmethodeRekeningSoorten.includes(rekening.rekeningSoort)).map(rekening => (
                         <TableRow key={rekening.naam} sx={{ '&:last-child td, &:last-child th': { border: 0 } }} aria-haspopup="true" >
-                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam}</TableCell>
+                          <TableCell align="left" size='small' sx={{ p: "6px" }}>{rekening.naam} {rekening.bankNaam ? `(${rekening.bankNaam})` : ''}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>

@@ -38,7 +38,7 @@ const OCRComponent: React.FC = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [editData, setEditData] = useState<BetalingDTO>(initialBetalingDTO);
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
-  const [toonUpdatedAfbeelding, setToonUpdatedAfbeelding] = useState<boolean>(false); // Add state for image source
+  const [toonUpdatedAfbeelding, setToonUpdatedAfbeelding] = useState<boolean>(localStorage.getItem('toonUpdatedAfbeelding') === 'true'); // Add state for image source
   const [updatedImageSrc, setUpdatedImageSrc] = useState<string | null>(null); // Add state for image source
 
   const theme = useTheme();
@@ -47,7 +47,7 @@ const OCRComponent: React.FC = () => {
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const handleToonUpdatedAfbeelding = (event: React.ChangeEvent<HTMLInputElement>) => {
-    localStorage.setItem('toonMutaties', event.target.checked.toString());
+    localStorage.setItem('toonUpdatedAfbeelding', event.target.checked.toString());
     setToonUpdatedAfbeelding(event.target.checked);
   };
 
@@ -81,8 +81,8 @@ const OCRComponent: React.FC = () => {
         tessedit_preserve_interword_spaces: 1 as any, // Preserve interword spaces
       } as Partial<Tesseract.WorkerOptions> // Typecast the entire options object
     ).then(({ data: { text, confidence } }) => { // Get confidence value
-      setOcdData(text);
       const filteredText = text.replace(/^\d{2}:\d{2}.*\n/, '').trim();
+      setOcdData(text + '\n\n' + filteredText); 
       setConfidence(confidence); // Set confidence value
       const parsedData = parseText(filteredText); // Use the pure function
       setParsedData(parsedData); // Set the parsed data

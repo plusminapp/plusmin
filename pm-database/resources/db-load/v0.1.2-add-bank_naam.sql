@@ -1,0 +1,1 @@
+ALTER TABLE rekening ADD COLUMN bank_naam TEXT DEFAULT NULL;

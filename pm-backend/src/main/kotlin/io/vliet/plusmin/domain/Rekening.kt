@@ -1,6 +1,7 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonInclude
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -26,6 +27,8 @@ class Rekening(
     @Enumerated(EnumType.STRING)
     val rekeningSoort: RekeningSoort,
     val nummer: String? = null,
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val bankNaam: String? = null,
     val sortOrder: Int,
     @OneToMany(mappedBy = "rekening", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     var budgetten: List<Budget> = emptyList()
@@ -35,19 +38,21 @@ class Rekening(
     }
 
     fun fullCopy(
+        naam: String = this.naam,
         gebruiker: Gebruiker = this.gebruiker,
         rekeningSoort: RekeningSoort = this.rekeningSoort,
         nummer: String? = this.nummer,
-        naam: String = this.naam,
+        bankNaam: String? = this.bankNaam,
         sortOrder: Int = this.sortOrder,
         budgetten: List<Budget> = this.budgetten
-    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, sortOrder, budgetten)
+    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, bankNaam, sortOrder, budgetten)
 
     data class RekeningDTO(
         val id: Long = 0,
+        val naam: String,
         val rekeningSoort: String,
         val nummer: String?,
-        val naam: String,
+        val bankNaam: String?,
         val saldo: BigDecimal = BigDecimal(0),
         val sortOrder: Int,
         val budgetten: List<Budget>? = emptyList()
@@ -56,9 +61,10 @@ class Rekening(
     fun toDTO(): RekeningDTO {
         return RekeningDTO(
             this.id,
+            this.naam,
             this.rekeningSoort.toString(),
             this.nummer,
-            this.naam,
+            this.bankNaam,
             sortOrder = this.sortOrder,
             budgetten = this.budgetten
         )

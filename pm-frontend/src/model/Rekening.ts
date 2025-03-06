@@ -6,6 +6,7 @@ export type Rekening = {
     naam: string;
     rekeningSoort: RekeningSoort;
     nummer: string | undefined;
+    bankNaam: string | undefined;
     sortOrder: number;
     budgetten: Budget[];
 }

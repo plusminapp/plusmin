@@ -38,6 +38,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     naam: "",
     rekeningSoort: RekeningSoort.aflossing,
     nummer: "",
+    bankNaam: undefined,
     sortOrder: 0,
     budgetten: [],
   }), []);
