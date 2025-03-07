@@ -143,7 +143,6 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   };
 
   const handleInputChange = <K extends keyof BetalingDTO>(key: K, value: BetalingDTO[K]) => {
-    console.log('handleInputChange: ', key, ', ', value)
     let newBetalingsDTO = betalingDTO;
     if (key === 'omschrijving') {
       if (props.isOcr) {

@@ -25,8 +25,6 @@ const config = {
   }
 };
 
-console.log('import.meta.env', import.meta.env);
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider config={config}>

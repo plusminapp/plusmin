@@ -113,7 +113,6 @@ function Header() {
             (opgeslagenActieveHulpvrager.periodes as Periode[])
                 .find(periode => periode.id === Number(opgeslagenGekozenPeriodeId)) : undefined;
 
-        console.log('opgeslagenActieveHulpvrager: ', opgeslagenActieveHulpvrager?.id, 'opgeslagenGekozenPeriode: ', opgeslagenGekozenPeriode?.id)
         if (opgeslagenActieveHulpvrager) {
             setActieveHulpvragerData(opgeslagenActieveHulpvrager, opgeslagenGekozenPeriode)
         } else if (data.gebruiker.roles.includes('ROLE_VRIJWILLIGER') && data.hulpvragers.length > 0) {

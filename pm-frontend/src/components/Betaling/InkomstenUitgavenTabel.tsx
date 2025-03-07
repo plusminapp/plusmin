@@ -16,6 +16,7 @@ import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 import dayjs from 'dayjs';
 import React from 'react';
+import { InfoIcon } from '../../icons/Info';
 
 interface InUitTabelProps {
   actueleRekening: Rekening | undefined;
@@ -28,15 +29,19 @@ interface InUitTabelProps {
 
 export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
-  const { actieveHulpvrager, gebruiker, rekeningen, gekozenPeriode } = useCustomContext();
+  const { actieveHulpvrager, gebruiker, rekeningen, gekozenPeriode, setSnackbarMessage } = useCustomContext();
   const betalingen = props.betalingen
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<{ [key: string]: BetalingDTO[] }>({})
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
   const [verwerkteBetalingen, setVerwerkteBetalingen] = useState<string[]>([]);
   const handleEditClick = (sortOrder: string) => {
-    const betaling = betalingen.find(b => b.sortOrder === sortOrder);
-    setSelectedBetaling(betaling);
+    if (props.isOcr && verwerkteBetalingen.includes(sortOrder)) {
+      setSnackbarMessage({ message: toonVerwerkteBetalingMeassage, type: 'info' });
+    } else {
+      const betaling = betalingen.find(b => b.sortOrder === sortOrder);
+      setSelectedBetaling(betaling);
+    }
   };
 
   useEffect(() => {
@@ -67,14 +72,19 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   };
 
   const onBetalingBewaardChange = (betalingDTO: BetalingDTO) => {
-    if (!props.isOcr) props.onBetalingBewaardChange(betalingDTO);
-    else setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
+    props.onBetalingBewaardChange(betalingDTO);
+    if (props.isOcr) setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
   };
 
   const onBetalingVerwijderdChange = (betalingDTO: BetalingDTO) => {
-    if (!props.isOcr) props.onBetalingVerwijderdChange(betalingDTO);
-    else setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
+    props.onBetalingVerwijderdChange(betalingDTO);
+    if (props.isOcr) setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
   };
+
+  const toonVerwerkteBetalingMeassage = 'Deze betaling is verwerkt. Je kunt deze hier niet meer bewerken of verwijderen. ' +
+    'Je kunt m terugvinden in het kasboek. Daar kan je m eventueel nog aanpassen. Als je de betaling hier onbedoeld hebt ' +
+    'verwijderd kun je de schermafbeelding nog een keer inlezen: dubbele betaingen zijn duidelijk herkenbaar en kun je ' +
+    'gemakkelijk overslaan of weggooien.';
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
 
@@ -116,10 +126,12 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       </TableRow>}
                     {filteredBetalingen[date].map((item) => (
                       <TableRow key={item.sortOrder}>
-                        {!props.isOcr && <TableCell sx={{ padding: '5px' }}>  
-                          {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
-                        </TableCell>}
-                        <TableCell sx={{ padding: '5px' , color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}> 
+                        {!props.isOcr &&
+                          <TableCell sx={{ padding: '5px' }} onClick={() => handleEditClick(item.sortOrder)}>
+                            {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
+                          </TableCell>}
+                        <TableCell sx={{ padding: '5px', color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}
+                          onClick={() => handleEditClick(item.sortOrder)}>
                           {props.isOcr ? item.ocrOmschrijving : item.omschrijving}
                           {item.bestaatAl && !verwerkteBetalingen.includes(item.sortOrder) &&
                             <>
@@ -127,7 +139,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                               <Typography variant="caption" color="error">Bestaat al met omschrijving {item.omschrijving}</Typography>
                             </>}
                         </TableCell>
-                        <TableCell sx={{ padding: '5px', color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}>
+                        <TableCell sx={{ padding: '5px', color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}
+                          onClick={() => handleEditClick(item.sortOrder)}>
                           {formatAmount(berekenBedragVoorRekenining(item, actueleRekening).toString())}
                         </TableCell>
                         {/* <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell> */}
@@ -141,6 +154,11 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                                 <IconButton onClick={() => onBetalingVerwijderdChange(item)} color={item.bestaatAl ? 'error' : 'default'}>
                                   <DeleteIcon />
                                 </IconButton>}
+                            </Box>}
+                          {verwerkteBetalingen.includes(item.sortOrder) &&
+                            <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
+                              onClick={() => setSnackbarMessage({ message: toonVerwerkteBetalingMeassage, type: 'info' })}>
+                              <InfoIcon height='16' />
                             </Box>}
                         </TableCell>
                       </TableRow>

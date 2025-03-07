@@ -1,5 +1,4 @@
 export const updateAfbeelding = (file: File, bankNaam: string | undefined): Promise<File> => {
-    console.log('bankNaam:', bankNaam);
     return new Promise((resolve, reject) => {
         const img = new Image();
         const reader = new FileReader();
