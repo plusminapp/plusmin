@@ -33,7 +33,7 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
   const [actueleRekening, setActueleRekening] = useState<Rekening | undefined>(props.actueleRekening)
   const [filteredBetalingen, setFilteredBetalingen] = useState<{ [key: string]: BetalingDTO[] }>({})
   const [selectedBetaling, setSelectedBetaling] = useState<BetalingDTO | undefined>(undefined);
-
+  const [verwerkteBetalingen, setVerwerkteBetalingen] = useState<string[]>([]);
   const handleEditClick = (sortOrder: string) => {
     const betaling = betalingen.find(b => b.sortOrder === sortOrder);
     setSelectedBetaling(betaling);
@@ -64,6 +64,16 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
 
   const formatAmount = (amount: string): string => {
     return currencyFormatter.format(parseFloat(amount))
+  };
+
+  const onBetalingBewaardChange = (betalingDTO: BetalingDTO) => {
+    if (!props.isOcr) props.onBetalingBewaardChange(betalingDTO);
+    else setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
+  };
+
+  const onBetalingVerwijderdChange = (betalingDTO: BetalingDTO) => {
+    if (!props.isOcr) props.onBetalingVerwijderdChange(betalingDTO);
+    else setVerwerkteBetalingen([...verwerkteBetalingen, betalingDTO?.sortOrder]);
   };
 
   const isPeriodeOpen = gekozenPeriode?.periodeStatus === 'OPEN' || gekozenPeriode?.periodeStatus === 'HUIDIG';
@@ -106,29 +116,29 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                       </TableRow>}
                     {filteredBetalingen[date].map((item) => (
                       <TableRow key={item.sortOrder}>
-                        {!props.isOcr && <TableCell sx={{ padding: '5px' }}>
+                        {!props.isOcr && <TableCell sx={{ padding: '5px' }}>  
                           {dayjs(date).year() === dayjs().year() ? dayjs(date).format('D MMMM') : dayjs(date).format('D MMMM YYYY')}
                         </TableCell>}
-                        <TableCell sx={{ padding: '5px' }}>
+                        <TableCell sx={{ padding: '5px' , color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}> 
                           {props.isOcr ? item.ocrOmschrijving : item.omschrijving}
-                          {item.bestaatAl &&
+                          {item.bestaatAl && !verwerkteBetalingen.includes(item.sortOrder) &&
                             <>
                               <br />
                               <Typography variant="caption" color="error">Bestaat al met omschrijving {item.omschrijving}</Typography>
                             </>}
                         </TableCell>
-                        <TableCell sx={{ padding: '5px' }}>
+                        <TableCell sx={{ padding: '5px', color: verwerkteBetalingen.includes(item.sortOrder) ? 'lightgrey' : 'inherit' }}>
                           {formatAmount(berekenBedragVoorRekenining(item, actueleRekening).toString())}
                         </TableCell>
-                        <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
+                        {/* <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell> */}
                         <TableCell sx={{ padding: '5px' }}>
-                          {isPeriodeOpen &&
+                          {isPeriodeOpen && !verwerkteBetalingen.includes(item.sortOrder) &&
                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                               <IconButton onClick={() => handleEditClick(item.sortOrder)}>
                                 <EditIcon />
                               </IconButton>
                               {props.isOcr &&
-                                <IconButton onClick={() => props.onBetalingVerwijderdChange(item)} color={item.bestaatAl ? 'error' : 'default'}>
+                                <IconButton onClick={() => onBetalingVerwijderdChange(item)} color={item.bestaatAl ? 'error' : 'default'}>
                                   <DeleteIcon />
                                 </IconButton>}
                             </Box>}
@@ -143,8 +153,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
           {selectedBetaling &&
             <UpsertBetalingDialoog
               onUpsertBetalingClose={onUpsertBetalingClose}
-              onBetalingBewaardChange={(betalingDTO) => props.onBetalingBewaardChange(betalingDTO)}
-              onBetalingVerwijderdChange={(betalingDTO) => props.onBetalingVerwijderdChange(betalingDTO)}
+              onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
+              onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO)}
               isOcr={props.isOcr}
               editMode={true}
               betaling={{ ...selectedBetaling, bron: selectedBetaling.bron, bestemming: selectedBetaling.bestemming }}

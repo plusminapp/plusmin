@@ -255,7 +255,7 @@ const BetalingTabel: React.FC<BetalingTabelProps> = ({ betalingen, onBetalingBew
           <TableBody>
             <>
               {betalingen
-              .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
+              .sort((a, b) => a.sortOrder > b.sortOrder ? -1 : 1)
               .map((betaling) => (!isIntern(betaling) || toonIntern) &&
                 <TableRow key={betaling.id}>
                   <TableCell sx={{ padding: '5px' }}>{dayjs(betaling.boekingsdatum).format('YYYY-MM-DD')}</TableCell>

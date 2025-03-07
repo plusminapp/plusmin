@@ -21,10 +21,10 @@ export function RekeningSelect(props: RekeningSelectProps) {
                 setGekozenRekening(bankRekeningen[0])
                 props.wijzigOcrBankNaam(bankRekeningen[0]);
             }
-            const uniekeBankNamen = new Set(bankRekeningen.map(rekening => rekening.bankNaam));
-            if (uniekeBankNamen.size === 1) {
-                props.wijzigOcrBankNaam(bankRekeningen[0]);
-            }
+            // const uniekeBankNamen = new Set(bankRekeningen.map(rekening => rekening.bankNaam));
+            // if (uniekeBankNamen.size === 1) {
+            //     props.wijzigOcrBankNaam(bankRekeningen[0]);
+            // }
         }
     }, [bankRekeningen, props]);
 

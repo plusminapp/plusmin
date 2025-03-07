@@ -14,7 +14,6 @@ import { useCustomContext } from '../../context/CustomContext';
 import { currencyFormatter } from '../../model/Betaling'
 import { Button, Typography } from '@mui/material';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
-import dayjs from 'dayjs';
 
 interface AflossingReserveringTabelProps {
   betalingen: BetalingDTO[];
@@ -63,7 +62,7 @@ export default function AflossingReserveringTabel(props: AflossingReserveringTab
               </TableHead>
               <TableBody>
                 {betalingen
-                  .sort((a, b) => dayjs(a.boekingsdatum).isAfter(dayjs(b.boekingsdatum)) ? -1 : 1)
+                  .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
                   .map((betaling) => (
                     <Fragment key={betaling.id}>
                       <TableRow
