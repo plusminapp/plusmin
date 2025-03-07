@@ -83,6 +83,12 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
     }
   }, [rekeningPaar, initialBetalingDTO, props.editMode, props.betaling, gekozenPeriode]);
 
+  useEffect(() => {
+    if (props.editMode && !!props.betaling?.bedrag && props.betaling.bedrag < 0) {
+      setIsOntvangst(true)
+      setBetalingDTO({ ...betalingDTO, bedrag: -props.betaling.bedrag })
+    }
+  });
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -321,9 +327,9 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
             {errors.betalingsSoort && (
               <Typography style={{ marginTop: '0px', color: 'red', fontSize: '0.75rem', textAlign: 'center' }}>{errors.betalingsSoort}</Typography>
             )}
-            <FormControl >
-              <Grid container columns={12} spacing={2} direction={{ xs: 'column', sm: 'row' }} alignItems="center">
-                <Grid size={{ xs: 12, sm: 3 }} marginTop={{ xs: 0, sm: 1 }}>
+            <Grid container columns={12} spacing={2} direction={{ xs: 'column', sm: 'row' }} display="flex" alignItems="baseline">
+              <Grid size={{ xs: 12, sm: 5 }} marginTop={{ xs: 0, sm: 1 }}>
+                <FormControl>
                   <InputLabel htmlFor="betaling-bedrag">Bedrag</InputLabel>
                   <Input
                     id="betaling-bedrag"
@@ -337,22 +343,26 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                   {errors.bedrag && (
                     <Typography style={{ color: 'red', fontSize: '0.75rem' }}>{errors.bedrag}</Typography>
                   )}
-                </Grid>
-                <Grid size={{ xs: 12, sm: 9 }} marginBottom={{ xs: 0, sm: 1 }}>
+                </FormControl>
+              </Grid>
+              <Grid size={{ xs: 12, sm: 7 }} marginBottom={{ xs: 0, sm: 1 }} display="flex" alignItems="center">
+                <FormControl>
                   <FormControlLabel
                     control={
                       <Switch
+                        color='success'
                         sx={{ transform: 'scale(0.6)' }}
                         checked={isOntvangst}
                         onChange={handleIsOntvangstChange}
                         inputProps={{ 'aria-label': 'controlled' }}
-                      />
-                    }
-                    label={<Typography variant='caption' fontWeight={isOntvangst ? '800' : 500} color={isOntvangst ? 'success' : 'lightgrey'}>Ik heb dit teruggekregen ipv betaald.</Typography>}
+                      />}
+                    label={<Typography variant='caption' fontWeight={isOntvangst ? '800' : '500'} color={isOntvangst ? 'success' : 'lightgrey'}>
+                      Ik heb dit teruggekregen ipv betaald.
+                    </Typography>}
                   />
-                </Grid>
+                </FormControl>
               </Grid>
-            </FormControl>
+            </Grid>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="betaling-omschrijving">Geef een korte omschrijving *</InputLabel>
               <Input

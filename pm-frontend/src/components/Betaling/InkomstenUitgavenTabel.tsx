@@ -12,7 +12,7 @@ import { Box, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChang
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening } from '../../model/Rekening';
+import { berekenBedragVoorRekenining, Rekening } from '../../model/Rekening';
 import UpsertBetalingDialoog from './UpsertBetalingDialoog';
 import dayjs from 'dayjs';
 import React from 'react';
@@ -117,7 +117,9 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                               <Typography variant="caption" color="error">Bestaat al met omschrijving {item.omschrijving}</Typography>
                             </>}
                         </TableCell>
-                        <TableCell sx={{ padding: '5px' }}>{formatAmount((item.bedrag.toString()))}</TableCell>
+                        <TableCell sx={{ padding: '5px' }}>
+                          {formatAmount(berekenBedragVoorRekenining(item, actueleRekening).toString())}
+                        </TableCell>
                         <TableCell sx={{ padding: '5px' }}>{item.sortOrder}</TableCell>
                         <TableCell sx={{ padding: '5px' }}>
                           {isPeriodeOpen &&
@@ -128,8 +130,8 @@ export default function InkomstenUitgavenTabel(props: InUitTabelProps) {
                               {props.isOcr &&
                                 <IconButton onClick={() => props.onBetalingVerwijderdChange(item)} color={item.bestaatAl ? 'error' : 'default'}>
                                   <DeleteIcon />
-                                </IconButton> }
-                            </Box> }
+                                </IconButton>}
+                            </Box>}
                         </TableCell>
                       </TableRow>
                     ))}
