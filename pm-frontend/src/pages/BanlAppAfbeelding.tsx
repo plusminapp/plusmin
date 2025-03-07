@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Box, Typography, Fab, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails, FormGroup, FormControlLabel, Switch } from '@mui/material';
+import { Button, Box, Typography, useMediaQuery, useTheme, Accordion, AccordionSummary, AccordionDetails, FormGroup, FormControlLabel, Switch } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import AddIcon from '@mui/icons-material/Add';
 import Tesseract from 'tesseract.js';
 import { ArrowDropDownIcon } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -18,11 +17,12 @@ import { useNavigate } from 'react-router-dom';
 import { Saldo } from '../model/Saldo';
 import { Rekening } from '../model/Rekening';
 import InkomstenUitgavenTabel from '../components/Betaling/InkomstenUitgavenTabel';
+import UpsertBetalingDialoog from '../components/Betaling/UpsertBetalingDialoog';
 
 dayjs.extend(customParseFormat); // Extend dayjs with the customParseFormat plugin
 dayjs.locale('nl'); // Set the locale to Dutch
 
-const OCRComponent: React.FC = () => {
+const BanlAppAfbeelding: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [ocrData, setOcdData] = useState<string>('');
   const [parsedData, setParsedData] = useState<BetalingDTO[]>([]);
@@ -72,18 +72,18 @@ const OCRComponent: React.FC = () => {
       'nld', // Change language to Dutch
       {
         // logger: (m) => console.log(m),
-        tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK, // Set page segmentation mode
-        tessedit_char_whitelist: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-,.', // Whitelist characters
-        tessedit_char_blacklist: '€', // Blacklist characters
-        tessedit_preserve_interword_spaces: 1 as any, // Preserve interword spaces
-      } as Partial<Tesseract.WorkerOptions> // Typecast the entire options object
-    ).then(({ data: { text, confidence } }) => { // Get confidence value
+        tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
+        tessedit_char_whitelist: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+-,.',
+        tessedit_char_blacklist: '€',
+        tessedit_preserve_interword_spaces: 1 as any,
+      } as Partial<Tesseract.WorkerOptions>
+    ).then(({ data: { text, confidence } }) => {
       const filteredText = text.replace(/^\d{2}:\d{2}.*\n/, '').trim();
       setOcdData(text + ' <<>> ' + filteredText);
-      setConfidence(confidence); // Set confidence value
+      setConfidence(confidence);
       const parsedData = parseText(filteredText)
         .map((betaling) => ({ ...betaling, bedrag: Math.abs(betaling.bedrag) }));
-      setParsedData(parsedData); // Set the parsed data
+      setParsedData(parsedData);
       setIsLoading(false);
     }).catch((error) => {
       console.error('OCR error:', error);
@@ -150,9 +150,13 @@ const OCRComponent: React.FC = () => {
     setValidatedData({ ...validatedData, betalingen: newValidatedBetalingen });
   };
 
-  const handleAdd = () => {
-    console.log('Add todo');
-  };
+  const onBetalingBewaardChange = (sortOrder: string) => {
+    console.log('onBetalingBewaardChange', sortOrder);
+  }
+
+  const onBetalingVerwijderdChange = (sortOrder: string) => {
+    console.log('onBetalingVerwijderdChange', sortOrder);
+  }
 
   useEffect(() => {
     setGroupedData(validatedData.betalingen.reduce((acc, item) => {
@@ -185,6 +189,16 @@ const OCRComponent: React.FC = () => {
           />
         </Button>
       </Grid>
+      {validatedData.betalingen.length > 0 &&
+        <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
+          <UpsertBetalingDialoog
+            editMode={false}
+            betaling={undefined}
+            onUpsertBetalingClose={() => { }}
+            onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+            onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)} />
+        </Grid>}
+
       <Grid container flexDirection='row' justifyContent="flex-end">
         <Typography variant="body2" sx={{ mt: 1 }}>
           {ocrBankRekening ? `Bank: ${ocrBankRekening.bankNaam}` : ''} {confidence ? `Vertrouwen: ${confidence.toFixed(2)}%` : ''}
@@ -238,7 +252,7 @@ const OCRComponent: React.FC = () => {
           </Box>
         </Grid>
       </Grid>
-      {validatedData.betalingen.length > 0 &&
+      {/* {validatedData.betalingen.length > 0 &&
         <Fab
           color="success"
           aria-label="add"
@@ -246,7 +260,7 @@ const OCRComponent: React.FC = () => {
           onClick={handleAdd}
         >
           <AddIcon />
-        </Fab>}
+        </Fab>} */}
       {ocrData &&
         <Accordion >
           <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
@@ -275,4 +289,4 @@ const OCRComponent: React.FC = () => {
   );
 };
 
-export default OCRComponent;
+export default BanlAppAfbeelding;

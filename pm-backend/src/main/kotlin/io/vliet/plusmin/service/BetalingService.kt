@@ -10,6 +10,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.lang.Integer.parseInt
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -62,6 +63,14 @@ class BetalingService {
                             null
                         }
                 } else null
+            val laatsteSortOrder: String? = betalingRepository.findLaatsteSortOrder(gebruiker, boekingsDatum)
+            val sortOrderDatum = betalingDTO.boekingsdatum.replace("-", "")
+            val sortOrder = if (laatsteSortOrder == null) sortOrderDatum + ".900"
+            else {
+                val sortOrderTeller = (parseInt(laatsteSortOrder.split(".")[1]) - 10).toString()
+                sortOrderDatum + "." + sortOrderTeller
+            }
+
 
             logger.info("Opslaan betaling ${betalingDTO.omschrijving} voor ${gebruiker.bijnaam}")
             Betaling(
@@ -72,7 +81,7 @@ class BetalingService {
                 betalingsSoort = Betaling.BetalingsSoort.valueOf(betalingDTO.betalingsSoort),
                 bron = bron,
                 bestemming = bestemming,
-                sortOrder = betalingDTO.sortOrder,
+                sortOrder = sortOrder,
                 budget = budget
             )
         }

@@ -3,6 +3,7 @@ package io.vliet.plusmin.repository
 import io.vliet.plusmin.domain.Betaling
 import io.vliet.plusmin.domain.Betaling.BetalingsSoort
 import io.vliet.plusmin.domain.Gebruiker
+import io.vliet.plusmin.domain.Rekening
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
@@ -65,9 +66,16 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         ): List<Betaling>
 
     @Query(
-        value = "SELECT b FROM Betaling b " +
+        value = "SELECT MAX(b.boekingsdatum) FROM Betaling b " +
                 "WHERE b.gebruiker = :gebruiker AND " +
-                "b.boekingsdatum = (SELECT MAX(b2.boekingsdatum) FROM Betaling b2 WHERE b2.gebruiker = :gebruiker)"
+                "(b.bron = :rekening OR b.bestemming = :rekening)"
     )
-    fun findLaatsteBetaling(gebruiker: Gebruiker): List<Betaling>
+    fun findLaatsteBetalingDatum(gebruiker: Gebruiker, rekening: Rekening): LocalDate?
+
+    @Query(
+        value = "SELECT MIN(b.sortOrder) FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum = :datum"
+    )
+    fun findLaatsteSortOrder(gebruiker: Gebruiker, datum: LocalDate): String?
 }

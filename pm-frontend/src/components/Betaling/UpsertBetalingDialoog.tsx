@@ -11,9 +11,10 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveOutlinedIcon from '@mui/icons-material/SaveOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { FormControl, FormControlLabel, Input, InputAdornment, InputLabel, Stack, Switch, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Fab, FormControl, FormControlLabel, Input, InputAdornment, InputLabel, Stack, Switch, Typography } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { BetalingDTO, BetalingsSoort } from '../../model/Betaling';
+import { BetalingDTO, BetalingsSoort, uitgavenBetalingsSoorten } from '../../model/Betaling';
 
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -197,7 +198,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           ...betalingDTO,
           omschrijving: (props.isOcr ? betalingDTO.ocrOmschrijving : betalingDTO.omschrijving)?.trim(),
           boekingsdatum: betalingDTO.boekingsdatum.format('YYYY-MM-DD'),
-          bedrag: isOntvangst ? -betalingDTO.bedrag : betalingDTO.bedrag,
+          bedrag: isOntvangst && betalingDTO.betalingsSoort && uitgavenBetalingsSoorten.includes(betalingDTO.betalingsSoort) ? -betalingDTO.bedrag : betalingDTO.bedrag,
         }
         const response = await fetch(url, {
           method: betalingDTO.id ? "PUT" : "POST",
@@ -220,7 +221,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
         })
         const responseJson = await response.json()
         console.log('responseJson: ', responseJson)
-        props.onBetalingBewaardChange({ ...responseJson, boekingsdatum: dayjs(responseJson.boekingsdatum) })
+        props.isOcr ? props.onBetalingBewaardChange(betalingDTO) : props.onBetalingBewaardChange(responseJson) // sortOrder kan gewijzigd zijn ...
         if (props.editMode) {
           handleClose()
         } else {
@@ -287,9 +288,17 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
   return (
     <React.Fragment>
       {!props.editMode &&
-        <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: '10px' }}>
-          Nieuwe betaling
-        </Button>
+        <Fab
+          color="success"
+          aria-label="Nieuwe betaling"
+          sx={{ position: 'fixed', bottom: 16, right: 16 }}
+          onClick={handleClickOpen}
+        >
+          <AddIcon />
+        </Fab>
+        // <Button variant="contained" color="success" onClick={handleClickOpen} sx={{ mt: '10px', ml: '10px' }}>
+        //   Nieuwe betaling
+        // </Button>
       }
       <BootstrapDialog
         onClose={handleClose}
@@ -345,23 +354,24 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
                   )}
                 </FormControl>
               </Grid>
-              <Grid size={{ xs: 12, sm: 7 }} marginBottom={{ xs: 0, sm: 1 }} display="flex" alignItems="center">
-                <FormControl>
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        color='success'
-                        sx={{ transform: 'scale(0.6)' }}
-                        checked={isOntvangst}
-                        onChange={handleIsOntvangstChange}
-                        inputProps={{ 'aria-label': 'controlled' }}
-                      />}
-                    label={<Typography variant='caption' fontWeight={isOntvangst ? '800' : '500'} color={isOntvangst ? 'success' : 'lightgrey'}>
-                      Ik heb dit teruggekregen ipv betaald.
-                    </Typography>}
-                  />
-                </FormControl>
-              </Grid>
+              {betalingDTO.betalingsSoort === BetalingsSoort.uitgaven &&
+                <Grid size={{ xs: 12, sm: 7 }} marginBottom={{ xs: 0, sm: 1 }} display="flex" alignItems="center">
+                  <FormControl>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          color='success'
+                          sx={{ transform: 'scale(0.6)' }}
+                          checked={isOntvangst}
+                          onChange={handleIsOntvangstChange}
+                          inputProps={{ 'aria-label': 'controlled' }}
+                        />}
+                      label={<Typography variant='caption' fontWeight={isOntvangst ? '800' : '500'} color={isOntvangst ? 'success' : 'lightgrey'}>
+                        Ik heb dit teruggekregen ipv betaald.
+                      </Typography>}
+                    />
+                  </FormControl>
+                </Grid>}
             </Grid>
             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
               <InputLabel htmlFor="betaling-omschrijving">Geef een korte omschrijving *</InputLabel>
@@ -378,6 +388,7 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
             </FormControl>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
+                sx={{ color: 'success.main' }}
                 minDate={dayjs(eersteOpenPeriode.periodeStartDatum)}
                 maxDate={dayjs(laatstePeriode.periodeEindDatum)}
                 slotProps={{ textField: { variant: "standard" } }}

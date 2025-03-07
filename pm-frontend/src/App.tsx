@@ -13,7 +13,7 @@ import LoginPagina from './pages/LoginPagina';
 import Container from '@mui/material/Container';
 import NotFound from './pages/NotFound';
 import Periode from './pages/Periode';
-import OCRComponent from './pages/OCRComponent';
+import BanlAppAfbeelding from './pages/BanlAppAfbeelding';
 
 const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
   const { state } = useAuthContext();
@@ -30,7 +30,7 @@ const App: React.FC = () => {
             <Route path="/" element={<Profiel />} />
             <Route path="/home" element={<Profiel />} />
             <Route path="/login" element={<LoginPagina />} />
-            <Route path="/ocr" element={<OCRComponent />} />
+            <Route path="/ocr" element={<BanlAppAfbeelding />} />
 
             {/* Beschermde routes */}
             <Route path="/stand" element={<ProtectedRoute element={<Stand />} />} />

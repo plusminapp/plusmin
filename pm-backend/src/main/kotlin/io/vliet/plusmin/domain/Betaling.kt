@@ -7,7 +7,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Entity
-@Table(name = "betaling")
+@Table(
+    name = "betaling",
+    uniqueConstraints = [jakarta.persistence.UniqueConstraint(columnNames = ["gebruiker", "sortOrder"])]
+)
 class Betaling(
     @Id
     @GeneratedValue(generator = "hibernate_sequence", strategy = GenerationType.SEQUENCE)
@@ -52,7 +55,18 @@ class Betaling(
         bron: Rekening = this.bron,
         bestemming: Rekening = this.bestemming,
         budget: Budget? = this.budget
-    ) = Betaling(this.id, gebruiker, boekingsdatum, bedrag, omschrijving, betalingsSoort, sortOrder, bron, bestemming, budget)
+    ) = Betaling(
+        this.id,
+        gebruiker,
+        boekingsdatum,
+        bedrag,
+        omschrijving,
+        betalingsSoort,
+        sortOrder,
+        bron,
+        bestemming,
+        budget
+    )
 
     data class BetalingDTO(
         val id: Long = 0,
@@ -101,7 +115,7 @@ class Betaling(
     data class BetalingOcrValidatieWrapper(
         val laatsteBetalingDatum: LocalDate? = null,
         val saldoOpLaatsteBetalingDatum: Saldo.SaldoDTO,
-        val betalingen: List<BetalingOcrValidatie>,
+        val betalingen: List<BetalingOcrValidatie> = emptyList(),
     )
 
     enum class BetalingsSoort(

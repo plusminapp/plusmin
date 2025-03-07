@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.*
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -50,13 +49,11 @@ class BetalingOcrValidatieService {
         val saldoOpDatum = betalingen.fold(openingsSaldo.bedrag) { saldo, betaling ->
             saldo + berekenMutaties(betaling, rekening)
         }
-        val validatedBetalingen = betalingOcrValidatieWrapper.betalingen.map { betalingOcrValidatie ->
-            valideerOcrBetaling(gebruiker, betalingOcrValidatie)
+        val validatedBetalingen = betalingOcrValidatieWrapper.betalingen.map { betaling ->
+            valideerOcrBetaling(gebruiker, betaling)
         }
-        val laatsteBetalingen = betalingRepository.findLaatsteBetaling(gebruiker)
-        val laatsteBetalingDatum =
-            if (laatsteBetalingen.size > 0) laatsteBetalingen[0].boekingsdatum else openingsSaldo.periode!!.periodeStartDatum
-
+        val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatum(gebruiker, rekening)
+            ?: openingsSaldo.periode!!.periodeStartDatum
 
         return Betaling.BetalingOcrValidatieWrapper(
             laatsteBetalingDatum,
@@ -69,14 +66,16 @@ class BetalingOcrValidatieService {
         return if (betaling.bron.id == rekening.id) -betaling.bedrag else BigDecimal(0) +
                 if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
     }
-    fun valideerOcrBetaling(gebruiker: Gebruiker, betalingOcrValidatie: BetalingOcrValidatie): BetalingOcrValidatie {
+
+    fun valideerOcrBetaling(gebruiker: Gebruiker, betaling: BetalingOcrValidatie): BetalingOcrValidatie {
         val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
             gebruiker,
-            LocalDate.parse(betalingOcrValidatie.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
-            betalingOcrValidatie.bedrag.abs(),
+            LocalDate.parse(betaling.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),
+            betaling.bedrag.abs(),
         )
-        return betalingOcrValidatie.fullCopy(
+        return betaling.fullCopy(
             bestaatAl = vergelijkbareBetalingen.isNotEmpty(),
-            omschrijving = vergelijkbareBetalingen.map { it.omschrijving }.joinToString(", "))
+            omschrijving = vergelijkbareBetalingen.map { it.omschrijving }.joinToString(", ")
+        )
     }
 }

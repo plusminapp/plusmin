@@ -4,7 +4,6 @@ import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -40,17 +39,17 @@ class SaldoService {
             balansSaldiBijOpening
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toDTO() }
+                .map { it.toBalansDTO() }
         val mutatiesOpDatum =
             mutatiePeildatumLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toDTO() }
+                .map { it.toBalansDTO() }
         val balansOpDatum =
             balansSaldiOpDatum
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
-                .map { it.toDTO() }
+                .map { it.toBalansDTO() }
         val resultaatOpDatum =
             mutatiePeildatumLijst
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }

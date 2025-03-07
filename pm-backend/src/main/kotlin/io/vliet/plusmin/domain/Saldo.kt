@@ -38,10 +38,10 @@ class Saldo(
     data class SaldoDTO(
         val id: Long = 0,
         val rekeningNaam: String,
-        val bedrag: BigDecimal
+        val bedrag: BigDecimal = BigDecimal(0)
     )
 
-    fun toDTO(): SaldoDTO {
+    fun toBalansDTO(): SaldoDTO {
         return SaldoDTO(
             this.id,
             this.rekening.naam,

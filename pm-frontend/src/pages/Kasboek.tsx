@@ -122,8 +122,7 @@ export default function Kasboek() {
     return <Typography sx={{ mb: '25px' }}>De betalingen worden opgehaald.</Typography>
   }
 
-  const onBetalingBewaardChange = (sortOrder: string): void => {
-    const betaling = betalingen.find(b => b.sortOrder === sortOrder);
+  const onBetalingBewaardChange = (betaling: BetalingDTO): void => {
     const isBoekingInGekozenPeriode =
       dayjs(betaling?.boekingsdatum).isAfter(dayjs(gekozenPeriode?.periodeStartDatum).subtract(1, 'day')) &&
       dayjs(betaling?.boekingsdatum).isBefore(dayjs(gekozenPeriode?.periodeEindDatum).add(1, 'day'));
@@ -166,7 +165,7 @@ export default function Kasboek() {
               editMode={false}
               betaling={undefined}
               onUpsertBetalingClose={() => { }}
-              onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+              onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
               onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)} />
           </Grid>}
       </Grid>
@@ -174,7 +173,7 @@ export default function Kasboek() {
         // <Grid sx={{ mb: '25px' }}>
         <BetaalTabel
           betalingen={betalingen}
-          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)} />
         // </Grid>
       }
@@ -220,7 +219,7 @@ export default function Kasboek() {
                           actueleRekening={rekening}
                           betalingen={betalingen
                             .filter(betaling => betaling.betalingsSoort && inkomstenBetalingsSoorten.includes(betaling.betalingsSoort))}
-                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)} />
                       </AccordionDetails>
                     </Accordion>
@@ -254,7 +253,7 @@ export default function Kasboek() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort === BetalingsSoort.uitgaven)} />
                       </AccordionDetails>
@@ -281,7 +280,7 @@ export default function Kasboek() {
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
-                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)}
                           betalingen={betalingen
                             .filter(betaling => betaling.betalingsSoort && aflossenBetalingsSoorten.includes(betaling.betalingsSoort))}
@@ -306,7 +305,7 @@ export default function Kasboek() {
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
                         <AflossingReserveringTabel
-                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)}
                           betalingen={betalingen
                             .filter(betaling => betaling.betalingsSoort && reserverenBetalingsSoorten.includes(betaling.betalingsSoort))}
@@ -337,7 +336,7 @@ export default function Kasboek() {
                       <AccordionDetails sx={{ p: 0 }}>
                         <InkomstenUitgavenTabel
                           actueleRekening={rekening}
-                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                          onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                           onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)}
                           betalingen={betalingen.filter(betaling => betaling.betalingsSoort && internBetalingsSoorten.includes(betaling.betalingsSoort))} />
                       </AccordionDetails>
@@ -363,7 +362,7 @@ export default function Kasboek() {
               <InkomstenUitgavenTabel
                 isFilterSelectable={true}
                 actueleRekening={undefined}
-                onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO.sortOrder)}
+                onBetalingBewaardChange={(betalingDTO) => onBetalingBewaardChange(betalingDTO)}
                 onBetalingVerwijderdChange={(betalingDTO) => onBetalingVerwijderdChange(betalingDTO.sortOrder)}
                 betalingen={betalingen} />
             </AccordionDetails>
