@@ -1,4 +1,4 @@
-import { Box, FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, FormControlLabel, FormGroup, Switch, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import Resultaat from "../components/Resultaat";
 import type { Stand } from "../model/Stand";
 import dayjs from "dayjs";
 import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
+import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 
 export default function Stand() {
 
@@ -71,41 +72,49 @@ export default function Stand() {
       {stand !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
-          <Typography sx={{ my: 2 }}>Deze pagina is (nog) heel boekhoudkundig en niet geschikt voor de hulpvrager ...</Typography>
-          <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
-            <Grid size={1}>
-              <PeriodeSelect />
-            </Grid>
-            <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
-              <FormGroup sx={{ ml: 'auto' }} >
-                <FormControlLabel control={
-                  <Switch
-                    sx={{ transform: 'scale(0.6)' }}
-                    checked={toonMutaties}
-                    onChange={handleToonMutatiesChange}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />}
-                  label="Toon mutaties" />
-              </FormGroup>
-            </Grid>
-          </Grid>
-          <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={{ xs: 2, md: 3 }} columns={toonMutaties ? { xs: 1, sm: 2, md: 4 } : { xs: 1, sm: 3, md: 3 }}>
-              <Grid size={1}>
-                <Resultaat title={'Opening'} datum={stand.periodeStartDatum} saldi={stand.openingsBalans!} />
-              </Grid>
-              <Grid size={1}>
-                <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
-              </Grid>
-              {toonMutaties &&
+          <Accordion>
+            <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                Saldo's op {stand.peilDatum}
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
                 <Grid size={1}>
-                  <Resultaat title={'Mutaties per'} datum={stand.peilDatum} saldi={stand.mutatiesOpDatum!} />
-                </Grid>}
-              <Grid size={1}>
-                <Resultaat title={'Stand'} datum={stand.peilDatum} saldi={stand.balansOpDatum!} />
+                  <PeriodeSelect />
+                </Grid>
+                <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
+                  <FormGroup sx={{ ml: 'auto' }} >
+                    <FormControlLabel control={
+                      <Switch
+                        sx={{ transform: 'scale(0.6)' }}
+                        checked={toonMutaties}
+                        onChange={handleToonMutatiesChange}
+                        inputProps={{ 'aria-label': 'controlled' }}
+                      />}
+                      label="Toon mutaties" />
+                  </FormGroup>
+                </Grid>
               </Grid>
-            </Grid>
-          </Box>
+              <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={{ xs: 2, md: 3 }} columns={toonMutaties ? { xs: 1, sm: 2, md: 4 } : { xs: 1, sm: 3, md: 3 }}>
+                  <Grid size={1}>
+                    <Resultaat title={'Opening'} datum={stand.periodeStartDatum} saldi={stand.openingsBalans!} />
+                  </Grid>
+                  <Grid size={1}>
+                    <Resultaat title={'Inkomsten en uitgaven'} datum={stand.peilDatum} saldi={stand.resultaatOpDatum} />
+                  </Grid>
+                  {toonMutaties &&
+                    <Grid size={1}>
+                      <Resultaat title={'Mutaties per'} datum={stand.peilDatum} saldi={stand.mutatiesOpDatum!} />
+                    </Grid>}
+                  <Grid size={1}>
+                    <Resultaat title={'Stand'} datum={stand.peilDatum} saldi={stand.balansOpDatum!} />
+                  </Grid>
+                </Grid>
+              </Box>
+            </AccordionDetails>
+          </Accordion>
         </>
       }
     </>

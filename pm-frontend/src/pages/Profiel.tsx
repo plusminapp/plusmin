@@ -182,7 +182,7 @@ const Profiel: React.FC = () => {
             {rekeningen && rekeningen.length > 0 &&
               <Accordion>
                 <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
-                  <Typography ><strong>Kasboek</strong> kolommen en <strong>Potjes</strong>.
+                  <Typography ><strong>Potjes</strong> en bijbehorende <strong>Budgetten</strong>.
                   </Typography>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -191,8 +191,8 @@ const Profiel: React.FC = () => {
                     <Table sx={{ width: "100%" }} aria-label="simple table">
                       <TableHead>
                         <TableRow>
-                          <TableCell>Kolomkop</TableCell>
-                          <TableCell>Gekoppelde potjes</TableCell>
+                          <TableCell>Potje (= kolomkop)</TableCell>
+                          <TableCell>Gekoppelde budgetten</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
