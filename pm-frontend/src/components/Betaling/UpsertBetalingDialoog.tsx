@@ -219,7 +219,6 @@ export default function UpsertBetalingDialoog(props: UpsertBetalingDialoogProps)
           type: "success"
         })
         const responseJson = await response.json()
-        console.log('responseJson: ', responseJson)
         props.isOcr ? props.onBetalingBewaardChange(betalingDTO) : props.onBetalingBewaardChange(responseJson) // sortOrder kan gewijzigd zijn ...
         if (props.editMode) {
           handleClose()
