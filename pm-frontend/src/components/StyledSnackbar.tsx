@@ -24,7 +24,7 @@ const StyledSnackbar = ({ message = '', type = "info" as AlertColor, onClose }: 
     return (
         <Snackbar open={show}
             anchorOrigin={{ 'vertical': 'top', horizontal: 'center' }}
-            autoHideDuration={ type === 'error' ? 30000 : type === 'warning' ? 200000 : 10000 }
+            autoHideDuration={ type === 'error' ? 40000 : type === 'warning' ? 30000 : 25000 }
             onClose={close}>
             <Alert
                 onClose={close}
