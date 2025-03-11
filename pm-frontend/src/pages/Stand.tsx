@@ -10,21 +10,35 @@ import type { Stand } from "../model/Stand";
 import dayjs from "dayjs";
 import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
+import ChartExample from "../components/Budget/ChartExample";
+import { bankRekeningSoorten, Rekening } from "../model/Rekening";
 
 export default function Stand() {
 
   const [stand, setStand] = useState<Stand | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
   const [toonMutaties, setToonMutaties] = useState(localStorage.getItem('toonMutaties') === 'true');
-
+  const [budgetRekeningen, setBudgetRekeningen] = useState<Rekening[]>([]);
   const handleToonMutatiesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     localStorage.setItem('toonMutaties', event.target.checked.toString());
     setToonMutaties(event.target.checked);
   };
 
   const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gekozenPeriode, setSnackbarMessage } = useCustomContext();
+  const { actieveHulpvrager, gekozenPeriode, rekeningen, setSnackbarMessage } = useCustomContext();
   const navigate = useNavigate();
+
+  console.log('rekeningen filtered', budgetRekeningen.map(rekening => rekening.naam));
+
+  useEffect(() => {
+    console.log('gekozenPeriode', gekozenPeriode, 'rekeningen useEffect', JSON.stringify(rekeningen.filter(rekening =>
+      rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu')
+      .map(rekening => rekening.naam)));
+    if (rekeningen) {
+      setBudgetRekeningen(rekeningen.filter(rekening =>
+        rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu'));
+    }
+  }, [rekeningen])
 
   useEffect(() => {
     const fetchSaldi = async () => {
@@ -62,6 +76,10 @@ export default function Stand() {
 
   }, [actieveHulpvrager, gekozenPeriode, getIDToken]);
 
+  const findStandVanRekening = (rekeningNaam: string) => {
+    const saldo = stand?.resultaatOpDatum.find(saldo => saldo.rekeningNaam === rekeningNaam);
+    return saldo?.bedrag ?? 0;
+  };
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
@@ -71,12 +89,34 @@ export default function Stand() {
     <>
       {stand !== undefined &&
         <>
-          <Typography variant='h4'>Hoe staan we ervoor?</Typography>
+          <Typography variant='h4'>Hoe staan we er vandaag voor?</Typography>
+
+          <Typography variant='h6'>De stand van de bankrekeningen</Typography>
+          {rekeningen.filter(rekening => bankRekeningSoorten.includes(rekening.rekeningSoort)).map(rekening =>
+            <Resultaat
+              key={rekening.naam}
+              title={rekening.naam}
+              datum={stand.peilDatum}
+              saldi={stand.balansOpDatum.filter(saldo => saldo.rekeningNaam === rekening.naam)}
+            />
+          )}
+
+          <Typography variant='h6'>Potjes en bijbehorende budgetten</Typography>
+
+          {gekozenPeriode && budgetRekeningen.map(rekening =>
+            <ChartExample
+              rekening={rekening}
+              peildatum={dayjs()}
+              periode={gekozenPeriode}
+              besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
+                -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
+            />
+          )}
 
           <Accordion>
             <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
               <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                Saldo's op {stand.peilDatum}
+                Saldo's op {dayjs(stand.peilDatum).format('D MMMM')}
               </Typography>
             </AccordionSummary>
             <AccordionDetails>

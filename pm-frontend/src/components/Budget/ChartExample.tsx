@@ -1,10 +1,10 @@
 import { Box, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import dayjs from 'dayjs';
-import { Budget } from '../../model/Budget';
 import { Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
+import { Rekening } from '../../model/Rekening';
 
 type DataPoint = {
   datum: dayjs.Dayjs;
@@ -14,7 +14,7 @@ type DataPoint = {
 type ChartExampleProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
-  budget: Budget;
+  rekening: Rekening
   besteedOpPeildatum: number;
 };
 
@@ -22,8 +22,16 @@ export const ChartExample = (props: ChartExampleProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
+  if (props.rekening.budgetten.length === 0 
+    || props.rekening.budgetten.length > 1 ||
+    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'continu') { 
+    throw new Error('Er moet precies 1 continu budget zijn.');
+    }
+
+  const budget = props.rekening.budgetten[0];
+
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const maandBudget = props.budget.budgetPeriodiciteit === 'maand' ? props.budget.bedrag : periodeLengte * props.budget.bedrag / 7;
+  const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
   const dagenInPeriode = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const budgetOpPeildatum = maandBudget * dagenInPeriode / periodeLengte;
   const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.besteedOpPeildatum;
@@ -97,13 +105,13 @@ export const ChartExample = (props: ChartExampleProps) => {
   
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
-  // console.log('peildatum', JSON.stringify(props.peildatum));
+  console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  // console.log('maandBudget', JSON.stringify(maandBudget));
+  console.log('maandBudget', JSON.stringify(maandBudget));
   // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
-  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
-  // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
+  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
   // console.log('budgetDatum', JSON.stringify(budgetDatum));
   // console.log('start', JSON.stringify(start));
   // console.log('besteed', JSON.stringify(besteed));
@@ -121,7 +129,7 @@ export const ChartExample = (props: ChartExampleProps) => {
               <TableCell colSpan={4} sx={{ paddingBottom: 0, borderBottom: 'none' }}>
                 <Grid display={'flex'} direction={'row'} alignItems={'center'}>
                   <Typography variant='body2'>
-                    <strong>{props.budget.budgetNaam}</strong>
+                    <strong>{props.rekening.naam}</strong>
                   </Typography>
                   <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
                     onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>

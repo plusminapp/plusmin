@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { berekenPeriodeBijPeildatum, Periode } from "../model/Periode";
 import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
+import { Rekening, RekeningSoort } from "../model/Rekening";
 
 const budget = {
   budgetNaam: 'budget',
@@ -19,19 +20,29 @@ const budget = {
   budgetten: [],
 } as unknown as Budget;
 
+const rekening = {
+  Id: 1,
+  rekeningNaam: 'rekening', 
+  rekeningType: RekeningSoort.uitgaven,
+  nummer: undefined,
+  bankNaam: undefined,
+  sortOrder: 1,
+  budgetten: [budget],
+} as unknown as Rekening;
+
 export default function Login() {
 
-  type Blaat = {
-    budgetNaam1: string;
+  type FormFields = {
+    rekeningNaam1: string;
     budgetPerWeek1: number;
     besteedOpPeildatum1: number;
-    budgetNaam2: string;
+    rekeningNaam2: string;
     budgetPerWeek2: number;
     besteedOpPeildatum2: number;
   }
-  const [blaat, setBlaat] = useState<Blaat>({
-    budgetNaam1: 'Boodschappen', besteedOpPeildatum1: 200, budgetPerWeek1: 100,
-    budgetNaam2: 'Andere uitgaven', besteedOpPeildatum2: 250, budgetPerWeek2: 125,
+  const [formFields, setFormFields] = useState<FormFields>({
+    rekeningNaam1: 'Boodschappen', besteedOpPeildatum1: 200, budgetPerWeek1: 100,
+    rekeningNaam2: 'Andere uitgaven', besteedOpPeildatum2: 250, budgetPerWeek2: 125,
   });
   const [peilDatum, setPeilDatum] = useState(dayjs());
   const [periode, setPeriode] = useState<Periode | undefined>(undefined);
@@ -46,7 +57,7 @@ export default function Login() {
     if (key === 'peilDatum') {
       setPeilDatum(value);
     } else {
-      setBlaat({ ...blaat, [key]: value });
+      setFormFields({ ...formFields, [key]: value });
     }
   };
 
@@ -109,7 +120,7 @@ export default function Login() {
               <InputLabel htmlFor="budgetNaam1">Hoe heet het eerste potje?</InputLabel>
               <Input
                 id="budgetNaam1"
-                value={blaat.budgetNaam1}
+                value={formFields.rekeningNaam1}
                 type="text"
                 onChange={(e) => handleInputChange('budgetNaam1', e.target.value)}
               />
@@ -120,7 +131,7 @@ export default function Login() {
               <InputLabel htmlFor="besteedOpPeildatum1">Wat is er besteed op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum1"
-                value={blaat.besteedOpPeildatum1}
+                value={formFields.besteedOpPeildatum1}
                 type="number"
                 onChange={(e) => handleInputChange('besteedOpPeildatum1', e.target.value)}
               />
@@ -131,7 +142,7 @@ export default function Login() {
               <InputLabel htmlFor="budgetPerWeek1">Wat is het budget per week?</InputLabel>
               <Input
                 id="budgetPerWeek1"
-                value={blaat.budgetPerWeek1}
+                value={formFields.budgetPerWeek1}
                 type="number"
                 onChange={(e) => handleInputChange('budgetPerWeek1', e.target.value)}
               />
@@ -142,7 +153,7 @@ export default function Login() {
               <InputLabel htmlFor="budgetNaam2">Hoe heet het tweede potje?</InputLabel>
               <Input
                 id="budgetNaam2"
-                value={blaat.budgetNaam2}
+                value={formFields.rekeningNaam2}
                 type="text"
                 onChange={(e) => handleInputChange('budgetNaam2', e.target.value)}
               />
@@ -153,7 +164,7 @@ export default function Login() {
               <InputLabel htmlFor="besteedOpPeildatum2">Wat is er besteed op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum2"
-                value={blaat.besteedOpPeildatum2}
+                value={formFields.besteedOpPeildatum2}
                 type="number"
                 onChange={(e) => handleInputChange('besteedOpPeildatum2', e.target.value)}
               />
@@ -164,7 +175,7 @@ export default function Login() {
               <InputLabel htmlFor="budgetPerWeek2">Wat is het budget per week?</InputLabel>
               <Input
                 id="budgetPerWeek2"
-                value={blaat.budgetPerWeek2}
+                value={formFields.budgetPerWeek2}
                 type="number"
                 onChange={(e) => handleInputChange('budgetPerWeek2', e.target.value)}
               />
@@ -176,13 +187,13 @@ export default function Login() {
         <ChartExample
           periode={periode}
           peildatum={peilDatum}
-          budget={{ ...budget, bedrag: blaat.budgetPerWeek1, budgetNaam: blaat.budgetNaam1 }}
-          besteedOpPeildatum={Number(blaat.besteedOpPeildatum1)} />}
+          rekening={{ ...rekening, naam: formFields.rekeningNaam1, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek1 }] }}
+          besteedOpPeildatum={Number(formFields.besteedOpPeildatum1)} />}
       {periode &&
         <ChartExample
           periode={periode}
           peildatum={peilDatum}
-          budget={{ ...budget, bedrag: blaat.budgetPerWeek2, budgetNaam: blaat.budgetNaam2 }}
-          besteedOpPeildatum={Number(blaat.besteedOpPeildatum2)} />}
+          rekening={{ ...rekening, naam: formFields.rekeningNaam2, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek2 }] }}
+          besteedOpPeildatum={Number(formFields.besteedOpPeildatum2)} />}
     </>)
 }
