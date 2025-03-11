@@ -57,15 +57,15 @@ export const eersteOpenPeriode = (periodes: Periode[]): Periode | undefined => {
     const openPeriodes = periodes
         .filter(p => p.periodeStatus === 'OPEN')
         .sort((a, b) => dayjs(a.periodeStartDatum).diff(dayjs(b.periodeStartDatum)));
-    
+
     return openPeriodes.length > 0 ? openPeriodes[0] : undefined;
 }
 
-export const laatsteGeslotenPeriode= (periodes: Periode[]): Periode | undefined => {
+export const laatsteGeslotenPeriode = (periodes: Periode[]): Periode | undefined => {
     const geslotenPeriodes = periodes
         .filter(p => p.periodeStatus === 'GESLOTEN')
         .sort((a, b) => dayjs(b.periodeStartDatum).diff(dayjs(a.periodeStartDatum)));
-    
+
     return geslotenPeriodes.length > 0 ? geslotenPeriodes[0] : undefined;
 }
 
@@ -74,12 +74,36 @@ export const formateerNlDatum = (datum: string): string => {
 }
 export const formateerNlVolgendeDag = (datum: string): string => {
     const date = new Date(datum);
-    date.setDate(date.getDate() + 1); 
+    date.setDate(date.getDate() + 1);
     return date.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long' });
 }
 
 export const voegEenDagToe = (datum: string): string => {
     const date = new Date(datum);
-    date.setDate(date.getDate() + 1); 
+    date.setDate(date.getDate() + 1);
     return date.toISOString().split('T')[0];
+}
+
+export const findPeriode = (periodes: Periode[], datum: dayjs.Dayjs): Periode | undefined => {
+    return periodes.find(p => dayjs(p.periodeStartDatum).isBefore(datum, 'day') && dayjs(p.periodeEindDatum).isAfter(datum, 'day'));
+}
+
+export const berekenPeriodeBijPeildatum = (peildatum: dayjs.Dayjs): Periode => {
+    const wisselDag = 20;
+    let startDatum: dayjs.Dayjs;
+    let eindDatum: dayjs.Dayjs;
+    if (peildatum.date() < wisselDag) {
+        startDatum = peildatum.subtract(1, 'month').set('date', wisselDag);
+        eindDatum = peildatum.set('date', wisselDag - 1);
+    } else {
+        startDatum = peildatum.set('date', wisselDag);
+        eindDatum = peildatum.add(1, 'month').set('date', wisselDag - 1);
+    }
+    return {
+        id: -1,
+        periodeStartDatum: startDatum.toISOString().split('T')[0],
+        periodeEindDatum: eindDatum.toISOString().split('T')[0],
+        periodeStatus: 'HUIDIG',
+        saldoLijst: []
+    };
 }

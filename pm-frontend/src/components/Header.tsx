@@ -91,7 +91,7 @@ function Header() {
         try {
             token = await getIDToken();
         } catch (error) {
-            navigate('/login');
+            navigate('/home');
         }
 
         const response = await fetch('/api/v1/gebruiker/zelf', {
@@ -261,7 +261,7 @@ function Header() {
                     }
 
                     {!state.isAuthenticated &&
-                        <Button variant="contained" sx={{ ml: 'auto' }} onClick={() => signIn()}>Login</Button>
+                        <Button variant="contained" sx={{ ml: 'auto' }} color={'success'} onClick={() => signIn()}>Inloggen</Button>
                     }
                 </Toolbar>
             </AppBar>

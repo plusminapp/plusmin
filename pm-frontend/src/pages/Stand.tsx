@@ -72,6 +72,7 @@ export default function Stand() {
       {stand !== undefined &&
         <>
           <Typography variant='h4'>Hoe staan we ervoor?</Typography>
+
           <Accordion>
             <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
               <Typography variant="body2" sx={{ fontWeight: 'bold' }}>

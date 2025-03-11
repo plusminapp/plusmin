@@ -3,12 +3,12 @@ import { Rekening } from "./Rekening";
 import { dagenInPeriode, dagenSindsStartPeriode, isDagNaVandaagInPeriode, Periode } from "./Periode";
 
 export type Budget = {
-    rekening: Rekening;
+    rekening: Rekening | undefined;
     budgetNaam: string;
     budgetType: string;
     budgetPeriodiciteit: string;
     bedrag: number;
-    betaalDag: number;
+    betaalDag: number | undefined;
 }
 
 export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, budget: Budget): number | undefined => {

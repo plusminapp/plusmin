@@ -4,6 +4,7 @@ import { useAuthContext } from '@asgardeo/auth-react';
 
 import Profiel from './pages/Profiel';
 import Stand from './pages/Stand';
+import Home from './pages/Home';
 import Kasboek from './pages/Kasboek';
 import Aflossing from './pages/Aflossing';
 import Header from './components/Header';
@@ -14,11 +15,10 @@ import Container from '@mui/material/Container';
 import NotFound from './pages/NotFound';
 import Periode from './pages/Periode';
 import BankAppAfbeelding from './pages/BankAppAfbeelding';
-import { ChartExample } from './components/uitputting/ChartExample';
 
 const ProtectedRoute: React.FC<{ element: JSX.Element }> = ({ element }) => {
   const { state } = useAuthContext();
-  return state.isAuthenticated ? element : <Navigate to="/login" />;
+  return state.isAuthenticated ? element : <Navigate to="/" />;
 };
 
 const App: React.FC = () => {
@@ -28,11 +28,10 @@ const App: React.FC = () => {
       <Router>
         <Header />
           <Routes>
-            <Route path="/" element={<Profiel />} />
-            <Route path="/home" element={<Profiel />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/login" element={<LoginPagina />} />
             <Route path="/ocr" element={<BankAppAfbeelding />} />
-            <Route path="/chart" element={<ChartExample />} />
 
             {/* Beschermde routes */}
             <Route path="/stand" element={<ProtectedRoute element={<Stand />} />} />
