@@ -28,7 +28,7 @@ export type BetalingDTO = {
   budgetNaam: string | undefined;
 }
 
-export type BetalingOcrValidatieWrapper = {
+export type BetalingvalidatieWrapper = {
   laatsteBetalingDatum?: string,
   saldoOpLaatsteBetalingDatum?: Saldo,
   betalingen: BetalingDTO[],

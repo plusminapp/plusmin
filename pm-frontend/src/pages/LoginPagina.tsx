@@ -2,7 +2,7 @@ import { Box, FormControl, Input, InputLabel, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 
 import dayjs from "dayjs";
-import ChartExample from "../components/Budget/ChartExample";
+import BudgetContinuGrafiek from "../components/Budget/BudgetContinuGrafiek";
 import { Budget } from "../model/Budget";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -22,7 +22,7 @@ const budget = {
 
 const rekening = {
   Id: 1,
-  rekeningNaam: 'rekening', 
+  rekeningNaam: 'rekening',
   rekeningType: RekeningSoort.uitgaven,
   nummer: undefined,
   bankNaam: undefined,
@@ -78,7 +78,7 @@ export default function Login() {
       <Box border={1} borderRadius={2} p={2} mb={5} boxShadow={2} >
         <Typography variant='h6'>Visualisatie experiment voor potjes en budgetten</Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
-          Met dit formulier kun je de visualisatie van de besteding van 2 potjes, met bijbehorende budgetten, testen. 
+          Met dit formulier kun je de visualisatie van de besteding van 2 potjes, met bijbehorende budgetten, testen.
           (In de praktijk kunnen er meer potjes zijn.)
           Ik hoop met de visualisatie de besteding van een budget in 1 oogopslag inzichtelijk te maken.
           Er is bewust geen legenda, dat geeft mijns inziens meer ruis dan dat het helpt. (Eens?)
@@ -184,13 +184,13 @@ export default function Login() {
         </Grid>
       </Box>
       {periode &&
-        <ChartExample
+        <BudgetContinuGrafiek
           periode={periode}
           peildatum={peilDatum}
           rekening={{ ...rekening, naam: formFields.rekeningNaam1, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek1 }] }}
           besteedOpPeildatum={Number(formFields.besteedOpPeildatum1)} />}
       {periode &&
-        <ChartExample
+        <BudgetContinuGrafiek
           periode={periode}
           peildatum={peilDatum}
           rekening={{ ...rekening, naam: formFields.rekeningNaam2, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek2 }] }}

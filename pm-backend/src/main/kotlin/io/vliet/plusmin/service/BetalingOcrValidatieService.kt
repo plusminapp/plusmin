@@ -1,7 +1,7 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.*
-import io.vliet.plusmin.domain.Betaling.BetalingOcrValidatie
+import io.vliet.plusmin.domain.Betaling.Betalingvalidatie
 import io.vliet.plusmin.repository.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.jvm.optionals.getOrNull
 
 @Service
-class BetalingOcrValidatieService {
+class BetalingvalidatieService {
     @Autowired
     lateinit var betalingRepository: BetalingRepository
 
@@ -25,16 +25,16 @@ class BetalingOcrValidatieService {
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
-    fun valideerOcrBetalingen(
+    fun valideerBetalingen(
         gebruiker: Gebruiker,
-        betalingOcrValidatieWrapper: Betaling.BetalingOcrValidatieWrapper
-    ): Betaling.BetalingOcrValidatieWrapper {
-        val rekening = betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.let {
+        betalingvalidatieWrapper: Betaling.BetalingValidatieWrapper
+    ): Betaling.BetalingValidatieWrapper {
+        val rekening = betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.let {
             rekeningRepository.findRekeningGebruikerEnNaam(
                 gebruiker,
                 it.rekeningNaam
             )
-        } ?: throw IllegalStateException("betalingOcrValidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is leeg")
+        } ?: throw IllegalStateException("betalingvalidatieWrapper.saldoOpLaatsteBetalingDatum.rekeningNaam is leeg")
         val openingsSaldo = saldoRepository.findLastSaldoByRekening(rekening).getOrNull()
             ?: throw IllegalStateException("Geen Saldo voor ${rekening.naam}  voor ${gebruiker.email}.")
         val betalingen = if (openingsSaldo.periode == null) {
@@ -49,13 +49,13 @@ class BetalingOcrValidatieService {
         val saldoOpDatum = betalingen.fold(openingsSaldo.bedrag) { saldo, betaling ->
             saldo + berekenMutaties(betaling, rekening)
         }
-        val validatedBetalingen = betalingOcrValidatieWrapper.betalingen.map { betaling ->
+        val validatedBetalingen = betalingvalidatieWrapper.betalingen.map { betaling ->
             valideerOcrBetaling(gebruiker, betaling)
         }
-        val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatum(gebruiker, rekening)
+        val laatsteBetalingDatum = betalingRepository.findLaatsteBetalingDatumBijRekening(gebruiker, rekening)
             ?: openingsSaldo.periode!!.periodeStartDatum
 
-        return Betaling.BetalingOcrValidatieWrapper(
+        return Betaling.BetalingValidatieWrapper(
             laatsteBetalingDatum,
             Saldo.SaldoDTO(0, rekening.naam, saldoOpDatum),
             validatedBetalingen,
@@ -67,7 +67,7 @@ class BetalingOcrValidatieService {
                 if (betaling.bestemming.id == rekening.id) betaling.bedrag else BigDecimal(0)
     }
 
-    fun valideerOcrBetaling(gebruiker: Gebruiker, betaling: BetalingOcrValidatie): BetalingOcrValidatie {
+    fun valideerOcrBetaling(gebruiker: Gebruiker, betaling: Betalingvalidatie): Betalingvalidatie {
         val vergelijkbareBetalingen = betalingRepository.findVergelijkbareBetalingen(
             gebruiker,
             LocalDate.parse(betaling.boekingsdatum, DateTimeFormatter.ISO_LOCAL_DATE),

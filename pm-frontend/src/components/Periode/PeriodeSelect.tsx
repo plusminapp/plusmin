@@ -37,9 +37,10 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
 
             {!isProfiel && openPeriodes.length > 1 && gekozenPeriode &&
                 <Box sx={{ my: 2, maxWidth: '340px' }}>
-                    <FormControl variant="standard" fullWidth>
+                    <FormControl variant="standard" fullWidth >
                         <InputLabel id="demo-simple-select-label">Kies de periode</InputLabel>
                         <Select
+                            sx={{ fontSize: '0.875rem' }}
                             labelId="demo-simple-select-label"
                             id="demo-simple-select"
                             value={gekozenPeriode.periodeStartDatum.toString()}
@@ -47,7 +48,7 @@ export function PeriodeSelect({ isProfiel = false }: PeriodeSelectProps) {
                             onChange={handlegekozenPeriodeChange}>
                             {openPeriodes
                                 .map((periode: Periode) => (
-                                    <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()}>
+                                    <MenuItem key={periode.periodeStartDatum.toString()} value={periode.periodeStartDatum.toString()} sx={{ fontSize: '0.875rem' }}>
                                         {`van ${periode.periodeStartDatum} tot ${periode.periodeEindDatum}`} ({periode.periodeStatus.toLocaleLowerCase()})
                                     </MenuItem>))}
                         </Select>

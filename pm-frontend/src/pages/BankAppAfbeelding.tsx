@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/nl'; // Import the Dutch locale
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 
-import { BetalingDTO, BetalingOcrValidatieWrapper } from '../model/Betaling';
+import { BetalingDTO, BetalingvalidatieWrapper } from '../model/Betaling';
 import { updateAfbeelding } from '../components/Ocr/UpdateAfbeelding'; // Import the updateAfbeelding function
 import { parseText } from '../components/Ocr/ParseTekst';
 import { RekeningSelect } from '../components/Rekening/RekeningSelect';
@@ -26,7 +26,7 @@ const BanlAppAfbeelding: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [ocrData, setOcdData] = useState<string>('');
   const [parsedData, setParsedData] = useState<BetalingDTO[]>([]);
-  const [validatedData, setValidatedData] = useState<BetalingOcrValidatieWrapper>({ betalingen: [] });
+  const [validatedData, setValidatedData] = useState<BetalingvalidatieWrapper>({ betalingen: [] });
   const [groupedData, setGroupedData] = useState<{ [key: string]: BetalingDTO[] }>({});
   const [confidence, setConfidence] = useState<number | null>(null); // Add state for confidence
   const [imageSrc, setImageSrc] = useState<string | null>(null); // Add state for image source
@@ -107,7 +107,7 @@ const BanlAppAfbeelding: React.FC = () => {
         catch (error) {
           navigate('/login');
         }
-        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}/betalingocrvalidatie`, {
+        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}/betalingvalidatie`, {
           method: "PUT",
           headers: {
             "Authorization": `Bearer ${token}`,

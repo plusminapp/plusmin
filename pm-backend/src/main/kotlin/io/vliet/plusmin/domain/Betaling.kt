@@ -94,7 +94,7 @@ class Betaling(
         )
     }
 
-    data class BetalingOcrValidatie(
+    data class Betalingvalidatie(
         val boekingsdatum: String,
         val bedrag: BigDecimal,
         val omschrijving: String?,
@@ -109,13 +109,13 @@ class Betaling(
             ocrOmschrijving: String? = this.ocrOmschrijving,
             sortOrder: String? = this.sortOrder,
             bestaatAl: Boolean? = this.bestaatAl
-        ) = BetalingOcrValidatie(boekingsdatum, bedrag, omschrijving, ocrOmschrijving, sortOrder, bestaatAl)
+        ) = Betalingvalidatie(boekingsdatum, bedrag, omschrijving, ocrOmschrijving, sortOrder, bestaatAl)
     }
 
-    data class BetalingOcrValidatieWrapper(
+    data class BetalingValidatieWrapper(
         val laatsteBetalingDatum: LocalDate? = null,
         val saldoOpLaatsteBetalingDatum: Saldo.SaldoDTO,
-        val betalingen: List<BetalingOcrValidatie> = emptyList(),
+        val betalingen: List<Betalingvalidatie> = emptyList(),
     )
 
     enum class BetalingsSoort(

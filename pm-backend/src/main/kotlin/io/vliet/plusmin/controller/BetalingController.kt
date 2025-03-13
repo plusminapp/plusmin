@@ -9,7 +9,7 @@ import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.repository.BetalingDao
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.GebruikerRepository
-import io.vliet.plusmin.service.BetalingOcrValidatieService
+import io.vliet.plusmin.service.BetalingvalidatieService
 import io.vliet.plusmin.service.BetalingService
 import io.vliet.plusmin.service.Camt053Service
 import io.vliet.plusmin.service.PagingService
@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.time.LocalDate
 
 @RestController
 @RequestMapping("/betalingen")
@@ -49,7 +50,7 @@ class BetalingController {
     lateinit var camt053Service: Camt053Service
 
     @Autowired
-    lateinit var betalingOcrValidatieService: BetalingOcrValidatieService
+    lateinit var betalingvalidatieService: BetalingvalidatieService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -165,14 +166,23 @@ class BetalingController {
         return ResponseEntity.ok().body(betalingService.update(betaling, betalingDTO).toDTO())
     }
 
-    @PutMapping("/hulpvrager/{hulpvragerId}/betalingocrvalidatie")
+    @GetMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")
+    fun getDatumLaatsteBetaling(
+        @PathVariable("hulpvragerId") hulpvragerId: Long,
+    ): ResponseEntity<LocalDate?> {
+        val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
+        logger.info("PUT BetalingController.getDatumLaatsteBetaling voor ${hulpvrager.email} door ${vrijwilliger.email}")
+        return ResponseEntity.ok().body(betalingRepository.findLaatsteBetalingDatumBijGebruiker(hulpvrager))
+    }
+
+    @PutMapping("/hulpvrager/{hulpvragerId}/betalingvalidatie")
     fun valideerOcrBetalingen(
         @PathVariable("hulpvragerId") hulpvragerId: Long,
-        @Valid @RequestBody betalingOcrValidatieWrapper: Betaling.BetalingOcrValidatieWrapper,
-    ): ResponseEntity<Betaling.BetalingOcrValidatieWrapper> {
+        @Valid @RequestBody betalingValidatieWrapper: Betaling.BetalingValidatieWrapper,
+    ): ResponseEntity<Betaling.BetalingValidatieWrapper> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("PUT BetalingController.valideerOcrBetalingen voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(betalingOcrValidatieService.valideerOcrBetalingen(hulpvrager, betalingOcrValidatieWrapper))
+        return ResponseEntity.ok().body(betalingvalidatieService.valideerBetalingen(hulpvrager, betalingValidatieWrapper))
     }
 
     @Operation(summary = "POST CAMT053 betalingen (voor HULPVRAGERS en VRIJWILLIGERs)")

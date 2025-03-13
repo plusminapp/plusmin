@@ -6,27 +6,27 @@ import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening } from '../../model/Rekening';
 
-type DataPoint = {
+type DatumWaardePunt = {
   datum: dayjs.Dayjs;
   waarde: number;
 };
 
-type ChartExampleProps = {
+type BudgetVasteLastenGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
   besteedOpPeildatum: number;
 };
 
-export const ChartExample = (props: ChartExampleProps) => {
+export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  if (props.rekening.budgetten.length === 0 
+  if (props.rekening.budgetten.length === 0
     || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'continu') { 
+    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'continu') {
     throw new Error('Er moet precies 1 continu budget zijn.');
-    }
+  }
 
   const budget = props.rekening.budgetten[0];
 
@@ -40,8 +40,8 @@ export const ChartExample = (props: ChartExampleProps) => {
     dayjs(props.periode.periodeStartDatum) :
     props.peildatum.subtract(verschilOpPeildatumInDagen, 'day');
 
-  const start: DataPoint = { datum: dayjs(props.periode.periodeStartDatum), waarde: 0 };
-  let besteed: DataPoint, meer: DataPoint, minder: DataPoint;
+  const start: DatumWaardePunt = { datum: dayjs(props.periode.periodeStartDatum), waarde: 0 };
+  let besteed: DatumWaardePunt, meer: DatumWaardePunt, minder: DatumWaardePunt;
   if (verschilOpPeildatumInDagen === 0) {
     besteed = { datum: props.peildatum, waarde: props.besteedOpPeildatum };
     minder = { datum: props.peildatum, waarde: 0 };
@@ -56,8 +56,8 @@ export const ChartExample = (props: ChartExampleProps) => {
     meer = props.besteedOpPeildatum <= maandBudget ? { datum: budgetDatum, waarde: props.besteedOpPeildatum } :
       { datum: dayjs(props.periode.periodeEindDatum), waarde: maandBudget };
   }
-  const rest: DataPoint = { datum: dayjs(props.periode.periodeEindDatum), waarde: maandBudget };
-  const overflow: DataPoint = { datum: budgetDatum, waarde: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum  : 0 };  
+  const rest: DatumWaardePunt = { datum: dayjs(props.periode.periodeEindDatum), waarde: maandBudget };
+  const overflow: DatumWaardePunt = { datum: budgetDatum, waarde: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum : 0 };
 
   if (minder.waarde > 0 && meer.waarde > 0) {
     throw new Error('meer en minder kunnen niet allebei > 0 zijn');
@@ -86,38 +86,38 @@ export const ChartExample = (props: ChartExampleProps) => {
 
   const toonBudgetToelichtingMessage = () => {
     if (overflow.waarde > 0) {
-      return `Je hebt meer uitgegeven dan het budget toestaat. Je heb het maandbudget van ${formatAmount(maandBudget.toString())}  
-      overschreden met ${formatAmount((overflowBedrag).toString())}. Volgens het budget had je op ${props.peildatum.format('D MMMM')} 
-      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(overflow.waarde.toString())} geworden. Dat is 
-      ${formatAmount((overflowBedrag+meerBedrag).toString())} meer.`;
+      return `Je hebt meer uitgegeven dan het budget toestaat. Je heb het maandbudget van ${formatAmount(maandBudget.toString())}
+      overschreden met ${formatAmount((overflowBedrag).toString())}. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
+      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(overflow.waarde.toString())} geworden. Dat is
+      ${formatAmount((overflowBedrag + meerBedrag).toString())} meer.`;
     } else if (meer.waarde > 0) {
-      return `Je hebt meer uitgegeven dan het budget toestaat. Volgens het budget had je op ${props.peildatum.format('D MMMM')} 
-      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(meer.waarde.toString())} geworden. Dat is 
+      return `Je hebt meer uitgegeven dan het budget toestaat. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
+      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(meer.waarde.toString())} geworden. Dat is
       ${formatAmount((meerBedrag).toString())} meer.`;
     } else if (minder.waarde > 0) {
-      return `Je hebt minder uitgegeven dan op basis van het budget had gekund, namelijk ${formatAmount(besteed.waarde.toString())} 
+      return `Je hebt minder uitgegeven dan op basis van het budget had gekund, namelijk ${formatAmount(besteed.waarde.toString())}
       terwijl je volgens het budget ${formatAmount(minder.waarde.toString())} had kunnen uitgeven.`;
     } else {
-      return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk 
+      return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk
       ${formatAmount(props.besteedOpPeildatum.toString())}.`;
     }
   }
-  
+
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  console.log('maandBudget', JSON.stringify(maandBudget));
+  // console.log('maandBudget', JSON.stringify(maandBudget));
   // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
-  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
-  console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
+  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
   // console.log('budgetDatum', JSON.stringify(budgetDatum));
   // console.log('start', JSON.stringify(start));
-  // console.log('besteed', JSON.stringify(besteed));
-  // console.log('minder', JSON.stringify(minder));
-  // console.log('meer', JSON.stringify(meer));
-  // console.log('rest', JSON.stringify(rest));
+  console.log('besteed', JSON.stringify(besteed));
+  console.log('minder', JSON.stringify(minder));
+  console.log('meer', JSON.stringify(meer));
+  console.log('rest', JSON.stringify(rest));
   // console.log('overflow', JSON.stringify(overflow));
 
   return (
@@ -152,7 +152,7 @@ export const ChartExample = (props: ChartExampleProps) => {
                   }} >
                   {formatAmount(besteed.waarde.toString())}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) &&
+              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
                 <TableCell
                   colSpan={besteed.waarde === 0 ? 2 : 1}
                   align="right"
@@ -161,7 +161,7 @@ export const ChartExample = (props: ChartExampleProps) => {
                   {minder.waarde > 0 ? formatAmount(minder.waarde.toString()) : formatAmount(meer.waarde.toString())}
                 </TableCell>
               }
-              {maandBudget > props.besteedOpPeildatum &&
+              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
                 <TableCell
                   colSpan={meer.waarde === 0 ? 2 : 1}
                   align="right"
@@ -182,29 +182,47 @@ export const ChartExample = (props: ChartExampleProps) => {
                 <TableCell
                   colSpan={minder.waarde === 0 ? 2 : 1}
                   width={`${((daysBetween[0] + 1) / periodeLengte) * 100}%`}
-                  style={{ backgroundColor: '#1977d3', color: 'white', textAlign: 'center' }}>
+                  sx={{
+                    backgroundColor: '#1977d3',
+                    borderBottom: '10px solid #333',
+                    color: 'white',
+                    textAlign: 'center'
+                  }}>
                   {formatAmount(besteedBedrag.toString())}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) &&
+              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
                 <TableCell
                   colSpan={besteed.waarde === 0 ? 2 : 1}
                   width={`${((daysBetween[1] + daysBetween[2]) / periodeLengte) * 100}%`}
-                  style={{ backgroundColor: minder.waarde > 0 ? 'green' : 'red', color: 'white', textAlign: 'center' }}>
+                  sx={{
+                    backgroundColor: minder.waarde > 0 ? 'green' : 'red',
+                    borderBottom: minder.waarde > 0 ? '10px solid green' : '10px solid #333',
+                    color: 'white', textAlign: 'center'
+                  }}>
                   {minder.waarde > 0 ? formatAmount(minderBedrag.toString()) : formatAmount(meerBedrag.toString())}
-                </TableCell>
+                  </TableCell>
               }
-              {maandBudget > props.besteedOpPeildatum &&
+              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
                 <TableCell
                   colSpan={meer.waarde === 0 ? 2 : 1}
                   width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  style={{ backgroundColor: 'lightgrey', color: 'white', textAlign: 'center' }}>
+                  sx={{
+                    backgroundColor: 'lightgrey', color: 'white',
+                    borderBottom: '10px solid lightgrey',
+                    textAlign: 'center'
+                  }}>
                   {formatAmount(restBedrag.toString())}
                 </TableCell>}
               {maandBudget < props.besteedOpPeildatum &&
                 <TableCell
                   // colSpan={meer.waarde === 0 ? 2 : 1}
                   // width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  style={{ backgroundColor: 'darkred', color: 'white', textAlign: 'center' }}>
+                  sx={{
+                    backgroundColor: 'darkred',
+                    borderBottom: '10px solid #333',
+                    color: 'white',
+                    textAlign: 'center'
+                  }}>
                   {formatAmount(overflowBedrag.toString())}
                 </TableCell>}
             </TableRow>
@@ -215,21 +233,18 @@ export const ChartExample = (props: ChartExampleProps) => {
                   align="right"
                   width={`${((daysBetween[0] + 1) / periodeLengte) * 100}%`}
                   sx={{ p: 1, fontSize: '10px', borderRight: minder.waarde === 0 ? '1px dashed grey' : 'none' }} >
-                  {dayjs(besteed.datum).format('D MMM')}
+                  {minder.waarde === 0 && dayjs(besteed.datum).format('D MMM')}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) &&
+              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
                 <TableCell
                   colSpan={besteed.waarde === 0 ? 2 : 1}
                   align="right"
                   width={`${((daysBetween[1] + daysBetween[2]) / periodeLengte) * 100}%`}
-                  sx={{
-                    p: 1,
-                    fontSize: 10,
-
-                  }} >
-                  {minder.waarde > 0 ? dayjs(minder.datum).format('D MMM') : dayjs(meer.datum).format('D MMM')}
+                  sx={{ p: 1, fontSize: 10 }} >
+                  {minder.waarde > 0 && dayjs(minder.datum).format('D MMM')}
+                  {restBedrag === 0 && meerBedrag > 0 && dayjs(meer.datum).format('D MMM')}
                 </TableCell>}
-              {maandBudget > props.besteedOpPeildatum &&
+              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
                 <TableCell
                   colSpan={meer.waarde === 0 ? 2 : 1}
                   align="right"
@@ -239,11 +254,9 @@ export const ChartExample = (props: ChartExampleProps) => {
                 </TableCell>}
               {maandBudget < props.besteedOpPeildatum &&
                 <TableCell
-                  // colSpan={meer.waarde === 0 ? 2 : 1}
                   align="right"
-                  // width={`${(daysBetween[3] / periodeLengte) * 100}%`}
                   sx={{ p: 1, fontSize: 10 }} >
-                  {dayjs(overflow.datum).format('D MMM')}
+                  &nbsp;
                 </TableCell>}
             </TableRow>
           </TableBody>
@@ -253,4 +266,4 @@ export const ChartExample = (props: ChartExampleProps) => {
   );
 };
 
-export default ChartExample;
+export default BudgetVasteLastenGrafiek;

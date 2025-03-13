@@ -10,35 +10,19 @@ import type { Stand } from "../model/Stand";
 import dayjs from "dayjs";
 import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
-import ChartExample from "../components/Budget/ChartExample";
-import { bankRekeningSoorten, Rekening } from "../model/Rekening";
+import BudgetContinuGrafiek from "../components/Budget/BudgetContinuGrafiek";
+import { betaalmethodeRekeningSoorten } from "../model/Rekening";
 
 export default function Stand() {
 
+  const { getIDToken } = useAuthContext();
+  const navigate = useNavigate();
+  const { actieveHulpvrager, gekozenPeriode, rekeningen, setSnackbarMessage } = useCustomContext();
+
   const [stand, setStand] = useState<Stand | undefined>(undefined)
+  const [datumLaatsteBetaling, setDatumLaatsteBetaling] = useState<dayjs.Dayjs | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false);
   const [toonMutaties, setToonMutaties] = useState(localStorage.getItem('toonMutaties') === 'true');
-  const [budgetRekeningen, setBudgetRekeningen] = useState<Rekening[]>([]);
-  const handleToonMutatiesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    localStorage.setItem('toonMutaties', event.target.checked.toString());
-    setToonMutaties(event.target.checked);
-  };
-
-  const { getIDToken } = useAuthContext();
-  const { actieveHulpvrager, gekozenPeriode, rekeningen, setSnackbarMessage } = useCustomContext();
-  const navigate = useNavigate();
-
-  console.log('rekeningen filtered', budgetRekeningen.map(rekening => rekening.naam));
-
-  useEffect(() => {
-    console.log('gekozenPeriode', gekozenPeriode, 'rekeningen useEffect', JSON.stringify(rekeningen.filter(rekening =>
-      rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu')
-      .map(rekening => rekening.naam)));
-    if (rekeningen) {
-      setBudgetRekeningen(rekeningen.filter(rekening =>
-        rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu'));
-    }
-  }, [rekeningen])
 
   useEffect(() => {
     const fetchSaldi = async () => {
@@ -76,6 +60,45 @@ export default function Stand() {
 
   }, [actieveHulpvrager, gekozenPeriode, getIDToken]);
 
+  useEffect(() => {
+    const fetchDatumLaatsteBetaling = async () => {
+      if (actieveHulpvrager) {
+        setIsLoading(true);
+        const id = actieveHulpvrager.id
+        let token = '';
+        try { token = await getIDToken() }
+        catch (error) {
+          navigate('/login');
+        }
+        const response = await fetch(`/api/v1/betalingen/hulpvrager/${id}/betalingvalidatie`, {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        setIsLoading(false);
+        if (response.ok) {
+          const result = await response.json();
+          setDatumLaatsteBetaling(dayjs(result))
+        } else {
+          console.error("Failed to fetch data", response.status);
+          setSnackbarMessage({
+            message: `De configuratie voor ${actieveHulpvrager.bijnaam} is niet correct.`,
+            type: "warning",
+          })
+        }
+      }
+    };
+    fetchDatumLaatsteBetaling();
+
+  }, [actieveHulpvrager, getIDToken]);
+
+  const handleToonMutatiesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonMutaties', event.target.checked.toString());
+    setToonMutaties(event.target.checked);
+  };
+
   const findStandVanRekening = (rekeningNaam: string) => {
     const saldo = stand?.resultaatOpDatum.find(saldo => saldo.rekeningNaam === rekeningNaam);
     return saldo?.bedrag ?? 0;
@@ -89,29 +112,40 @@ export default function Stand() {
     <>
       {stand !== undefined &&
         <>
-          <Typography variant='h4'>Hoe staan we er vandaag voor?</Typography>
+          <Typography variant='h4' sx={{ mb: 2 }}>Hoe staan we er voor?</Typography>
 
-          <Typography variant='h6'>De stand van de bankrekeningen</Typography>
-          {rekeningen.filter(rekening => bankRekeningSoorten.includes(rekening.rekeningSoort)).map(rekening =>
-            <Resultaat
-              key={rekening.naam}
-              title={rekening.naam}
-              datum={stand.peilDatum}
-              saldi={stand.balansOpDatum.filter(saldo => saldo.rekeningNaam === rekening.naam)}
-            />
-          )}
+          <Grid container spacing={2} columns={{ xs: 1, md: 3 }} justifyContent="space-between">
+            <Grid size={2} sx={{ boxShadow: 3, p: 2 }}>
+              <Typography variant='h6'>Samenvatting</Typography>
+              <Typography variant='body2'>
+                De stand van zaken op {dayjs(stand.peilDatum).format('D MMMM')}.
+                De laatste betaling die is geregistreerd was op {dayjs(datumLaatsteBetaling).format('D MMMM')}.
+                Wat is zinvol om hier nog extra te tonen???
+              </Typography>
+            </Grid>
+            <Grid size={1} direction={'column'} alignItems="start">
+              <PeriodeSelect />
+              <Resultaat
+                title={'Stand van de geldrekeningen'}
+                datum={stand.peilDatum}
+                saldi={stand.balansOpDatum!.filter(saldo =>
+                  rekeningen.filter(r => betaalmethodeRekeningSoorten.includes(r.rekeningSoort))
+                    .map(r => r.naam).includes(saldo.rekeningNaam))} />
+            </Grid>
+          </Grid>
 
-          <Typography variant='h6'>Potjes en bijbehorende budgetten</Typography>
-
-          {gekozenPeriode && budgetRekeningen.map(rekening =>
-            <ChartExample
-              rekening={rekening}
-              peildatum={dayjs()}
-              periode={gekozenPeriode}
-              besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
-                -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-            />
-          )}
+          <Typography variant='h6' sx={{ my: 2 }}>Potjes en bijbehorende budgetten</Typography>
+          {gekozenPeriode &&
+            rekeningen.filter(rekening => rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu')
+              .map(rekening =>
+                <BudgetContinuGrafiek
+                  rekening={rekening}
+                  peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                  periode={gekozenPeriode}
+                  besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
+                    -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
+                />
+              )}
 
           <Accordion>
             <AccordionSummary expandIcon={<ArrowDropDownIcon />}>
@@ -121,9 +155,6 @@ export default function Stand() {
             </AccordionSummary>
             <AccordionDetails>
               <Grid container spacing={{ xs: 1, md: 2 }} columns={{ xs: 1, md: 2 }}>
-                <Grid size={1}>
-                  <PeriodeSelect />
-                </Grid>
                 <Grid size={1} alignItems={{ xs: 'start', md: 'end' }} sx={{ mb: '12px', display: 'flex' }}>
                   <FormGroup sx={{ ml: 'auto' }} >
                     <FormControlLabel control={
