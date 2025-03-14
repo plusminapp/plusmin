@@ -7,7 +7,7 @@ import { Budget } from "../model/Budget";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect, useState } from "react";
-import { berekenPeriodeBijPeildatum, Periode } from "../model/Periode";
+import { berekenPeriodeBijPeildatum, dagenSindsStartPeriode, Periode } from "../model/Periode";
 import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
 import { Rekening, RekeningSoort } from "../model/Rekening";
@@ -41,8 +41,18 @@ export default function Login() {
     besteedOpPeildatum2: number;
   }
   const [formFields, setFormFields] = useState<FormFields>({
-    rekeningNaam1: 'Boodschappen', besteedOpPeildatum1: 200, budgetPerWeek1: 100,
-    rekeningNaam2: 'Andere uitgaven', besteedOpPeildatum2: 250, budgetPerWeek2: 125,
+    rekeningNaam1: 'Boodschappen', 
+    besteedOpPeildatum1: (() => {
+      const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
+      return dagen ? dagen * 11 : 0;
+    })(), 
+    budgetPerWeek1: 70,
+    rekeningNaam2: 'Andere uitgaven', 
+    besteedOpPeildatum2: (() => {
+      const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
+      return dagen ? dagen * 18 : 0;
+    })(), 
+    budgetPerWeek2: 140,
   });
   const [peilDatum, setPeilDatum] = useState(dayjs());
   const [periode, setPeriode] = useState<Periode | undefined>(undefined);
@@ -195,5 +205,13 @@ export default function Login() {
           peildatum={peilDatum}
           rekening={{ ...rekening, naam: formFields.rekeningNaam2, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek2 }] }}
           besteedOpPeildatum={Number(formFields.besteedOpPeildatum2)} />}
+      <Typography variant='h6' sx={{ my: 2 }}>Geaggregeerde visualisatie</Typography>
+      <Typography variant='body2' >Hierbij worden beide bovenstaande visualisatie 'opgeteld', waardoor een tekort op de een wordt gecompenseerd door een overschot op de ander.</Typography>
+      {periode &&
+        <BudgetContinuGrafiek
+          periode={periode}
+          peildatum={peilDatum}
+          rekening={{ ...rekening, naam: 'Geaggregeerd', budgetten: [{ ...budget, bedrag: Number(formFields.budgetPerWeek1) + Number(formFields.budgetPerWeek2) }] }}
+          besteedOpPeildatum={Number(formFields.besteedOpPeildatum1) + Number(formFields.besteedOpPeildatum2)} />}
     </>)
 }

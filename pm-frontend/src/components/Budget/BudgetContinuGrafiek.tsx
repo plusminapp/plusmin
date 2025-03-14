@@ -85,16 +85,17 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   const tabelBreedte = maandBudget + meerDanMaandBudget.budgetInSegment + 5;
 
   const toonBudgetToelichtingMessage = () => {
-    if (meerDanMaandBudget.budgetEindeSegment > 0) {
+    if (meerDanMaandBudget.budgetInSegment > 0) {
       return `Je hebt meer uitgegeven dan het budget toestaat. Je heb het maandbudget van ${formatAmount(maandBudget.toString())}
       overschreden met ${formatAmount((meerDanMaandBudget.budgetInSegment).toString())}. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
       ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(meerDanMaandBudget.budgetEindeSegment.toString())} geworden. Dat is
+       ${formatAmount((meerDanBudget.budgetInSegment).toString())} + ${formatAmount((meerDanMaandBudget.budgetInSegment).toString())} = 
       ${formatAmount((meerDanMaandBudget.budgetInSegment + meerDanBudget.budgetInSegment).toString())} meer.`;
-    } else if (meerDanBudget.budgetEindeSegment > 0) {
+    } else if (meerDanBudget.budgetInSegment > 0) {
       return `Je hebt meer uitgegeven dan het budget toestaat. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
       ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(meerDanBudget.budgetEindeSegment.toString())} geworden. Dat is
       ${formatAmount((meerDanBudget.budgetInSegment).toString())} meer.`;
-    } else if (minderDanBudget.budgetEindeSegment > 0) {
+    } else if (minderDanBudget.budgetInSegment > 0) {
       return `Je hebt minder uitgegeven dan op basis van het budget had gekund, namelijk ${formatAmount(besteedBinnenBudget.budgetEindeSegment.toString())}
       terwijl je volgens het budget ${formatAmount(minderDanBudget.budgetEindeSegment.toString())} had kunnen uitgeven.`;
     } else {
@@ -191,7 +192,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 <TableCell
                   width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: '#1977d3',
+                    backgroundColor: 'grey',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -224,8 +225,8 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 <TableCell
                   width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: 'grey',
-                    borderBottom: '10px solid grey',
+                    backgroundColor: '#1977d3',
+                    borderBottom: '10px solid #1977d3',
                     color: 'white',
                     textAlign: 'center'
                   }}>
@@ -245,8 +246,8 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
               {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell
                   sx={{
-                    backgroundColor: 'black',
-                    borderBottom: '10px solid black',
+                    backgroundColor: '#333',
+                    borderBottom: '10px solid #333',
                   }} />}
             </TableRow>
 
