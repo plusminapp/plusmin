@@ -189,11 +189,11 @@ export default function Login() {
           peildatum={peilDatum}
           rekening={{ ...rekening, naam: formFields.rekeningNaam1, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek1 }] }}
           besteedOpPeildatum={Number(formFields.besteedOpPeildatum1)} />}
-      {periode &&
+      {/* {periode &&
         <BudgetContinuGrafiek
           periode={periode}
           peildatum={peilDatum}
           rekening={{ ...rekening, naam: formFields.rekeningNaam2, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek2 }] }}
-          besteedOpPeildatum={Number(formFields.besteedOpPeildatum2)} />}
+          besteedOpPeildatum={Number(formFields.besteedOpPeildatum2)} />} */}
     </>)
 }
