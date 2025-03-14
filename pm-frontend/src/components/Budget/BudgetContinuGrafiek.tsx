@@ -51,11 +51,11 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
         props.besteedOpPeildatum,
   };
   const minderDanBudget = {
-    budgetEindeSegment: besteedBinnenBudget.budgetEindeSegment +  *-  ++
-    
-    
-    (props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || verschilOpPeildatumInWaarde >= dagBudget / 2 ? verschilOpPeildatumInWaarde : 0),
-    budgetInSegment: props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || verschilOpPeildatumInWaarde >= dagBudget / 2 ? verschilOpPeildatumInWaarde : 0
+    budgetEindeSegment: besteedBinnenBudget.budgetEindeSegment +
+      ((verschilOpPeildatumInWaarde > 0 && props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum) ||
+        verschilOpPeildatumInWaarde > dagBudget / 2 ? verschilOpPeildatumInWaarde : 0),
+    budgetInSegment: (verschilOpPeildatumInWaarde > 0 && props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum) ||
+      verschilOpPeildatumInWaarde > dagBudget / 2 ? verschilOpPeildatumInWaarde : 0
   };
   const meerDanBudget = {
     budgetEindeSegment: props.besteedOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget :
@@ -81,6 +81,8 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
   };
+
+  const tabelBreedte = maandBudget + meerDanMaandBudget.budgetInSegment + 5;
 
   const toonBudgetToelichtingMessage = () => {
     if (meerDanMaandBudget.budgetEindeSegment > 0) {
@@ -143,49 +145,51 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 <TableCell
                   sx={{ p: 1, fontSize: '10px' }}
                   align="right"
-                  width={`${(besteedBinnenBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
                   {formatAmount(besteedBinnenBudget.budgetEindeSegment.toString())}
                 </TableCell>}
               {minderDanBudget.budgetInSegment > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px' }}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: '1px dashed grey' }}
                   align="right"
-                  width={`${(minderDanBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(minderDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
                   {formatAmount(minderDanBudget.budgetEindeSegment.toString())}
                 </TableCell>}
               {meerDanBudget.budgetInSegment > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px' }}
+                  sx={{ p: 1, fontSize: '10px', borderRight: meerDanMaandBudget.budgetInSegment === 0 ? '1px dashed grey' : 'none', }}
                   align="right"
-                  width={`${(meerDanBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(meerDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
                   {formatAmount(meerDanBudget.budgetEindeSegment.toString())}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px' }}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: minderDanBudget.budgetInSegment === 0 ? '1px dashed grey' : 'none' }}
                   align="right"
-                  width={`${(restMaandBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
                   {formatAmount(restMaandBudget.budgetEindeSegment.toString())}
                 </TableCell>}
               {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px' }}
+                  sx={{ p: 1, fontSize: '10px', borderRight: '1px dashed grey' }}
                   align="right"
-                  width={`${(meerDanMaandBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
                   {formatAmount(meerDanMaandBudget.budgetEindeSegment.toString())}
                 </TableCell>}
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+                <TableCell />}
             </TableRow>
 
             <TableRow>
               <TableCell width={'5%'} sx={{ borderBottom: '10px solid white' }} />
               {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(besteedBinnenBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: '#1977d3',
                     borderBottom: '10px solid #333',
@@ -196,7 +200,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 </TableCell>}
               {minderDanBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(minderDanBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(minderDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'green',
                     borderBottom: '10px solid green',
@@ -207,7 +211,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 </TableCell>}
               {meerDanBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(meerDanBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(meerDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'red',
                     borderBottom: '10px solid #333',
@@ -218,7 +222,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(restMaandBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'grey',
                     borderBottom: '10px solid grey',
@@ -229,7 +233,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 </TableCell>}
               {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(meerDanMaandBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'darkred',
                     borderBottom: '10px solid #333',
@@ -238,6 +242,12 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                   }}>
                   {formatAmount(meerDanMaandBudget.budgetInSegment.toString())}
                 </TableCell>}
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+                <TableCell
+                  sx={{
+                    backgroundColor: 'black',
+                    borderBottom: '10px solid black',
+                  }} />}
             </TableRow>
 
             <TableRow>
@@ -250,37 +260,43 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
               {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(besteedBinnenBudget.budgetInSegment / maandBudget) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget.budgetEindeSegment === 0 ? '1px dashed grey' : 'none' }} >
-                  {props.peildatum.format('D/M')}
+                  {(minderDanBudget.budgetInSegment > 0 || (meerDanBudget.budgetInSegment === 0 && meerDanMaandBudget.budgetInSegment === 0)) && props.peildatum.format('D/M')}
                 </TableCell>}
               {minderDanBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(minderDanBudget.budgetInSegment / maandBudget) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget.budgetEindeSegment === 0 ? '1px dashed grey' : 'none' }} >
-                  {props.peildatum.format('D/M')}
+                  width={`${(minderDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: '1px dashed grey' }}>
+                  {props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum && props.peildatum.format('D/M')}
                 </TableCell>}
               {meerDanBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(meerDanBudget.budgetInSegment / maandBudget) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget.budgetEindeSegment === 0 ? '1px dashed grey' : 'none' }} >
-                  {props.peildatum.format('D/M')}
+                  width={`${(meerDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderRight: meerDanMaandBudget.budgetInSegment === 0 ? '1px dashed grey' : 'none', }} >
+                  {meerDanMaandBudget.budgetInSegment === 0 && props.peildatum.format('D/M')}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(restMaandBudget.budgetInSegment / maandBudget) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget.budgetEindeSegment === 0 ? '1px dashed grey' : 'none' }} >
-                  {props.peildatum.format('D/M')}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: minderDanBudget.budgetInSegment === 0 ? '1px dashed grey' : 'none' }} >
+                  {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
               {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(meerDanMaandBudget.budgetInSegment / maandBudget) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget.budgetEindeSegment === 0 ? '1px dashed grey' : 'none' }} >
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderRight: '1px dashed grey' }} >
                   {props.peildatum.format('D/M')}
+                </TableCell>}
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+                <TableCell
+                  align="right"
+                  sx={{ p: 1, fontSize: '10px' }} >
+                  {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
             </TableRow>
 
