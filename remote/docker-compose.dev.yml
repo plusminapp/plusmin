@@ -27,7 +27,6 @@ services:
       - npm_default
     ports:
       - "3045:3045"
-      - "8889:8888"
     depends_on:
       - pm-database-dev
     restart: always

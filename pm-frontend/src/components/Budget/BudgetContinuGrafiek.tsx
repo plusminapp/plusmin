@@ -43,10 +43,10 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
     props.peildatum.subtract(verschilOpPeildatumInDagen, 'day');
 
   const besteedBinnenBudget = {
-    budgetEindeSegment: props.besteedOpPeildatum > budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+    budgetEindeSegment: props.besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
       props.besteedOpPeildatum > maandBudget ? maandBudget :
         props.besteedOpPeildatum,
-    budgetInSegment: props.besteedOpPeildatum > budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+    budgetInSegment: props.besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
       props.besteedOpPeildatum > maandBudget ? maandBudget :
         props.besteedOpPeildatum,
   };
