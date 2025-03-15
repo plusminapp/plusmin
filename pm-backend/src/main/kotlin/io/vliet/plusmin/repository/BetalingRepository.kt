@@ -5,12 +5,15 @@ import io.vliet.plusmin.domain.Betaling.BetalingsSoort
 import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Rekening
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Repository
+@Transactional
 interface BetalingRepository : JpaRepository<Betaling, Long> {
     override fun findAll(): List<Betaling>
     fun findAllByGebruiker(gebruiker: Gebruiker): List<Betaling>
@@ -36,6 +39,19 @@ interface BetalingRepository : JpaRepository<Betaling, Long> {
         openingsDatum: LocalDate,
         eindDatum: LocalDate
     ): List<Betaling>
+
+    @Modifying
+    @Query(
+        value = "DELETE FROM Betaling b " +
+                "WHERE b.gebruiker = :gebruiker AND " +
+                "b.boekingsdatum >= :openingsDatum AND " +
+                "b.boekingsdatum <= :eindDatum"
+    )
+    fun deleteAllByGebruikerTussenDatums(
+        gebruiker: Gebruiker,
+        openingsDatum: LocalDate,
+        eindDatum: LocalDate
+    )
 
     @Query(
         value = "SELECT b FROM Betaling b " +

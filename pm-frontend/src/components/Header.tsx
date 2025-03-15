@@ -52,7 +52,7 @@ function Header() {
         setAnchorElNav(null);
         navigate(page);
     };
-    const { state, signIn, signOut, getIDToken } = useAuthContext();
+    const { state, signIn, getIDToken, signOut } = useAuthContext();
 
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
@@ -134,6 +134,21 @@ function Header() {
         }
     }, [state.isAuthenticated, navigate]);
 
+    useEffect(() => {
+        console.log("Auth state:", state);
+    }, [state]);
+
+
+    const handleLogout = async () => {
+      try {
+        await signOut();
+        console.log("User signed out");
+      } catch (error) {
+        console.error("Error during sign-out:", error);
+      }
+    };
+    
+
     const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
     const heeftAflossing = maandAflossingsBedrag > 0;
     const pages = heeftAflossing ? ['Stand', 'Kasboek', 'Schuld/Aflossingen'] : ['Stand', 'Kasboek'];
@@ -213,7 +228,7 @@ function Header() {
                                                     {hulpvrager.id === actieveHulpvrager?.id ? '> ' : ''}
                                                     {hulpvrager.bijnaam}</Typography>
                                             </MenuItem>)}
-                                        <MenuItem key={'logout'} onClick={() => signOut()}>
+                                        <MenuItem key={'logout'} onClick={handleLogout}>
                                             <Typography sx={{ textAlign: 'center' }}>Uitloggen</Typography>
                                         </MenuItem>
                                     </Menu>
