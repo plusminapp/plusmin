@@ -21,6 +21,8 @@ type BudgetContinuGrafiekProps = {
 
 export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
+  console.log('BudgetContinuGrafiek props', JSON.stringify(props));
+
   const { setSnackbarMessage } = useCustomContext();
 
   if (props.rekening.budgetten.length === 0
@@ -37,10 +39,6 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   const dagenInPeriodeOpPeildatum = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const budgetOpPeildatum = maandBudget * dagenInPeriodeOpPeildatum / periodeLengte;
   const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.besteedOpPeildatum;
-  const verschilOpPeildatumInDagen = Math.round(periodeLengte * verschilOpPeildatumInWaarde / maandBudget);
-  const budgetDatum = props.peildatum.subtract(verschilOpPeildatumInDagen, 'day') <= dayjs(props.periode.periodeStartDatum) ?
-    dayjs(props.periode.periodeStartDatum) :
-    props.peildatum.subtract(verschilOpPeildatumInDagen, 'day');
 
   const besteedBinnenBudget = {
     budgetEindeSegment: props.besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
@@ -105,21 +103,17 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   }
 
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
-  console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
-  console.log('peildatum', JSON.stringify(props.peildatum));
+  // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
+  // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
   // console.log('maandBudget', JSON.stringify(maandBudget));
-  // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
-  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
-  // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
-  console.log('budgetDatum', JSON.stringify(budgetDatum));
-  // console.log('start', JSON.stringify(start));
-  console.log('besteed', JSON.stringify(besteedBinnenBudget));
-  console.log('minder', JSON.stringify(minderDanBudget));
-  console.log('meer', JSON.stringify(meerDanBudget));
-  console.log('rest', JSON.stringify(restMaandBudget));
-  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
+  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  // console.log('besteed', JSON.stringify(besteedBinnenBudget));
+  // console.log('minder', JSON.stringify(minderDanBudget));
+  // console.log('meer', JSON.stringify(meerDanBudget));
+  // console.log('rest', JSON.stringify(restMaandBudget));
+  // console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>

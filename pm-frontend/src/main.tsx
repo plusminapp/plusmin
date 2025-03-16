@@ -25,9 +25,6 @@ const config = {
   }
 };
 
-console.log('config', JSON.stringify(config));
-console.log('window.location.origin =', window.location.origin);
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider config={config}>

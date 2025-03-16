@@ -1,4 +1,4 @@
-import { Box, FormControl, Input, InputLabel, Typography } from "@mui/material";
+import { Box, FormControl, Input, InputLabel, MenuItem, Select, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 
 import dayjs from "dayjs";
@@ -11,6 +11,7 @@ import { berekenPeriodeBijPeildatum, dagenSindsStartPeriode, Periode } from "../
 import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
 import { Rekening, RekeningSoort } from "../model/Rekening";
+import BudgetVasteLastenGrafiek from "../components/Budget/BudgetVasteLastenGrafiek";
 
 const budget = {
   budgetNaam: 'budget',
@@ -33,27 +34,33 @@ const rekening = {
 export default function Login() {
 
   type FormFields = {
-    rekeningNaam1: string;
-    budgetPerWeek1: number;
-    besteedOpPeildatum1: number;
-    rekeningNaam2: string;
-    budgetPerWeek2: number;
-    besteedOpPeildatum2: number;
+    rekeningNaam: string;
+    budgetSoort: string;
+    budgetPeriode: string;
+    budgetPerBudgetPeriode: number;
+    besteedOpPeildatum: number;
   }
-  const [formFields, setFormFields] = useState<FormFields>({
-    rekeningNaam1: 'Boodschappen', 
-    besteedOpPeildatum1: (() => {
-      const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
-      return dagen ? dagen * 11 : 0;
-    })(), 
-    budgetPerWeek1: 70,
-    rekeningNaam2: 'Andere uitgaven', 
-    besteedOpPeildatum2: (() => {
-      const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
-      return dagen ? dagen * 18 : 0;
-    })(), 
-    budgetPerWeek2: 140,
-  });
+  const [formFields, setFormFields] = useState<FormFields[]>([
+    {
+      rekeningNaam: 'Boodschappen',
+      budgetSoort: 'continu',
+      budgetPeriode: 'week',
+      besteedOpPeildatum: (() => {
+        const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
+        return dagen ? dagen * 11 : 0;
+      })(),
+      budgetPerBudgetPeriode: 70
+    }, {
+      rekeningNaam: 'Vaste lasten',
+      budgetSoort: 'periodiek',
+      budgetPeriode: 'maand',
+      besteedOpPeildatum: (() => {
+        const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
+        return dagen ? dagen * 38 : 0;
+      })(),
+      budgetPerBudgetPeriode: 1200,
+    }]);
+
   const [peilDatum, setPeilDatum] = useState(dayjs());
   const [periode, setPeriode] = useState<Periode | undefined>(undefined);
 
@@ -63,11 +70,11 @@ export default function Login() {
     setPeriode(berekenPeriodeBijPeildatum(peilDatum));
   }, [peilDatum]);
 
-  const handleInputChange = (key: string, value: any) => {
+  const handleInputChange = (index: number, key: string, value: any) => {
     if (key === 'peilDatum') {
       setPeilDatum(value);
     } else {
-      setFormFields({ ...formFields, [key]: value });
+      setFormFields(formFields.map((field, i) => i === index ? { ...field, [key]: value } : field));
     }
   };
 
@@ -107,15 +114,15 @@ export default function Login() {
         <Typography variant='body2' sx={{ mb: '8px' }}>
           Reacties en voorstellen voor verbetering zijn meer dan welkom!!!
         </Typography>
-        <Grid container spacing={2} alignItems="center" columns={3} >
-          <Grid minWidth={'240px'} size={1}>
+        <Grid container spacing={2} alignItems="center" columns={5} >
+          <Grid minWidth={'175px'} size={1}>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"nl"}>
               <DatePicker
                 sx={{ color: 'success.main' }}
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wat is de peildatum?"
                 value={peilDatum}
-                onChange={(newvalue) => handleInputChange('peilDatum', newvalue ? newvalue : dayjs())}
+                onChange={(newvalue) => handleInputChange( 0, 'peilDatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
           </Grid>
@@ -124,94 +131,156 @@ export default function Login() {
               Periode van {periode.periodeStartDatum} tot {periode.periodeEindDatum}
             </Typography>}
         </Grid>
-        <Grid container spacing={2} alignItems="center" columns={3} >
-          <Grid minWidth={'240px'} size={1}>
+        <Grid container spacing={2} alignItems="center" columns={5} >
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-              <InputLabel htmlFor="budgetNaam1">Hoe heet het eerste potje?</InputLabel>
+              <InputLabel htmlFor="rekeningNaam1">Hoe heet het eerste potje?</InputLabel>
               <Input
-                id="budgetNaam1"
-                value={formFields.rekeningNaam1}
+                id="rekeningNaam1"
+                value={formFields[0].rekeningNaam}
                 type="text"
-                onChange={(e) => handleInputChange('budgetNaam1', e.target.value)}
+                onChange={(e) => handleInputChange(0, 'budgetNaam', e.target.value)}
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'240px'} size={1}>
+          <Grid minWidth={'175px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetSoort1">budgetSoort1</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="budgetSoort1-select-label"
+                id="budgetSoort1-select"
+                value={formFields[0].budgetSoort}
+                label="Periode"
+                onChange={(e) => handleInputChange(0, 'budgetSoort', e.target.value)}>
+                <MenuItem key={'continu'} value={'continu'} sx={{ fontSize: '0.875rem' }} >continu</MenuItem>
+                <MenuItem key={'periodiek'} value={'periodiek'} sx={{ fontSize: '0.875rem' }} >periodiek</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'175px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetPeriode1">budgetPeriode1</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="budgetPeriode1-select-label"
+                id="budgetPeriode1-select"
+                value={formFields[0].budgetPeriode}
+                label="Periode"
+                onChange={(e) => handleInputChange(0, 'budgetPeriode', e.target.value)}>
+                <MenuItem key={'week'} value={'week'} sx={{ fontSize: '0.875rem' }} >week</MenuItem>
+                <MenuItem key={'maand'} value={'maand'} sx={{ fontSize: '0.875rem' }} >maand</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="besteedOpPeildatum1">Wat is er besteed op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum1"
-                value={formFields.besteedOpPeildatum1}
+                value={formFields[0].besteedOpPeildatum}
                 type="number"
-                onChange={(e) => handleInputChange('besteedOpPeildatum1', e.target.value)}
+                onChange={(e) => handleInputChange(0, 'besteedOpPeildatum', e.target.value)}
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'240px'} size={1}>
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-              <InputLabel htmlFor="budgetPerWeek1">Wat is het budget per week?</InputLabel>
+              <InputLabel htmlFor="budgetPerBudgetPeriode1">Wat is het budget per {formFields[0].budgetPeriode}?</InputLabel>
               <Input
-                id="budgetPerWeek1"
-                value={formFields.budgetPerWeek1}
+                id="budgetPerBudgetPeriode1"
+                value={formFields[0].budgetPerBudgetPeriode}
                 type="number"
-                onChange={(e) => handleInputChange('budgetPerWeek1', e.target.value)}
+                onChange={(e) => handleInputChange(0, 'budgetPerBudgetPeriode', e.target.value)}
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'240px'} size={1}>
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="budgetNaam2">Hoe heet het tweede potje?</InputLabel>
               <Input
                 id="budgetNaam2"
-                value={formFields.rekeningNaam2}
+                value={formFields[1].rekeningNaam}
                 type="text"
-                onChange={(e) => handleInputChange('budgetNaam2', e.target.value)}
+                onChange={(e) => handleInputChange(1, 'budgetNaam', e.target.value)}
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'240px'} size={1}>
+          <Grid minWidth={'175px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetSoort2">budgetSoort2</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="budgetSoort2-select-label"
+                id="budgetSoort2-select"
+                value={formFields[1].budgetSoort}
+                label="Periode"
+                onChange={(e) => handleInputChange(1, 'budgetSoort', e.target.value)}>
+                <MenuItem key={'continu'} value={'continu'} sx={{ fontSize: '0.875rem' }} >continu</MenuItem>
+                <MenuItem key={'periodiek'} value={'periodiek'} sx={{ fontSize: '0.875rem' }} >periodiek</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'175px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetPeriode2">budgetPeriode2</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="budgetPeriode2-select-label"
+                id="budgetPeriode2-select"
+                value={formFields[1].budgetPeriode}
+                label="Periode"
+                onChange={(e) => handleInputChange(1, 'budgetPeriode', e.target.value)}>
+                <MenuItem key={'week'} value={'week'} sx={{ fontSize: '0.875rem' }} >week</MenuItem>
+                <MenuItem key={'maand'} value={'maand'} sx={{ fontSize: '0.875rem' }} >maand</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="besteedOpPeildatum2">Wat is er besteed op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum2"
-                value={formFields.besteedOpPeildatum2}
+                value={formFields[1].besteedOpPeildatum}
                 type="number"
-                onChange={(e) => handleInputChange('besteedOpPeildatum2', e.target.value)}
+                onChange={(e) => handleInputChange(1, 'besteedOpPeildatum', e.target.value)}
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'240px'} size={1}>
+          <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-              <InputLabel htmlFor="budgetPerWeek2">Wat is het budget per week?</InputLabel>
-              <Input
-                id="budgetPerWeek2"
-                value={formFields.budgetPerWeek2}
+            <InputLabel htmlFor="budgetPerBudgetPeriode2">Wat is het budget per {formFields[1].budgetPeriode}?</InputLabel>
+            <Input
+                id="budgetPerBudgetPeriode2"
+                value={formFields[1].budgetPerBudgetPeriode}
                 type="number"
-                onChange={(e) => handleInputChange('budgetPerWeek2', e.target.value)}
+                onChange={(e) => handleInputChange(1, 'budgetPerBudgetPeriode', e.target.value)}
               />
             </FormControl>
           </Grid>
         </Grid>
       </Box>
-      {periode &&
-        <BudgetContinuGrafiek
-          periode={periode}
-          peildatum={peilDatum}
-          rekening={{ ...rekening, naam: formFields.rekeningNaam1, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek1 }] }}
-          besteedOpPeildatum={Number(formFields.besteedOpPeildatum1)} />}
-      {periode &&
-        <BudgetContinuGrafiek
-          periode={periode}
-          peildatum={peilDatum}
-          rekening={{ ...rekening, naam: formFields.rekeningNaam2, budgetten: [{ ...budget, bedrag: formFields.budgetPerWeek2 }] }}
-          besteedOpPeildatum={Number(formFields.besteedOpPeildatum2)} />}
-      <Typography variant='h6' sx={{ my: 2 }}>Geaggregeerde visualisatie</Typography>
-      <Typography variant='body2' >Hierbij worden beide bovenstaande visualisatie 'opgeteld', waardoor een tekort op de een wordt gecompenseerd door een overschot op de ander.</Typography>
-      {periode &&
-        <BudgetContinuGrafiek
-          periode={periode}
-          peildatum={peilDatum}
-          rekening={{ ...rekening, naam: 'Geaggregeerd', budgetten: [{ ...budget, bedrag: Number(formFields.budgetPerWeek1) + Number(formFields.budgetPerWeek2) }] }}
-          besteedOpPeildatum={Number(formFields.besteedOpPeildatum1) + Number(formFields.besteedOpPeildatum2)} />}
+      {periode && formFields.map((formField) =>
+        <>
+          {formField.budgetSoort === 'continu' &&
+            <BudgetContinuGrafiek
+              periode={periode}
+              peildatum={peilDatum}
+              rekening={{
+                ...rekening, naam: formField.rekeningNaam,
+                budgetten: [{ ...budget, bedrag: formField.budgetPerBudgetPeriode, budgetPeriodiciteit: formField.budgetPeriode, budgetType: formField.budgetSoort }]
+              }}
+              besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
+          {formField.budgetSoort === 'periodiek' &&
+            <BudgetVasteLastenGrafiek
+              periode={periode}
+              peildatum={peilDatum}
+              rekening={{
+                ...rekening, naam: formField.rekeningNaam,
+                budgetten: [{ ...budget, bedrag: formField.budgetPerBudgetPeriode, budgetPeriodiciteit: formField.budgetPeriode, budgetType: formField.budgetSoort }]
+              }}
+              besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
+        </>
+      )}
     </>)
 }

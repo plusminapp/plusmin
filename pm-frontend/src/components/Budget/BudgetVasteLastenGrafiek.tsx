@@ -6,10 +6,11 @@ import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening } from '../../model/Rekening';
 
-type DatumWaardePunt = {
-  datum: dayjs.Dayjs;
-  waarde: number;
-};
+// type DatumWaardePunt = {
+//   datum: dayjs.Dayjs;
+//   budgetEindeSegment: number;
+//   budgetInSegment: number;
+// };
 
 type BudgetVasteLastenGrafiekProps = {
   peildatum: dayjs.Dayjs;
@@ -20,105 +21,69 @@ type BudgetVasteLastenGrafiekProps = {
 
 export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) => {
 
+  console.log('BudgetVasteLastenGrafiek props', JSON.stringify(props));
+
   const { setSnackbarMessage } = useCustomContext();
 
   if (props.rekening.budgetten.length === 0
     || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'continu') {
-    throw new Error('Er moet precies 1 continu budget zijn.');
+    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'periodiek') {
+    throw new Error('BudgetVasteLastenGrafiek: er moet precies 1 periodiek budget zijn.');
   }
 
   const budget = props.rekening.budgetten[0];
 
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
-  const dagenInPeriode = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const budgetOpPeildatum = maandBudget * dagenInPeriode / periodeLengte;
+  const dagenInPeriodeOpPeildatum = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
+  const budgetOpPeildatum = maandBudget * dagenInPeriodeOpPeildatum / periodeLengte;
   const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.besteedOpPeildatum;
   const verschilOpPeildatumInDagen = Math.round(periodeLengte * verschilOpPeildatumInWaarde / maandBudget);
   const budgetDatum = props.peildatum.subtract(verschilOpPeildatumInDagen, 'day') <= dayjs(props.periode.periodeStartDatum) ?
     dayjs(props.periode.periodeStartDatum) :
     props.peildatum.subtract(verschilOpPeildatumInDagen, 'day');
 
-  const start: DatumWaardePunt = { datum: dayjs(props.periode.periodeStartDatum), waarde: 0 };
-  let besteed: DatumWaardePunt, meer: DatumWaardePunt, minder: DatumWaardePunt;
-  if (verschilOpPeildatumInDagen === 0) {
-    besteed = { datum: props.peildatum, waarde: props.besteedOpPeildatum };
-    minder = { datum: props.peildatum, waarde: 0 };
-    meer = { datum: props.peildatum, waarde: 0 };
-  } else if (verschilOpPeildatumInWaarde >= 0) {
-    besteed = { datum: budgetDatum, waarde: props.besteedOpPeildatum };
-    minder = { datum: props.peildatum, waarde: props.besteedOpPeildatum + verschilOpPeildatumInWaarde };
-    meer = { datum: props.peildatum, waarde: 0 };
-  } else {
-    besteed = { datum: props.peildatum, waarde: props.besteedOpPeildatum + verschilOpPeildatumInWaarde };
-    minder = { datum: props.peildatum, waarde: 0 };
-    meer = props.besteedOpPeildatum <= maandBudget ? { datum: budgetDatum, waarde: props.besteedOpPeildatum } :
-      { datum: dayjs(props.periode.periodeEindDatum), waarde: maandBudget };
-  }
-  const rest: DatumWaardePunt = { datum: dayjs(props.periode.periodeEindDatum), waarde: maandBudget };
-  const overflow: DatumWaardePunt = { datum: budgetDatum, waarde: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum : 0 };
-
-  if (minder.waarde > 0 && meer.waarde > 0) {
-    throw new Error('meer en minder kunnen niet allebei > 0 zijn');
-  }
-
-  const diffDays = (date1: dayjs.Dayjs, date2: dayjs.Dayjs) => {
-    return dayjs(date2).diff(dayjs(date1), 'day');
+  const besteedBinnenBudget = {
+    budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? maandBudget : props.besteedOpPeildatum,
+    budgetInSegment: props.besteedOpPeildatum > maandBudget ? maandBudget : props.besteedOpPeildatum,
   };
-
-  const daysBetween = [
-    diffDays(start.datum, besteed.datum),
-    diffDays(besteed.datum, minder.datum),
-    diffDays(minder.datum, meer.datum),
-    diffDays(meer.datum, rest.datum),
-  ];
+  const meerDanMaandBudget = {
+    budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum : 0,
+    budgetInSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum - maandBudget : 0
+  };
+  const restMaandBudget = {
+    budgetEindeSegment: maandBudget,
+    budgetInSegment: besteedBinnenBudget.budgetEindeSegment <= maandBudget && meerDanMaandBudget.budgetInSegment === 0 ? maandBudget - (besteedBinnenBudget.budgetEindeSegment) : 0
+  };
 
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
   };
 
-  const besteedBedrag = besteed.waarde;
-  const minderBedrag = minder.waarde - besteed.waarde;
-  const meerBedrag = meer.waarde - minder.waarde - besteed.waarde;
-  const restBedrag = rest.waarde - meer.waarde - minder.waarde - (minder.waarde === 0 && meer.waarde === 0 ? besteed.waarde : 0);
-  const overflowBedrag = overflow.waarde - meer.waarde - minder.waarde;
+  const tabelBreedte = Number(maandBudget) + Number(meerDanMaandBudget.budgetInSegment) + 5;
 
   const toonBudgetToelichtingMessage = () => {
-    if (overflow.waarde > 0) {
-      return `Je hebt meer uitgegeven dan het budget toestaat. Je heb het maandbudget van ${formatAmount(maandBudget.toString())}
-      overschreden met ${formatAmount((overflowBedrag).toString())}. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
-      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(overflow.waarde.toString())} geworden. Dat is
-      ${formatAmount((overflowBedrag + meerBedrag).toString())} meer.`;
-    } else if (meer.waarde > 0) {
-      return `Je hebt meer uitgegeven dan het budget toestaat. Volgens het budget had je op ${props.peildatum.format('D MMMM')}
-      ${formatAmount(budgetOpPeildatum.toString())} mogen uitgeven en het is ${formatAmount(meer.waarde.toString())} geworden. Dat is
-      ${formatAmount((meerBedrag).toString())} meer.`;
-    } else if (minder.waarde > 0) {
-      return `Je hebt minder uitgegeven dan op basis van het budget had gekund, namelijk ${formatAmount(besteed.waarde.toString())}
-      terwijl je volgens het budget ${formatAmount(minder.waarde.toString())} had kunnen uitgeven.`;
-    } else {
+    if (meerDanMaandBudget.budgetInSegment > 0) {
       return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk
       ${formatAmount(props.besteedOpPeildatum.toString())}.`;
     }
   }
 
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
-  // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
+  console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  // console.log('maandBudget', JSON.stringify(maandBudget));
+  console.log('maandBudget', JSON.stringify(maandBudget));
+  console.log('tabelBreedte', JSON.stringify(tabelBreedte));
   // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
-  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
   // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
-  // console.log('budgetDatum', JSON.stringify(budgetDatum));
+  console.log('budgetDatum', JSON.stringify(budgetDatum));
   // console.log('start', JSON.stringify(start));
-  console.log('besteed', JSON.stringify(besteed));
-  console.log('minder', JSON.stringify(minder));
-  console.log('meer', JSON.stringify(meer));
-  console.log('rest', JSON.stringify(rest));
-  // console.log('overflow', JSON.stringify(overflow));
+  console.log('besteed', JSON.stringify(besteedBinnenBudget));
+  console.log('rest', JSON.stringify(restMaandBudget));
+  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>
@@ -140,125 +105,114 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
               </TableCell>
             </TableRow>
             <TableRow>
-              {props.peildatum.isAfter(dayjs(props.periode.periodeStartDatum)) && besteed.waarde > 0 &&
+              <TableCell width={'5%'} />
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={minder.waarde === 0 ? 2 : 1}
+                  sx={{ p: 1, fontSize: '10px' }}
                   align="right"
-                  width={`${((daysBetween[0] + 1) / periodeLengte) * 100}%`}
-                  sx={{
-                    p: 1,
-                    borderRight: minder.waarde === 0 ? '1px dashed grey' : 'none',
-                    fontSize: 10
-                  }} >
-                  {formatAmount(besteed.waarde.toString())}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                >
+                  {formatAmount(besteedBinnenBudget.budgetEindeSegment.toString())}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
+              {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={besteed.waarde === 0 ? 2 : 1}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: besteedBinnenBudget.budgetInSegment === 0 ? '2px dotted #333' : 'none' }}
                   align="right"
-                  width={`${((daysBetween[1] + daysBetween[2]) / periodeLengte) * 100}%`}
-                  sx={{ p: 1, fontSize: 10 }} >
-                  {minder.waarde > 0 ? formatAmount(minder.waarde.toString()) : formatAmount(meer.waarde.toString())}
-                </TableCell>
-              }
-              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
-                <TableCell
-                  colSpan={meer.waarde === 0 ? 2 : 1}
-                  align="right"
-                  width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  sx={{ p: 1, borderLeft: meer.waarde === 0 ? '1px dashed grey' : 'none', fontSize: 10 }}>
-                  {formatAmount(rest.waarde.toString())}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                >
+                  {formatAmount(restMaandBudget.budgetEindeSegment.toString())}
                 </TableCell>}
-              {maandBudget < props.besteedOpPeildatum &&
+              {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
+                  sx={{ p: 1, fontSize: '10px', borderRight: '2px dotted #333' }}
                   align="right"
-                  // width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  sx={{ p: 1, fontSize: 10 }}>
-                  {formatAmount(overflow.waarde.toString())}
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                >
+                  {formatAmount(meerDanMaandBudget.budgetEindeSegment.toString())}
                 </TableCell>}
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+                <TableCell />}
             </TableRow>
+
             <TableRow>
-              {props.peildatum.isAfter(dayjs(props.periode.periodeStartDatum)) && besteed.waarde > 0 &&
+              <TableCell width={'5%'} sx={{ borderBottom: '10px solid white' }} />
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={minder.waarde === 0 ? 2 : 1}
-                  width={`${((daysBetween[0] + 1) / periodeLengte) * 100}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: '#1977d3',
+                    backgroundColor: 'grey',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
                   }}>
-                  {formatAmount(besteedBedrag.toString())}
+                  {formatAmount(besteedBinnenBudget.budgetInSegment.toString())}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
+              {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={besteed.waarde === 0 ? 2 : 1}
-                  width={`${((daysBetween[1] + daysBetween[2]) / periodeLengte) * 100}%`}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: minder.waarde > 0 ? 'green' : 'red',
-                    borderBottom: minder.waarde > 0 ? '10px solid green' : '10px solid #333',
-                    color: 'white', textAlign: 'center'
-                  }}>
-                  {minder.waarde > 0 ? formatAmount(minderBedrag.toString()) : formatAmount(meerBedrag.toString())}
-                  </TableCell>
-              }
-              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
-                <TableCell
-                  colSpan={meer.waarde === 0 ? 2 : 1}
-                  width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  sx={{
-                    backgroundColor: 'lightgrey', color: 'white',
-                    borderBottom: '10px solid lightgrey',
+                    backgroundColor: '#1977d3',
+                    borderBottom: '10px solid #1977d3',
+                    color: 'white',
                     textAlign: 'center'
                   }}>
-                  {formatAmount(restBedrag.toString())}
+                  {formatAmount(restMaandBudget.budgetInSegment.toString())}
                 </TableCell>}
-              {maandBudget < props.besteedOpPeildatum &&
+              {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  // colSpan={meer.waarde === 0 ? 2 : 1}
-                  // width={`${(daysBetween[3] / periodeLengte) * 100}%`}
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'darkred',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
                   }}>
-                  {formatAmount(overflowBedrag.toString())}
+                  {formatAmount(meerDanMaandBudget.budgetInSegment.toString())}
                 </TableCell>}
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+                <TableCell
+                  sx={{
+                    backgroundColor: '#333',
+                    borderBottom: '10px solid #333',
+                  }} />}
             </TableRow>
+
             <TableRow>
-              {props.peildatum.isAfter(dayjs(props.periode.periodeStartDatum)) && besteed.waarde > 0 &&
+              <TableCell
+                align="right"
+                width={'5%'}
+                sx={{ p: 1, fontSize: '10px' }} >
+                {dayjs(props.periode.periodeStartDatum).format('D/M')}
+              </TableCell>
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={minder.waarde === 0 ? 2 : 1}
                   align="right"
-                  width={`${((daysBetween[0] + 1) / periodeLengte) * 100}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minder.waarde === 0 ? '1px dashed grey' : 'none' }} >
-                  {minder.waarde === 0 && dayjs(besteed.datum).format('D MMM')}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderRight: besteedBinnenBudget.budgetEindeSegment === 0 ? '2px dotted #333' : 'none' }} >
+                  {(besteedBinnenBudget.budgetInSegment > 0 && meerDanMaandBudget.budgetInSegment === 0) && props.peildatum.format('D/M')}
                 </TableCell>}
-              {(minder.waarde > 0 || meer.waarde > 0) && (minderBedrag > 0 || meerBedrag > 0) &&
+              {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={besteed.waarde === 0 ? 2 : 1}
                   align="right"
-                  width={`${((daysBetween[1] + daysBetween[2]) / periodeLengte) * 100}%`}
-                  sx={{ p: 1, fontSize: 10 }} >
-                  {minder.waarde > 0 && dayjs(minder.datum).format('D MMM')}
-                  {restBedrag === 0 && meerBedrag > 0 && dayjs(meer.datum).format('D MMM')}
+                  width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: besteedBinnenBudget.budgetInSegment === 0 ? '2px dotted #333' : 'none' }} >
+                  {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
-              {maandBudget > props.besteedOpPeildatum && restBedrag > 0 &&
+              {meerDanMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  colSpan={meer.waarde === 0 ? 2 : 1}
                   align="right"
-                  width={`${(daysBetween[3] / periodeLengte) * 100}%`}
-                  sx={{ p: 1, borderLeft: meer.waarde === 0 ? '1px dashed grey' : 'none', fontSize: 10 }} >
-                  {dayjs(rest.datum).format('D MMM')}
+                  width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  sx={{ p: 1, fontSize: '10px', borderRight: '2px dotted #333' }} >
+                  {props.peildatum.format('D/M')}
                 </TableCell>}
-              {maandBudget < props.besteedOpPeildatum &&
+              {restMaandBudget.budgetInSegment === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell
                   align="right"
-                  sx={{ p: 1, fontSize: 10 }} >
-                  &nbsp;
+                  sx={{ p: 1, fontSize: '10px' }} >
+                  {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
             </TableRow>
+
           </TableBody>
         </Table>
       </TableContainer>
