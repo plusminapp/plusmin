@@ -12,6 +12,8 @@ import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
 import { Rekening, RekeningSoort } from "../model/Rekening";
 import BudgetVasteLastenGrafiek from "../components/Budget/BudgetVasteLastenGrafiek";
+import { useAuthContext } from "@asgardeo/auth-react";
+
 
 const budget = {
   budgetNaam: 'budget',
@@ -32,6 +34,8 @@ const rekening = {
 } as unknown as Rekening;
 
 export default function Login() {
+  
+  const { state } = useAuthContext();
 
   type FormFields = {
     rekeningNaam: string;
@@ -282,5 +286,6 @@ export default function Login() {
               besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
         </>
       )}
+      {<Typography variant='caption'>State: {state.isAuthenticated ? 'true' : 'false'}</Typography>}
     </>)
 }

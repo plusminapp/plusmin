@@ -76,7 +76,7 @@ class DemoService {
                 betalingsSoort = betaling.betalingsSoort.toString(),
                 budgetNaam = betaling.budget?.budgetNaam
             )
-            if (betalingDTO.boekingsdatum < vandaag) {
+            if (betalingDTO.boekingsdatum <= vandaag) {
                 betalingService.creeerBetaling(gebruiker, betalingDTO)
             } else {
                 logger.info("Betaling op ${betalingDTO.boekingsdatum} nog niet gekopieerd: ${betalingDTO.omschrijving}")

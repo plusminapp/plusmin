@@ -6,12 +6,6 @@ import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening } from '../../model/Rekening';
 
-// type DatumWaardePunt = {
-//   datum: dayjs.Dayjs;
-//   budgetEindeSegment: number;
-//   budgetInSegment: number;
-// };
-
 type BudgetVasteLastenGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
@@ -20,8 +14,6 @@ type BudgetVasteLastenGrafiekProps = {
 };
 
 export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) => {
-
-  console.log('BudgetVasteLastenGrafiek props', JSON.stringify(props));
 
   const { setSnackbarMessage } = useCustomContext();
 
@@ -35,13 +27,6 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
 
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
-  const dagenInPeriodeOpPeildatum = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const budgetOpPeildatum = maandBudget * dagenInPeriodeOpPeildatum / periodeLengte;
-  const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.besteedOpPeildatum;
-  const verschilOpPeildatumInDagen = Math.round(periodeLengte * verschilOpPeildatumInWaarde / maandBudget);
-  const budgetDatum = props.peildatum.subtract(verschilOpPeildatumInDagen, 'day') <= dayjs(props.periode.periodeStartDatum) ?
-    dayjs(props.periode.periodeStartDatum) :
-    props.peildatum.subtract(verschilOpPeildatumInDagen, 'day');
 
   const besteedBinnenBudget = {
     budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? maandBudget : props.besteedOpPeildatum,
@@ -70,20 +55,20 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
   }
 
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
-  console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
-  console.log('peildatum', JSON.stringify(props.peildatum));
+  // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
+  // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  console.log('maandBudget', JSON.stringify(maandBudget));
-  console.log('tabelBreedte', JSON.stringify(tabelBreedte));
+  // console.log('maandBudget', JSON.stringify(maandBudget));
+  // console.log('tabelBreedte', JSON.stringify(tabelBreedte));
   // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
-  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
   // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
-  console.log('budgetDatum', JSON.stringify(budgetDatum));
+  // console.log('budgetDatum', JSON.stringify(budgetDatum));
   // console.log('start', JSON.stringify(start));
-  console.log('besteed', JSON.stringify(besteedBinnenBudget));
-  console.log('rest', JSON.stringify(restMaandBudget));
-  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
+  // console.log('besteed', JSON.stringify(besteedBinnenBudget));
+  // console.log('rest', JSON.stringify(restMaandBudget));
+  // console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>
@@ -116,7 +101,7 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px', borderLeft: besteedBinnenBudget.budgetInSegment === 0 ? '2px dotted #333' : 'none' }}
+                  sx={{ p: 1, fontSize: '10px', borderLeft: restMaandBudget.budgetInSegment > 0 ? '2px dotted #333' : 'none' }}
                   align="right"
                   width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
@@ -188,14 +173,14 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
                 <TableCell
                   align="right"
                   width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: besteedBinnenBudget.budgetEindeSegment === 0 ? '2px dotted #333' : 'none' }} >
+                  sx={{ p: 1, fontSize: '10px' }} >
                   {(besteedBinnenBudget.budgetInSegment > 0 && meerDanMaandBudget.budgetInSegment === 0) && props.peildatum.format('D/M')}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
                   width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderLeft: besteedBinnenBudget.budgetInSegment === 0 ? '2px dotted #333' : 'none' }} >
+                  sx={{ p: 1, fontSize: '10px', borderLeft: restMaandBudget.budgetInSegment > 0 ? '2px dotted #333' : 'none' }} >
                   {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
               {meerDanMaandBudget.budgetInSegment > 0 &&

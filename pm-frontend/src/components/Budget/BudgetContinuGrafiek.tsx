@@ -21,8 +21,6 @@ type BudgetContinuGrafiekProps = {
 
 export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
-  console.log('BudgetContinuGrafiek props', JSON.stringify(props));
-
   const { setSnackbarMessage } = useCustomContext();
 
   if (props.rekening.budgetten.length === 0

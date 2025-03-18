@@ -52,7 +52,7 @@ function Header() {
         setAnchorElNav(null);
         navigate(page);
     };
-    const { state, signIn, getIDToken, signOut } = useAuthContext();
+    const { state, signIn, getIDToken, signOut, revokeAccessToken } = useAuthContext();
 
     const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
     const [anchorElGebruiker, setAnchorElGebruiker] = React.useState<null | HTMLElement>(null);
@@ -134,11 +134,6 @@ function Header() {
         }
     }, [state.isAuthenticated, navigate]);
 
-    useEffect(() => {
-        console.log("Auth state:", state);
-    }, [state]);
-
-
     const handleLogout = async () => {
       try {
         await signOut();
@@ -148,6 +143,16 @@ function Header() {
       }
     };
     
+    const handleLogin = async () => {
+      try {
+        if (state.isAuthenticated)
+            await revokeAccessToken();
+        await signIn();
+        console.log("User signed in");
+      } catch (error) {
+        console.error("Error during sign-in:", error);
+      }
+    };
 
     const maandAflossingsBedrag = berekenMaandAflossingenBedrag(actieveHulpvrager?.aflossingen ?? [])
     const heeftAflossing = maandAflossingsBedrag > 0;
@@ -276,7 +281,7 @@ function Header() {
                     }
 
                     {!state.isAuthenticated &&
-                        <Button variant="contained" sx={{ ml: 'auto' }} color={'success'} onClick={() => signIn()}>Inloggen</Button>
+                        <Button variant="contained" sx={{ ml: 'auto' }} color={'success'} onClick={handleLogin}>Inloggen</Button>
                     }
                 </Toolbar>
             </AppBar>
