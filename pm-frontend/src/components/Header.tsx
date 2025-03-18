@@ -129,7 +129,7 @@ function Header() {
     }, [state.isAuthenticated, fetchGebruikerMetHulpvragers]);
 
     useEffect(() => {
-        if (!state.isAuthenticated) {
+        if (!state.isLoading && !state.isAuthenticated) {
             navigate('/login');
         }
     }, [state.isAuthenticated, navigate]);

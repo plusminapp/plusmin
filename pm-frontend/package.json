@@ -10,10 +10,6 @@
     "preview": "vite preview --port 3030",
     "clean": "rm -rf node_modules/.vite"
   },
-  "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
-  },
   "dependencies": {
     "@asgardeo/auth-react": "^5.2.3",
     "@emotion/react": "^11.14.0",
@@ -26,25 +22,25 @@
     "ag-charts-react": "^11.1.1",
     "clone": "^2.1.2",
     "dayjs": "^1.11.13",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "react-router-dom": "^6.27.0",
     "tesseract.js": "^6.0.0"
   },
   "devDependencies": {
     "@eslint/js": "9.22.0",
     "@types/clone": "^2.1.4",
-    "@types/react": "^18.3.11",
+    "@types/react": "18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "4.3.4",
     "autoprefixer": "10.4.21",
     "eslint": "9.22.0",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.19",
-    "globals": "^15.11.0",
+    "globals": "16.0.0",
     "http-proxy-middleware": "^3.0.3",
     "typescript": "5.8.2",
     "typescript-eslint": "8.26.1",
-    "vite": "^5.4.9"
+    "vite": "^6.2.2"
   }
 }
