@@ -12,7 +12,7 @@ import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import BudgetContinuGrafiek from "../components/Budget/BudgetContinuGrafiek";
 import { betaalmethodeRekeningSoorten } from "../model/Rekening";
-import BudgetVasteLastenGrafiek from "../components/Budget/BudgetVasteLastenGrafiek";
+import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 
 export default function Stand() {
 
@@ -151,7 +151,7 @@ export default function Stand() {
           {gekozenPeriode &&
             rekeningen.filter(rekening => rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'periodiek')
               .map(rekening =>
-                <BudgetVasteLastenGrafiek
+                <BudgetVastGrafiek
                   rekening={rekening}
                   peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                   periode={gekozenPeriode}

@@ -97,7 +97,8 @@ export default function Kasboek() {
 
   const berekenInkomstenTotaal = (): number => {
     return betalingen
-      .filter((betaling) => betaling.betalingsSoort === BetalingsSoort.inkomsten)
+      .filter((betaling) => betaling.betalingsSoort === BetalingsSoort.inkomsten ||
+        betaling.betalingsSoort === BetalingsSoort.rente)
       .reduce((acc, betaling) => (acc + Number(betaling.bedrag)), 0)
   }
 
@@ -147,11 +148,11 @@ export default function Kasboek() {
   return (
     <>
       <Typography variant='h4'>Kasboek</Typography>
-      <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 1, md: 3 }}>
-        <Grid size={1}>
+      <Grid container spacing={{ xs: 1, md: 3 }} columns={{ xs: 2, md: 6 }}>
+        <Grid size={2}>
           <PeriodeSelect />
         </Grid>
-        <Grid size={1}>
+        <Grid size={{ xs: 2, md: 3 }}>
           <Typography sx={{ mt: { xs: '0px', md: '35px' } }}>
             IN ({currencyFormatter.format(Number(berekenInkomstenTotaal()))}) - UIT ({currencyFormatter.format(Number(berekenUitgavenTotaal()))}) = {currencyFormatter.format(berekenCashFlowTotaal())}
           </Typography>
@@ -207,11 +208,11 @@ export default function Kasboek() {
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
                             {heeftBudgetten &&
-                              <BudgetStatusIcon verwachtHoog={berekenRekeningTotaal(rekening)} verwachtLaag={budget['Inkomsten']} />
+                              <BudgetStatusIcon verwachtHoog={berekenRekeningTotaal(rekening)} verwachtLaag={budget[rekening.naam]} />
                             }
                           </Box>
                           &nbsp;
-                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}  (van&nbsp;{currencyFormatter.format(budget['Inkomsten'])})</Typography>
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}  (van&nbsp;{currencyFormatter.format(budget[rekening.naam])})</Typography>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>
@@ -244,10 +245,10 @@ export default function Kasboek() {
                         <Box display="flex" alignItems="center" justifyContent="flex-end">
                           <Box display="flex" alignItems="center" justifyContent="flex-end">
                             {heeftBudgetten &&
-                              <BudgetStatusIcon verwachtHoog={budget[rekening.naam]} verwachtLaag={berekenRekeningTotaal(rekening)} />}
+                              <BudgetStatusIcon verwachtHoog={budget[rekening.naam]} verwachtLaag={-berekenRekeningTotaal(rekening)} />}
                           </Box>
                           &nbsp;
-                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(berekenRekeningTotaal(rekening))}   (van&nbsp;{currencyFormatter.format(budget[rekening.naam])})</Typography>
+                          <Typography sx={{ fontSize: '15px' }} component="span">{rekening.naam}: {currencyFormatter.format(-berekenRekeningTotaal(rekening))}   (van&nbsp;{currencyFormatter.format(budget[rekening.naam])})</Typography>
                         </Box>
                       </AccordionSummary>
                       <AccordionDetails sx={{ p: 0 }}>

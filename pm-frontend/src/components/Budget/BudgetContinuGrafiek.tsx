@@ -228,7 +228,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 <TableCell
                   width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: 'darkred',
+                    backgroundColor: '#cc0000',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'

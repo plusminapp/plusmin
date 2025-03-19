@@ -10,8 +10,8 @@ import { useEffect, useState } from "react";
 import { berekenPeriodeBijPeildatum, dagenSindsStartPeriode, Periode } from "../model/Periode";
 import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
-import { Rekening, RekeningSoort } from "../model/Rekening";
-import BudgetVasteLastenGrafiek from "../components/Budget/BudgetVasteLastenGrafiek";
+import { Rekening, RekeningSoort, resultaatRekeningSoorten } from "../model/Rekening";
+import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 import { useAuthContext } from "@asgardeo/auth-react";
 
 
@@ -34,11 +34,12 @@ const rekening = {
 } as unknown as Rekening;
 
 export default function Login() {
-  
+
   const { state } = useAuthContext();
 
   type FormFields = {
     rekeningNaam: string;
+    rekeningSoort: string;
     budgetSoort: string;
     budgetPeriode: string;
     budgetPerBudgetPeriode: number;
@@ -47,6 +48,7 @@ export default function Login() {
   const [formFields, setFormFields] = useState<FormFields[]>([
     {
       rekeningNaam: 'Boodschappen',
+      rekeningSoort: 'uitgaven',
       budgetSoort: 'continu',
       budgetPeriode: 'week',
       besteedOpPeildatum: (() => {
@@ -56,6 +58,7 @@ export default function Login() {
       budgetPerBudgetPeriode: 70
     }, {
       rekeningNaam: 'Vaste lasten',
+      rekeningSoort: 'inkomsten',
       budgetSoort: 'periodiek',
       budgetPeriode: 'maand',
       besteedOpPeildatum: (() => {
@@ -126,7 +129,7 @@ export default function Login() {
                 slotProps={{ textField: { variant: "standard" } }}
                 label="Wat is de peildatum?"
                 value={peilDatum}
-                onChange={(newvalue) => handleInputChange( 0, 'peilDatum', newvalue ? newvalue : dayjs())}
+                onChange={(newvalue) => handleInputChange(0, 'peilDatum', newvalue ? newvalue : dayjs())}
               />
             </LocalizationProvider>
           </Grid>
@@ -135,7 +138,7 @@ export default function Login() {
               Periode van {periode.periodeStartDatum} tot {periode.periodeEindDatum}
             </Typography>}
         </Grid>
-        <Grid container spacing={2} alignItems="center" columns={5} >
+        <Grid container spacing={2} alignItems="center" columns={6} >
           <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="rekeningNaam1">Hoe heet het eerste potje?</InputLabel>
@@ -147,7 +150,23 @@ export default function Login() {
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'175px'} size={1}>
+          <Grid minWidth={'100px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetSoort1">rekeningSoort1</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="rekeningSoort1-select-label"
+                id="rekeningSoort1-select"
+                value={formFields[0].rekeningSoort.toString().toLowerCase()}
+                label="Periode"
+                onChange={(e) => handleInputChange(0, 'rekeningSoort', e.target.value)}>
+                {resultaatRekeningSoorten.map(rekeningSoort =>
+                  <MenuItem key={rekeningSoort} value={rekeningSoort.toString().toLowerCase()} sx={{ fontSize: '0.875rem' }} >{rekeningSoort.toString().toLowerCase()}</MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'100px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="budgetSoort1">budgetSoort1</InputLabel>
               <Select
@@ -162,7 +181,7 @@ export default function Login() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid minWidth={'175px'} size={1}>
+          <Grid minWidth={'100px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="budgetPeriode1">budgetPeriode1</InputLabel>
               <Select
@@ -179,7 +198,7 @@ export default function Login() {
           </Grid>
           <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-              <InputLabel htmlFor="besteedOpPeildatum1">Wat is er besteed op de peildatum?</InputLabel>
+              <InputLabel htmlFor="besteedOpPeildatum1">Wat is er {formFields[0].rekeningSoort === 'inkomsten' ? 'ontvangen' : 'besteed'} op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum1"
                 value={formFields[0].besteedOpPeildatum}
@@ -210,7 +229,23 @@ export default function Login() {
               />
             </FormControl>
           </Grid>
-          <Grid minWidth={'175px'} size={1}>
+          <Grid minWidth={'100px'} size={1}>
+            <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+              <InputLabel htmlFor="budgetSoort1">rekeningSoort2</InputLabel>
+              <Select
+                sx={{ fontSize: '0.875rem' }}
+                labelId="rekeningSoort2-select-label"
+                id="rekeningSoort2-select"
+                value={formFields[1].rekeningSoort.toString().toLowerCase()}
+                label="Periode"
+                onChange={(e) => handleInputChange(1, 'rekeningSoort', e.target.value)}>
+                {resultaatRekeningSoorten.map(rekeningSoort =>
+                  <MenuItem key={rekeningSoort} value={rekeningSoort.toString().toLowerCase()} sx={{ fontSize: '0.875rem' }} >{rekeningSoort.toString().toLowerCase()}</MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid minWidth={'100px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="budgetSoort2">budgetSoort2</InputLabel>
               <Select
@@ -225,7 +260,7 @@ export default function Login() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid minWidth={'175px'} size={1}>
+          <Grid minWidth={'100px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
               <InputLabel htmlFor="budgetPeriode2">budgetPeriode2</InputLabel>
               <Select
@@ -242,7 +277,7 @@ export default function Login() {
           </Grid>
           <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-              <InputLabel htmlFor="besteedOpPeildatum2">Wat is er besteed op de peildatum?</InputLabel>
+              <InputLabel htmlFor="besteedOpPeildatum2">Wat is er {formFields[1].rekeningSoort === 'inkomsten' ? 'ontvangen' : 'besteed'} op de peildatum?</InputLabel>
               <Input
                 id="besteedOpPeildatum2"
                 value={formFields[1].besteedOpPeildatum}
@@ -253,8 +288,8 @@ export default function Login() {
           </Grid>
           <Grid minWidth={'175px'} size={1}>
             <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
-            <InputLabel htmlFor="budgetPerBudgetPeriode2">Wat is het budget per {formFields[1].budgetPeriode}?</InputLabel>
-            <Input
+              <InputLabel htmlFor="budgetPerBudgetPeriode2">Wat is het budget per {formFields[1].budgetPeriode}?</InputLabel>
+              <Input
                 id="budgetPerBudgetPeriode2"
                 value={formFields[1].budgetPerBudgetPeriode}
                 type="number"
@@ -271,16 +306,20 @@ export default function Login() {
               periode={periode}
               peildatum={peilDatum}
               rekening={{
-                ...rekening, naam: formField.rekeningNaam,
+                ...rekening,
+                naam: formField.rekeningNaam,
+                rekeningSoort: formField.rekeningSoort as RekeningSoort,
                 budgetten: [{ ...budget, bedrag: formField.budgetPerBudgetPeriode, budgetPeriodiciteit: formField.budgetPeriode, budgetType: formField.budgetSoort }]
               }}
               besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
           {formField.budgetSoort === 'periodiek' &&
-            <BudgetVasteLastenGrafiek
+            <BudgetVastGrafiek
               periode={periode}
               peildatum={peilDatum}
               rekening={{
-                ...rekening, naam: formField.rekeningNaam,
+                ...rekening,
+                naam: formField.rekeningNaam,
+                rekeningSoort: formField.rekeningSoort as RekeningSoort,
                 budgetten: [{ ...budget, bedrag: formField.budgetPerBudgetPeriode, budgetPeriodiciteit: formField.budgetPeriode, budgetType: formField.budgetSoort }]
               }}
               besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}

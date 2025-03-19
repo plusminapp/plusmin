@@ -4,23 +4,21 @@ import dayjs from 'dayjs';
 import { Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening } from '../../model/Rekening';
+import { Rekening, RekeningSoort } from '../../model/Rekening';
 
-type BudgetVasteLastenGrafiekProps = {
+type BudgetMultiVastGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
   besteedOpPeildatum: number;
 };
 
-export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) => {
+export const BudgetMultiVastGrafiek = (props: BudgetMultiVastGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  if (props.rekening.budgetten.length === 0
-    || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'periodiek') {
-    throw new Error('BudgetVasteLastenGrafiek: er moet precies 1 periodiek budget zijn.');
+  if (props.rekening.budgetten.length >= 1 || props.rekening.budgetten.some(budget => budget.budgetType.toLowerCase() !== 'periodiek')) {
+      throw new Error('BudgetVastGrafiek: er moeten meerdere periodiek budgetten zijn.');
   }
 
   const budget = props.rekening.budgetten[0];
@@ -147,7 +145,7 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
                 <TableCell
                   width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: 'darkred',
+                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven ? '#cc0000' : 'green',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -205,4 +203,4 @@ export const BudgetVasteLastenGrafiek = (props: BudgetVasteLastenGrafiekProps) =
   );
 };
 
-export default BudgetVasteLastenGrafiek;
+export default BudgetMultiVastGrafiek;

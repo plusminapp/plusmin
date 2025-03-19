@@ -113,4 +113,3 @@ export const betalingsCategorie2Soort = (betalingsCategorie: BetalingsCategorie 
   if (betalingsCategorie === BetalingsCategorie.intern) return internBetalingsSoorten
   return undefined
 }
-

@@ -12,6 +12,7 @@ const config = {
   signInRedirectURL: import.meta.env.VITE_ASGARDEO_SIGNIN_REDIRECT_URL || 'invalid',
   signOutRedirectURL: import.meta.env.VITE_ASGARDEO_SIGNOUT_REDIRECT_URL || 'invalid',
   scope: ["openid", "profile"],
+  periodicTokenRefresh: true,
   endpoints: {
     discovery: import.meta.env.VITE_ASGARDEO_DISCOVERY_URL || 'https://api.eu.asgardeo.io/t/plusmin/oauth2/well-known/openid-configuration',
     issuer: import.meta.env.VITE_ASGARDEO_ISSUER || 'https://api.eu.asgardeo.io/t/plusmin/oauth2/token',

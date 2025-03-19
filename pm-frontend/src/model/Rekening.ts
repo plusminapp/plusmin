@@ -43,6 +43,7 @@ export const balansRekeningSoorten: RekeningSoort[] = [
 
 export const resultaatRekeningSoorten = [
     RekeningSoort.inkomsten,
+    RekeningSoort.rente,
     RekeningSoort.uitgaven];
 
 export const aflossenRekeningSoorten = [
@@ -67,6 +68,7 @@ export const bankRekeningSoorten = [
 
 export const inkomstenRekeningSoorten = [
     RekeningSoort.inkomsten,
+    RekeningSoort.rente,
 ]
 
 export const uitgavenRekeningSoorten = [
@@ -92,8 +94,8 @@ export const cashflowRekeningSoorten = [
 export const berekenBedragVoorRekenining = (betaling: BetalingDTO, rekening: Rekening | undefined) => {
     if (rekening === undefined) return betaling.bedrag // filter = 'all'
     const factor = resultaatRekeningSoorten.includes(rekening.rekeningSoort) ? -1 : 1
-    if (betaling.bron === rekening.naam) return -betaling.bedrag * factor
-    if (betaling.bestemming === rekening.naam) return betaling.bedrag * factor
+    if (betaling.bron === rekening.naam) return Number(-betaling.bedrag) * factor
+    if (betaling.bestemming === rekening.naam) return Number(betaling.bedrag) * factor
     return 0
   }
   
