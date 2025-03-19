@@ -23,7 +23,7 @@ class Budget(
     @JoinColumn(name = "rekening_id", nullable = false)
     val rekening: Rekening,
     val budgetNaam: String,
-    val budgetType: BudgetType = BudgetType.PERIODIEK,
+    val budgetType: BudgetType = BudgetType.VAST,
     val budgetPeriodiciteit: BudgetPeriodiciteit = BudgetPeriodiciteit.MAAND,
     val bedrag: BigDecimal,
     val betaalDag: Int?,
@@ -60,7 +60,7 @@ class Budget(
     }
 
     enum class BudgetType {
-        PERIODIEK, CONTINU
+        VAST, CONTINU
     }
 
     enum class BudgetPeriodiciteit {

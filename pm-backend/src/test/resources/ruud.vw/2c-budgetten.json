@@ -2,7 +2,7 @@
   {
     "rekeningNaam": "Inkomsten",
     "budgetNaam": "AOW",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 1214,
     "betaalDag": 26
@@ -10,7 +10,7 @@
   {
     "rekeningNaam": "Inkomsten",
     "budgetNaam": "Pensioen",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 2554,
     "betaalDag": 26

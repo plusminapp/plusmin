@@ -17,8 +17,8 @@ export const BudgetMultiVastGrafiek = (props: BudgetMultiVastGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  if (props.rekening.budgetten.length >= 1 || props.rekening.budgetten.some(budget => budget.budgetType.toLowerCase() !== 'periodiek')) {
-      throw new Error('BudgetVastGrafiek: er moeten meerdere periodiek budgetten zijn.');
+  if (props.rekening.budgetten.length >= 1 || props.rekening.budgetten.some(budget => budget.budgetType.toLowerCase() !== 'vast')) {
+      throw new Error('BudgetVastGrafiek: er moeten meerdere vast budgetten zijn.');
   }
 
   const budget = props.rekening.budgetten[0];

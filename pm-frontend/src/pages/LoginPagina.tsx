@@ -12,15 +12,13 @@ import { InfoIcon } from "../icons/Info";
 import { useCustomContext } from "../context/CustomContext";
 import { Rekening, RekeningSoort, resultaatRekeningSoorten } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
-import { useAuthContext } from "@asgardeo/auth-react";
-
 
 const budget = {
   budgetNaam: 'budget',
   budgetType: 'continu',
   budgetPeriodiciteit: 'week',
   bedrag: 100,
-  budgetten: [],
+  betaalDag: 24,
 } as unknown as Budget;
 
 const rekening = {
@@ -34,8 +32,6 @@ const rekening = {
 } as unknown as Rekening;
 
 export default function Login() {
-
-  const { state } = useAuthContext();
 
   type FormFields = {
     rekeningNaam: string;
@@ -57,9 +53,9 @@ export default function Login() {
       })(),
       budgetPerBudgetPeriode: 70
     }, {
-      rekeningNaam: 'Vaste lasten',
+      rekeningNaam: 'Inkomsten',
       rekeningSoort: 'inkomsten',
-      budgetSoort: 'periodiek',
+      budgetSoort: 'vast',
       budgetPeriode: 'maand',
       besteedOpPeildatum: (() => {
         const dagen = dagenSindsStartPeriode(berekenPeriodeBijPeildatum(dayjs()));
@@ -112,7 +108,7 @@ export default function Login() {
         <Typography variant='body2' sx={{ mb: '8px' }}>
           De app werkt op basis van periodes van een maand, waarbij voor de hulpvrager kan worden ingesteld op welke dag van de maand de periode start.
           Het is bedoeld om te starten vlak voor dat de hulpvrager zijn/haar inkomen ontvangt.
-          Hier gebruik ik nu de 20ste van de maand als periode wisseldag omdat het er voor de visualisatie niet toe doet.
+          Hier gebruik ik nu de 20ste van de maand als periode wisseldag en de 24ste als betaaldag.
         </Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
           De peildatum zal in het echte gebruik altijd de huidige datum zijn. In dit formulier kun je de peildatum aanpassen, 'tijdreizen',
@@ -146,7 +142,7 @@ export default function Login() {
                 id="rekeningNaam1"
                 value={formFields[0].rekeningNaam}
                 type="text"
-                onChange={(e) => handleInputChange(0, 'budgetNaam', e.target.value)}
+                onChange={(e) => handleInputChange(0, 'rekeningNaam', e.target.value)}
               />
             </FormControl>
           </Grid>
@@ -177,7 +173,7 @@ export default function Login() {
                 label="Periode"
                 onChange={(e) => handleInputChange(0, 'budgetSoort', e.target.value)}>
                 <MenuItem key={'continu'} value={'continu'} sx={{ fontSize: '0.875rem' }} >continu</MenuItem>
-                <MenuItem key={'periodiek'} value={'periodiek'} sx={{ fontSize: '0.875rem' }} >periodiek</MenuItem>
+                <MenuItem key={'vast'} value={'vast'} sx={{ fontSize: '0.875rem' }} >vast</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -225,7 +221,7 @@ export default function Login() {
                 id="budgetNaam2"
                 value={formFields[1].rekeningNaam}
                 type="text"
-                onChange={(e) => handleInputChange(1, 'budgetNaam', e.target.value)}
+                onChange={(e) => handleInputChange(1, 'rekeningNaam', e.target.value)}
               />
             </FormControl>
           </Grid>
@@ -256,7 +252,7 @@ export default function Login() {
                 label="Periode"
                 onChange={(e) => handleInputChange(1, 'budgetSoort', e.target.value)}>
                 <MenuItem key={'continu'} value={'continu'} sx={{ fontSize: '0.875rem' }} >continu</MenuItem>
-                <MenuItem key={'periodiek'} value={'periodiek'} sx={{ fontSize: '0.875rem' }} >periodiek</MenuItem>
+                <MenuItem key={'vast'} value={'vast'} sx={{ fontSize: '0.875rem' }} >vast</MenuItem>
               </Select>
             </FormControl>
           </Grid>
@@ -312,7 +308,7 @@ export default function Login() {
                 budgetten: [{ ...budget, bedrag: formField.budgetPerBudgetPeriode, budgetPeriodiciteit: formField.budgetPeriode, budgetType: formField.budgetSoort }]
               }}
               besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
-          {formField.budgetSoort === 'periodiek' &&
+          {formField.budgetSoort === 'vast' &&
             <BudgetVastGrafiek
               periode={periode}
               peildatum={peilDatum}
@@ -325,6 +321,5 @@ export default function Login() {
               besteedOpPeildatum={Number(formField.besteedOpPeildatum)} />}
         </>
       )}
-      {<Typography variant='caption'>State: {state.isAuthenticated ? 'true' : 'false'}</Typography>}
     </>)
 }

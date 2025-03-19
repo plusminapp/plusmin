@@ -137,28 +137,26 @@ export default function Stand() {
 
           <Typography variant='h6' sx={{ my: 2 }}>Potjes en bijbehorende budgetten</Typography>
           {gekozenPeriode &&
-            rekeningen.filter(rekening => rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'continu')
-              .map(rekening =>
-                <BudgetContinuGrafiek
-                  rekening={rekening}
-                  peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
-                  periode={gekozenPeriode}
-                  besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
-                    -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                />
-              )}
-
-          {gekozenPeriode &&
-            rekeningen.filter(rekening => rekening.budgetten.length === 1 && rekening.budgetten[0].budgetType.toLowerCase() === 'periodiek')
-              .map(rekening =>
-                <BudgetVastGrafiek
-                  rekening={rekening}
-                  peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
-                  periode={gekozenPeriode}
-                  besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
-                    -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                />
-              )}
+            rekeningen
+              .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
+              .filter(rekening => rekening.budgetten.length === 1)
+              .map(rekening => (
+                rekening.budgetten[0].budgetType.toLowerCase() === 'continu' ?
+                  <BudgetContinuGrafiek
+                    rekening={rekening}
+                    peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                    periode={gekozenPeriode}
+                    besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
+                      -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
+                  /> :
+                  <BudgetVastGrafiek
+                    rekening={rekening}
+                    peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                    periode={gekozenPeriode}
+                    besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
+                      -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
+                  />
+              ))}
 
           <Accordion>
             <AccordionSummary expandIcon={<ArrowDropDownIcon />}>

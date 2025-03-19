@@ -19,11 +19,14 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
 
   if (props.rekening.budgetten.length === 0
     || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'periodiek') {
-    throw new Error('BudgetVastGrafiek: er moet precies 1 periodiek budget zijn.');
+    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'vast') {
+    throw new Error('BudgetVastGrafiek: er moet precies 1 vast budget zijn.');
   }
 
   const budget = props.rekening.budgetten[0];
+
+  const inkomstenMoetBetaaldZijn = budget.betaalDag && (props.peildatum.date() < dayjs(props.periode.periodeStartDatum).date() ||
+    props.peildatum.date() > budget.betaalDag);
 
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
@@ -136,8 +139,8 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
                 <TableCell
                   width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven ? '#1977d3' : '#cc0000',
-                    borderBottom:  props.rekening.rekeningSoort === RekeningSoort.uitgaven ? '10px solid #1977d3' : '10px solid #cc0000', 
+                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() || !inkomstenMoetBetaaldZijn ? '#1977d3' : '#cc0000',
+                    borderBottom: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() || !inkomstenMoetBetaaldZijn ? '10px solid #1977d3' : '10px solid #cc0000',
                     color: 'white',
                     textAlign: 'center'
                   }}>
@@ -147,7 +150,7 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
                 <TableCell
                   width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven ? '#cc0000' : 'green',
+                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() ? '#cc0000' : 'green',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -201,7 +204,6 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
           </TableBody>
         </Table>
       </TableContainer>
-      {props.rekening.rekeningSoort}
     </>
   );
 };

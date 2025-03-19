@@ -2,7 +2,7 @@
   {
     "rekeningNaam": "Inkomsten",
     "budgetNaam": "Inkomsten",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 2335,
     "betaalDag": 26
@@ -10,7 +10,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Huur",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 724.36,
     "betaalDag": 26
@@ -18,7 +18,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Greenchoice",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 169,
     "betaalDag": 26
@@ -26,7 +26,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Vitens",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 14,
     "betaalDag": 26
@@ -34,7 +34,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "Tribuut",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 14,
     "betaalDag": 26
@@ -42,7 +42,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "GBLT",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 62.5,
     "betaalDag": 26
@@ -50,7 +50,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "KPN",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 123.69,
     "betaalDag": 26
@@ -58,7 +58,7 @@
   {
     "rekeningNaam": "Vaste lasten",
     "budgetNaam": "ONVZ",
-    "budgetType": "periodiek",
+    "budgetType": "vast",
     "budgetPeriodiciteit": "maand",
     "bedrag": 135,
     "betaalDag": 26
