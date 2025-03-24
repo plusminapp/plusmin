@@ -1,6 +1,36 @@
+include local/.env
 include dev.env
 include stg.env
 export
+
+# local lcl
+lcl-pm-frontend-build: export VERSION=${PM_LCL_VERSION}
+lcl-pm-frontend-build: export PLATFORM=linux/arm64
+lcl-pm-frontend-build: export PORT=3035
+lcl-pm-frontend-build: export STAGE=lcl
+lcl-pm-frontend-build:
+	cp local/.env pm-frontend/lcl.env
+	./pm-frontend/docker-build.sh
+
+lcl-pm-backend-build: export VERSION=${PM_LCL_VERSION}
+lcl-pm-backend-build: export PLATFORM=linux/arm64
+lcl-pm-backend-build:
+	./pm-backend/docker-build.sh
+
+lcl-pm-database-build: export VERSION=${PM_LCL_VERSION}
+lcl-pm-database-build: export PLATFORM=linux/arm64
+lcl-pm-database-build:
+	./pm-database/docker-build.sh
+
+lcl-build-all: lcl-pm-frontend-build lcl-pm-backend-build lcl-pm-database-build
+
+lcl-deploy-frontend:
+lcl-deploy-all:
+	docker compose -f local/docker-compose.lcl.yml up -d
+
+lcl-frontend: lcl-pm-frontend-build lcl-deploy-frontend
+lcl-backend: lcl-pm-backend-build lcl-deploy-backend
+lcl-all: lcl-build-all lcl-deploy-all
 
 # development dev
 dev-pm-frontend-build: export VERSION=${PM_DEV_VERSION}

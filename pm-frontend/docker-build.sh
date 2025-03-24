@@ -8,6 +8,7 @@ echo STAGE: ${STAGE}
 pushd ${PROJECT_FOLDER}/pm-frontend
 
 docker build \
+     --no-cache \
      --platform=$PLATFORM \
      --build-arg PORT=${PORT} \
      --build-arg STAGE=${STAGE} \

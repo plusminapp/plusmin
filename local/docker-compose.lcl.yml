@@ -1,0 +1,55 @@
+services:
+
+  pm-frontend-lcl:
+    image: rimvanvliet/pm-frontend:${PM_LCL_VERSION}
+    container_name: pm-frontend-lcl
+    environment:
+      - TZ=Europe/Amsterdam
+      - VITE_ASGARDEO_CLIENT_ID=ahVUPaBf3D1mE5xrZIM2aAmIRVYa
+      - VITE_ASGARDEO_BASE_URL=https://api.eu.asgardeo.io/t/plusmin
+      - VITE_ASGARDEO_SIGNIN_REDIRECT_URL=http://localhost:3050
+      - VITE_ASGARDEO_SIGNOUT_REDIRECT_URL=http://localhost:3050/login
+    ports:
+      - "3035:3035"
+    networks:
+      - npm_default
+    depends_on:
+      - pm-backend-lcl
+    restart: always
+
+  pm-backend-lcl:
+    image: rimvanvliet/pm-backend:${PM_LCL_VERSION}
+    container_name: pm-backend-lcl
+    environment:
+      - TZ=Europe/Amsterdam
+      - SPRING_PROFILES_ACTIVE=lcl
+    networks:
+      - npm_default
+    ports:
+      - "3045:3045"
+    depends_on:
+      - pm-database-lcl
+    restart: always
+
+  pm-database-lcl:
+    image: rimvanvliet/pm-database:${PM_LCL_VERSION}
+    container_name: pm-database-lcl
+    environment:
+      - TZ=Europe/Amsterdam
+      - POSTGRES_USER=pm
+      - POSTGRES_PASSWORD=pm
+      - POSTGRES_DB=pm
+    volumes:
+      - pm-database-lcl:/bitnami/postgresql/data
+    networks:
+      - npm_default
+    ports:
+      - "5435:5432"
+    restart: always
+
+volumes:
+  pm-database-lcl:
+
+networks:
+   npm_default:
+    external: true

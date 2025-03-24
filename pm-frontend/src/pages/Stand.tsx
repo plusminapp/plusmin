@@ -139,7 +139,7 @@ export default function Stand() {
           {gekozenPeriode &&
             rekeningen
               .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
-              .filter(rekening => rekening.budgetten.length === 1)
+              .filter(rekening => rekening.budgetten.length >= 1)
               .map(rekening => (
                 rekening.budgetten[0].budgetType.toLowerCase() === 'continu' ?
                   <BudgetContinuGrafiek
@@ -173,7 +173,7 @@ export default function Stand() {
                         sx={{ transform: 'scale(0.6)' }}
                         checked={toonMutaties}
                         onChange={handleToonMutatiesChange}
-                        inputProps={{ 'aria-label': 'controlled' }}
+                        slotProps={{input: { 'aria-label': 'controlled' }}}
                       />}
                       label="Toon mutaties" />
                   </FormGroup>
