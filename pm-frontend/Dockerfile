@@ -26,6 +26,7 @@ ENV STAGE=$STAGE
 RUN mkdir -p /usr/share/nginx/html
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY /conf/nginx /etc/nginx
+RUN rm /etc/nginx/conf.d/*.default.conf
 COPY /conf/nginx/conf.d/$STAGE.default.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 3030 or 3035

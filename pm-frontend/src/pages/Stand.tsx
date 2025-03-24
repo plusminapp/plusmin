@@ -139,7 +139,7 @@ export default function Stand() {
           {gekozenPeriode &&
             rekeningen
               .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
-              .filter(rekening => rekening.budgetten.length >= 1)
+              .filter(rekening => rekening.budgetten.length === 1)
               .map(rekening => (
                 rekening.budgetten[0].budgetType.toLowerCase() === 'continu' ?
                   <BudgetContinuGrafiek

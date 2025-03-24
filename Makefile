@@ -26,6 +26,7 @@ lcl-build-all: lcl-pm-frontend-build lcl-pm-backend-build lcl-pm-database-build
 
 lcl-deploy-frontend:
 lcl-deploy-all:
+	docker network create -d bridge npm_default
 	docker compose -f local/docker-compose.lcl.yml up -d
 
 lcl-frontend: lcl-pm-frontend-build lcl-deploy-frontend
