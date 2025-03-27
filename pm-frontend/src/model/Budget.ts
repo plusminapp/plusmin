@@ -8,6 +8,20 @@ export type Budget = {
     budgetPeriodiciteit: string;
     bedrag: number;
     betaalDag: number | undefined;
+    budgetSaldo: BudgetSaldo | undefined;
+}
+export type BudgetDTO = {
+    rekeningNaam: string;
+    rekeningSoort: string;
+    budgetNaam: string;
+    budgetPeriodiciteit: string;
+    bedrag: number;
+    betaalDag: number | undefined;
+    budgetSaldoDTO: BudgetSaldo | undefined;
+}
+export type BudgetSaldo = {
+    peilDatum: string;
+    betaling: number;
 }
 
 export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, budget: Budget): number | undefined => {

@@ -3,7 +3,7 @@ import Grid from '@mui/material/Grid2';
 
 import dayjs from "dayjs";
 import BudgetContinuGrafiek from "../components/Budget/BudgetContinuGrafiek";
-import { Budget } from "../model/Budget";
+import { BudgetDTO } from "../model/Budget";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
@@ -14,12 +14,15 @@ import { BudgetType, Rekening, RekeningSoort } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 import BudgetInkomstenGrafiek from "../components/Budget/BudgetInkomstenGrafiek";
 
-const budget = {
+const budget: BudgetDTO = {
   budgetNaam: 'budget',
   budgetPeriodiciteit: 'maand',
   bedrag: 100,
   betaalDag: 24,
-} as unknown as Budget;
+  rekeningNaam: "",
+  budgetSaldoDTO: undefined,
+  rekeningSoort: ""
+};
 
 const rekening = {
   Id: 1,
@@ -212,7 +215,11 @@ export default function Login() {
                 naam: formFields.rekeningNaam,
                 rekeningSoort: formFields.rekeningSoort as RekeningSoort,
                 budgetType: formFields.budgetType,
-                budgetten: [{ ...budget, bedrag: formFields.budgetPerBudgetPeriode }]
+                budgetten: [{
+                  ...budget, bedrag: formFields.budgetPerBudgetPeriode,
+                  rekening: undefined,
+                  budgetSaldo: undefined
+                }]
               }}
               besteedOpPeildatum={Number(formFields.besteedOpPeildatum)} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'uitgaven' &&
@@ -224,7 +231,11 @@ export default function Login() {
                 naam: formFields.rekeningNaam,
                 rekeningSoort: formFields.rekeningSoort as RekeningSoort,
                 budgetType: formFields.budgetType,
-                budgetten: [{ ...budget, bedrag: formFields.budgetPerBudgetPeriode }]
+                budgetten: [{
+                  ...budget, bedrag: formFields.budgetPerBudgetPeriode,
+                  rekening: undefined,
+                  budgetSaldo: undefined
+                }]
               }}
               besteedOpPeildatum={Number(formFields.besteedOpPeildatum)} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'inkomsten' &&
@@ -236,9 +247,14 @@ export default function Login() {
                 naam: formFields.rekeningNaam,
                 rekeningSoort: formFields.rekeningSoort as RekeningSoort,
                 budgetType: formFields.budgetType,
-                budgetten: [{ ...budget, bedrag: formFields.budgetPerBudgetPeriode }]
+                budgetten: [{
+                  ...budget, bedrag: formFields.budgetPerBudgetPeriode,
+                  rekening: undefined,
+                  budgetSaldo: undefined
+                }]
               }}
-              ontvangenOpPeildatum={Number(formFields.besteedOpPeildatum)} />}
+              ontvangenOpPeildatum={Number(formFields.besteedOpPeildatum)}
+              budgetten={[budget]} />}
         </>
       }
     </>)

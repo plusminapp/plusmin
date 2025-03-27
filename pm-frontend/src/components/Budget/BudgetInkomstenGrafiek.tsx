@@ -1,21 +1,31 @@
-import { Box, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { Box, FormControlLabel, FormGroup, Switch, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import dayjs from 'dayjs';
 import { dagInPeriode, Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
+import { useState } from 'react';
+import { BudgetDTO } from '../../model/Budget';
 
 type BudgetInkomstenGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
   ontvangenOpPeildatum: number;
+  budgetten: BudgetDTO[];
 };
 
 export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
+
+  const [toonBudgetDetails, setToonBudgetDetails] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
+  const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    localStorage.setItem('toonIntern', event.target.checked.toString());
+    setToonBudgetDetails(event.target.checked);
+  };
+
 
   if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.inkomsten.toLowerCase() ||
     props.rekening.budgetten.length === 0 ||
@@ -123,11 +133,36 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
           onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
           <InfoIcon height='16' />
         </Box>
+        {props.budgetten.length > 1 &&
+          <FormGroup >
+            <FormControlLabel control={
+              <Switch
+                sx={{ transform: 'scale(0.6)' }}
+                checked={toonBudgetDetails}
+                onChange={handleToonInternChange}
+                slotProps={{ input: { 'aria-label': 'controlled' } }}
+              />}
+              sx={{ mr: 0 }}
+              label={
+                <Box display="flex" fontSize={'0.875rem'} >
+                  Toon budget details
+                </Box>
+              } />
+          </FormGroup>}
       </Grid>
+      {toonBudgetDetails &&
+        <Grid display={'flex'} direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
+          {props.budgetten.map((budget, index) => (
+            <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
+              {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')} waar
+              van op {dayjs(budget.budgetSaldoDTO?.peilDatum).format('D MMMM')} {formatAmount(budget.budgetSaldoDTO?.betaling.toString() ?? "nvt")} is betaald.
+            </Typography>
+          ))}
+        </Grid>}
       <TableContainer >
         <Table>
           <TableBody>
-            
+
             <TableRow>
               <TableCell width={'5%'} />
               {ontvangenBinnenBudget.budgetInSegment > 0 &&

@@ -42,6 +42,7 @@ class Budget(
     data class BudgetDTO(
         val id: Long = 0,
         val rekeningNaam: String,
+        val rekeningSoort: String,
         val budgetNaam: String,
         val budgetType: String,
         val budgetPeriodiciteit: String,
@@ -59,6 +60,7 @@ class Budget(
         return BudgetDTO(
             this.id,
             this.rekening.naam,
+            this.rekening.rekeningSoort.toString(),
             this.budgetNaam,
             this.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),

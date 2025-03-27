@@ -1,3 +1,4 @@
+import { BudgetDTO } from "./Budget"
 import { Saldo } from "./Saldo"
 
 export type Stand = {
@@ -7,4 +8,5 @@ export type Stand = {
     mutatiesOpDatum: Saldo[],
     balansOpDatum: Saldo[],
     resultaatOpDatum: Saldo[],
+    budgettenOpDatum: BudgetDTO[],
 }

@@ -155,6 +155,7 @@ export default function Stand() {
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
                     ontvangenOpPeildatum={findStandVanRekening(rekening.naam)}
+                    budgetten={stand.budgettenOpDatum.filter(b => b.rekeningSoort.toLowerCase() === 'inkomsten')}
                   /> : 
                   <BudgetVastGrafiek
                     rekening={rekening}
