@@ -1,13 +1,13 @@
 package io.vliet.plusmin.service
 
 import io.vliet.plusmin.domain.Budget
-import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Budget.BudgetDTO
+import io.vliet.plusmin.domain.Gebruiker
 import io.vliet.plusmin.domain.Periode
 import io.vliet.plusmin.repository.BetalingRepository
 import io.vliet.plusmin.repository.BudgetRepository
+import io.vliet.plusmin.repository.PeriodeRepository
 import io.vliet.plusmin.repository.RekeningRepository
-import io.vliet.plusmin.repository.SaldoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -28,7 +28,10 @@ class BudgetService {
     lateinit var betalingRepository: BetalingRepository
 
     @Autowired
-    lateinit var saldoService: SaldoService
+    lateinit var periodeService: PeriodeService
+
+    @Autowired
+    lateinit var periodeRepository: PeriodeRepository
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -69,16 +72,48 @@ class BudgetService {
         return newBudget.toDTO()
     }
 
-    fun berekenBudgetRestVoorPeriode(budget: Budget, periode: Periode, peilDatum: LocalDate): BigDecimal {
-        val betalingenInPeriode = betalingRepository
-            .findAllByGebruikerTussenDatums(budget.rekening.gebruiker, periode.periodeStartDatum, peilDatum)
-            .filter { it.budget?.id == budget.id }
-            .fold(BigDecimal(0)) { acc, betaling -> acc + betaling.bedrag }
-        val dagenInPeriode = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
-        val budgetMaandBedrag = when (budget.budgetPeriodiciteit) {
-            Budget.BudgetPeriodiciteit.WEEK -> BigDecimal(budget.bedrag.longValueExact() * dagenInPeriode / 7)
-            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+//    fun berekenBudgetRestVoorPeriode(budget: Budget, periode: Periode, peilDatum: LocalDate): BigDecimal {
+//        val betalingenInPeriode = betalingRepository
+//            .findAllByGebruikerTussenDatums(budget.rekening.gebruiker, periode.periodeStartDatum, peilDatum)
+//            .filter { it.budget?.id == budget.id }
+//            .fold(BigDecimal(0)) { acc, betaling -> acc + betaling.bedrag }
+//        val dagenInPeriode = periode.periodeEindDatum.toEpochDay() - periode.periodeStartDatum.toEpochDay() + 1
+//        val budgetMaandBedrag = when (budget.budgetPeriodiciteit) {
+//            Budget.BudgetPeriodiciteit.WEEK -> BigDecimal(budget.bedrag.longValueExact() * dagenInPeriode / 7)
+//            Budget.BudgetPeriodiciteit.MAAND -> budget.bedrag
+//        }
+//        return budgetMaandBedrag - betalingenInPeriode
+//    }
+
+    fun berekenBudgettenOpDatum(gebruiker: Gebruiker, peilDatum: LocalDate): List<BudgetDTO> {
+        val budgettenLijst = budgetRepository.findBudgettenByGebruiker(gebruiker)
+        val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
+        val gekozenPeriode = periodeRepository.getPeriodeGebruikerEnDatum(gebruiker.id, peilDatum) ?: run {
+            logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
+            saldoPeriode
         }
-        return budgetMaandBedrag - betalingenInPeriode
+        return budgettenLijst
+            .sortedBy { it.rekening.sortOrder }
+            .map { budget ->
+                budget.toDTO()
+                    .with(
+                        Budget.BudgetSaldoDTO(
+                            peilDatum = peilDatum.toString(),
+                            betaling = getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
+                        )
+                    )
+            }
+    }
+
+    fun getBetalingVoorBudgetInPeriode(budget: Budget, periode: Periode): BigDecimal {
+        val betalingen = betalingRepository.findAllByGebruikerTussenDatums(
+            budget.rekening.gebruiker,
+            periode.periodeStartDatum,
+            periode.periodeEindDatum
+        )
+        val filteredBetalingen = betalingen.filter { it.budget?.id == budget.id }
+        val bedrag =
+            filteredBetalingen.fold(BigDecimal(0)) { acc, betaling -> if (betaling.bron.id == budget.rekening.id) acc + betaling.bedrag else acc - betaling.bedrag }
+        return bedrag
     }
 }

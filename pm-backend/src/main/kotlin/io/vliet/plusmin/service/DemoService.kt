@@ -36,6 +36,7 @@ class DemoService {
             Pair(54933L, 54935L), // Bernhard
             Pair(54936L, 54938L), // Ursula
             Pair(54939L, 54942L), // Alex
+            Pair(54945L, 54947L), // Abel
         )
         parameters.forEach { (gebruikerId, bronPeriodeId) ->
             val gebruiker = gebruikerRepository.findById(gebruikerId)
@@ -88,7 +89,12 @@ class DemoService {
 
     fun shiftDatumNaarPeriodeMetZelfdeDag(datum: LocalDate, periode: Periode): LocalDate {
         val dayOfMonth = datum.dayOfMonth
-        val newDate = periode.periodeStartDatum.withDayOfMonth(dayOfMonth)
+        val newDate = try {
+            periode.periodeStartDatum.withDayOfMonth(dayOfMonth)
+        } catch (e: Exception) {
+            logger.warn("Datum teruggezet naar 28: $datum")
+            periode.periodeStartDatum.withDayOfMonth(28)
+        }
         return when {
             newDate.isBefore(periode.periodeStartDatum) -> newDate.plusMonths(1)
             newDate.isAfter(periode.periodeEindDatum) -> newDate.minusMonths(1)

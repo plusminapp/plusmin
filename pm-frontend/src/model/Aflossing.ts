@@ -12,7 +12,7 @@ export type Aflossing = {
     betaalDag: number,
     dossierNummer: string,
     notities: string,
-    aflossingSaldiDTO: AflossingSaldi | undefined
+    aflossingSaldoDTO: AflossingSaldi | undefined
 }
 
 export type AflossingSaldi = {

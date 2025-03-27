@@ -6,6 +6,8 @@ import io.vliet.plusmin.repository.AflossingRepository
 import io.vliet.plusmin.repository.SaldoRepository
 import io.vliet.plusmin.service.AflossingGrafiekService
 import io.vliet.plusmin.service.AflossingService
+import io.vliet.plusmin.service.PeriodeService
+import io.vliet.plusmin.service.SaldoService
 import jakarta.validation.Valid
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -15,6 +17,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @RestController
 @RequestMapping("/aflossing")
@@ -33,6 +37,12 @@ class AflossingController {
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
+
+    @Autowired
+    lateinit var saldoService: SaldoService
+
+    @Autowired
+    lateinit var periodeService: PeriodeService
 
     val logger: Logger = LoggerFactory.getLogger(this.javaClass.name)
 
@@ -66,7 +76,18 @@ class AflossingController {
     ): ResponseEntity<Any> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET AflossingController.getAflossingenSaldiVoorHulpvragerOpDatum voor ${hulpvrager.email} op ${datum} door ${vrijwilliger.email}")
-        return ResponseEntity.ok().body(aflossingService.berekenAflossingenOpDatum(hulpvrager, datum))
+        val peilDatum = LocalDate.parse(datum, DateTimeFormatter.ISO_LOCAL_DATE)
+        val openingPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(hulpvrager)
+        val periodeStartDatum = maxOf(
+            openingPeriode.periodeEindDatum.plusDays(1),
+            periodeService.berekenPeriodeDatums(hulpvrager.periodeDag, peilDatum).first
+        )
+        val standDTO = saldoService.getStandOpDatum(
+            openingPeriode,
+            periodeStartDatum,
+            peilDatum
+        )
+        return ResponseEntity.ok().body(standDTO.aflossingenOpDatum)
     }
 
     @Operation(summary = "PUT (upsert) (nieuwe) aflossingen van een hulpvrager")

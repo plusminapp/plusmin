@@ -37,7 +37,7 @@ class BudgetController {
     ): List<Budget> {
         val (hulpvrager, vrijwilliger) = gebruikerController.checkAccess(hulpvragerId)
         logger.info("GET BudgetController.getBudgettenVoorHulpvrager() voor ${hulpvrager.email} door ${vrijwilliger.email}")
-        return budgetRepository.findAllByGebruiker(hulpvrager)
+        return budgetRepository.findBudgettenByGebruiker(hulpvrager)
     }
 
     @Operation(summary = "PUT de saldi voor hulpvrager")

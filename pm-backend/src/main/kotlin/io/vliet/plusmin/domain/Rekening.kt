@@ -30,6 +30,8 @@ class Rekening(
     @JsonInclude(JsonInclude.Include.NON_NULL)
     val bankNaam: String? = null,
     val sortOrder: Int,
+    @Enumerated(EnumType.STRING)
+    val budgetType: BudgetType? = BudgetType.VAST,
     @OneToMany(mappedBy = "rekening", fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true)
     var budgetten: List<Budget> = emptyList()
 ) {
@@ -44,8 +46,9 @@ class Rekening(
         nummer: String? = this.nummer,
         bankNaam: String? = this.bankNaam,
         sortOrder: Int = this.sortOrder,
+        budgetType: BudgetType? = this.budgetType,
         budgetten: List<Budget> = this.budgetten
-    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, bankNaam, sortOrder, budgetten)
+    ) = Rekening(this.id, naam, gebruiker, rekeningSoort, nummer, bankNaam, sortOrder, budgetType, budgetten)
 
     data class RekeningDTO(
         val id: Long = 0,
@@ -74,7 +77,11 @@ class Rekening(
         BETAALREKENING, SPAARREKENING, CONTANT, CREDITCARD, AFLOSSING, RESERVERING,
         INKOMSTEN, RENTE, UITGAVEN
     }
+    enum class BudgetType {
+        VAST, CONTINU
+    }
 }
+
 
 val resultaatRekeningSoort = arrayOf(
     Rekening.RekeningSoort.INKOMSTEN,

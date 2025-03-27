@@ -8,6 +8,7 @@ export type Rekening = {
     nummer: string | undefined;
     bankNaam: string | undefined;
     sortOrder: number;
+    budgetType: BudgetType | undefined;
     budgetten: Budget[];
 }
 
@@ -21,6 +22,10 @@ export enum RekeningSoort {
     creditcard = 'CREDITCARD',
     aflossing = 'AFLOSSING',
     reservering = 'RESERVERING'
+}
+export enum BudgetType {
+    continu = 'CONTINU',
+    vast = 'VAST',
 }
 
 export type RekeningSoortPaar = {

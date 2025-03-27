@@ -1,7 +1,7 @@
 import { Box, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import dayjs from 'dayjs';
-import { Periode } from '../../model/Periode';
+import { dagInPeriode, Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
 import { Rekening, RekeningSoort } from '../../model/Rekening';
@@ -18,20 +18,22 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   const { setSnackbarMessage } = useCustomContext();
 
   if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.inkomsten.toLowerCase() ||
-    props.rekening.budgetten.length === 0  ||
+    props.rekening.budgetten.length === 0 ||
     props.rekening.budgetten.some(budget => budget.betaalDag === undefined) ||
     props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
     props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
     throw new Error('BudgetInkomstenGrafiek: rekeningSoort moet \'inkomsten\' zijn, er moet minimaal 1 budget zijn en alle budgetten moeten een geldige betaalDag hebben.');
   }
 
-  const budget = props.rekening.budgetten[0];
-
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
   const maandBudget = props.rekening.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
-  const inkomstenMoetBetaaldZijn = budget.betaalDag && (props.peildatum.date() < dayjs(props.periode.periodeStartDatum).date() ||
-    props.peildatum.date() > budget.betaalDag);
-  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) => (acc + (inkomstenMoetBetaaldZijn ? budget.bedrag : 0)), 0);
+  const inkomstenMoetBetaaldZijn = (betaalDag: number | undefined) => {
+    if (betaalDag === undefined) return true;
+    const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
+    return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
+  }
+  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) =>
+    (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
   const dagBudget = maandBudget / periodeLengte;
   const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.ontvangenOpPeildatum;
 
@@ -101,35 +103,31 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  console.log('maandBudget', JSON.stringify(maandBudget));
-  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  console.log('ontvangenOpPeildatum', JSON.stringify(props.ontvangenOpPeildatum));
-  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
-  console.log('ontvangen', JSON.stringify(ontvangenBinnenBudget));
-  console.log('minder', JSON.stringify(minderDanBudget));
-  console.log('meer', JSON.stringify(meerDanBudget));
-  console.log('rest', JSON.stringify(restMaandBudget));
-  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
+  // console.log('maandBudget', JSON.stringify(maandBudget));
+  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  // console.log('ontvangenOpPeildatum', JSON.stringify(props.ontvangenOpPeildatum));
+  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  // console.log('ontvangen', JSON.stringify(ontvangenBinnenBudget));
+  // console.log('minder', JSON.stringify(minderDanBudget));
+  // console.log('meer', JSON.stringify(meerDanBudget));
+  // console.log('rest', JSON.stringify(restMaandBudget));
+  // console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>
+      <Grid display={'flex'} direction={'row'} alignItems={'center'}>
+        <Typography variant='body2'>
+          <strong>{props.rekening.naam}</strong>
+        </Typography>
+        <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
+          onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
+          <InfoIcon height='16' />
+        </Box>
+      </Grid>
       <TableContainer >
         <Table>
-          <TableBody >
-            <TableRow>
-              <TableCell colSpan={4} sx={{ paddingBottom: 0, borderBottom: 'none' }}>
-                <Grid display={'flex'} direction={'row'} alignItems={'center'}>
-                  <Typography variant='body2'>
-                    <strong>{props.rekening.naam}</strong>
-                  </Typography>
-                  <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
-                    onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
-                    <InfoIcon height='16' />
-                  </Box>
-                </Grid>
-
-              </TableCell>
-            </TableRow>
+          <TableBody>
+            
             <TableRow>
               <TableCell width={'5%'} />
               {ontvangenBinnenBudget.budgetInSegment > 0 &&
@@ -193,8 +191,8 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 <TableCell
                   width={`${(minderDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: 'green',
-                    borderBottom: '10px solid green',
+                    backgroundColor: 'red',
+                    borderBottom: '10px solid red',
                     color: 'white',
                     textAlign: 'center'
                   }}>
@@ -204,7 +202,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 <TableCell
                   width={`${(meerDanBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: 'grey',
+                    backgroundColor: 'green',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -226,7 +224,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 <TableCell
                   width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: '#cc0000',
+                    backgroundColor: 'green',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -293,7 +291,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
 
           </TableBody>
         </Table>
-      </TableContainer>
+      </TableContainer >
     </>
   );
 };

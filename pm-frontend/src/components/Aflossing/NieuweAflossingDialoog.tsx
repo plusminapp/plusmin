@@ -40,6 +40,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     nummer: "",
     bankNaam: undefined,
     sortOrder: 0,
+    budgetType: undefined,
     budgetten: [],
   }), []);
 
@@ -53,7 +54,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     betaalDag: 1,
     dossierNummer: "",
     notities: "",
-    aflossingSaldiDTO: undefined,
+    aflossingSaldoDTO: undefined,
   }), [initialRekening]);
 
   const [open, setOpen] = useState(false);

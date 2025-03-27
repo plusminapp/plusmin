@@ -41,13 +41,13 @@ export default function AflossingTabel(props: AflossingProps) {
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
               <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
               <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.berekendSaldo)}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.werkelijkSaldo)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.berekendSaldo)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.werkelijkSaldo)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell align="left" size='small' colSpan={4} >
                 <Box sx={{ fontSize: '0.875rem' }}>
-                  Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldiDTO!.betaling)}
+                  Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.betaling)}
                 </Box>
               </TableCell>
             </TableRow>

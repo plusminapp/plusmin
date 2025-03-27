@@ -23,21 +23,10 @@ export default function Aflossingen() {
 
   const [aflossingen, setAflossingen] = useState<Aflossing[]>([])
   const [isLoading, setIsLoading] = useState(false);
-  const [formDatum, setFormDatum] = useState<dayjs.Dayjs>(dayjs());
-
-  useEffect(() => {
-    if (gekozenPeriode) {
-      if (dayjs().isBefore(dayjs(gekozenPeriode.periodeEindDatum))) {
-        setFormDatum(dayjs());
-      } else {
-        setFormDatum(dayjs(gekozenPeriode.periodeEindDatum));
-      }
-    }
-  }, [gekozenPeriode]);
 
   const navigate = useNavigate();
   const fetchAflossingen = useCallback(async () => {
-    if (gebruiker) {
+    if (actieveHulpvrager && gekozenPeriode) {
       setIsLoading(true);
       const id = actieveHulpvrager!.id
       let token
@@ -47,7 +36,7 @@ export default function Aflossingen() {
         setIsLoading(false);
         navigate('/login');
       }
-
+      const formDatum = dayjs().isAfter(dayjs(gekozenPeriode.periodeEindDatum)) ? dayjs(gekozenPeriode.periodeEindDatum) : dayjs();
       const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}/datum/${formDatum.toISOString().slice(0, 10)}`, {
         method: "GET",
         headers: {
@@ -67,7 +56,7 @@ export default function Aflossingen() {
         })
       }
     }
-  }, [getIDToken, actieveHulpvrager, gebruiker, formDatum]);
+  }, [getIDToken, actieveHulpvrager, gekozenPeriode]);
 
   useEffect(() => {
     fetchAflossingen();
@@ -78,14 +67,14 @@ export default function Aflossingen() {
   }
 
   const berekenToestandAflossingIcoon = (aflossing: Aflossing): JSX.Element => {
-    if (!aflossing.aflossingSaldiDTO)
+    if (!aflossing.aflossingSaldoDTO)
       return <MinIcon color="black" />
     else {
-      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) && gebruiker?.periodeDag && parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8)) >= gebruiker?.periodeDag;
-      const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldiDTO.peilDatum.slice(8));
-      const kloptSaldo = aflossing.aflossingSaldiDTO.berekendSaldo == aflossing.aflossingSaldiDTO.werkelijkSaldo;
-      const heeftBetalingAchtersstand = aflossing.aflossingSaldiDTO.berekendSaldo < aflossing.aflossingSaldiDTO.werkelijkSaldo
-      const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldiDTO.berekendSaldo - aflossing.aflossingSaldiDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
+      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8)) && gebruiker?.periodeDag && parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8)) >= gebruiker?.periodeDag;
+      const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8));
+      const kloptSaldo = aflossing.aflossingSaldoDTO.berekendSaldo == aflossing.aflossingSaldoDTO.werkelijkSaldo;
+      const heeftBetalingAchtersstand = aflossing.aflossingSaldoDTO.berekendSaldo < aflossing.aflossingSaldoDTO.werkelijkSaldo
+      const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldoDTO.berekendSaldo - aflossing.aflossingSaldoDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
       return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="#bdbdbd" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <PlusIcon color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <PlusIcon color="lightGreen" /> :
@@ -119,7 +108,8 @@ export default function Aflossingen() {
               </Typography>
             </AccordionSummary>
             <AccordionDetails sx={{ p: 0 }} >
-              <AflossingenAfbouwGrafiek />
+              <AflossingenAfbouwGrafiek
+                aflossingen={aflossingen} />
             </AccordionDetails>
           </Accordion>
 

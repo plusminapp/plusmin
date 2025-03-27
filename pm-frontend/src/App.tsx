@@ -9,7 +9,7 @@ import Kasboek from './pages/Kasboek';
 import Aflossing from './pages/Aflossing';
 import Header from './components/Header';
 import Budget from './pages/Budget';
-import LoginPagina from './pages/LoginPagina';
+import LoginPagina from './pages/Login';
 
 import Container from '@mui/material/Container';
 import NotFound from './pages/NotFound';

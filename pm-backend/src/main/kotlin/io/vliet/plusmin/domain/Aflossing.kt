@@ -51,10 +51,10 @@ class Aflossing(
         val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
-        var aflossingSaldiDTO:AflossingSaldiDTO? = null
+        var aflossingSaldoDTO:AflossingSaldoDTO? = null
     ) {
-        fun with(aflossingSaldiDTO: AflossingSaldiDTO): AflossingDTO {
-            this.aflossingSaldiDTO = aflossingSaldiDTO
+        fun with(aflossingSaldoDTO: AflossingSaldoDTO): AflossingDTO {
+            this.aflossingSaldoDTO = aflossingSaldoDTO
             return this
         }
     }
@@ -73,7 +73,7 @@ class Aflossing(
         )
     }
 
-    data class AflossingSaldiDTO(
+    data class AflossingSaldoDTO(
         val peilDatum: String,
         val berekendSaldo: BigDecimal,
         val werkelijkSaldo: BigDecimal,

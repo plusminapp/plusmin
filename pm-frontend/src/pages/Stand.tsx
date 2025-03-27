@@ -142,7 +142,7 @@ export default function Stand() {
               .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
               .filter(rekening => rekening.budgetten.length >= 1)
               .map(rekening => (
-                rekening.budgetten[0].budgetType.toLowerCase() === 'continu' && rekening.budgetten.length === 1 ?
+                rekening.budgetType?.toLowerCase() === 'continu' && rekening.budgetten.length === 1 ?
                   <BudgetContinuGrafiek
                     rekening={rekening}
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
@@ -155,14 +155,14 @@ export default function Stand() {
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
                     ontvangenOpPeildatum={findStandVanRekening(rekening.naam)}
-                  /> : rekening.budgetten.length === 1 ?
+                  /> : 
                   <BudgetVastGrafiek
                     rekening={rekening}
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
                     besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
                       -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                  /> : null
+                  /> 
               ))}
 
           <Accordion>

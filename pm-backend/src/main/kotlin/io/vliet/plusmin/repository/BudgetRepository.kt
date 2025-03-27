@@ -14,7 +14,7 @@ interface BudgetRepository : JpaRepository<Budget, Long> {
         value = "SELECT b FROM Budget b  " +
                 "WHERE b.rekening.gebruiker = :gebruiker"
     )
-    fun findAllByGebruiker(gebruiker: Gebruiker): List<Budget>
+    fun findBudgettenByGebruiker(gebruiker: Gebruiker): List<Budget>
 
     @Query(
         value = "SELECT b FROM Budget b  " +

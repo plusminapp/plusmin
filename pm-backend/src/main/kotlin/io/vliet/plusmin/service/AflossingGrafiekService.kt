@@ -24,11 +24,11 @@ class AflossingGrafiekService {
         val aflossingen = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         val aflossingGrafiekDataLijst: List<AflossingGrafiekData> =
             aflossingen.flatMap { aflossing ->
-                genereerAflossingSaldiDTO(aflossing)
+                genereerAflossingSaldoDTO(aflossing)
             }
         val aflossingGrafiekDataMap: Map<String, List<Saldo.SaldoDTO>> = aflossingGrafiekDataLijst
             .groupBy { it.maand }
-            .mapValues { entry -> entry.value.map { it.aflossingSaldiDTO } }
+            .mapValues { entry -> entry.value.map { it.aflossingSaldoDTO } }
         return toGrafiekDataJsonString(aflossingGrafiekDataMap)
     }
 
@@ -46,7 +46,7 @@ class AflossingGrafiekService {
         }
     }
 
-    fun genereerAflossingSaldiDTO(aflossing: Aflossing): List<AflossingGrafiekData> {
+    fun genereerAflossingSaldoDTO(aflossing: Aflossing): List<AflossingGrafiekData> {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM")
         val aflossingGrafiekDataLijst = mutableListOf<AflossingGrafiekData>()
         var huidigeMaand = aflossing.startDatum.withDayOfMonth(1)
@@ -55,7 +55,7 @@ class AflossingGrafiekService {
             aflossingGrafiekDataLijst.add(
                 AflossingGrafiekData(
                     maand = huidigeMaand.format(formatter),
-                    aflossingSaldiDTO = Saldo.SaldoDTO(
+                    aflossingSaldoDTO = Saldo.SaldoDTO(
                         rekeningNaam = aflossing.rekening.naam,
                         bedrag = huidigeBedrag,
                     )
@@ -114,6 +114,6 @@ class AflossingGrafiekService {
 
     data class AflossingGrafiekData(
         val maand: String,
-        val aflossingSaldiDTO: Saldo.SaldoDTO
+        val aflossingSaldoDTO: Saldo.SaldoDTO
     )
 }

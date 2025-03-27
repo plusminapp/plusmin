@@ -1,6 +1,8 @@
 package io.vliet.plusmin.controller
 
 import io.swagger.v3.oas.annotations.Operation
+import io.vliet.plusmin.domain.Aflossing
+import io.vliet.plusmin.domain.Budget
 import io.vliet.plusmin.domain.Saldo.SaldoDTO
 import io.vliet.plusmin.service.PeriodeService
 import io.vliet.plusmin.service.SaldoService
@@ -68,7 +70,8 @@ class SaldoController {
         val openingsBalans: List<SaldoDTO>,
         val mutatiesOpDatum: List<SaldoDTO>,
         val balansOpDatum: List<SaldoDTO>,
-        val resultaatOpDatum: List<SaldoDTO>
-    )
+        val resultaatOpDatum: List<SaldoDTO>,
+        val budgettenOpDatum: List<Budget.BudgetDTO>,
+        val aflossingenOpDatum: List<Aflossing.AflossingDTO>)
 }
 

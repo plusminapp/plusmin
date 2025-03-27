@@ -4,49 +4,40 @@ import dayjs from 'dayjs';
 import { Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening, RekeningSoort } from '../../model/Rekening';
+import { Rekening } from '../../model/Rekening';
 
-type BudgetInkomstenGrafiekProps = {
+type BudgetVastGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
-  ontvangenOpPeildatum: number;
+  besteedOpPeildatum: number;
 };
 
-export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
+export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.inkomsten.toLowerCase() ||
-    props.rekening.budgetten.length === 0  ||
-    props.rekening.budgetten.some(budget => budget.betaalDag === undefined) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
-    throw new Error('BudgetInkomstenGrafiek: rekeningSoort moet \'inkomsten\' zijn, er moet minimaal 1 budget zijn en alle budgetten moeten een geldige betaalDag hebben.');
+  if (props.rekening.budgetten.length === 0 ||
+    props.rekening.rekeningSoort?.toLowerCase() !== 'uitgaven' ||
+    props.rekening.budgetType?.toLowerCase() !== 'vast') {
+    throw new Error('BudgetVastGrafiek: er moet precies 1 uitgave vast budget zijn.');
   }
-
-  const budget = props.rekening.budgetten[0];
-
-  const maandBudget = props.rekening.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
-  const inkomstenMoetBetaaldZijn = budget.betaalDag && (props.peildatum.date() < dayjs(props.periode.periodeStartDatum).date() ||
-    props.peildatum.date() > budget.betaalDag);
-  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) => (acc + (inkomstenMoetBetaaldZijn ? budget.bedrag : 0)), 0);
 
 
   // const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  // const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
+  const maandBudget = props.rekening.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
 
-  const ontvangenBinnenBudget = {
-    budgetEindeSegment: props.ontvangenOpPeildatum > maandBudget ? maandBudget : props.ontvangenOpPeildatum,
-    budgetInSegment: props.ontvangenOpPeildatum > maandBudget ? maandBudget : props.ontvangenOpPeildatum,
+  const besteedBinnenBudget = {
+    budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? maandBudget : props.besteedOpPeildatum,
+    budgetInSegment: props.besteedOpPeildatum > maandBudget ? maandBudget : props.besteedOpPeildatum,
   };
   const meerDanMaandBudget = {
-    budgetEindeSegment: props.ontvangenOpPeildatum > maandBudget ? props.ontvangenOpPeildatum : 0,
-    budgetInSegment: props.ontvangenOpPeildatum > maandBudget ? props.ontvangenOpPeildatum - maandBudget : 0
+    budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum : 0,
+    budgetInSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum - maandBudget : 0
   };
   const restMaandBudget = {
     budgetEindeSegment: maandBudget,
-    budgetInSegment: ontvangenBinnenBudget.budgetEindeSegment <= maandBudget && meerDanMaandBudget.budgetInSegment === 0 ? maandBudget - (ontvangenBinnenBudget.budgetEindeSegment) : 0
+    budgetInSegment: besteedBinnenBudget.budgetEindeSegment <= maandBudget && meerDanMaandBudget.budgetInSegment === 0 ? maandBudget - (besteedBinnenBudget.budgetEindeSegment) : 0
   };
 
   const formatAmount = (amount: string): string => {
@@ -58,7 +49,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   const toonBudgetToelichtingMessage = () => {
     if (meerDanMaandBudget.budgetInSegment > 0) {
       return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk
-      ${formatAmount(props.ontvangenOpPeildatum.toString())}.`;
+      ${formatAmount(props.besteedOpPeildatum.toString())}.`;
     }
   }
 
@@ -66,18 +57,16 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  console.log('maandBudget', JSON.stringify(maandBudget));
-  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  // console.log('maandBudget', JSON.stringify(maandBudget));
   // console.log('tabelBreedte', JSON.stringify(tabelBreedte));
   // console.log('dagenInPeriode', JSON.stringify(dagenInPeriode));
   // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
   // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
   // console.log('verschilOpPeildatumInDagen', JSON.stringify(verschilOpPeildatumInDagen));
   // console.log('budgetDatum', JSON.stringify(budgetDatum));
-  // console.log('start', JSON.stringify(start));
-  // console.log('ontvangen', JSON.stringify(ontvangenBinnenBudget));
-  // console.log('rest', JSON.stringify(restMaandBudget));
-  // console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
+  console.log('besteed', JSON.stringify(besteedBinnenBudget));
+  console.log('rest', JSON.stringify(restMaandBudget));
+  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>
@@ -100,13 +89,13 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
             </TableRow>
             <TableRow>
               <TableCell width={'5%'} />
-              {ontvangenBinnenBudget.budgetInSegment > 0 &&
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
                   sx={{ p: 1, fontSize: '10px' }}
                   align="right"
-                  width={`${(ontvangenBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                 >
-                  {formatAmount(ontvangenBinnenBudget.budgetEindeSegment.toString())}
+                  {formatAmount(besteedBinnenBudget.budgetEindeSegment.toString())}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
@@ -130,23 +119,23 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
 
             <TableRow>
               <TableCell width={'5%'} sx={{ borderBottom: '10px solid white' }} />
-              {ontvangenBinnenBudget.budgetInSegment > 0 &&
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
-                  width={`${(ontvangenBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
                     backgroundColor: 'grey',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
                   }}>
-                  {formatAmount(ontvangenBinnenBudget.budgetInSegment.toString())}
+                  {formatAmount(besteedBinnenBudget.budgetInSegment.toString())}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
                   width={`${(restMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() || !inkomstenMoetBetaaldZijn ? '#1977d3' : '#cc0000',
-                    borderBottom: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() || !inkomstenMoetBetaaldZijn ? '10px solid #1977d3' : '10px solid #cc0000',
+                    backgroundColor: '#1977d3',
+                    borderBottom: '10px solid #1977d3',
                     color: 'white',
                     textAlign: 'center'
                   }}>
@@ -156,7 +145,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 <TableCell
                   width={`${(meerDanMaandBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{
-                    backgroundColor: props.rekening.rekeningSoort === RekeningSoort.uitgaven.toLowerCase() ? '#cc0000' : 'green',
+                    backgroundColor: '#cc0000',
                     borderBottom: '10px solid #333',
                     color: 'white',
                     textAlign: 'center'
@@ -178,12 +167,12 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 sx={{ p: 1, fontSize: '10px' }} >
                 {dayjs(props.periode.periodeStartDatum).format('D/M')}
               </TableCell>
-              {ontvangenBinnenBudget.budgetInSegment > 0 &&
+              {besteedBinnenBudget.budgetInSegment > 0 &&
                 <TableCell
                   align="right"
-                  width={`${(ontvangenBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
+                  width={`${(besteedBinnenBudget.budgetInSegment / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px' }} >
-                  {(ontvangenBinnenBudget.budgetInSegment > 0 && meerDanMaandBudget.budgetInSegment === 0) && props.peildatum.format('D/M')}
+                  {(besteedBinnenBudget.budgetInSegment > 0 && meerDanMaandBudget.budgetInSegment === 0) && props.peildatum.format('D/M')}
                 </TableCell>}
               {restMaandBudget.budgetInSegment > 0 &&
                 <TableCell
@@ -214,4 +203,4 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   );
 };
 
-export default BudgetInkomstenGrafiek;
+export default BudgetVastGrafiek;

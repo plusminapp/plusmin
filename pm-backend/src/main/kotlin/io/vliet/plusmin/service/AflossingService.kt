@@ -1,6 +1,5 @@
 package io.vliet.plusmin.service
 
-import io.vliet.plusmin.controller.SaldoController
 import io.vliet.plusmin.domain.*
 import io.vliet.plusmin.domain.Aflossing.AflossingDTO
 import io.vliet.plusmin.repository.*
@@ -28,9 +27,6 @@ class AflossingService {
 
     @Autowired
     lateinit var periodeRepository: PeriodeRepository
-
-    @Autowired
-    lateinit var saldoService: SaldoService
 
     @Autowired
     lateinit var saldoRepository: SaldoRepository
@@ -107,7 +103,11 @@ class AflossingService {
     }
 
 
-    fun berekenAflossingenOpDatum(gebruiker: Gebruiker, peilDatumAsString: String): List<AflossingDTO> {
+    fun berekenAflossingenOpDatum(
+        gebruiker: Gebruiker,
+        balansOpDatum: List<Saldo.SaldoDTO>,
+        peilDatumAsString: String
+    ): List<AflossingDTO> {
         val aflossingenLijst = aflossingRepository.findAflossingenVoorGebruiker(gebruiker)
         val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
         val saldoPeriode = periodeService.getLaatstGeslotenOfOpgeruimdePeriode(gebruiker)
@@ -115,16 +115,15 @@ class AflossingService {
             logger.error("Geen periode voor ${gebruiker.bijnaam} op ${peilDatum}, gebruik ${saldoPeriode.periodeStartDatum}")
             saldoPeriode
         }
-        val standDTO = saldoService.getStandOpDatum(saldoPeriode, gekozenPeriode.periodeStartDatum, peilDatum)
 
         return aflossingenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { aflossing ->
                 aflossing.toDTO()
                     .with(
-                        Aflossing.AflossingSaldiDTO(
+                        Aflossing.AflossingSaldoDTO(
                             peilDatum = peilDatumAsString,
-                            werkelijkSaldo = getBalansVanStand(standDTO, aflossing.rekening),
+                            werkelijkSaldo = getBalansVanStand(balansOpDatum, aflossing.rekening),
                             berekendSaldo = berekenAflossingBedragOpDatum(aflossing, peilDatum),
                             betaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
                         )
@@ -132,20 +131,10 @@ class AflossingService {
             }
     }
 
-    fun getBalansVanStand(standDTO: SaldoController.StandDTO, rekening: Rekening): BigDecimal {
-        val saldo: Saldo.SaldoDTO? = standDTO.balansOpDatum.find { it.rekeningNaam == rekening.naam }
+    fun getBalansVanStand(balansOpDatum: List<Saldo.SaldoDTO>, rekening: Rekening): BigDecimal {
+        val saldo = balansOpDatum.find { it.rekeningNaam == rekening.naam }
         return if (saldo == null) BigDecimal(0) else -saldo.bedrag
     }
-
-//    fun berekenAflossingBedragOpDatum(
-//        gebruiker: Gebruiker,
-//        aflossingDTO: AflossingDTO,
-//        peilDatumAsString: String
-//    ): BigDecimal {
-//        val aflossing = fromDTO(gebruiker, aflossingDTO)
-//        val peilDatum = LocalDate.parse(peilDatumAsString, DateTimeFormatter.ISO_LOCAL_DATE)
-//        return berekenAflossingBedragOpDatum(aflossing, peilDatum)
-//    }
 
     fun berekenAflossingBedragOpDatum(aflossing: Aflossing, peilDatum: LocalDate): BigDecimal {
         if (peilDatum < aflossing.startDatum || peilDatum.withDayOfMonth(aflossing.betaalDag) < aflossing.startDatum)

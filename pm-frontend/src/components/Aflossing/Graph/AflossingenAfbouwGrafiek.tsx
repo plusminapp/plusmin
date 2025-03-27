@@ -1,56 +1,22 @@
 import { AgCharts } from "ag-charts-react";
 import { AgAreaSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { getData, getSeries } from "./data";
-import { useCallback, useEffect, useState } from "react";
-import { useAuthContext } from "@asgardeo/auth-react";
 import { useCustomContext } from "../../../context/CustomContext";
 import { Aflossing } from "../../../model/Aflossing";
 import dayjs from "dayjs";
-import { useNavigate } from "react-router-dom";
 
-export const AflossingenAfbouwGrafiek = () => {
+type AflossingenAfbouwGrafiekProps = {
+  aflossingen: Aflossing[];
+};
 
-  const { getIDToken } = useAuthContext();
-  const { gebruiker, actieveHulpvrager, gekozenPeriode } = useCustomContext();
+export const AflossingenAfbouwGrafiek = (props: AflossingenAfbouwGrafiekProps) => {
 
-  const [aflossingen, setAflossingen] = useState<Aflossing[]>([]);
-
-  const navigate = useNavigate();
-  const fetchAflossingen = useCallback(async () => {
-    if (gebruiker) {
-      let token
-      try {
-        token = await getIDToken();
-      } catch (error) {
-        navigate('/login');
-      }
-
-      const id = actieveHulpvrager ? actieveHulpvrager.id : gebruiker?.id
-      const response = await fetch(`/api/v1/aflossing/hulpvrager/${id}`, {
-        method: "GET",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.ok) {
-        const result = await response.json();
-        setAflossingen(result);
-      } else {
-        console.error("Ophalen van het aflossingen is mislukt.", response.status);
-      }
-    }
-  }, [getIDToken, actieveHulpvrager, gebruiker]);
-
-  useEffect(() => {
-    fetchAflossingen();
-  }, [fetchAflossingen]);
-
+  const { gekozenPeriode } = useCustomContext();
   const getoondePeriode = dayjs(gekozenPeriode?.periodeEindDatum).format("YYYY-MM");
 
   const chartOptions: AgChartOptions = {
-    data: Object.values(getData(aflossingen)),
-    series: getSeries(aflossingen) as AgAreaSeriesOptions[],
+    data: Object.values(getData(props.aflossingen)),
+    series: getSeries(props.aflossingen) as AgAreaSeriesOptions[],
     axes: [
       {
         type: "category",

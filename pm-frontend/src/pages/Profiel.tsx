@@ -8,7 +8,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { useCustomContext } from '../context/CustomContext';
 import { betalingsSoort2Categorie, betalingsSoortFormatter, currencyFormatter } from '../model/Betaling';
 import { PeriodeSelect } from '../components/Periode/PeriodeSelect';
-import { betaalmethodeRekeningSoorten, inkomstenRekeningSoorten, Rekening, RekeningSoort, resultaatRekeningSoorten, uitgavenRekeningSoorten } from '../model/Rekening';
+import { betaalmethodeRekeningSoorten, BudgetType, inkomstenRekeningSoorten, Rekening, RekeningSoort, resultaatRekeningSoorten, uitgavenRekeningSoorten } from '../model/Rekening';
 import { AflossingSamenvattingDTO } from '../model/Aflossing';
 import { berekenPeriodeBudgetBedrag } from '../model/Budget';
 import { ArrowDropDownIcon } from '@mui/x-date-pickers';
@@ -207,7 +207,7 @@ const Profiel: React.FC = () => {
                                       __html: rekening.budgetten.map(b =>
                                         `${b.budgetNaam} (${currencyFormatter.format(Number(b.bedrag))}/${b.budgetPeriodiciteit.toLowerCase()}
                                  ${b.budgetPeriodiciteit.toLowerCase() === 'week' ? `= ${currencyFormatter.format(berekenPeriodeBudgetBedrag(gekozenPeriode, b) ?? 0)}/maand` : ''}
-                                 ${b.budgetType.toLowerCase() === 'continu' ? 'doorlopend' : 'op de ' + b.betaalDag + 'e'})`)
+                                 ${rekening.budgetType === BudgetType.continu ? 'doorlopend' : 'op de ' + b.betaalDag + 'e'})`)
                                         .join('<br />') +
                                         (rekening.budgetten.length > 1 ? `<br />Totaal: ${currencyFormatter.format(rekening.budgetten.reduce((acc, b) => acc + Number(b.bedrag), 0))}/maand` : '')
                                     }} />}

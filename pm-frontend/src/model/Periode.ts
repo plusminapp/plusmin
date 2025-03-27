@@ -27,6 +27,17 @@ export const dagenInPeriode = (gekozenPeriode: Periode | undefined): number | un
     return dayjs(gekozenPeriode.periodeEindDatum).diff(dayjs(gekozenPeriode.periodeStartDatum), 'day') + 1;
 }
 
+export const dagInPeriode = (dag: number, gekozenPeriode: Periode) => {
+    const startDatum = dayjs(gekozenPeriode.periodeStartDatum);
+    const dagVanStart = startDatum.date();
+
+    if (dag < dagVanStart) {
+        return startDatum.add(1, 'month').set('date', dag)
+    } else {
+        return startDatum.set('date', dag);
+    }   
+}
+
 export const isDagNaVandaagInPeriode = (dag: number, gekozenPeriode: Periode | undefined): boolean => {
     if (gekozenPeriode === undefined) {
         return false;

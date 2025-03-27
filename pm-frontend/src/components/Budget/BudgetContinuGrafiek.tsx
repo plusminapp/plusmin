@@ -25,7 +25,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
   if (props.rekening.budgetten.length === 0
     || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetten[0].budgetType.toLowerCase() !== 'continu') {
+    props.rekening.budgetType?.toLowerCase() !== 'continu') {
     throw new Error('Er moet precies 1 continu budget zijn.');
   }
 
