@@ -13,6 +13,7 @@ import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import BudgetContinuGrafiek from "../components/Budget/BudgetContinuGrafiek";
 import { betaalmethodeRekeningSoorten } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
+import BudgetInkomstenGrafiek from "../components/Budget/BudgetInkomstenGrafiek";
 
 export default function Stand() {
 
@@ -139,23 +140,29 @@ export default function Stand() {
           {gekozenPeriode &&
             rekeningen
               .sort((a, b) => a.sortOrder > b.sortOrder ? 1 : -1)
-              .filter(rekening => rekening.budgetten.length === 1)
+              .filter(rekening => rekening.budgetten.length >= 1)
               .map(rekening => (
-                rekening.budgetten[0].budgetType.toLowerCase() === 'continu' ?
+                rekening.budgetten[0].budgetType.toLowerCase() === 'continu' && rekening.budgetten.length === 1 ?
                   <BudgetContinuGrafiek
                     rekening={rekening}
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
                     besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
                       -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                  /> :
+                  /> : rekening.rekeningSoort.toLowerCase() === 'inkomsten' ?
+                  <BudgetInkomstenGrafiek
+                    rekening={rekening}
+                    peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                    periode={gekozenPeriode}
+                    ontvangenOpPeildatum={findStandVanRekening(rekening.naam)}
+                  /> : rekening.budgetten.length === 1 ?
                   <BudgetVastGrafiek
                     rekening={rekening}
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
                     besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
                       -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                  />
+                  /> : null
               ))}
 
           <Accordion>
