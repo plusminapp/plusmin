@@ -1,50 +1,57 @@
-import { Box, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
+import { Box, FormControlLabel, FormGroup, Switch, Table, TableBody, TableCell, TableContainer, TableRow, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import dayjs from 'dayjs';
-import { Periode } from '../../model/Periode';
+import { dagInPeriode, Periode } from '../../model/Periode';
 import { InfoIcon } from '../../icons/Info';
 import { useCustomContext } from '../../context/CustomContext';
-import { Rekening } from '../../model/Rekening';
-
-// type DatumWaardePunt = {
-//   datum: dayjs.Dayjs;
-//   budgetEindeSegment: number;
-//   budgetInSegment: number;
-// };
+import { Rekening, RekeningSoort } from '../../model/Rekening';
+import { useState } from 'react';
+import { BudgetDTO } from '../../model/Budget';
 
 type BudgetContinuGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
-  besteedOpPeildatum: number;
+  budgetten: BudgetDTO[];
 };
 
 export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  if (props.rekening.budgetten.length === 0
-    || props.rekening.budgetten.length > 1 ||
-    props.rekening.budgetType?.toLowerCase() !== 'continu') {
-    throw new Error('Er moet precies 1 continu budget zijn.');
+  const [toonBudgetVastDetails, setToonBudgetVastDetails] = useState<boolean>(false);
+  const handleToonBudgetVastChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setToonBudgetVastDetails(event.target.checked);
+  };
+
+  if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.uitgaven.toLowerCase() ||
+    props.rekening.budgetten.length !== 1 ) {
+    throw new Error('BudgetVastGrafiek: rekeningSoort moet \'uitgaven\' zijn, er moet minimaal 1 budget zijn en alle budgetten moeten een geldige betaalDag hebben.');
   }
 
-  const budget = props.rekening.budgetten[0];
-
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
+
+  const budget = props.rekening.budgetten[0];
   const maandBudget = budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7;
+  const uitgavenMoetBetaaldZijn = (betaalDag: number | undefined) => {
+    if (betaalDag === undefined) return true;
+    const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
+    return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
+  }
+  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) =>
+    (acc + (uitgavenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
+  const besteedOpPeildatum = props.budgetten.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
+
   const dagBudget = maandBudget / periodeLengte;
-  const dagenInPeriodeOpPeildatum = props.peildatum.diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const budgetOpPeildatum = maandBudget * dagenInPeriodeOpPeildatum / periodeLengte;
-  const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.besteedOpPeildatum;
+  const verschilOpPeildatumInWaarde = budgetOpPeildatum - besteedOpPeildatum;
 
   const besteedBinnenBudget = {
-    budgetEindeSegment: props.besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
-      props.besteedOpPeildatum > maandBudget ? maandBudget :
-        props.besteedOpPeildatum,
-    budgetInSegment: props.besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
-      props.besteedOpPeildatum > maandBudget ? maandBudget :
-        props.besteedOpPeildatum,
+    budgetEindeSegment: besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+      besteedOpPeildatum > maandBudget ? maandBudget :
+        besteedOpPeildatum,
+    budgetInSegment: besteedOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+      besteedOpPeildatum > maandBudget ? maandBudget :
+        besteedOpPeildatum,
   };
   const minderDanBudget = {
     budgetEindeSegment: besteedBinnenBudget.budgetEindeSegment +
@@ -54,16 +61,16 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
       verschilOpPeildatumInWaarde > dagBudget / 2 ? verschilOpPeildatumInWaarde : 0
   };
   const meerDanBudget = {
-    budgetEindeSegment: props.besteedOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget :
+    budgetEindeSegment: besteedOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget :
       props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || -verschilOpPeildatumInWaarde < dagBudget / 2 ? minderDanBudget.budgetEindeSegment :
         minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde,
-    budgetInSegment: props.besteedOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget - minderDanBudget.budgetEindeSegment :
+    budgetInSegment: besteedOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget - minderDanBudget.budgetEindeSegment :
       props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || -verschilOpPeildatumInWaarde < dagBudget / 2 ? 0 :
         -verschilOpPeildatumInWaarde
   };
   const meerDanMaandBudget = {
-    budgetEindeSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum : 0,
-    budgetInSegment: props.besteedOpPeildatum > maandBudget ? props.besteedOpPeildatum - maandBudget : 0
+    budgetEindeSegment: besteedOpPeildatum > maandBudget ? besteedOpPeildatum : 0,
+    budgetInSegment: besteedOpPeildatum > maandBudget ? besteedOpPeildatum - maandBudget : 0
   };
   const restMaandBudget = {
     budgetEindeSegment: maandBudget,
@@ -96,7 +103,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
       terwijl je volgens het budget ${formatAmount(minderDanBudget.budgetEindeSegment.toString())} had kunnen uitgeven.`;
     } else {
       return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk
-      ${formatAmount(props.besteedOpPeildatum.toString())}.`;
+      ${formatAmount(besteedOpPeildatum.toString())}.`;
     }
   }
 
@@ -115,23 +122,44 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
   return (
     <>
+      <Grid display={'flex'} direction={'row'} alignItems={'center'}>
+        <Typography variant='body2'>
+          <strong>{props.rekening.naam}</strong>
+        </Typography>
+        <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
+          onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
+          <InfoIcon height='16' />
+        </Box>
+        {props.budgetten.length >= 1 &&
+          <FormGroup >
+            <FormControlLabel control={
+              <Switch
+                sx={{ transform: 'scale(0.6)' }}
+                checked={toonBudgetVastDetails}
+                onChange={handleToonBudgetVastChange}
+                slotProps={{ input: { 'aria-label': 'controlled' } }}
+              />}
+              sx={{ mr: 0 }}
+              label={
+                <Box display="flex" fontSize={'0.875rem'} >
+                  Toon budget details
+                </Box>
+              } />
+          </FormGroup>}
+      </Grid>
+      {toonBudgetVastDetails &&
+        <Grid display={'flex'} direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
+          {props.budgetten.map((budget, index) => (
+            <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
+              {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')} waar
+              van op {dayjs(budget.budgetSaldoPeildatum).format('D MMMM')} {formatAmount(budget.budgetSaldoBetaling?.toString() ?? "nvt")} is betaald.
+            </Typography>
+          ))}
+        </Grid>}
       <TableContainer >
         <Table>
-          <TableBody >
-            <TableRow>
-              <TableCell colSpan={4} sx={{ paddingBottom: 0, borderBottom: 'none' }}>
-                <Grid display={'flex'} direction={'row'} alignItems={'center'}>
-                  <Typography variant='body2'>
-                    <strong>{props.rekening.naam}</strong>
-                  </Typography>
-                  <Box alignItems={'center'} display={'flex'} sx={{ cursor: 'pointer' }}
-                    onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
-                    <InfoIcon height='16' />
-                  </Box>
-                </Grid>
+          <TableBody>
 
-              </TableCell>
-            </TableRow>
             <TableRow>
               <TableCell width={'5%'} />
               {besteedBinnenBudget.budgetInSegment > 0 &&

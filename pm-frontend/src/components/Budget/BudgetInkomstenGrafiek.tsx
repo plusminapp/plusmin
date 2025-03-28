@@ -12,7 +12,6 @@ type BudgetInkomstenGrafiekProps = {
   peildatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
-  ontvangenOpPeildatum: number;
   budgetten: BudgetDTO[];
 };
 
@@ -20,10 +19,10 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
 
   const { setSnackbarMessage } = useCustomContext();
 
-  const [toonBudgetDetails, setToonBudgetDetails] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
-  const handleToonInternChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [toonBudgetInkomstenDetails, setToonBudgetInkomstenDetails] = useState<boolean>(localStorage.getItem('toonIntern') === 'true');
+  const handleToonBudgetInkomstenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     localStorage.setItem('toonIntern', event.target.checked.toString());
-    setToonBudgetDetails(event.target.checked);
+    setToonBudgetInkomstenDetails(event.target.checked);
   };
 
 
@@ -42,18 +41,18 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
     const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
     return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
   }
-  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) =>
-    (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
+  const ontvangenOpPeildatum = props.budgetten.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
+  const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) => (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
   const dagBudget = maandBudget / periodeLengte;
-  const verschilOpPeildatumInWaarde = budgetOpPeildatum - props.ontvangenOpPeildatum;
+  const verschilOpPeildatumInWaarde = budgetOpPeildatum - ontvangenOpPeildatum;
 
   const ontvangenBinnenBudget = {
-    budgetEindeSegment: props.ontvangenOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
-      props.ontvangenOpPeildatum > maandBudget ? maandBudget :
-        props.ontvangenOpPeildatum,
-    budgetInSegment: props.ontvangenOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
-      props.ontvangenOpPeildatum > maandBudget ? maandBudget :
-        props.ontvangenOpPeildatum,
+    budgetEindeSegment: ontvangenOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+      ontvangenOpPeildatum > maandBudget ? maandBudget :
+        ontvangenOpPeildatum,
+    budgetInSegment: ontvangenOpPeildatum >= budgetOpPeildatum + dagBudget / 2 ? budgetOpPeildatum :
+      ontvangenOpPeildatum > maandBudget ? maandBudget :
+        ontvangenOpPeildatum,
   };
   const minderDanBudget = {
     budgetEindeSegment: ontvangenBinnenBudget.budgetEindeSegment +
@@ -63,16 +62,16 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
       verschilOpPeildatumInWaarde > dagBudget / 2 ? verschilOpPeildatumInWaarde : 0
   };
   const meerDanBudget = {
-    budgetEindeSegment: props.ontvangenOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget :
+    budgetEindeSegment: ontvangenOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget :
       props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || -verschilOpPeildatumInWaarde < dagBudget / 2 ? minderDanBudget.budgetEindeSegment :
         minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde,
-    budgetInSegment: props.ontvangenOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget - minderDanBudget.budgetEindeSegment :
+    budgetInSegment: ontvangenOpPeildatum > maandBudget || minderDanBudget.budgetEindeSegment - verschilOpPeildatumInWaarde > maandBudget ? maandBudget - minderDanBudget.budgetEindeSegment :
       props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum || -verschilOpPeildatumInWaarde < dagBudget / 2 ? 0 :
         -verschilOpPeildatumInWaarde
   };
   const meerDanMaandBudget = {
-    budgetEindeSegment: props.ontvangenOpPeildatum > maandBudget ? props.ontvangenOpPeildatum : 0,
-    budgetInSegment: props.ontvangenOpPeildatum > maandBudget ? props.ontvangenOpPeildatum - maandBudget : 0
+    budgetEindeSegment: ontvangenOpPeildatum > maandBudget ? ontvangenOpPeildatum : 0,
+    budgetInSegment: ontvangenOpPeildatum > maandBudget ? ontvangenOpPeildatum - maandBudget : 0
   };
   const restMaandBudget = {
     budgetEindeSegment: maandBudget,
@@ -105,7 +104,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
       terwijl je volgens het budget ${formatAmount(minderDanBudget.budgetEindeSegment.toString())} had kunnen uitgeven.`;
     } else {
       return `Je hebt precies het gebudgetteerde bedrag voor ${props.peildatum.format('D MMMM')} uitgegevens, namelijk
-      ${formatAmount(props.ontvangenOpPeildatum.toString())}.`;
+      ${formatAmount(ontvangenOpPeildatum.toString())}.`;
     }
   }
 
@@ -113,15 +112,16 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  // console.log('maandBudget', JSON.stringify(maandBudget));
-  // console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
-  // console.log('ontvangenOpPeildatum', JSON.stringify(props.ontvangenOpPeildatum));
-  // console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
-  // console.log('ontvangen', JSON.stringify(ontvangenBinnenBudget));
-  // console.log('minder', JSON.stringify(minderDanBudget));
-  // console.log('meer', JSON.stringify(meerDanBudget));
-  // console.log('rest', JSON.stringify(restMaandBudget));
-  // console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
+  console.log('budgetten', JSON.stringify(props.budgetten));
+  console.log('maandBudget', JSON.stringify(maandBudget));
+  console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
+  console.log('ontvangenOpPeildatum', JSON.stringify(ontvangenOpPeildatum));
+  console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
+  console.log('ontvangen', JSON.stringify(ontvangenBinnenBudget));
+  console.log('minder', JSON.stringify(minderDanBudget));
+  console.log('meer', JSON.stringify(meerDanBudget));
+  console.log('rest', JSON.stringify(restMaandBudget));
+  console.log('meerDanMaand', JSON.stringify(meerDanMaandBudget));
 
   return (
     <>
@@ -133,13 +133,13 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
           onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
           <InfoIcon height='16' />
         </Box>
-        {props.budgetten.length > 1 &&
+        {props.budgetten.length >= 1 &&
           <FormGroup >
             <FormControlLabel control={
               <Switch
                 sx={{ transform: 'scale(0.6)' }}
-                checked={toonBudgetDetails}
-                onChange={handleToonInternChange}
+                checked={toonBudgetInkomstenDetails}
+                onChange={handleToonBudgetInkomstenChange}
                 slotProps={{ input: { 'aria-label': 'controlled' } }}
               />}
               sx={{ mr: 0 }}
@@ -150,12 +150,12 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
               } />
           </FormGroup>}
       </Grid>
-      {toonBudgetDetails &&
+      {toonBudgetInkomstenDetails &&
         <Grid display={'flex'} direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
           {props.budgetten.map((budget, index) => (
             <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
               {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')} waar
-              van op {dayjs(budget.budgetSaldoDTO?.peilDatum).format('D MMMM')} {formatAmount(budget.budgetSaldoDTO?.betaling.toString() ?? "nvt")} is betaald.
+              van op {dayjs(budget.budgetSaldoPeildatum).format('D MMMM')} {formatAmount(budget.budgetSaldoBetaling?.toString() ?? "nvt")} is ontvangen.
             </Typography>
           ))}
         </Grid>}

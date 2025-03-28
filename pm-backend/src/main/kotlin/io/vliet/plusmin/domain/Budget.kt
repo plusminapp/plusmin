@@ -48,15 +48,10 @@ class Budget(
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
-        var budgetSaldoDTO: BudgetSaldoDTO? = null
-    ){
-        fun with(budgetSaldoDTO: BudgetSaldoDTO): BudgetDTO {
-            this.budgetSaldoDTO = budgetSaldoDTO
-            return this
-        }
-    }
+        val budgetSaldoPeildatum: String? = null,
+        val budgetSaldoBetaling: BigDecimal? = null)
 
-    fun toDTO(): BudgetDTO {
+    fun toDTO(peilDatum: String? = null, betaling: BigDecimal? = null): BudgetDTO {
         return BudgetDTO(
             this.id,
             this.rekening.naam,
@@ -65,13 +60,11 @@ class Budget(
             this.budgetType.toString(),
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
-            this.betaalDag
+            this.betaalDag,
+            peilDatum,
+            betaling
         )
     }
-    data class BudgetSaldoDTO(
-        val peilDatum: String,
-        val betaling: BigDecimal
-    )
 
     enum class BudgetType {
         VAST, CONTINU

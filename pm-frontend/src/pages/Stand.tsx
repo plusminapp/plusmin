@@ -101,10 +101,10 @@ export default function Stand() {
     setToonMutaties(event.target.checked);
   };
 
-  const findStandVanRekening = (rekeningNaam: string) => {
-    const saldo = stand?.resultaatOpDatum.find(saldo => saldo.rekeningNaam === rekeningNaam);
-    return saldo?.bedrag ?? 0;
-  };
+  // const findStandVanRekening = (rekeningNaam: string) => {
+  //   const saldo = stand?.resultaatOpDatum.find(saldo => saldo.rekeningNaam === rekeningNaam);
+  //   return saldo?.bedrag ?? 0;
+  // };
 
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De saldi worden opgehaald.</Typography>
@@ -147,23 +147,20 @@ export default function Stand() {
                     rekening={rekening}
                     peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
                     periode={gekozenPeriode}
-                    besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
-                      -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                  /> : rekening.rekeningSoort.toLowerCase() === 'inkomsten' ?
-                  <BudgetInkomstenGrafiek
-                    rekening={rekening}
-                    peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
-                    periode={gekozenPeriode}
-                    ontvangenOpPeildatum={findStandVanRekening(rekening.naam)}
-                    budgetten={stand.budgettenOpDatum.filter(b => b.rekeningSoort.toLowerCase() === 'inkomsten')}
-                  /> : 
-                  <BudgetVastGrafiek
-                    rekening={rekening}
-                    peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
-                    periode={gekozenPeriode}
-                    besteedOpPeildatum={rekening.rekeningSoort.toLowerCase() === 'uitgaven' ?
-                      -findStandVanRekening(rekening.naam) : findStandVanRekening(rekening.naam)}
-                  /> 
+                    budgetten={stand.budgettenOpDatum.filter(b => b.rekeningNaam === rekening.naam)}
+                /> : rekening.rekeningSoort.toLowerCase() === 'inkomsten' ?
+                    <BudgetInkomstenGrafiek
+                      rekening={rekening}
+                      peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                      periode={gekozenPeriode}
+                      budgetten={stand.budgettenOpDatum.filter(b => b.rekeningSoort.toLowerCase() === 'inkomsten')}
+                    /> :
+                    <BudgetVastGrafiek
+                      rekening={rekening}
+                      peildatum={(dayjs(gekozenPeriode.periodeEindDatum)).isAfter(dayjs()) ? dayjs() : dayjs(gekozenPeriode.periodeEindDatum)}
+                      periode={gekozenPeriode}
+                      budgetten={stand.budgettenOpDatum.filter(b => b.rekeningNaam === rekening.naam)}
+                    />
               ))}
 
           <Accordion>
@@ -181,7 +178,7 @@ export default function Stand() {
                         sx={{ transform: 'scale(0.6)' }}
                         checked={toonMutaties}
                         onChange={handleToonMutatiesChange}
-                        slotProps={{input: { 'aria-label': 'controlled' }}}
+                        slotProps={{ input: { 'aria-label': 'controlled' } }}
                       />}
                       label="Toon mutaties" />
                   </FormGroup>

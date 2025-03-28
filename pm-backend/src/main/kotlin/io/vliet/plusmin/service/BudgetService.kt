@@ -95,13 +95,7 @@ class BudgetService {
         return budgettenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { budget ->
-                budget.toDTO()
-                    .with(
-                        Budget.BudgetSaldoDTO(
-                            peilDatum = peilDatum.toString(),
-                            betaling = getBetalingVoorBudgetInPeriode(budget, gekozenPeriode)
-                        )
-                    )
+                budget.toDTO(peilDatum.toString(), getBetalingVoorBudgetInPeriode(budget, gekozenPeriode))
             }
     }
 
