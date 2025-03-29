@@ -19,12 +19,8 @@ export type BudgetDTO = {
     betaalDag: number | undefined;
     budgetSaldoPeildatum: string | undefined;
     budgetSaldoBetaling: number | undefined;
+    budgetOpPeilDatum?: number | undefined;
 }
-// export type BudgetSaldo = {
-//     peilDatum: string;
-//     betaling: number;
-// }
-
 export const berekenPeriodeBudgetBedrag = (gekozenPeriode: Periode | undefined, budget: Budget): number | undefined => {
     if (gekozenPeriode === undefined) {
         return undefined;
