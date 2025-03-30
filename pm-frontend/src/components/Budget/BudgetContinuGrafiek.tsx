@@ -55,17 +55,14 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   const besteedBinnenBudget = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
     (acc + (Math.min(budget.budgetSaldoBetaling ?? 0, budget.budgetOpPeilDatum ?? 0))), 0);
 
-  const meerDanMaandBudget = Math.max(budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
-    (acc + (budget.budgetSaldoBetaling ?? 0) - budget.bedrag), 0), 0);
+  const meerDanMaandBudget = Math.max(besteedOpPeildatum - maandBudget, 0);
 
-  const minderDanBudget = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
-    (acc + (Math.max(budget.budgetOpPeilDatum - (budget.budgetSaldoBetaling ?? 0) - meerDanMaandBudget, 0))), 0);  
-
-  const meerDanBudget = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
-    (acc + (Math.max((budget.budgetSaldoBetaling ?? 0) - budget.budgetOpPeilDatum, 0)) - meerDanMaandBudget), 0);
-
-  const restMaandBudget = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
-    (acc + (Math.max(budget.bedrag - (budget.budgetSaldoBetaling ?? 0), 0)) + (Math.max(budget.budgetOpPeilDatum - (budget.budgetSaldoBetaling ?? 0), 0))), 0);
+  const meerDanBudget = Math.max(budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
+    (acc + (Math.max((budget.budgetSaldoBetaling ?? 0) - budget.budgetOpPeilDatum, 0))), 0) - meerDanMaandBudget, 0);
+   
+  const minderDanBudget = Math.max(budgetOpPeildatum - besteedOpPeildatum - meerDanMaandBudget, 0);
+  
+  const restMaandBudget = Math.max(maandBudget - besteedOpPeildatum - minderDanBudget - meerDanMaandBudget, 0);
 
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
@@ -152,19 +149,17 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
               <TableCell width={'5%'} />
               {besteedBinnenBudget > 0 &&
                 <TableCell
-                  sx={{ p: 1, fontSize: '10px' }}
+                sx={{ p: 1, fontSize: '10px', borderRight: meerDanBudget === 0 && meerDanMaandBudget === 0 ? '2px dotted #333' : 'none' }} 
                   align="right"
                   width={`${(besteedBinnenBudget / tabelBreedte) * 90}%`}
-                >
-                  {formatAmount(besteedBinnenBudget.toString())}
-                </TableCell>}
+                />}
               {meerDanBudget > 0 &&
                 <TableCell
                   sx={{ p: 1, fontSize: '10px', borderRight: meerDanMaandBudget === 0 ? '2px dotted #333' : 'none', }}
                   align="right"
                   width={`${(meerDanBudget / tabelBreedte) * 90}%`}
                 >
-                  {formatAmount(meerDanBudget.toString())}
+                  {formatAmount((besteedBinnenBudget + meerDanBudget).toString())}
                 </TableCell>}
               {meerDanMaandBudget > 0 &&
                 <TableCell
@@ -172,7 +167,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                   align="right"
                   width={`${(meerDanMaandBudget / tabelBreedte) * 90}%`}
                 >
-                  {formatAmount(meerDanMaandBudget.toString())}
+                  {formatAmount((besteedBinnenBudget + meerDanBudget + meerDanMaandBudget).toString())}
                 </TableCell>}
               {minderDanBudget > 0 &&
                 <TableCell
@@ -180,7 +175,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                   align="right"
                   width={`${(minderDanBudget / tabelBreedte) * 90}%`}
                 >
-                  {formatAmount(minderDanBudget.toString())}
+                  {formatAmount((besteedBinnenBudget + meerDanBudget + meerDanMaandBudget + minderDanBudget).toString())}
                 </TableCell>}
               {restMaandBudget > 0 &&
                 <TableCell
@@ -188,7 +183,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                   align="right"
                   width={`${(restMaandBudget / tabelBreedte) * 90}%`}
                 >
-                  {formatAmount(restMaandBudget.toString())}
+                  {formatAmount((besteedBinnenBudget + meerDanBudget + meerDanMaandBudget + minderDanBudget + restMaandBudget).toString())}
                 </TableCell>}
               {restMaandBudget === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell />}
@@ -270,8 +265,8 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
                 <TableCell
                   align="right"
                   width={`${(besteedBinnenBudget / tabelBreedte) * 90}%`}
-                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget === 0 ? '2px dotted #333' : 'none' }} >
-                  {(minderDanBudget > 0 || (meerDanBudget === 0 && meerDanMaandBudget === 0)) && props.peildatum.format('D/M')}
+                  sx={{ p: 1, fontSize: '10px', borderRight: minderDanBudget === 0 && meerDanBudget === 0 && meerDanMaandBudget === 0 ? '2px dotted #333' : 'none' }} >
+                  {(minderDanBudget === 0 && meerDanBudget === 0 && meerDanMaandBudget === 0) && props.peildatum.format('D/M')}
                 </TableCell>}
               {meerDanBudget > 0 &&
                 <TableCell
