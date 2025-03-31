@@ -27,40 +27,43 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
 
 
   if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.uitgaven.toLowerCase() ||
-    props.rekening.budgetten.length === 0 ||
-    props.rekening.budgetten.some(budget => budget.betaalDag === undefined) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
+    props.budgetten.length === 0 ||
+    props.budgetten.some(budget => budget.betaalDag === undefined) ||
+    props.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
+    props.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
     throw new Error('BudgetVastGrafiek: rekeningSoort moet \'inkomsten\' zijn, er moet minimaal 1 budget zijn en alle budgetten moeten een geldige betaalDag hebben.');
   }
 
-  // const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const maandBudget = props.rekening.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
+  const budgettenMetPositieveBetaling = props.budgetten.map((budget) => (
+    {
+      ...budget,
+      budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
+    }));
+
+
+  const maandBudget = budgettenMetPositieveBetaling.reduce((acc, budget) => (acc + budget.bedrag), 0)
 
   const inkomstenMoetBetaaldZijn = (betaalDag: number | undefined) => {
     if (betaalDag === undefined) return true;
     const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
     return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
   }
-  const betaaldOpPeildatum = props.budgetten.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
-  // const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) => (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
-  // const dagBudget = maandBudget / periodeLengte;
-  // const verschilOpPeildatumInWaarde = budgetOpPeildatum - betaaldOpPeildatum;
+  const betaaldOpPeildatum = budgettenMetPositieveBetaling.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
 
-  const betaaldBinnenBudget = props.budgetten.reduce((acc, budget) =>
+  const betaaldBinnenBudget = budgettenMetPositieveBetaling.reduce((acc, budget) =>
     (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? Math.min(budget.bedrag, budget.budgetSaldoBetaling ?? 0) : 0)), 0);
 
-  const minderDanBudget = props.budgetten.reduce((acc, budget) =>
+  const minderDanBudget = budgettenMetPositieveBetaling.reduce((acc, budget) =>
     (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? Math.max(0, budget.bedrag - (budget.budgetSaldoBetaling ?? 0)) : 0)), 0);
 
-  const meerDanBudget = props.budgetten.reduce((acc, budget) =>
+  const meerDanBudget = budgettenMetPositieveBetaling.reduce((acc, budget) =>
     acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? 0 : Math.min(budget.budgetSaldoBetaling ?? 0, budget.bedrag)), 0);
 
   // const blaatToiTnuToe = betaaldBinnenBudget + minderDanBudget + meerDanBudget;
-  const meerDanMaandBudget = props.budgetten.reduce((acc, budget) =>
+  const meerDanMaandBudget = budgettenMetPositieveBetaling.reduce((acc, budget) =>
     (acc + Math.max(0, (budget.budgetSaldoBetaling ?? 0) - budget.bedrag)), 0);
 
-  const restMaandBudget = props.budgetten.reduce((acc, budget) =>
+  const restMaandBudget = budgettenMetPositieveBetaling.reduce((acc, budget) =>
     (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? 0 : Math.max(0, budget.bedrag - (budget.budgetSaldoBetaling ?? 0)))), 0);
 
 
@@ -79,7 +82,7 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   // console.log('peildatum', JSON.stringify(props.peildatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
-  // console.log('budgetten', JSON.stringify(props.budgetten));
+  console.log('budgetten', JSON.stringify(budgettenMetPositieveBetaling));
   console.log('maandBudget', JSON.stringify(maandBudget));
   console.log('betaaldOpPeildatum', JSON.stringify(betaaldOpPeildatum));
   console.log('betaaldBinnenBudget', JSON.stringify(betaaldBinnenBudget));
@@ -98,7 +101,7 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
           onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
           <InfoIcon height='16' />
         </Box>
-        {props.budgetten.length >= 1 &&
+        {budgettenMetPositieveBetaling.length >= 1 &&
           <FormGroup >
             <FormControlLabel control={
               <Switch
@@ -117,7 +120,7 @@ export const BudgetVastGrafiek = (props: BudgetVastGrafiekProps) => {
       </Grid>
       {toonBudgetVastDetails &&
         <Grid display={'flex'} direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
-          {props.budgetten.map((budget, index) => (
+          {budgettenMetPositieveBetaling.map((budget, index) => (
             <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
               {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')} waarvan
               {formatAmount(budget.budgetSaldoBetaling?.toString() ?? "nvt")} is betaald.

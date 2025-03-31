@@ -27,15 +27,14 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
 
 
   if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.inkomsten.toLowerCase() ||
-    props.rekening.budgetten.length === 0 ||
-    props.rekening.budgetten.some(budget => budget.betaalDag === undefined) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
-    props.rekening.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
+    props.budgetten.length === 0 ||
+    props.budgetten.some(budget => budget.betaalDag === undefined) ||
+    props.budgetten.some(budget => (budget?.betaalDag ?? 0) < 1) ||
+    props.budgetten.some(budget => (budget?.betaalDag ?? 30) > 28)) {
     throw new Error('BudgetInkomstenGrafiek: rekeningSoort moet \'inkomsten\' zijn, er moet minimaal 1 budget zijn en alle budgetten moeten een geldige betaalDag hebben.');
   }
 
-  // const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
-  const maandBudget = props.rekening.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
+  const maandBudget = props.budgetten.reduce((acc, budget) => (acc + budget.bedrag), 0)
 
   const inkomstenMoetBetaaldZijn = (betaalDag: number | undefined) => {
     if (betaalDag === undefined) return true;
@@ -43,9 +42,6 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
     return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
   }
   const ontvangenOpPeildatum = props.budgetten.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
-  // const budgetOpPeildatum = props.rekening.budgetten.reduce((acc, budget) => (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? budget.bedrag : 0)), 0);
-  // const dagBudget = maandBudget / periodeLengte;
-  // const verschilOpPeildatumInWaarde = budgetOpPeildatum - ontvangenOpPeildatum;
 
   const ontvangenBinnenBudget = props.budgetten.reduce((acc, budget) =>
     (acc + (inkomstenMoetBetaaldZijn(budget.betaalDag) ? Math.min(budget.bedrag, budget.budgetSaldoBetaling ?? 0) : 0)), 0);

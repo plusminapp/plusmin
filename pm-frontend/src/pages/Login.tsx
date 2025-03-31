@@ -10,8 +10,6 @@ import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect, useState } from "react";
 import { berekenPeriodeBijPeildatum } from "../model/Periode";
-import { InfoIcon } from "../icons/Info";
-import { useCustomContext } from "../context/CustomContext";
 import { BudgetType, Rekening, RekeningSoort } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 import BudgetInkomstenGrafiek from "../components/Budget/BudgetInkomstenGrafiek";
@@ -22,6 +20,7 @@ const rekeningTemplate = {
   nummer: undefined,
   bankNaam: undefined,
   sortOrder: 1,
+  budgetten: [],
 } as unknown as Rekening;
 
 type FormField = {
@@ -149,8 +148,6 @@ export default function Login() {
     setBetalingNamen(nieuweBetalingNamen);
   }, [peilDatum, formFields.budgetten]);
 
-  const { setSnackbarMessage } = useCustomContext();
-
   const handleInputChange = (index: number, value: string) => {
     value = value === null || value === undefined || value === '' ? '0' : value;
     setFormFields({
@@ -216,17 +213,14 @@ export default function Login() {
       <Box border={1} borderRadius={2} p={2} mb={5} boxShadow={2} >
         <Typography variant='h6'>Visualisatie experiment voor potjes en budgetten</Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
-          Met dit formulier kun je de visualisatie van de besteding van 2 potjes, met bijbehorende budgetten, testen.
+          Met dit formulier kun je de visualisatie van de besteding van een potje, met bijbehorende budgetten, testen.
           (In de praktijk kunnen er meer potjes zijn.)
           Ik hoop met de visualisatie de besteding van een budget in 1 oogopslag inzichtelijk te maken.
           Er is bewust geen legenda, dat geeft mijns inziens meer ruis dan dat het helpt. (Eens?)
-          Ik heb wel een <span onClick={() => setSnackbarMessage({ message: 'Duh, deze doet nix ...', type: 'error' })}><InfoIcon height='14' /></span>
-          toegevoegd waar wordt uitgelegd hoe het er voor staat; die teksten mogen ook worden verbeterd &#128513;.
         </Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
           De app werkt op basis van periodes van een maand, waarbij voor de hulpvrager kan worden ingesteld op welke dag van de maand de periode start.
           Het is bedoeld om te starten vlak voor dat de hulpvrager zijn/haar inkomen ontvangt.
-          Hier gebruik ik nu de 20ste van de maand als periode wisseldag en de 24ste als betaaldag.
         </Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
           De peildatum zal in het echte gebruik altijd de huidige datum zijn. In dit formulier kun je de peildatum aanpassen, 'tijdreizen',
@@ -338,12 +332,11 @@ export default function Login() {
                 naam: formFields.rekeningNaam,
                 rekeningSoort: RekeningSoort.uitgaven,
                 budgetType: formFields.budgetType,
-                budgetten: formFields.budgetten.map(budget => ({
-                  ...budget,
-                  rekening: undefined,
-                }))
               }}
-              budgetten={formFields.budgetten} />}
+              budgetten={formFields.budgetten.map((budget) => ({
+                ...budget,  
+                budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
+              }))} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'uitgaven' &&
             <BudgetVastGrafiek
               periode={periode}
@@ -353,12 +346,11 @@ export default function Login() {
                 naam: formFields.rekeningNaam,
                 rekeningSoort: RekeningSoort.uitgaven,
                 budgetType: formFields.budgetType,
-                budgetten: formFields.budgetten.map(budget => ({
-                  ...budget,
-                  rekening: undefined,
-                }))
               }}
-              budgetten={formFields.budgetten} />}
+              budgetten={formFields.budgetten.map((budget) => ({
+                ...budget,  
+                budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
+              }))} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'inkomsten' &&
             <BudgetInkomstenGrafiek
               periode={periode}
@@ -368,10 +360,6 @@ export default function Login() {
                 naam: 'Inkmosten',
                 rekeningSoort: RekeningSoort.inkomsten,
                 budgetType: BudgetType.vast,
-                budgetten: formFields.budgetten.map(budget => ({
-                  ...budget,
-                  rekening: undefined,
-                }))
               }}
               budgetten={formFields.budgetten} />}
         </>

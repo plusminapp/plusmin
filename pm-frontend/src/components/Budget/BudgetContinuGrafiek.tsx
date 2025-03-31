@@ -26,7 +26,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
 
   if (props.rekening.rekeningSoort.toLowerCase() !== RekeningSoort.uitgaven.toLowerCase() ||
     props.rekening.budgetType?.toLowerCase() !== 'continu' ||
-    props.rekening.budgetten.length === 0) {
+    props.budgetten.length === 0) {
     throw new Error('BudgetContinuGrafiek: rekeningSoort moet \'uitgaven\' zijn, er moet minimaal 1 budget zijn en het BudgetType moet \'continu\' zijn.');
   }
   const periodeLengte = dayjs(props.periode.periodeEindDatum).diff(dayjs(props.periode.periodeStartDatum), 'day') + 1;
@@ -35,33 +35,38 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   const berekenBudgetBedragOpPeildatum = (bedrag: number) => {
     return Math.round((dagenTotPeilDatum / periodeLengte) * bedrag);
   }
-  const budgettenMetBudgetOpPeilDatum = props.budgetten.map((budget) => (
+  const berekenMaandBedrag = (periodiciteit: string, bedrag: number) => {
+    if (periodiciteit.toLowerCase() === 'maand') {
+      return bedrag;
+    } else {
+      return periodeLengte * bedrag / 7;
+    }
+  }
+  const budgettenMetUitbreidingen = props.budgetten.map((budget) => (
     {
       ...budget,
-      budgetOpPeilDatum: berekenBudgetBedragOpPeildatum(budget.bedrag),
+      budgetOpPeilDatum: berekenBudgetBedragOpPeildatum(berekenMaandBedrag(budget.budgetPeriodiciteit, budget.bedrag)),
+      budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
     }));
 
-  const maandBudget = props.rekening.budgetten.reduce((acc, budget) =>
-    (acc + (budget.budgetPeriodiciteit.toLowerCase() === 'maand' ? budget.bedrag : periodeLengte * budget.bedrag / 7)), 0);
+  const maandBudget = budgettenMetUitbreidingen.reduce((acc, budget) => (acc + berekenMaandBedrag(budget.budgetPeriodiciteit, budget.bedrag)), 0);
 
-  const budgetOpPeildatum = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
-    (acc + budget.budgetOpPeilDatum), 0);
+  const budgetOpPeildatum = budgettenMetUitbreidingen.reduce((acc, budget) => (acc + budget.budgetOpPeilDatum), 0);
 
-  const besteedOpPeildatum = props.budgetten.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
+  const besteedOpPeildatum = budgettenMetUitbreidingen.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
 
-  // const dagBudget = maandBudget / periodeLengte;
   const verschilOpPeildatumInWaarde = budgetOpPeildatum - besteedOpPeildatum;
 
-  const besteedBinnenBudget = budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
+  const besteedBinnenBudget = budgettenMetUitbreidingen.reduce((acc, budget) =>
     (acc + (Math.min(budget.budgetSaldoBetaling ?? 0, budget.budgetOpPeilDatum ?? 0))), 0);
 
   const meerDanMaandBudget = Math.max(besteedOpPeildatum - maandBudget, 0);
 
-  const meerDanBudget = Math.max(budgettenMetBudgetOpPeilDatum.reduce((acc, budget) =>
+  const meerDanBudget = Math.max(budgettenMetUitbreidingen.reduce((acc, budget) =>
     (acc + (Math.max((budget.budgetSaldoBetaling ?? 0) - budget.budgetOpPeilDatum, 0))), 0) - meerDanMaandBudget, 0);
-   
+
   const minderDanBudget = Math.max(budgetOpPeildatum - besteedOpPeildatum - meerDanMaandBudget, 0);
-  
+
   const restMaandBudget = Math.max(maandBudget - besteedOpPeildatum - minderDanBudget - meerDanMaandBudget, 0);
 
   const formatAmount = (amount: string): string => {
@@ -94,6 +99,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
   console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
   console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
   console.log('peildatum', JSON.stringify(props.peildatum.format('YYYY-MM-DD')));
+  console.log('budgetten', JSON.stringify(budgettenMetUitbreidingen));
   console.log('budgetOpPeildatum', JSON.stringify(budgetOpPeildatum));
   console.log('besteedOpPeildatum', JSON.stringify(besteedOpPeildatum));
   console.log('verschilOpPeildatumInWaarde', JSON.stringify(verschilOpPeildatumInWaarde));
@@ -115,7 +121,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
           onClick={() => setSnackbarMessage({ message: toonBudgetToelichtingMessage(), type: 'info' })}>
           <InfoIcon height='16' />
         </Box>
-        {props.budgetten.length >= 1 &&
+        {budgettenMetUitbreidingen.length >= 1 &&
           <FormGroup >
             <FormControlLabel control={
               <Switch
@@ -134,7 +140,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
       </Grid>
       {toonBudgetVastDetails &&
         <Grid display={'flex'} direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
-          {props.budgetten.map((budget, index) => (
+          {budgettenMetUitbreidingen.map((budget, index) => (
             <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
               {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')} waar
               van op {dayjs(props.peildatum).format('D MMMM')} {formatAmount(budget.budgetSaldoBetaling?.toString() ?? "nvt")} is uitgegeven.
@@ -149,7 +155,7 @@ export const BudgetContinuGrafiek = (props: BudgetContinuGrafiekProps) => {
               <TableCell width={'5%'} />
               {besteedBinnenBudget > 0 &&
                 <TableCell
-                sx={{ p: 1, fontSize: '10px', borderRight: meerDanBudget === 0 && meerDanMaandBudget === 0 ? '2px dotted #333' : 'none' }} 
+                  sx={{ p: 1, fontSize: '10px', borderRight: meerDanBudget === 0 && meerDanMaandBudget === 0 ? '2px dotted #333' : 'none' }}
                   align="right"
                   width={`${(besteedBinnenBudget / tabelBreedte) * 90}%`}
                 />}
