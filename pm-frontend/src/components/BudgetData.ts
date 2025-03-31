@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import { BudgetDTO } from "../model/Budget";
 import { berekenPeriodeBijPeildatum } from "../model/Periode";
 
+const periode = berekenPeriodeBijPeildatum(dayjs());
+
 export const inkomstenBudgetten: BudgetDTO[] = [{
     budgetNaam: 'Salaris',
     budgetPeriodiciteit: 'maand',
@@ -9,8 +11,8 @@ export const inkomstenBudgetten: BudgetDTO[] = [{
     betaalDag: 24,
     rekeningNaam: "Inkomsten",
     rekeningSoort: "inkomsten",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 1800,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }, {
     budgetNaam: 'Toeslagen',
     budgetPeriodiciteit: 'maand',
@@ -18,26 +20,19 @@ export const inkomstenBudgetten: BudgetDTO[] = [{
     betaalDag: 4,
     rekeningNaam: "Inkomsten",
     rekeningSoort: "inkomsten",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 450,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }];
 
-const periode = berekenPeriodeBijPeildatum(dayjs());
-const verwachtIniteelBudget = (budget: number): number => {
-    const periodeLengte = dayjs(periode.periodeEindDatum).diff(dayjs(periode.periodeStartDatum), 'day') + 1;
-    const dagenTotPeilDatum = dayjs().diff(dayjs(periode.periodeStartDatum), 'day') + 1;
-    return Math.round((dagenTotPeilDatum / periodeLengte) * budget);
-}
-
 export const boodschappenBudgetten: BudgetDTO[] = [{
-    budgetNaam: 'Supermakt',
+    budgetNaam: 'Supermarkt',
     budgetPeriodiciteit: 'maand',
     bedrag: 200,
     betaalDag: undefined,
     rekeningNaam: "Boodschappen",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: verwachtIniteelBudget(200),
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }, {
     budgetNaam: 'Overig',
     budgetPeriodiciteit: 'maand',
@@ -45,8 +40,8 @@ export const boodschappenBudgetten: BudgetDTO[] = [{
     betaalDag: undefined,
     rekeningNaam: "Boodschappen",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: verwachtIniteelBudget(100),
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }];
 
 export const vastelastenBudgetten: BudgetDTO[] = [{
@@ -56,8 +51,8 @@ export const vastelastenBudgetten: BudgetDTO[] = [{
     betaalDag: 1,
     rekeningNaam: "Vaste lasten",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 724,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }, {
     budgetNaam: 'Greenchoice',
     budgetPeriodiciteit: 'maand',
@@ -65,8 +60,8 @@ export const vastelastenBudgetten: BudgetDTO[] = [{
     betaalDag: 2,
     rekeningNaam: "Vaste lasten",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 169,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }, {
     budgetNaam: 'ONVZ',
     budgetPeriodiciteit: 'maand',
@@ -74,8 +69,8 @@ export const vastelastenBudgetten: BudgetDTO[] = [{
     betaalDag: 7,
     rekeningNaam: "Vaste lasten",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 135,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }, {
     budgetNaam: 'Overig',
     budgetPeriodiciteit: 'maand',
@@ -83,6 +78,6 @@ export const vastelastenBudgetten: BudgetDTO[] = [{
     betaalDag: 19,
     rekeningNaam: "Vaste lasten",
     rekeningSoort: "uitgaven",
-    budgetSaldoPeildatum: dayjs().format('YYYY-MM-DD'),
-    budgetSaldoBetaling: 150,
+    budgetSaldoPeildatum: dayjs(periode.periodeStartDatum).format('YYYY-MM-DD'),
+    budgetSaldoBetaling: 0,
 }];

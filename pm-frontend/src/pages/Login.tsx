@@ -44,8 +44,8 @@ export default function Login() {
 
   const [selectedVisualisatie, setSelectedVisualisatie] = useState<string | undefined>('Inkomsten');
 
-  const [peilDatum, setPeilDatum] = useState(dayjs());
-  const [gekozenPeildatumNaam, setGekozenPeildatumNaam] = useState<string | undefined>('vandaag');
+  const [peilDatum, setPeilDatum] = useState(dayjs(periode.periodeStartDatum));
+  const [gekozenPeildatumNaam, setGekozenPeildatumNaam] = useState<string | undefined>('begin');
 
   const handlePeilDatumChange = (value: any) => {
     const newPeilDatum = (value.isBefore(dayjs(periode.periodeStartDatum))) ? dayjs(periode.periodeStartDatum) :
@@ -63,9 +63,6 @@ export default function Login() {
   }
   const handleGekozenPeilDatumNaam = (positie: string) => {
     switch (positie) {
-      case 'vandaag':
-        setPeilDatum(dayjs());
-        break
       case 'begin':
         setPeilDatum(dayjs(periode.periodeStartDatum));
         break;
@@ -78,9 +75,6 @@ export default function Login() {
   }
   useEffect(() => {
     switch (peilDatum.format('YYYY-MM-DD')) {
-      case dayjs().format('YYYY-MM-DD'):
-        setGekozenPeildatumNaam('vandaag');
-        break;
       case periode.periodeStartDatum:
         setGekozenPeildatumNaam('begin');
         break;
@@ -241,7 +235,7 @@ export default function Login() {
         <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
           <Grid size={1} >
             <Typography variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-              Blaat
+              &nbsp;
             </Typography>
           </Grid>
           <Grid size={1} >
@@ -271,7 +265,7 @@ export default function Login() {
             </LocalizationProvider>
           </Grid>
           <Grid size={1} >
-            {['vandaag', 'begin', 'midden', 'einde'].map(positie =>
+            {['begin', 'midden', 'einde'].map(positie =>
               <Button
                 color='success'
                 style={{ textTransform: 'none' }}
@@ -288,7 +282,7 @@ export default function Login() {
           <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
             <Grid size={1} display={'flex'} direction={'row'} alignItems={'center'}>
               <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-                {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())} op {budget.betaalDag && dagInPeriode(budget.betaalDag, periode).format('D MMMM')} waarvan er 
+                {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())}, betaaldag {budget.betaalDag && dagInPeriode(budget.betaalDag, periode).format('D MMMM')}, waarvan er 
               </Typography>
               <TextField
                 label=""
@@ -301,7 +295,7 @@ export default function Login() {
                 onChange={(e) => handleInputChange(index, e.target.value)}
               />
               <Typography variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-                is {budget.rekeningSoort === 'inkomsten' ? 'ontvangen' : 'uitgegeven'}.
+                is {budget.rekeningSoort === 'inkomsten' ? 'ontvangen' : 'betaald'}.
               </Typography>
             </Grid>
             <Grid size={1} >
