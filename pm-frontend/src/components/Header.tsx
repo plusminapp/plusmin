@@ -108,8 +108,8 @@ function Header() {
         const opgeslagenActieveHulpvrager = Number(data.gebruiker?.id) === Number(opgeslagenActieveHulpvragerId) ?
             data.gebruiker : (data.hulpvragers as Gebruiker[]).find(hv => Number(hv.id) === Number(opgeslagenActieveHulpvragerId))
 
-        const opgeslagenGekozenPeriodeId = localStorage.getItem('gekozenPeriode');
-        const opgeslagenGekozenPeriode = await opgeslagenGekozenPeriodeId ?
+        const opgeslagenGekozenPeriodeId = await localStorage.getItem('gekozenPeriode');
+        const opgeslagenGekozenPeriode = opgeslagenGekozenPeriodeId ?
             (opgeslagenActieveHulpvrager.periodes as Periode[])
                 .find(periode => periode.id === Number(opgeslagenGekozenPeriodeId)) : undefined;
 

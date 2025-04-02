@@ -116,18 +116,23 @@ class AflossingService {
             saldoPeriode
         }
 
+
         return aflossingenLijst
             .sortedBy { it.rekening.sortOrder }
             .map { aflossing ->
-                aflossing.toDTO()
-                    .with(
-                        Aflossing.AflossingSaldoDTO(
-                            peilDatum = peilDatumAsString,
-                            werkelijkSaldo = getBalansVanStand(balansOpDatum, aflossing.rekening),
-                            berekendSaldo = berekenAflossingBedragOpDatum(aflossing, peilDatum),
-                            betaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
-                        )
-                    )
+                val saldoStartPeriode = getBalansVanStand(balansOpDatum, aflossing.rekening)
+                val deltaStartPeriode =
+                    berekenAflossingBedragOpDatum(
+                        aflossing,
+                        gekozenPeriode.periodeStartDatum.minusDays(1)
+                    ) - saldoStartPeriode
+                
+                aflossing.toDTO(
+                    aflossingPeilDatum = peilDatumAsString,
+                    saldoStartPeriode = saldoStartPeriode,
+                    deltaStartPeriode = deltaStartPeriode,
+                    aflossingBetaling = getBetalingVoorAflossingInPeriode(aflossing, gekozenPeriode)
+                )
             }
     }
 

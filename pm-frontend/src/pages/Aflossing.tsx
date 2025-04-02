@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import { useCallback, useEffect, useState } from "react";
 import { useCustomContext } from "../context/CustomContext";
 
-import { Aflossing } from '../model/Aflossing'
+import { AflossingDTO, ExtendedAflossingDTO } from '../model/Aflossing'
 import { ArrowDropDownIcon } from "@mui/x-date-pickers";
 import AflossingTabel from "../components/Aflossing/AflossingTabel";
 import { MinIcon } from "../icons/Min";
@@ -15,13 +15,14 @@ import dayjs from "dayjs";
 import { AflossingenAfbouwGrafiek } from "../components/Aflossing/Graph/AflossingenAfbouwGrafiek";
 import { PeriodeSelect } from "../components/Periode/PeriodeSelect";
 import { useNavigate } from "react-router-dom";
+import { dagInPeriode } from "../model/Periode";
 
 export default function Aflossingen() {
 
   const { getIDToken } = useAuthContext();
   const { gebruiker, actieveHulpvrager, gekozenPeriode, setSnackbarMessage } = useCustomContext();
 
-  const [aflossingen, setAflossingen] = useState<Aflossing[]>([])
+  const [aflossingen, setAflossingen] = useState<ExtendedAflossingDTO[]>([])
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function Aflossingen() {
       setIsLoading(false);
       if (response.ok) {
         const result = await response.json();
-        setAflossingen(result);
+        setAflossingen(result.map((aflossing: AflossingDTO) => toExtendedAflossingDTO(aflossing)));
       } else {
         console.error("Failed to fetch data", response.status);
         setSnackbarMessage({
@@ -62,19 +63,35 @@ export default function Aflossingen() {
     fetchAflossingen();
   }, [fetchAflossingen]);
 
+  const aflossingMoetBetaaldZijn = (betaalDag: number | undefined) => {
+    if (betaalDag === undefined) return true;
+    const betaalDagInPeriode = dagInPeriode(betaalDag, gekozenPeriode);
+    return betaalDagInPeriode.isBefore(peilDatum) || betaalDagInPeriode.isSame(props.peilDatum);
+  }
+  const toExtendedAflossingDTO = (aflossing: AflossingDTO): ExtendedAflossingDTO =>{
+    return {
+      ...aflossing,
+      aflossingMoetBetaaldZijn: aflossingMoetBetaaldZijn(aflossing.betaalDag),
+      actueleStand: aflossing.saldoStartPeriode ?? 0 + (aflossing.aflossingBetaling ?? 0),
+      actueleAchterstand: (aflossing.deltaStartPeriode ?? 0) + (aflossing.aflossingBetaling ?? 0) - (aflossingMoetBetaaldZijn(aflossing.betaalDag) ?  (aflossing.aflossingsBedrag ?? 0) : 0),
+      meerDanVerwacht: aflossingMoetBetaaldZijn(aflossing.betaalDag) ? 0 : Math.min((aflossing.aflossingBetaling ?? 0), aflossing.aflossingsBedrag),
+      minderDanVerwacht: aflossingMoetBetaaldZijn(aflossing.betaalDag) ? Math.max(0, aflossing.aflossingsBedrag - (aflossing.aflossingBetaling ?? 0)) : 0,
+      meerDanMaandAflossing: Math.max(0, (aflossing.aflossingBetaling ?? 0) - aflossing.aflossingsBedrag)
+    } as ExtendedAflossingDTO;}
+
   if (isLoading) {
     return <Typography sx={{ mb: '25px' }}>De aflossingen worden opgehaald.</Typography>
   }
 
-  const berekenToestandAflossingIcoon = (aflossing: Aflossing): JSX.Element => {
-    if (!aflossing.aflossingSaldoDTO)
+  const berekenToestandAflossingIcoon = (aflossing: AflossingDTO): JSX.Element => {
+    if (!aflossing)
       return <MinIcon color="black" />
     else {
-      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8)) && gebruiker?.periodeDag && parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8)) >= gebruiker?.periodeDag;
-      const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingSaldoDTO.peilDatum.slice(8));
-      const kloptSaldo = aflossing.aflossingSaldoDTO.berekendSaldo == aflossing.aflossingSaldoDTO.werkelijkSaldo;
-      const heeftBetalingAchtersstand = aflossing.aflossingSaldoDTO.berekendSaldo < aflossing.aflossingSaldoDTO.werkelijkSaldo
-      const isAflossingAlBetaald = (Math.round(aflossing.aflossingSaldoDTO.berekendSaldo - aflossing.aflossingSaldoDTO.werkelijkSaldo - aflossing.aflossingsBedrag) === 0);
+      const isVoorBetaaldag = aflossing.betaalDag > parseInt(aflossing.aflossingPeilDatum?.slice(8) ?? '0') && gebruiker?.periodeDag && parseInt(aflossing.aflossingPeilDatum?.slice(8) ?? '0') >= gebruiker?.periodeDag;
+      const isOpBetaaldag = aflossing.betaalDag == parseInt(aflossing.aflossingPeilDatum?.slice(8) ?? '0');
+      const kloptSaldo = aflossing.deltaStartPeriode == aflossing.saldoStartPeriode;
+      const heeftBetalingAchtersstand = (aflossing.deltaStartPeriode ?? 0) < (aflossing.saldoStartPeriode ?? 0);
+      const isAflossingAlBetaald = (Math.round((aflossing.deltaStartPeriode ?? 0) - (aflossing.saldoStartPeriode ?? 0) - aflossing.aflossingsBedrag) === 0);
       return (isVoorBetaaldag || isOpBetaaldag) && kloptSaldo ? <PlusIcon color="#bdbdbd" /> :
         (isOpBetaaldag && isAflossingAlBetaald) || kloptSaldo ? <PlusIcon color="green" /> :
           isVoorBetaaldag && isAflossingAlBetaald ? <PlusIcon color="lightGreen" /> :

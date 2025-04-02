@@ -45,9 +45,9 @@ class SaldoService {
                 periodeStartDatum.minusDays(1)
             )
         val balansSaldiBijOpening = berekenSaldiOpDatum(openingsSaldi, mutatiePeriodeOpeningLijst)
-        val mutatiePeildatumLijst =
+        val mutatiePeilDatumLijst =
             berekenMutatieLijstOpDatum(openingPeriode.gebruiker, periodeStartDatum, peilDatum)
-        val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening, mutatiePeildatumLijst)
+        val balansSaldiOpDatum = berekenSaldiOpDatum(balansSaldiBijOpening, mutatiePeilDatumLijst)
 
         val openingsBalans =
             balansSaldiBijOpening
@@ -55,7 +55,7 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val mutatiesOpDatum =
-            mutatiePeildatumLijst
+            mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningSoort in balansRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
@@ -65,13 +65,13 @@ class SaldoService {
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toBalansDTO() }
         val resultaatOpDatum =
-            mutatiePeildatumLijst
+            mutatiePeilDatumLijst
                 .filter { it.rekening.rekeningSoort in resultaatRekeningSoort }
                 .sortedBy { it.rekening.sortOrder }
                 .map { it.toResultaatDTO() }
         val budgettenOpDatum = budgetService.berekenBudgettenOpDatum(openingPeriode.gebruiker, peilDatum)
         val aflossingenOpDatum =
-            aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, balansOpDatum, peilDatum.toString())
+            aflossingService.berekenAflossingenOpDatum(openingPeriode.gebruiker, openingsBalans, peilDatum.toString())
         return SaldoController.StandDTO(
             periodeStartDatum = periodeStartDatum,
             peilDatum = peilDatum,

@@ -1,8 +1,6 @@
 package io.vliet.plusmin.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.vliet.plusmin.domain.Aflossing.AflossingDTO
-import io.vliet.plusmin.domain.Aflossing.AflossingSaldoDTO
 import jakarta.persistence.*
 import java.math.BigDecimal
 
@@ -48,10 +46,10 @@ class Budget(
         val budgetPeriodiciteit: String,
         val bedrag: BigDecimal,
         val betaalDag: Int?,
-        val budgetSaldoPeildatum: String? = null,
-        val budgetSaldoBetaling: BigDecimal? = null)
+        val budgetPeilDatum: String? = null,
+        val budgetBetaling: BigDecimal? = null)
 
-    fun toDTO(peilDatum: String? = null, betaling: BigDecimal? = null): BudgetDTO {
+    fun toDTO(budgetPeilDatum: String? = null, budgetBetaling: BigDecimal? = null): BudgetDTO {
         return BudgetDTO(
             this.id,
             this.rekening.naam,
@@ -61,8 +59,8 @@ class Budget(
             this.budgetPeriodiciteit.toString(),
             this.bedrag,
             this.betaalDag,
-            peilDatum,
-            betaling
+            budgetPeilDatum,
+            budgetBetaling
         )
     }
 

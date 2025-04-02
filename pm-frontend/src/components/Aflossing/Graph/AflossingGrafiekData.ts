@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Aflossing } from "../../../model/Aflossing";
+import { AflossingDTO } from "../../../model/Aflossing";
 import { Saldo } from "../../../model/Saldo";
 
 type AflossingGrafiekData = {
@@ -9,7 +9,7 @@ type AflossingGrafiekData = {
 
 type AflossingGrafiekDataMap = Record<string, Record<string, number>>;
 
-export function getData(aflossingen: Aflossing[]): Record<string, any>[] {
+export function getData(aflossingen: AflossingDTO[]): Record<string, any>[] {
   const aflossingGrafiekDataLijst = aflossingen.flatMap(genereerAflossingSaldi);
   const aflossingGrafiekDataMap: AflossingGrafiekDataMap = aflossingGrafiekDataLijst.reduce((acc, item) => {
     if (!acc[item.maand]) {
@@ -27,7 +27,7 @@ export function getData(aflossingen: Aflossing[]): Record<string, any>[] {
   return result;
 }
 
-const genereerAflossingSaldi = (aflossing: Aflossing): AflossingGrafiekData[] => {
+const genereerAflossingSaldi = (aflossing: AflossingDTO): AflossingGrafiekData[] => {
   const formatter = "YYYY-MM";
   const aflossingGrafiekDataLijst: AflossingGrafiekData[] = [];
   let huidigeMaand = dayjs(aflossing.startDatum).startOf("month");
@@ -49,7 +49,7 @@ const genereerAflossingSaldi = (aflossing: Aflossing): AflossingGrafiekData[] =>
 }
 
 
-export function getSeries(aflossingen: Aflossing[]) {
+export function getSeries(aflossingen: AflossingDTO[]) {
   return aflossingen.map((aflossing) => {
     return {
       type: "area",

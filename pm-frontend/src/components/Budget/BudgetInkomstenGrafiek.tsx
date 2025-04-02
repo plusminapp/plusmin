@@ -9,7 +9,7 @@ import { PlusIcon } from '../../icons/Plus';
 import { MinIcon } from '../../icons/Min';
 
 type BudgetInkomstenGrafiekProps = {
-  peildatum: dayjs.Dayjs;
+  peilDatum: dayjs.Dayjs;
   periode: Periode;
   rekening: Rekening
   budgetten: BudgetDTO[];
@@ -34,7 +34,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   const inkomstenMoetOntvangenZijn = (betaalDag: number | undefined) => {
     if (betaalDag === undefined) return true;
     const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
-    return betaalDagInPeriode.isBefore(props.peildatum) || betaalDagInPeriode.isSame(props.peildatum);
+    return betaalDagInPeriode.isBefore(props.peilDatum) || betaalDagInPeriode.isSame(props.peilDatum);
   }
 
   type ExtendedInkomstenBudget = BudgetDTO & {
@@ -47,30 +47,30 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
     {
       ...budget,
       inkomstenMoetOntvangenZijn: inkomstenMoetOntvangenZijn(budget.betaalDag),
-      meerDanBudget: inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.min(budget.budgetSaldoBetaling ?? 0, budget.bedrag),
-      minderDanBudget: inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.max(0, budget.bedrag - (budget.budgetSaldoBetaling ?? 0)) : 0,
-      meerDanMaandBudget: Math.max(0, (budget.budgetSaldoBetaling ?? 0) - budget.bedrag),
+      meerDanBudget: inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.min(budget.budgetBetaling ?? 0, budget.bedrag),
+      minderDanBudget: inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.max(0, budget.bedrag - (budget.budgetBetaling ?? 0)) : 0,
+      meerDanMaandBudget: Math.max(0, (budget.budgetBetaling ?? 0) - budget.bedrag),
     }));
 
   const maandBudget = extendedInkomstenBudget.reduce((acc, budget) => (acc + budget.bedrag), 0)
 
-  const ontvangenOpPeildatum = extendedInkomstenBudget.reduce((acc, budget) => (acc + (budget.budgetSaldoBetaling ?? 0)), 0);
+  const ontvangenOpPeilDatum = extendedInkomstenBudget.reduce((acc, budget) => (acc + (budget.budgetBetaling ?? 0)), 0);
 
   const ontvangenBinnenBudget = extendedInkomstenBudget.reduce((acc, budget) =>
-    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.min(budget.bedrag, budget.budgetSaldoBetaling ?? 0) : 0)), 0);
+    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.min(budget.bedrag, budget.budgetBetaling ?? 0) : 0)), 0);
 
   const minderDanBudget = extendedInkomstenBudget.reduce((acc, budget) =>
-    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.max(0, budget.bedrag - (budget.budgetSaldoBetaling ?? 0)) : 0)), 0);
+    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? Math.max(0, budget.bedrag - (budget.budgetBetaling ?? 0)) : 0)), 0);
 
   const meerDanBudget = extendedInkomstenBudget.reduce((acc, budget) =>
-    acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.min(budget.budgetSaldoBetaling ?? 0, budget.bedrag)), 0);
+    acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.min(budget.budgetBetaling ?? 0, budget.bedrag)), 0);
 
   // const blaatToiTnuToe = ontvangenBinnenBudget + minderDanBudget + meerDanBudget;
   const meerDanMaandBudget = extendedInkomstenBudget.reduce((acc, budget) =>
-    (acc + Math.max(0, (budget.budgetSaldoBetaling ?? 0) - budget.bedrag)), 0);
+    (acc + Math.max(0, (budget.budgetBetaling ?? 0) - budget.bedrag)), 0);
 
   const restMaandBudget = extendedInkomstenBudget.reduce((acc, budget) =>
-    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.max(0, budget.bedrag - (budget.budgetSaldoBetaling ?? 0)))), 0);
+    (acc + (inkomstenMoetOntvangenZijn(budget.betaalDag) ? 0 : Math.max(0, budget.bedrag - (budget.budgetBetaling ?? 0)))), 0);
 
 
   const formatAmount = (amount: string): string => {
@@ -94,11 +94,11 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
   console.log('----------------------------------------------');
   // console.log('props.periode.periodeStartDatum.', JSON.stringify(props.periode.periodeStartDatum));
   // console.log('props.periode.periodeEindDatum.', JSON.stringify(props.periode.periodeEindDatum));
-  // console.log('peildatum', JSON.stringify(props.peildatum));
+  // console.log('peilDatum', JSON.stringify(props.peilDatum));
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
   // console.log('budgetten', JSON.stringify(budgettenMetUitbreidingen));
   console.log('maandBudget', JSON.stringify(maandBudget));
-  console.log('ontvangenOpPeildatum', JSON.stringify(ontvangenOpPeildatum));
+  console.log('ontvangenOpPeilDatum', JSON.stringify(ontvangenOpPeilDatum));
   console.log('ontvangenBinnenBudget', JSON.stringify(ontvangenBinnenBudget));
   console.log('minderDanBudget', JSON.stringify(minderDanBudget));
   console.log('meerDanBudget', JSON.stringify(meerDanBudget));
@@ -135,7 +135,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
               {berekenToestandInkomstenIcoon(budget)}
               <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
                 {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())}, betaaldag {budget.betaalDag && dagInPeriode(budget.betaalDag, props.periode).format('D MMMM')},&nbsp;
-                waarvan {formatAmount(budget.budgetSaldoBetaling?.toString() ?? "nvt")} is ontvangen; dit is
+                waarvan {formatAmount(budget.budgetBetaling?.toString() ?? "nvt")} is ontvangen; dit is
                 {budget.meerDanBudget === 0 && budget.minderDanBudget === 0 && budget.meerDanMaandBudget === 0 && ' zoals verwacht'}
                 {[budget.meerDanBudget > 0 && ' eerder dan verwacht',
                 budget.minderDanBudget > 0 && ` ${formatAmount(budget.minderDanBudget.toString())} minder dan verwacht`,
@@ -189,7 +189,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                 >
                   {formatAmount((ontvangenBinnenBudget + meerDanBudget + minderDanBudget + meerDanMaandBudget + restMaandBudget).toString())}
                 </TableCell>}
-              {restMaandBudget === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+              {restMaandBudget === 0 && props.peilDatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell />}
             </TableRow>
 
@@ -250,7 +250,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                   }}>
                   {formatAmount(restMaandBudget.toString())}
                 </TableCell>}
-              {restMaandBudget === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+              {restMaandBudget === 0 && props.peilDatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell
                   sx={{
                     backgroundColor: '#333',
@@ -270,28 +270,28 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                   align="right"
                   width={`${(ontvangenBinnenBudget / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px', borderRight: meerDanBudget === 0 && meerDanMaandBudget === 0 ? '2px dotted #333' : 'none' }} >
-                  {meerDanBudget === 0 && meerDanMaandBudget === 0 && props.peildatum.format('D/M')}
+                  {meerDanBudget === 0 && meerDanMaandBudget === 0 && props.peilDatum.format('D/M')}
                 </TableCell>}
               {meerDanBudget > 0 &&
                 <TableCell
                   align="right"
                   width={`${(meerDanBudget / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px', borderRight: meerDanMaandBudget === 0 ? '2px dotted #333' : 'none', }} >
-                  {meerDanMaandBudget === 0 && props.peildatum.format('D/M')}
+                  {meerDanMaandBudget === 0 && props.peilDatum.format('D/M')}
                 </TableCell>}
               {meerDanMaandBudget > 0 &&
                 <TableCell
                   align="right"
                   width={`${(meerDanMaandBudget / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px', borderRight: '2px dotted #333' }} >
-                  {props.peildatum.format('D/M')}
+                  {props.peilDatum.format('D/M')}
                 </TableCell>}
               {minderDanBudget > 0 &&
                 <TableCell
                   align="right"
                   width={`${(minderDanBudget / tabelBreedte) * 90}%`}
                   sx={{ p: 1, fontSize: '10px' }}>
-                  {props.peildatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum && props.peildatum.format('D/M')}
+                  {props.peilDatum.format('YYYY-MM-DD') === props.periode.periodeEindDatum && props.peilDatum.format('D/M')}
                 </TableCell>}
               {restMaandBudget > 0 &&
                 <TableCell
@@ -300,7 +300,7 @@ export const BudgetInkomstenGrafiek = (props: BudgetInkomstenGrafiekProps) => {
                   sx={{ p: 1, fontSize: '10px', borderLeft: minderDanBudget === 0 ? '2px dotted #333' : 'none' }} >
                   {dayjs(props.periode.periodeEindDatum).format('D/M')}
                 </TableCell>}
-              {restMaandBudget === 0 && props.peildatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
+              {restMaandBudget === 0 && props.peilDatum.format('YYYY-MM-DD') != props.periode.periodeEindDatum &&
                 <TableCell
                   align="right"
                   sx={{ p: 1, fontSize: '10px' }} >

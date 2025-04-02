@@ -1,3 +1,5 @@
+name: pm-stg
+
 services:
 
   pm-frontend:

@@ -99,16 +99,16 @@ export const findPeriode = (periodes: Periode[], datum: dayjs.Dayjs): Periode | 
     return periodes.find(p => dayjs(p.periodeStartDatum).isBefore(datum, 'day') && dayjs(p.periodeEindDatum).isAfter(datum, 'day'));
 }
 
-export const berekenPeriodeBijPeildatum = (peildatum: dayjs.Dayjs): Periode => {
+export const berekenPeriodeBijPeilDatum = (peilDatum: dayjs.Dayjs): Periode => {
     const wisselDag = 20;
     let startDatum: dayjs.Dayjs;
     let eindDatum: dayjs.Dayjs;
-    if (peildatum.date() < wisselDag) {
-        startDatum = peildatum.subtract(1, 'month').set('date', wisselDag);
-        eindDatum = peildatum.set('date', wisselDag - 1);
+    if (peilDatum.date() < wisselDag) {
+        startDatum = peilDatum.subtract(1, 'month').set('date', wisselDag);
+        eindDatum = peilDatum.set('date', wisselDag - 1);
     } else {
-        startDatum = peildatum.set('date', wisselDag);
-        eindDatum = peildatum.add(1, 'month').set('date', wisselDag - 1);
+        startDatum = peilDatum.set('date', wisselDag);
+        eindDatum = peilDatum.add(1, 'month').set('date', wisselDag - 1);
     }
     return {
         id: -1,

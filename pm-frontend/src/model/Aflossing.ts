@@ -2,8 +2,7 @@ import dayjs from "dayjs"
 import { Rekening } from "./Rekening"
 import { isDagNaVandaagInPeriode, Periode } from "./Periode"
 
-export type Aflossing = {
-
+export type AflossingDTO = {
     rekening: Rekening,
     startDatum: dayjs.Dayjs,
     eindDatum: dayjs.Dayjs | undefined,
@@ -12,14 +11,19 @@ export type Aflossing = {
     betaalDag: number,
     dossierNummer: string,
     notities: string,
-    aflossingSaldoDTO: AflossingSaldi | undefined
+    aflossingPeilDatum?: string | undefined,
+    aflossingBetaling?: number | undefined,
+    deltaStartPeriode?: number | undefined,
+    saldoStartPeriode?: number | undefined,
 }
 
-export type AflossingSaldi = {
-    peilDatum: string,
-    berekendSaldo: number,
-    werkelijkSaldo: number,
-    betaling: number
+export type ExtendedAflossingDTO = AflossingDTO & {
+    aflossingMoetBetaaldZijn: boolean;
+    actueleStand: number;
+    actueleAchterstand: number;
+    meerDanVerwacht: number;
+    minderDanVerwacht: number;
+    meerDanMaandAflossing: number;
 }
 
 export type AflossingSamenvattingDTO = {
@@ -28,7 +32,7 @@ export type AflossingSamenvattingDTO = {
     betaalDag: number,
 }
 
-export const berekenAflossingTotaal = (aflossingen: Aflossing[]): number => {
+export const berekenAflossingTotaal = (aflossingen: AflossingDTO[]): number => {
     return aflossingen.reduce((acc, aflossing) => acc + aflossing.aflossingsBedrag, 0)
 }
 

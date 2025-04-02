@@ -51,15 +51,18 @@ class Aflossing(
         val betaalDag: Int,
         val dossierNummer: String,
         val notities: String,
-        var aflossingSaldoDTO:AflossingSaldoDTO? = null
-    ) {
-        fun with(aflossingSaldoDTO: AflossingSaldoDTO): AflossingDTO {
-            this.aflossingSaldoDTO = aflossingSaldoDTO
-            return this
-        }
-    }
+        val aflossingPeilDatum: String? = null,
+        val aflossingBetaling: BigDecimal? = null,
+        val deltaStartPeriode: BigDecimal? = null,
+        val saldoStartPeriode: BigDecimal? = null,
+    )
 
-    fun toDTO(): AflossingDTO {
+    fun toDTO(
+        aflossingPeilDatum: String? = null,
+        aflossingBetaling: BigDecimal? = null,
+        deltaStartPeriode: BigDecimal? = null,
+        saldoStartPeriode: BigDecimal? = null,
+    ): AflossingDTO {
         return AflossingDTO(
             this.id,
             this.rekening.toDTO(),
@@ -70,15 +73,12 @@ class Aflossing(
             this.betaalDag,
             this.dossierNummer,
             this.notities,
+            aflossingPeilDatum = aflossingPeilDatum,
+            aflossingBetaling = aflossingBetaling,
+            deltaStartPeriode = deltaStartPeriode,
+            saldoStartPeriode = saldoStartPeriode,
         )
     }
-
-    data class AflossingSaldoDTO(
-        val peilDatum: String,
-        val berekendSaldo: BigDecimal,
-        val werkelijkSaldo: BigDecimal,
-        val betaling: BigDecimal
-    )
 
     data class AflossingSamenvattingDTO(
         val aflossingNaam: String,

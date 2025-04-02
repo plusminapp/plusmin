@@ -9,43 +9,39 @@ import { dagInPeriode } from '../model/Periode';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useEffect, useState } from "react";
-import { berekenPeriodeBijPeildatum } from "../model/Periode";
-import { BudgetType, Rekening, RekeningSoort } from "../model/Rekening";
+import { berekenPeriodeBijPeilDatum } from "../model/Periode";
+import { BudgetType, RekeningSoort } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 import BudgetInkomstenGrafiek from "../components/Budget/BudgetInkomstenGrafiek";
-import { boodschappenBudgetten, inkomstenBudgetten, vastelastenBudgetten } from "../components/BudgetData";
-
-const rekeningTemplate = {
-  Id: 1,
-  nummer: undefined,
-  bankNaam: undefined,
-  sortOrder: 1,
-  budgetten: [],
-} as unknown as Rekening;
+import { aflossingen, boodschappenBudgetten, inkomstenBudgetten, rekeningTemplate, vastelastenBudgetten } from "../components/DemoData";
+import { AflossingDTO } from "../model/Aflossing";
+import AflossingGrafiek from "../components/Budget/AflossingGrafiek";
 
 type FormField = {
   rekeningNaam: string;
   rekeningSoort: string;
   budgetType: string;
   budgetten: BudgetDTO[];
+  aflossingen: AflossingDTO[];
 }
 
 const initialFormFields = {
   rekeningNaam: 'Inkomsten',
   rekeningSoort: 'inkomsten',
   budgetType: BudgetType.vast,
-  budgetten: inkomstenBudgetten
+  budgetten: inkomstenBudgetten,
+  aflossingen: aflossingen,
 } as FormField;
 
 export default function Login() {
 
-  const periode = berekenPeriodeBijPeildatum(dayjs());
+  const periode = berekenPeriodeBijPeilDatum(dayjs());
   const [formFields, setFormFields] = useState<FormField>(initialFormFields);
 
   const [selectedVisualisatie, setSelectedVisualisatie] = useState<string | undefined>('Inkomsten');
 
   const [peilDatum, setPeilDatum] = useState(dayjs(periode.periodeStartDatum));
-  const [gekozenPeildatumNaam, setGekozenPeildatumNaam] = useState<string | undefined>('begin');
+  const [gekozenPeilDatumNaam, setGekozenPeilDatumNaam] = useState<string | undefined>('begin');
 
   const handlePeilDatumChange = (value: any) => {
     const newPeilDatum = (value.isBefore(dayjs(periode.periodeStartDatum))) ? dayjs(periode.periodeStartDatum) :
@@ -55,11 +51,11 @@ export default function Login() {
     const newFormFields = {
       ...formFields, budgetten: formFields.budgetten.map(budget => ({
         ...budget,
-        budgetSaldoPeildatum: newPeilDatum
+        budgetPeilDatum: newPeilDatum
       }))
     };
     setFormFields(newFormFields);
-    setGekozenPeildatumNaam(undefined);
+    setGekozenPeilDatumNaam(undefined);
   }
   const handleGekozenPeilDatumNaam = (positie: string) => {
     switch (positie) {
@@ -76,22 +72,25 @@ export default function Login() {
   useEffect(() => {
     switch (peilDatum.format('YYYY-MM-DD')) {
       case periode.periodeStartDatum:
-        setGekozenPeildatumNaam('begin');
+        setGekozenPeilDatumNaam('begin');
         break;
       case dayjs(periode.periodeStartDatum).add(14, 'day').format('YYYY-MM-DD'):
-        setGekozenPeildatumNaam('midden');
+        setGekozenPeilDatumNaam('midden');
         break;
       case periode.periodeEindDatum:
-        setGekozenPeildatumNaam('einde');
+        setGekozenPeilDatumNaam('einde');
         break;
       default:
-        setGekozenPeildatumNaam('');
+        setGekozenPeilDatumNaam('');
     }
   }, [peilDatum]);
 
-  const [betalingNamen, setBetalingNamen] = useState<string[]>(inkomstenBudgetten.map(_b => 'budget'));
+  const [betalingNamen, setBetalingNamen] = useState<string[]>(inkomstenBudgetten.map(_b => 'niets'));
   const handleBetalingNaamChange = (datum: dayjs.Dayjs, index: number, gekozenBetalingNaam: string) => {
-    const verwachtBudgetBedrag = verwachtBudget(datum, formFields.budgetten[index].bedrag);
+    const verwachtBudgetBedrag =
+      selectedVisualisatie !== 'Aflossing' ?
+        verwachtBudget(datum, formFields.budgetten[index].bedrag) :
+        formFields.aflossingen[index].aflossingsBedrag;
     switch (gekozenBetalingNaam) {
       case 'niets':
         handleInputChange(index, '0');
@@ -99,7 +98,7 @@ export default function Login() {
       case 'te weinig':
         handleInputChange(index, Math.round(0.5 * verwachtBudgetBedrag).toString());
         break;
-      case 'budget':
+      case 'verwacht':
         handleInputChange(index, Math.round(verwachtBudgetBedrag).toString());
         break;
       case 'teveel':
@@ -107,7 +106,6 @@ export default function Login() {
     }
   }
   const verwachtBudget = (datum: dayjs.Dayjs, budget: number): number => {
-    // console.log('verwachtBudget', datum.format('YYYY-MM-DD'), budget, selectedVisualisatie);
     if (selectedVisualisatie !== 'Boodschappen') {
       return budget;
     }
@@ -120,8 +118,7 @@ export default function Login() {
     let nieuweBetalingNamen = betalingNamen;
     formFields.budgetten.forEach((budget, index) => {
       const verwachtBudgetBedrag = verwachtBudget(peilDatum, budget.bedrag);
-      // console.log('useEffect verwachtBudget', peilDatum.format('YYYY-MM-DD'), budget.bedrag, verwachtBudgetBedrag, budget.budgetSaldoBetaling);
-      switch (budget.budgetSaldoBetaling) {
+      switch (budget.budgetBetaling) {
         case 0:
           nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'niets' : item));
           break;
@@ -129,7 +126,7 @@ export default function Login() {
           nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'te weinig' : item));
           break;
         case verwachtBudgetBedrag:
-          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'budget' : item));
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'verwacht' : item));
           break;
         case Math.round(1.1 * verwachtBudgetBedrag):
           nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'teveel' : item));
@@ -142,16 +139,52 @@ export default function Login() {
     setBetalingNamen(nieuweBetalingNamen);
   }, [peilDatum, formFields.budgetten]);
 
+  useEffect(() => {
+    let nieuweBetalingNamen = betalingNamen;
+    formFields.aflossingen.forEach((aflossing, index) => {
+      const verwachtBudgetBedrag = verwachtBudget(peilDatum, aflossing.aflossingsBedrag);
+      switch (aflossing.aflossingBetaling) {
+        case 0:
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'niets' : item));
+          break;
+        case Math.round(0.5 * verwachtBudgetBedrag):
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'te weinig' : item));
+          break;
+        case verwachtBudgetBedrag:
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'verwacht' : item));
+          break;
+        case Math.round(1.1 * verwachtBudgetBedrag):
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? 'teveel' : item));
+          break;
+        default:
+          nieuweBetalingNamen = nieuweBetalingNamen.map((item, i) => (i === index ? '' : item));
+          break;
+      }
+    });
+    setBetalingNamen(nieuweBetalingNamen);
+  }, [peilDatum, formFields.aflossingen]);
+
   const handleInputChange = (index: number, value: string) => {
     value = value === null || value === undefined || value === '' ? '0' : value;
-    setFormFields({
-      ...formFields,
-      budgetten: [
-        ...formFields.budgetten.slice(0, index),
-        { ...formFields.budgetten[index], budgetSaldoBetaling: Math.round(parseFloat(value)) },
-        ...formFields.budgetten.slice(index + 1)
-      ]
-    });
+    if (selectedVisualisatie !== 'Aflossing')
+      setFormFields({
+        ...formFields,
+        budgetten: [
+          ...formFields.budgetten.slice(0, index),
+          { ...formFields.budgetten[index], budgetBetaling: Math.round(parseFloat(value)) },
+          ...formFields.budgetten.slice(index + 1)
+        ]
+      });
+    else
+      setFormFields({
+        ...formFields,
+        aflossingen: [
+          ...formFields.aflossingen.slice(0, index),
+          { ...formFields.aflossingen[index], aflossingBetaling: Math.round(parseFloat(value)) },
+          ...formFields.aflossingen.slice(index + 1)
+        ]
+      });
+
   };
 
   const handleVisualisatieButtonClick = (key: string) => {
@@ -164,7 +197,7 @@ export default function Login() {
         budgetType: BudgetType.vast,
         budgetten: inkomstenBudgetten,
       })
-      setBetalingNamen(inkomstenBudgetten.map(_b => 'budget'));
+      setBetalingNamen(inkomstenBudgetten.map(_b => 'niets'));
     } else if (key === 'Boodschappen') {
       setFormFields({
         ...formFields,
@@ -173,7 +206,7 @@ export default function Login() {
         budgetType: BudgetType.continu,
         budgetten: boodschappenBudgetten,
       });
-      setBetalingNamen(boodschappenBudgetten.map(_b => 'budget'));
+      setBetalingNamen(boodschappenBudgetten.map(_b => 'niets'));
     } else if (key === 'Vaste lasten') {
       setFormFields({
         ...formFields,
@@ -182,7 +215,16 @@ export default function Login() {
         budgetType: BudgetType.vast,
         budgetten: vastelastenBudgetten,
       })
-      setBetalingNamen(vastelastenBudgetten.map(_b => 'budget'));
+      setBetalingNamen(vastelastenBudgetten.map(_b => 'niets'));
+    } else if (key === 'Aflossing') {
+      setFormFields({
+        ...formFields,
+        rekeningNaam: 'Aflossing',
+        rekeningSoort: 'aflossing',
+        budgetType: BudgetType.vast,
+        aflossingen: aflossingen,
+      })
+      setBetalingNamen(aflossingen.map(_b => 'niets'));
     }
   }
   const formatAmount = (amount: string): string => {
@@ -217,7 +259,7 @@ export default function Login() {
           Het is bedoeld om te starten vlak voor dat de hulpvrager zijn/haar inkomen ontvangt.
         </Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
-          De peildatum zal in het echte gebruik altijd de huidige datum zijn. In dit formulier kun je de peildatum aanpassen, 'tijdreizen',
+          De peilDatum zal in het echte gebruik altijd de huidige datum zijn. In dit formulier kun je de peilDatum aanpassen, 'tijdreizen',
           om te zien hoe de visualisatie daardoor verandert. De periode is altijd de huidige periode
         </Typography>
         <Typography variant='body2' sx={{ mb: '8px' }}>
@@ -235,11 +277,12 @@ export default function Login() {
         <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
           <Grid size={1} >
             <Typography variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-              &nbsp;
+              {selectedVisualisatie === 'Aflossing' && 'De visualisatie veronderstelt GEEN betalingsachterstand aan het begin van de periode; als die er wel is wordt daar rekening mee gehouden: die wordt in mindering gebracht op de betaling.'}
+              {selectedVisualisatie === 'Boodschappen' && 'Let op: een tekort op een budget wordt gecompenseerd met een eventueel overschot op een ander budget.'}
             </Typography>
           </Grid>
           <Grid size={1} >
-            {['Inkomsten', 'Boodschappen', 'Vaste lasten'].map(visualisatie =>
+            {['Inkomsten', 'Boodschappen', 'Vaste lasten', 'Aflossing'].map(visualisatie =>
               <Button
                 color='success'
                 style={{ textTransform: 'none' }}
@@ -258,7 +301,7 @@ export default function Login() {
               <DatePicker
                 sx={{ color: 'success.main' }}
                 slotProps={{ textField: { variant: "standard" } }}
-                label="Wat is de peildatum?"
+                label="Wat is de peilDatum?"
                 value={peilDatum}
                 onChange={(newvalue) => handlePeilDatumChange(newvalue ? newvalue : dayjs())}
               />
@@ -272,25 +315,25 @@ export default function Login() {
                 sx={{ p: '3px', m: '3px', fontSize: 11 }}
                 size="small"
                 key={positie}
-                variant={gekozenPeildatumNaam === positie ? 'contained' : 'outlined'}
+                variant={gekozenPeilDatumNaam === positie ? 'contained' : 'outlined'}
                 onClick={() => handleGekozenPeilDatumNaam(positie)}>
                 {positie}
               </Button>)}
           </Grid>
         </Grid>
-        {formFields.budgetten.map((budget, index) =>
+        {formFields.rekeningSoort !== 'aflossing' && formFields.budgetten.map((budget, index) =>
           <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
             <Grid size={1} display={'flex'} direction={'row'} alignItems={'center'}>
               <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-                {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())}, betaaldag {budget.betaalDag && dagInPeriode(budget.betaalDag, periode).format('D MMMM')}, waarvan er 
+                {budget.budgetNaam}: {formatAmount(budget.bedrag.toString())}, betaaldag {budget.betaalDag && dagInPeriode(budget.betaalDag, periode).format('D MMMM')}, waarvan er
               </Typography>
               <TextField
                 label=""
                 sx={{ fontSize: '0.875rem', ml: 1, width: '95px', textAlign: 'right' }}
                 variant="standard"
                 slotProps={{ inputLabel: { shrink: true, } }}
-                id="besteedOpPeildatum1"
-                value={formFields.budgetten[index].budgetSaldoBetaling}
+                id="besteedOpPeilDatum1"
+                value={formFields.budgetten[index].budgetBetaling}
                 type="number"
                 onChange={(e) => handleInputChange(index, e.target.value)}
               />
@@ -299,7 +342,42 @@ export default function Login() {
               </Typography>
             </Grid>
             <Grid size={1} >
-              {['niets', 'te weinig', 'budget', 'teveel'].map((betalingNaam) =>
+              {['niets', 'te weinig', 'verwacht', 'teveel'].map((betalingNaam) =>
+                <Button
+                  color='success'
+                  style={{ textTransform: 'none' }}
+                  sx={{ p: '3px', m: '3px', fontSize: 11 }}
+                  size="small"
+                  key={index}
+                  variant={betalingNamen[index] === betalingNaam ? 'contained' : 'outlined'}
+                  onClick={() => handleBetalingNaamChange(peilDatum, index, betalingNaam)}>
+                  {betalingNaam}
+                </Button>)}
+            </Grid>
+          </Grid>
+        )}
+        {formFields.rekeningSoort === 'aflossing' && formFields.aflossingen.map((aflossing, index) =>
+          <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
+            <Grid size={1} display={'flex'} direction={'row'} alignItems={'center'}>
+              <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
+                {aflossing.rekening.naam}: {formatAmount(aflossing.aflossingsBedrag.toString())}, betaaldag {aflossing.betaalDag && dagInPeriode(aflossing.betaalDag, periode).format('D MMMM')}, waarvan er
+              </Typography>
+              <TextField
+                label=""
+                sx={{ fontSize: '0.875rem', ml: 1, width: '95px', textAlign: 'right' }}
+                variant="standard"
+                slotProps={{ inputLabel: { shrink: true, } }}
+                id="besteedOpPeilDatum1"
+                value={formFields.aflossingen[index].aflossingBetaling}
+                type="number"
+                onChange={(e) => handleInputChange(index, e.target.value)}
+              />
+              <Typography variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
+                is betaald.
+              </Typography>
+            </Grid>
+            <Grid size={1} >
+              {['niets', 'te weinig', 'verwacht', 'teveel'].map((betalingNaam) =>
                 <Button
                   color='success'
                   style={{ textTransform: 'none' }}
@@ -320,7 +398,7 @@ export default function Login() {
           {formFields.budgetType === BudgetType.continu &&
             <BudgetContinuGrafiek
               periode={periode}
-              peildatum={peilDatum}
+              peilDatum={peilDatum}
               rekening={{
                 ...rekeningTemplate,
                 naam: formFields.rekeningNaam,
@@ -328,13 +406,13 @@ export default function Login() {
                 budgetType: formFields.budgetType,
               }}
               budgetten={formFields.budgetten.map((budget) => ({
-                ...budget,  
-                budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
+                ...budget,
+                budgetBetaling: -(budget.budgetBetaling ?? 0),
               }))} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'uitgaven' &&
             <BudgetVastGrafiek
               periode={periode}
-              peildatum={peilDatum}
+              peilDatum={peilDatum}
               rekening={{
                 ...rekeningTemplate,
                 naam: formFields.rekeningNaam,
@@ -342,13 +420,13 @@ export default function Login() {
                 budgetType: formFields.budgetType,
               }}
               budgetten={formFields.budgetten.map((budget) => ({
-                ...budget,  
-                budgetSaldoBetaling: -(budget.budgetSaldoBetaling ?? 0),
+                ...budget,
+                budgetBetaling: -(budget.budgetBetaling ?? 0),
               }))} />}
           {formFields.budgetType === BudgetType.vast && formFields.rekeningSoort === 'inkomsten' &&
             <BudgetInkomstenGrafiek
               periode={periode}
-              peildatum={peilDatum}
+              peilDatum={peilDatum}
               rekening={{
                 ...rekeningTemplate,
                 naam: 'Inkmosten',
@@ -356,6 +434,11 @@ export default function Login() {
                 budgetType: BudgetType.vast,
               }}
               budgetten={formFields.budgetten} />}
+          {formFields.rekeningSoort === 'aflossing' &&
+            <AflossingGrafiek
+              periode={periode}
+              peilDatum={peilDatum}
+              aflossingen={formFields.aflossingen} />}
         </>
       }
     </>)

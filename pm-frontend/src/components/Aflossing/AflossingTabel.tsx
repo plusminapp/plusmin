@@ -6,13 +6,13 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 // import Paper from '@mui/material/Paper';
 
-import { Aflossing } from '../../model/Aflossing';
+import { ExtendedAflossingDTO } from '../../model/Aflossing';
 import { currencyFormatter } from '../../model/Betaling'
 import { Box } from '@mui/material';
 
 
 interface AflossingProps {
-  aflossing: Aflossing;
+  aflossing: ExtendedAflossingDTO;
 }
 
 export default function AflossingTabel(props: AflossingProps) {
@@ -35,19 +35,19 @@ export default function AflossingTabel(props: AflossingProps) {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
+              <TableCell align="left" size='small'>{props.props.aflossing.startDatum.toString()}</TableCell>
               <TableCell align="left" size='small'>{props.aflossing.eindDatum?.toString()}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
               <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
               <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.berekendSaldo)}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.werkelijkSaldo)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.deltaStartPeriode ?? 0)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.saldoStartPeriode ?? 0)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell align="left" size='small' colSpan={4} >
                 <Box sx={{ fontSize: '0.875rem' }}>
-                  Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingSaldoDTO!.betaling)}
+                  Betalingen deze periode: {currencyFormatter.format(props.aflossing.aflossingBetaling ?? 0)}
                 </Box>
               </TableCell>
             </TableRow>

@@ -70,9 +70,9 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             setGekozenPeriode(periode);
             saveToLocalStorage('gekozenPeriode', periode.id + '');
         } else {
-            const eersteOpenPeriode = setOp1stOpenPeriode(gebruiker);
-            setGekozenPeriode(eersteOpenPeriode);
-            saveToLocalStorage('gekozenPeriode', eersteOpenPeriode.id + '');
+            const huidigePeriode = gebruiker.periodes.find(periode => periode.periodeStatus === 'HUIDIG');
+            setGekozenPeriode(huidigePeriode);
+            saveToLocalStorage('gekozenPeriode', huidigePeriode?.id + '');
         }
     }
         const transformRekeningen2BetalingsSoorten = (rekeningen: Rekening[]) => {
@@ -92,14 +92,6 @@ export const CustomProvider: React.FC<CustomProviderProps> = ({ children }) => {
             )
         }
     
-        const setOp1stOpenPeriode = (gebruiker: Gebruiker) => {
-            return (gebruiker.periodes
-                .filter(periode => periode.periodeStatus === 'OPEN' || periode.periodeStatus === 'HUIDIG')
-                .sort((a: Periode, b: Periode) => a.periodeStartDatum > b.periodeStartDatum ? 1 : -1)[0])
-        }
-    
-    
-
     return (
         <CustomContext.Provider value={{
             gebruiker, setGebruiker,

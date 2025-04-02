@@ -2,11 +2,11 @@ import { AgCharts } from "ag-charts-react";
 import { AgAreaSeriesOptions, AgChartOptions } from "ag-charts-community";
 import { getData, getSeries } from "./AflossingGrafiekData";
 import { useCustomContext } from "../../../context/CustomContext";
-import { Aflossing } from "../../../model/Aflossing";
+import { AflossingDTO } from "../../../model/Aflossing";
 import dayjs from "dayjs";
 
 type AflossingenAfbouwGrafiekProps = {
-  aflossingen: Aflossing[];
+  aflossingen: AflossingDTO[];
 };
 
 export const AflossingenAfbouwGrafiek = (props: AflossingenAfbouwGrafiekProps) => {

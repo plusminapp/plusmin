@@ -1,3 +1,4 @@
+import { AflossingDTO } from "./Aflossing"
 import { BudgetDTO } from "./Budget"
 import { Saldo } from "./Saldo"
 
@@ -9,4 +10,5 @@ export type Stand = {
     balansOpDatum: Saldo[],
     resultaatOpDatum: Saldo[],
     budgettenOpDatum: BudgetDTO[],
+    aflossingenOpDatum: AflossingDTO[],
 }

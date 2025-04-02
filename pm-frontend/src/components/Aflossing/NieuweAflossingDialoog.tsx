@@ -8,7 +8,7 @@ import DialogActions from '@mui/material/DialogActions';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { FormControl, Input, InputAdornment, InputLabel, Stack, TextField, Typography } from '@mui/material';
-import { Aflossing } from '../../model/Aflossing';
+import { AflossingDTO } from '../../model/Aflossing';
 
 import dayjs from 'dayjs';
 import 'dayjs/locale/nl';
@@ -59,7 +59,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
 
   const [open, setOpen] = useState(false);
   const [rekening, setRekening] = useState<Rekening>(initialRekening);
-  const [aflossing, setAflossing] = useState<Aflossing>(initialAflossing);
+  const [aflossing, setAflossing] = useState<AflossingDTO>(initialAflossing);
   // const [errors, setErrors] = useState<{ omschrijving?: string; bedrag?: string }>({});
   const [isValid, setIsValid] = useState<boolean>(false);
 
@@ -76,7 +76,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
 
   useEffect(() => {
     const eindDatum = berekenEindDatum(aflossing.startDatum, aflossing.eindBedrag, aflossing.aflossingsBedrag, aflossing.betaalDag)
-    setAflossing({ ...aflossing, eindDatum: eindDatum } as Aflossing)
+    setAflossing({ ...aflossing, eindDatum: eindDatum } as AflossingDTO)
   }, [aflossing.startDatum, aflossing.eindBedrag, aflossing.aflossingsBedrag, aflossing.betaalDag])
 
   const berekenEindDatum = (startDatum: dayjs.Dayjs | undefined, eindBedrag: number | undefined, aflossingsBedrag: number | undefined, betaalDag: number) => {
@@ -85,7 +85,7 @@ export default function NieuweAflossingDialoog(props: NieuweAflossingDialoogProp
     return dayjs().date() <= betaalDag ? eindDatum.subtract(1, 'month') : eindDatum
   }
 
-  const handleInputAflossingWijziging = <K extends keyof Aflossing>(key: K, value: Aflossing[K]) => {
+  const handleInputAflossingWijziging = <K extends keyof AflossingDTO>(key: K, value: AflossingDTO[K]) => {
     setAflossing({ ...aflossing, [key]: value })
     // const newErrors: { omschrijving?: string; bedrag?: string } = { omschrijving: undefined, bedrag: undefined };
     setIsValid(true)
