@@ -21,6 +21,7 @@ export type ExtendedAflossingDTO = AflossingDTO & {
     aflossingMoetBetaaldZijn: boolean;
     actueleStand: number;
     actueleAchterstand: number;
+    betaaldBinnenAflossing: number
     meerDanVerwacht: number;
     minderDanVerwacht: number;
     meerDanMaandAflossing: number;

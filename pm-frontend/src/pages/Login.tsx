@@ -277,7 +277,7 @@ export default function Login() {
         <Grid container spacing={2} alignItems="center" columns={2} justifyContent={'start'}>
           <Grid size={1} >
             <Typography variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-              {selectedVisualisatie === 'Aflossing' && 'De visualisatie veronderstelt GEEN betalingsachterstand aan het begin van de periode; als die er wel is wordt daar rekening mee gehouden: die wordt in mindering gebracht op de betaling.'}
+              {selectedVisualisatie === 'Aflossing' && 'De visualisatie veronderstelt een betalingsachterstand van € 25,- voor Infomedics.'}
               {selectedVisualisatie === 'Boodschappen' && 'Let op: een tekort op een budget wordt gecompenseerd met een eventueel overschot op een ander budget.'}
             </Typography>
           </Grid>

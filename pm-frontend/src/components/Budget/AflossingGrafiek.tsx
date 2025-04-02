@@ -33,39 +33,43 @@ export const AflossingGrafiek = (props: AflossingGrafiekProps) => {
     const betaalDagInPeriode = dagInPeriode(betaalDag, props.periode);
     return betaalDagInPeriode.isBefore(props.peilDatum) || betaalDagInPeriode.isSame(props.peilDatum);
   }
-  const extendedAflossingDTO = props.aflossingen.map((aflossing) => (
-    {
+  const extendedAflossingDTO = props.aflossingen.map((aflossing) => {
+    const aflossingMoetZijnBetaald = aflossingMoetBetaaldZijn(aflossing.betaalDag)
+    const actueleAchterstand = (aflossing.deltaStartPeriode ?? 0) + (aflossing.aflossingBetaling ?? 0) - (aflossingMoetZijnBetaald ? (aflossing.aflossingsBedrag ?? 0) : 0)
+    const betaaldBinnenAflossing = Math.min((aflossing.aflossingBetaling ?? 0), -(aflossing.deltaStartPeriode ?? 0) + (aflossingMoetZijnBetaald ? (aflossing.aflossingsBedrag ?? 0) : 0));
+    return {
       ...aflossing,
-      aflossingMoetBetaaldZijn: aflossingMoetBetaaldZijn(aflossing.betaalDag),
-      actueleStand: aflossing.saldoStartPeriode ?? 0 + (aflossing.aflossingBetaling ?? 0),
-      actueleAchterstand: (aflossing.deltaStartPeriode ?? 0) + (aflossing.aflossingBetaling ?? 0) - (aflossingMoetBetaaldZijn(aflossing.betaalDag) ?  (aflossing.aflossingsBedrag ?? 0) : 0),
-      meerDanVerwacht: aflossingMoetBetaaldZijn(aflossing.betaalDag) ? 0 : Math.min((aflossing.aflossingBetaling ?? 0), aflossing.aflossingsBedrag),
-      minderDanVerwacht: aflossingMoetBetaaldZijn(aflossing.betaalDag) ? Math.max(0, aflossing.aflossingsBedrag - (aflossing.aflossingBetaling ?? 0)) : 0,
-      meerDanMaandAflossing: Math.max(0, (aflossing.aflossingBetaling ?? 0) - aflossing.aflossingsBedrag)
-    } as ExtendedAflossingDTO));
+      aflossingMoetBetaaldZijn: aflossingMoetZijnBetaald,
+      actueleStand: (aflossing.saldoStartPeriode ?? 0) - (aflossing.aflossingBetaling ?? 0),
+      actueleAchterstand: actueleAchterstand,
+      betaaldBinnenAflossing: betaaldBinnenAflossing,
+      meerDanVerwacht: !aflossingMoetZijnBetaald && actueleAchterstand > 0 ? actueleAchterstand : 0,
+      minderDanVerwacht: actueleAchterstand < 0 ? -actueleAchterstand : 0,
+      meerDanMaandAflossing: aflossingMoetZijnBetaald && actueleAchterstand > 0 ? actueleAchterstand : 0
+    } as ExtendedAflossingDTO
+  });
 
-  const maandaflossing = extendedAflossingDTO.reduce((acc, aflossing) => (acc + Number(aflossing.aflossingsBedrag)), 0)
+  const maandaflossing = extendedAflossingDTO.reduce((acc, aflossing) => (acc + Number(aflossing.aflossingsBedrag)) - (aflossing.deltaStartPeriode ?? 0), 0)
 
   const betaaldOpPeilDatum = extendedAflossingDTO.reduce((acc, aflossing) => (acc + (aflossing.aflossingBetaling ?? 0)), 0);
 
-  const betaaldBinnenaflossing = extendedAflossingDTO.reduce((acc, aflossing) =>
-    (acc + (aflossingMoetBetaaldZijn(aflossing.betaalDag) ? Math.min(aflossing.aflossingsBedrag, aflossing.aflossingBetaling ?? 0) : 0)), 0);
+  const verwachtOpPeilDatum = extendedAflossingDTO.reduce((acc, aflossing) =>
+    (acc + (aflossingMoetBetaaldZijn(aflossing.betaalDag) ? aflossing.aflossingsBedrag - (aflossing.deltaStartPeriode ?? 0) : -(aflossing.deltaStartPeriode ?? 0))), 0);
 
-  const minderDanVerwacht = extendedAflossingDTO.reduce((acc, aflossing) => {
-    const verschil = aflossingMoetBetaaldZijn(aflossing.betaalDag) ? Math.max(0, aflossing.aflossingsBedrag - (aflossing.aflossingBetaling ?? 0)) : 0;
-    console.log(`Verwerk aflossing: ${JSON.stringify(aflossing.rekening.naam)}, aflossingsBedrag : ${aflossing.aflossingsBedrag }, betaling : ${aflossing.aflossingBetaling}, verschil : ${verschil}`);
-    return acc + verschil;
-  }, 0);
+  const betaaldBinnenaflossing = extendedAflossingDTO.reduce((acc, aflossing) =>
+    acc + aflossing.betaaldBinnenAflossing, 0);
+
+  const minderDanVerwacht = extendedAflossingDTO.reduce((acc, aflossing) =>
+    acc + aflossing.minderDanVerwacht, 0);
 
   const meerDanVerwacht = extendedAflossingDTO.reduce((acc, aflossing) =>
-    acc + (aflossingMoetBetaaldZijn(aflossing.betaalDag) ? 0 : Math.min(aflossing.aflossingBetaling ?? 0, aflossing.aflossingsBedrag)), 0);
+    acc + aflossing.meerDanVerwacht, 0);
 
   const meerDanMaandaflossing = extendedAflossingDTO.reduce((acc, aflossing) =>
-    (acc + Math.max(0, (aflossing.aflossingBetaling ?? 0) - aflossing.aflossingsBedrag)), 0);
+    acc + aflossing.meerDanMaandAflossing, 0);
 
-  const restMaandaflossing = extendedAflossingDTO.reduce((acc, aflossing) =>
-    (acc + (aflossingMoetBetaaldZijn(aflossing.betaalDag) ? 0 : Math.max(0, aflossing.aflossingsBedrag - (aflossing.aflossingBetaling ?? 0)))), 0);
-
+  const restMaandaflossing = maandaflossing - meerDanMaandaflossing - meerDanVerwacht - minderDanVerwacht - betaaldBinnenaflossing
+  ;
 
   const formatAmount = (amount: string): string => {
     return parseFloat(amount).toLocaleString('nl-NL', { style: 'currency', currency: 'EUR' });
@@ -73,7 +77,7 @@ export const AflossingGrafiek = (props: AflossingGrafiekProps) => {
 
   const tabelBreedte = maandaflossing + meerDanMaandaflossing + 5;
 
-  const berekenToestandVastIcoon = (aflossing: ExtendedAflossingDTO): JSX.Element => {
+  const berekenToestandAflossingIcoon = (aflossing: ExtendedAflossingDTO): JSX.Element => {
     if (aflossing.meerDanVerwacht === 0 && aflossing.minderDanVerwacht === 0 && aflossing.meerDanMaandAflossing === 0) {
       if (!aflossing.aflossingMoetBetaaldZijn)
         return <PlusIcon color="#1977d3" height={18} />
@@ -92,6 +96,7 @@ export const AflossingGrafiek = (props: AflossingGrafiekProps) => {
   // console.log('periodeLengte', JSON.stringify(periodeLengte));
   console.log('aflossingen', JSON.stringify(extendedAflossingDTO));
   console.log('maandaflossing', JSON.stringify(maandaflossing));
+  console.log('verwachtOpPeilDatum', JSON.stringify(verwachtOpPeilDatum));
   console.log('betaaldOpPeilDatum', JSON.stringify(betaaldOpPeilDatum));
   console.log('betaaldBinnenaflossing', JSON.stringify(betaaldBinnenaflossing));
   console.log('minderDanVerwacht', JSON.stringify(minderDanVerwacht));
@@ -126,10 +131,12 @@ export const AflossingGrafiek = (props: AflossingGrafiekProps) => {
         <Grid alignItems={'center'}>
           {extendedAflossingDTO.map((aflossing, index) => (
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {berekenToestandVastIcoon(aflossing)}
+              {berekenToestandAflossingIcoon(aflossing)}
               <Typography key={index} variant='body2' sx={{ fontSize: '0.875rem', ml: 1 }}>
-                {aflossing.rekening.naam}: {formatAmount(aflossing.aflossingsBedrag.toString())}, betaaldag {aflossing.betaalDag && dagInPeriode(aflossing.betaalDag, props.periode).format('D MMMM')},&nbsp;
-                waarvan {formatAmount(aflossing.aflossingBetaling?.toString() ?? "nvt")} is betaald; dit is
+                {aflossing.rekening.naam}: {(aflossing.deltaStartPeriode ?? 0) < 0 && ` heeft bij het begin van de periode een betaalachterstand van ${formatAmount((-(aflossing.deltaStartPeriode ?? 0)).toString())}; `}
+                maandbedrag: {formatAmount(aflossing.aflossingsBedrag.toString())}, betaaldag {aflossing.betaalDag && dagInPeriode(aflossing.betaalDag, props.periode).format('D MMMM')},&nbsp;
+                waarvan {formatAmount(aflossing.aflossingBetaling?.toString() ?? "nvt")} is betaald; 
+                dit is 
                 {aflossing.meerDanVerwacht === 0 && aflossing.minderDanVerwacht === 0 && aflossing.meerDanMaandAflossing === 0 && ' zoals verwacht'}
                 {[aflossing.meerDanVerwacht > 0 && ' eerder dan verwacht',
                 aflossing.minderDanVerwacht > 0 && ` ${formatAmount(aflossing.minderDanVerwacht.toString())} minder dan verwacht`,

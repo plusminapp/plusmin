@@ -29,20 +29,20 @@ export default function AflossingTabel(props: AflossingProps) {
               <TableCell align="right" size='small'>Bedrag/maand</TableCell>
               <TableCell align="right" size='small'>Betaaldag</TableCell>
               <TableCell align="left" size='small'>Dossiernummer</TableCell>
-              <TableCell align="right" size='small'>Verwachte restschuld</TableCell>
-              <TableCell align="right" size='small'>Werkelijk restschuld</TableCell>
+              <TableCell align="right" size='small'>Actuele {props.aflossing.actueleAchterstand <= 0 ? 'betaalachterstand' : 'betaalvoorsprong'}</TableCell>
+              <TableCell align="right" size='small'>Actuele restschuld</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell align="left" size='small'>{props.props.aflossing.startDatum.toString()}</TableCell>
+              <TableCell align="left" size='small'>{props.aflossing.startDatum.toString()}</TableCell>
               <TableCell align="left" size='small'>{props.aflossing.eindDatum?.toString()}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.eindBedrag)}</TableCell>
               <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.aflossingsBedrag)}</TableCell>
               <TableCell align="right" size='small'>{props.aflossing.betaalDag}</TableCell>
               <TableCell align="left" size='small'>{props.aflossing.dossierNummer}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.deltaStartPeriode ?? 0)}</TableCell>
-              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.saldoStartPeriode ?? 0)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.actueleAchterstand ?? 0)}</TableCell>
+              <TableCell align="right" size='small'>{currencyFormatter.format(props.aflossing.actueleStand ?? 0)}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell align="left" size='small' colSpan={4} >
