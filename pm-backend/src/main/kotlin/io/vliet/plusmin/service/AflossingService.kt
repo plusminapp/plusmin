@@ -126,7 +126,7 @@ class AflossingService {
                         aflossing,
                         gekozenPeriode.periodeStartDatum.minusDays(1)
                     ) - saldoStartPeriode
-                
+
                 aflossing.toDTO(
                     aflossingPeilDatum = peilDatumAsString,
                     saldoStartPeriode = saldoStartPeriode,

@@ -15,6 +15,7 @@ import { betaalmethodeRekeningSoorten } from "../model/Rekening";
 import BudgetVastGrafiek from "../components/Budget/BudgetVastGrafiek";
 import BudgetInkomstenGrafiek from "../components/Budget/BudgetInkomstenGrafiek";
 import AflossingGrafiek from "../components/Budget/AflossingGrafiek";
+import StandIcon from "../icons/Stand";
 
 export default function Stand() {
 
@@ -125,6 +126,13 @@ export default function Stand() {
                 De laatste betaling die is geregistreerd was op {dayjs(datumLaatsteBetaling).format('D MMMM')}.
                 Wat is zinvol om hier nog extra te tonen???
               </Typography>
+              <StandIcon
+                color="green"
+                borderColor="red"
+                height={100}
+                text="€ 2336"
+                outerText="Inkomsten"
+              />
             </Grid>
             <Grid size={1} direction={'column'} alignItems="start">
               <PeriodeSelect />
